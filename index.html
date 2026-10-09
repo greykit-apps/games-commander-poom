@@ -137,6 +137,8 @@ kbd{font:inherit;color:var(--ui-head)}
 .page .pbody p{margin:0 0 6px}
 .page .pbody table{border-collapse:collapse}
 .page .pbody td{padding:1px 6px 1px 0;vertical-align:top}
+/* a key and its alternative stay on one line; the description wraps instead */
+.page .pbody td:first-child{white-space:nowrap}
 .page .entries{display:flex;flex-direction:column;gap:6px}
 .page .entry{display:flex;gap:8px;align-items:center}
 .page .entry .pic{width:48px;flex:none;display:grid;place-items:center}
@@ -210,6 +212,6 @@ kbd{font:inherit;color:var(--ui-head)}
 <script src="js/books/G.js?v=271fc791"></script>
 <script src="js/books/H.js?v=4ae984c1"></script>
 <script src="js/books/I.js?v=13d9ef6c"></script>
-<script src="js/game.js?v=a4b170ec"></script>
+<script src="js/game.js?v=9282489d"></script>
 </body>
 </html>
