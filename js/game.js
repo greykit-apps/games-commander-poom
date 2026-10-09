@@ -192,7 +192,8 @@ const bookNumber = b => BOOK_IDS.indexOf(b) + 1;
 const POOM_LOOK = { H: "ranger" };
 const ITEM_SET = { H: "wasteland" };
 const MAP_SET = { H: "wasteland" };
-const dressFor = book => { useLook(POOM_LOOK[book] || "classic"); useItems(ITEM_SET[book] || "classic"); mapArt = mapArtSets[MAP_SET[book]] || mapArtSets.classic; };
+const CREATURE_SET = { H: "wasteland" };
+const dressFor = book => { useLook(POOM_LOOK[book] || "classic"); useItems(ITEM_SET[book] || "classic"); useCreatures(CREATURE_SET[book] || "classic"); mapArt = mapArtSets[MAP_SET[book]] || mapArtSets.classic; };
 const THEME_OF = { A: "hiss", B: "garden", C: "fort", D: "ice", E: "hiss", F: "garden", G: "fort", H: "ice", I: "hiss" };
 /* A level's own tileset, by its type (docs/story/book-1-story.md). Vault 9,
  * the frozen one, is H09, H11 and H17; the raider camps are H04, H08 (Fort
@@ -298,6 +299,16 @@ function loadLevel(n) {
     else if (GEM_CH[c] !== undefined) { lv.items.push({ kind: "gem", gem: GEM_CH[c], x: px, y: py, t: 0 }); rows[y][x] = airOf(x, y); }
     else if (c === "*") { lv.items.push({ kind: "part", part: def.part, x: px, y: py, t: 0 }); rows[y][x] = airOf(x, y); }
     else if ("xBVTKW".includes(c)) { lv.ents.push(makeEnemy(c, px, py + T)); rows[y][x] = airOf(x, y); }
+  }
+  /* the books' creatures and turrets, from the map's things */
+  const kinds = ENEMY_OF[def.book];
+  if (kinds) for (const [x, y, g, name] of def.things || []) {
+    if (g === "e") { const t = kinds[(/enemy type (\d+)/.exec(name) || [])[1]]; if (t) lv.ents.push(makeEnemy(t, x * T, y * T + T)); }
+    if (g === "G") {
+      const e = makeEnemy("G", x * T, y * T + T), d = TURRET_DIR[(/turret \(([\w-]+)\)/.exec(name) || [])[1]] || [1, 0];
+      e.aim = d; e.face = d[0] < 0 ? -1 : 1; e.vx = 0;
+      lv.ents.push(e);
+    }
   }
   /* Exit doors: each connected group of exit tiles is one door. Walking
    * into any of its tiles finishes the level; it is drawn standing on the
@@ -982,7 +993,19 @@ const ENEMY = {
   T: { w: 13, h: 8, hp: Infinity, art: "roombot", points: 0, speed: 28 / 32 },
   K: { w: 13, h: 10, hp: Infinity, art: "tank", points: 0, speed: 28 / 32 },
   W: { w: 28, h: 56, hp: 10, art: "boss", points: 5000, speed: 0.9, scale: 2 },
+  /* the books': a lieutenant walks and jumps like a vacuumoid but takes five
+     shots; a turret is fixed, can't be hurt, and fires along its barrel */
+  L: { w: 14, h: 28, hp: 5, art: "lieut", points: 1000, speed: 28 / 32 },
+  G: { w: 12, h: 10, hp: Infinity, art: "turret", points: 0, speed: 0 },
 };
+
+/* Which engine creature each book's numbered enemy types are
+ * (docs/story/book-1-story.md): Book 1's Glowmice (01) push like mousels,
+ * scrap hounds (02) charge like barkers, Scrappers (04) are vacuumoids,
+ * Sentrybots (05) shove like roombots, the lieutenants (03) are L. Turrets
+ * are G in every book. Books not listed have no enemies yet. */
+const ENEMY_OF = { H: { "01": "x", "02": "B", "03": "L", "04": "V", "05": "T" } };
+const TURRET_DIR = { "up-left": [-1, -1], "up-right": [1, -1], up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
 
 function makeEnemy(c, x, bottom) {
   const d = ENEMY[c];
@@ -1018,7 +1041,16 @@ function updateEnemy(lv, e) {
       }
       break;
     }
-    case "V": case "W": {
+    case "G": {
+      /* a turret: every so often, when Poom is near, a shot along the barrel */
+      if (e.t % 100 === 0 && Math.abs(dxp) < 220 && Math.abs(dyp) < 160 && p.state === "play") {
+        const [ax, ay] = e.aim, n = Math.hypot(ax, ay) || 1;
+        lv.shots.push({ kind: "hairball", x: e.x + e.w / 2 + ax * 7 - 3, y: e.y + ay * 7, w: 6, h: 6, vx: 2.4 * ax / n, vy: 2.4 * ay / n, t: 0 });
+        sfx("tank");
+      }
+      return;
+    }
+    case "V": case "W": case "L": {
       const sp = e.speed;
       if (sees || e.type === "W" && Math.abs(dxp) < 200) e.vx = sp * Math.sign(dxp || 1) * (e.type === "W" ? 1.2 : 1);
       /* a vorticon's jump: 90 to 150 sub-units a tick, at random */
@@ -1049,7 +1081,7 @@ function updateEnemy(lv, e) {
   }
 
   if (e.vx) e.face = Math.sign(e.vx);
-  e.vy = Math.min(e.vy + KP.gravity, e.type === "V" || e.type === "W" ? 6 : KP.maxFall);
+  e.vy = Math.min(e.vy + KP.gravity, e.type === "V" || e.type === "W" || e.type === "L" ? 6 : KP.maxFall);
   const hit = moveBody(lv, e, true);
   if (hit.left || hit.right) {
     if (e.type === "B" && e.state === "charge") { e.state = "walk"; e.t = 0; }
@@ -1087,7 +1119,7 @@ function hurtEnemy(lv, e, shot) {
 function updateShots(lv) {
   for (const s of lv.shots) {
     s.t++;
-    s.x += s.vx;
+    s.x += s.vx; s.y += s.vy || 0;
     const c = tileAt(lv, Math.floor((s.x + s.w / 2) / T), Math.floor((s.y + s.h / 2) / T));
     if (isSolid(c) || s.t > 120) { s.gone = true; lv.fx.push({ kind: "poof", x: s.x - 2, y: s.y - 2, t: 0 }); continue; }
     if (s.mine) {
@@ -1421,13 +1453,13 @@ function drawPlayer(p, cx, cy) {
 
 function drawEnemy(e, cx, cy) {
   /* mousels and vacuumoids are drawn facing left, the rest facing right */
-  const drawnLeft = e.type === "x" || e.type === "V" || e.type === "W";
+  const drawnLeft = e.type === "x" || e.type === "V" || e.type === "W" || e.type === "L";
   const set = ART[ENEMY[e.type].art], dir = (e.face > 0) !== drawnLeft ? "r" : "l", f = (e.t >> 3) % 2;
   let k;
   switch (e.type) {
     case "x": k = e.state === "stunned" ? "stunned" : e.state === "look" ? "look" : f ? "walk1" : "walk0"; break;
     case "B": k = e.state === "charge" || e.state === "growl" ? "charge" : f ? "walk1" : "walk0"; break;
-    case "V": case "W": k = !e.onGround ? "jump" : (e.t >> 4) % 2 ? "walk1" : "walk0"; break;
+    case "V": case "W": case "L": k = !e.onGround ? "jump" : (e.t >> 4) % 2 ? "walk1" : "walk0"; break;
     default: k = f ? "b" : "a";
   }
   const spr = set[k][dir], sc = e.scale || 1;
@@ -1846,7 +1878,7 @@ function recordScore(score, done) {
 
 function openTitle() {
   UI.clear();
-  useLook("classic"); useItems("classic"); mapArt = mapArtSets.classic;
+  useLook("classic"); useItems("classic"); useCreatures("classic"); mapArt = mapArtSets.classic;
   G.mode = "title"; G.lv = null; mapLabel("");
   const saved = store.get(KEYS.save, null);
   showLogo();

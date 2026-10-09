@@ -66,7 +66,7 @@ const NEEDS = {
   "/": "slopes rising right", "\\": "slopes falling right", i: "ice / slippery floor", "<": "conveyor left", ">": "conveyor right",
   S: "switches (bridge and platform switches)", Q: "teleporters (world maps)", j: "key sockets (and the doors they open: 5 6 7 8)", H: "hint triggers", D: "warp doors",
   d: "locked doors (colour absent from the source)", q: "keycards with no stated colour", u: "2000-point pickup (medal)",
-  w: "swim ability", "!": "objective items (collected, or shot)", e: "enemies (per-type behaviour)", G: "turrets / emitters",
+  w: "swim ability", "!": "objective items (collected, or shot)", e: "enemies (per-type behaviour: ENEMY_OF in game.js; Book 1 only so far)", G: "turrets / emitters",
   N: "NPCs / rescue targets", M: "moving platforms (paths, dropping, sneaky)", Z: "special objects", l: "world-map level entrances",
 };
 
@@ -209,7 +209,7 @@ function convert(d) {
 }
 
 /* the ones game.js handles; keep in step with it */
-const DONE = new Set(["/", "\\", "i", "<", ">", "d", "q", "u", "l", "!", "D", "j", "S", "M", "Q", "w"]);
+const DONE = new Set(["/", "\\", "i", "<", ">", "d", "q", "u", "l", "!", "D", "j", "S", "M", "Q", "w", "e", "G"]);
 
 fs.mkdirSync(OUT, { recursive: true });
 const report = [];

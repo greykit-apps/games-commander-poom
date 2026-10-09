@@ -37,7 +37,7 @@ function sprite(rows, { outline = true, swap = null, pal = null } = {}) {
     if (pal && pal[ch]) { grid[y + pad][x + pad] = pal[ch]; return; }
     let v = EXTRA.includes(ch) ? 16 + EXTRA.indexOf(ch) : parseInt(ch, 16);
     if (Number.isNaN(v)) return;
-    if (swap && swap[v] !== undefined) v = swap[v];
+    if (swap && swap[v] !== undefined) v = swap[v];   /* an index, or any CSS colour */
     grid[y + pad][x + pad] = v;
   }));
   if (outline) {
@@ -409,6 +409,9 @@ const RANGER_HEAD_OUT = [
   ".oooppppppqqo.",
   "..ooppppppoqqo",
 ];
+
+/* the creatures the game draws come from the set in use */
+function useCreatures(name) { Object.assign(ART, ART.creatureSets[name] || ART.creatureSets.classic); }
 
 /* the items the game draws come from the set in use */
 function useItems(name) {
@@ -793,6 +796,112 @@ const CLAWTANK = {
   ],
 };
 
+/* The wasteland's creatures (Book 1), after docs/story/book-1-story.md.
+ * Glowmice and scrap hounds are the mousel and barker recoloured; the
+ * Sentrybot is the roombot gone to rust; the Scrapper, a raider dog in
+ * scrap armour, is drawn new, facing left like the vacuumoid it stands in
+ * for; a lieutenant is a Scrapper in red with a gold crest; the auto-turret
+ * is new. Full colour. */
+const GLOWMOUSE_SWAP = { 7: "#7e9a6c", 13: "#ff9ac0", 15: "#d8ff9a", 0: "#2a5a1a", 10: "#5ed27a", 14: "#d8ff9a" };
+const HOUND_SWAP = { 12: "#8c5a34", 4: "#4a2a18", 15: "#f0ead8", 0: "#ff3b2f" };
+const SENTRY_SWAP = { 7: "#6c7076", 11: "#ff3b2f", 3: "#c8261c", 8: "#3e444b", 14: "#ffb020", 0: "#1c130c" };
+const SCRAPPER_PAL = {
+  f: "#8a6a48", F: "#b08a62", d: "#5a4430", n: "#1a1a1a", e: "#ff3b2f", t: "#f0ead8",
+  a: "#5c636b", A: "#8a929b", k: "#2b2f34", r: "#9a4b22", s: "#c4ccd5",
+  c: "#4a4d40", C: "#6a6e5c", b: "#2a1a0e", m: "#c8302a", p: "#7a3a1c", P: "#b8622b",
+};
+/* a lieutenant: the same, armour red, crest gold */
+const LIEUT_PAL = { ...SCRAPPER_PAL, a: "#8a1e18", A: "#d0402c", k: "#4a0e0a", m: "#f2cf3e", c: "#2e2016", C: "#4e3826" };
+const SCRAPPER_TOP = [
+  "........mm..........",
+  ".......mmmm.........",
+  ".....dFffffdd.......",
+  "....dFffffffddd.....",
+  "...nFfeFffffffddd...",
+  "..nnFffffffffd.dd...",
+  "..nttffffffffd.dd...",
+  "...ddffffffffd..d...",
+  ".....dffffffd.......",
+  "...sAAAAAAAAAAs.....",
+  "..sAaaaaaaaaaaAs....",
+  "...AakkaaaaaraA.....",
+  "..fAaaaaaaaaaaAf....",
+  "..fAaarraaaaaaAfP...",
+  "..fAaaaaaaaaaaAfp...",
+  "..dkkkkkkkkkkkkdp...",
+  "....cccccccccc..p...",
+  "....cCcccccccc..p...",
+  "....cccccccccc......",
+];
+const SCRAPPER_LEGS = {
+  walk0: [
+    "....ccc....ccc......",
+    "...ccc......ccc.....",
+    "...cc........cc.....",
+    "..ccc........ccc....",
+    "..cc..........cc....",
+    ".bbbb........bbbb...",
+    ".bbbb........bbbb...",
+    "....................",
+    "....................",
+    "....................",
+  ],
+  walk1: [
+    ".....ccc..ccc.......",
+    ".....ccc..ccc.......",
+    "......cc..cc........",
+    "......cc..cc........",
+    "......cc..cc........",
+    ".....bbbb.bbbb......",
+    ".....bbbb.bbbb......",
+    "....................",
+    "....................",
+    "....................",
+  ],
+  jump: [
+    "...ccc......ccc.....",
+    "..ccc........ccc....",
+    ".ccc..........ccc...",
+    "bbbb..........bbbb..",
+    "bbb............bbb..",
+    "....................",
+    "....................",
+    "....................",
+    "....................",
+    "....................",
+  ],
+};
+const SCRAPPER = Object.fromEntries(Object.entries(SCRAPPER_LEGS).map(([k, legs]) => [k, SCRAPPER_TOP.concat(legs)]));
+/* an auto-turret: a riveted mount and a barrel pointing up and right, a
+   red lamp; flipped for left */
+const TURRET_PAL = { a: "#535f6c", A: "#95a1ae", k: "#1c222a", s: "#c4ccd5", r: "#ff3b2f", R: "#ffc0b8" };
+const TURRET = {
+  a: [
+    "..........ss",
+    "........sAs.",
+    "......sAAs..",
+    "....sAAAs...",
+    "...aAAAa....",
+    "..aaaaaaa...",
+    ".aaarRaaaa..",
+    ".akkkkkkka..",
+    "akAkkkkkAka.",
+    "aaaaaaaaaaa.",
+  ],
+  b: [
+    "..........ss",
+    "........sAs.",
+    "......sAAs..",
+    "....sAAAs...",
+    "...aAAAa....",
+    "..aaaaaaa...",
+    ".aaakkaaaa..",
+    ".akkkkkkka..",
+    "akAkkkkkAka.",
+    "aaaaaaaaaaa.",
+  ],
+};
+
 /* ------------------------------------------------------------------ */
 /* Things to pick up                                                     */
 
@@ -1085,7 +1194,7 @@ const STAR = ["E", ".", "E"];
 /* ------------------------------------------------------------------ */
 /* Build                                                                 */
 
-const ART = { looks: {}, poom: {}, map: {}, mousel: {}, barker: {}, vac: {}, boss: {}, roombot: {}, tank: {}, items: {}, gems: [], parts: [] };
+const ART = { looks: {}, poom: {}, map: {}, mousel: {}, barker: {}, vac: {}, boss: {}, roombot: {}, tank: {}, lieut: {}, turret: {}, items: {}, gems: [], parts: [] };
 
 function both(c) { return { r: c, l: flipped(c) }; }
 
@@ -1116,6 +1225,19 @@ function buildArt() {
   for (const [k, g] of Object.entries(VACUUMOID)) ART.boss[k] = both(sprite(g, { swap: { 5: 4, 13: 14, 7: 12, 8: 6 } }));
   for (const [k, g] of Object.entries(ROOMBOT)) ART.roombot[k] = both(sprite(g));
   for (const [k, g] of Object.entries(CLAWTANK)) ART.tank[k] = both(sprite(g));
+  /* creature sets: classic, and the wasteland */
+  const classicCreatures = { mousel: ART.mousel, barker: ART.barker, vac: ART.vac, boss: ART.boss, roombot: ART.roombot, tank: ART.tank, lieut: ART.boss, turret: ART.tank };
+  const each = (src, f) => Object.fromEntries(Object.entries(src).map(([k, g]) => [k, both(f(g))]));
+  const wasteCreatures = {
+    mousel: each(MOUSEL, g => sprite(g, { swap: GLOWMOUSE_SWAP })),
+    barker: each(BARKER, g => sprite(g, { swap: HOUND_SWAP })),
+    vac: each(SCRAPPER, g => sprite(g, { pal: SCRAPPER_PAL })),
+    lieut: each(SCRAPPER, g => sprite(g, { pal: LIEUT_PAL })),
+    roombot: each(ROOMBOT, g => sprite(g, { swap: SENTRY_SWAP })),
+    tank: ART.tank, boss: ART.boss,
+    turret: each(TURRET, g => sprite(g, { pal: TURRET_PAL })),
+  };
+  ART.creatureSets = { classic: classicCreatures, wasteland: wasteCreatures };
   /* item sets: classic, and the wasteland over it */
   const classic = { items: {}, gems: GEM_SWAPS.map(s => sprite(GEM, { swap: s })) };
   for (const [k, g] of Object.entries(ITEMS)) classic.items[k] = sprite(g);

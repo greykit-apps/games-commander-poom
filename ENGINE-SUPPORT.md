@@ -34,8 +34,8 @@ Glyphs marked "no" are air until the engine learns them.
 | `u` | 2000-point pickup (medal) | yes | 235 |
 | `w` | swim ability | yes | 2 |
 | `!` | objective items (collected, or shot) | yes | 52 |
-| `e` | enemies (per-type behaviour) | no | 2943 |
-| `G` | turrets / emitters | no | 279 |
+| `e` | enemies (per-type behaviour: ENEMY_OF in game.js; Book 1 only so far) | yes | 2943 |
+| `G` | turrets / emitters | yes | 279 |
 | `N` | NPCs / rescue targets | no | 21 |
 | `M` | moving platforms (paths, dropping, sneaky) | yes | 656 |
 | `Z` | special objects | no | 38 |

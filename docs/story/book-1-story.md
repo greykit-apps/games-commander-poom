@@ -83,6 +83,8 @@ map onto them neatly, which would let the engine reuse what it has.
 
 Junk Baron Rex himself never appears in Book 1: he's for later.
 
+**Made**: the `wasteland` creature set in js/art.js (sheet in docs/art/wasteland-creatures.png), and `ENEMY_OF` in game.js gives each type its behaviour. The lieutenants are their own engine type (L): they walk and jump like Scrappers and take five shots. Turrets (G) are fixed and fire along their barrel when Poom is near.
+
 ## The tilesets to make
 
 Tilesets may use the full VGA palette, not just the original game's sixteen colours: all three level sets do. Sheets of every tile are in docs/art/.
