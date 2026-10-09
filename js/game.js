@@ -1804,7 +1804,46 @@ const CONTROLS = `<table>
 <p>Too fast, or too slow? Settings &rarr; <b>Game speed</b>: Classic, Keen&rsquo;s own pace, or Relaxed. The levels are the same at every speed.</p>
 <p>The game saves itself whenever you are on the map. Dying sends you back to the map, and you lose whatever you picked up in that level.</p>`;
 
+/* The words of a book: its story, its first word on the map, and its help
+ * pages. Book 1's, the wasteland, from docs/story/book-1-story.md; other
+ * books have the original game's until they have their own. */
+const BOOK_TEXT = {
+  H: {
+    story: `<p>Commander Poom points the <b>Catamaran</b> at the stars. A meteor shower knocks out the Yarn Drive, and he comes down hard in <b>the Glow</b>: the wasteland left behind by a war the cats and dogs should never have fought.</p>
+<p>Before the engines have stopped ticking, the <b>Scrappers</b>, a raider gang who strip anything that falls from the sky, have hauled off four of the ship's parts.</p>
+<p>Their boss, <b>Junk Baron Rex</b>, gave one to each of his four lieutenants, and each locked it away on their own turf: two in the old underground <b>Vaults</b>, one in <b>Fort Scrap</b>, one in the ruins of <b>Old Litterburg</b>.</p>
+<p>Cross the Glow, get past the locks, take the parts back and bolt them into the Catamaran before the Scrappers come back for the rest. And keep an ear on the radio: <b>Auntie Static</b> seems to know things.</p>`,
+    arrive: "This is the Glow. Walk up to a place and press <kbd>Ctrl</kbd>, <kbd>Z</kbd> or <kbd>Space</kbd> to go in.<br><br><kbd>Esc</kbd> pauses; <kbd>Enter</kbd> shows your status.",
+    map: `<p>On the map, walk up to a place and press jump or fire to go in. A place you haven't cleared blocks the road; a banner marks the ones you have. Jump or fire at a <b>Tube station</b> to ride to the other end. Take the ship's parts back to the <b>Catamaran</b>, where you came down.</p>`,
+    creatures: () => { const C = ART.creatureSets.wasteland; return [
+      [C.mousel.walk0.r, "Glowmouse", "A mutant mouse: harmless, nosy and pushy. Jump on one to stun it for a while."],
+      [C.barker.walk0.r, "Scrap hound", "The Scrappers' dogs. They charge the moment they see you. One shot."],
+      [C.vac.walk0.r, "Scrapper", "The raiders, in scrap armour. Deadly to touch, and it takes four shots."],
+      [C.lieut.walk0.r, "Lieutenant", "Rex's lieutenants, one guarding each stolen part. Deadly, and it takes five shots."],
+      [C.roombot.a.r, "Sentrybot", "Vault security, rewired by the Scrappers. Can't be hurt. It shoves."],
+      [C.turret.a.r, "Auto-turret", "Fixed in place, firing along its barrel when you come near. Can't be hurt."],
+    ]; },
+    items: () => { const I = ART.itemSets.wasteland; return [
+      [I.items.fish, "Caps, tuna, clean water, Sunny Snax, a medal, a trophy", "100, 200, 500, 1000, 2000 and 5000 points. An extra life every 20,000."],
+      [I.items.ammo, "Energy cell", "Five shots for the raygun."],
+      [I.items.life, "Poom bobblehead", "An extra life. Nobody knows why the Glow is full of them."],
+      [I.gems[0], "Vault keycards", "Open the door of the same colour, in this level."],
+      [ART.parts[0], "Ship parts", "Four, each in a lieutenant's strongroom. Take them to the Catamaran."],
+    ]; },
+  },
+};
+/* the book the help is about: the one being played, or Book 1 */
+const textBook = () => BOOK_TEXT[(G.run && G.run.book) || BOOK_IDS[0]];
+
 function openHelp() {
+  const B = textBook();
+  if (B) return page("Help", [
+    ["Story", B.story],
+    ["Controls", CONTROLS.replace(/<p>On the map[\s\S]*?<\/p>/, B.map)],
+    ["Creatures", spriteRow(B.creatures())],
+    ["Items", spriteRow(B.items())],
+    ["About", ABOUT],
+  ]);
   page("Help", [
     ["Story", STORY],
     ["Controls", CONTROLS],
@@ -1921,10 +1960,11 @@ function levelTitle(name) { showLogo(name); fadeLogo(2000); }
 
 function story() {
   G.mode = "story";
-  const pages = STORY.split("</p>").map(s => s.replace("<p>", "").trim()).filter(Boolean);
+  const B = textBook();
+  const pages = (B ? B.story : STORY).split("</p>").map(s => s.replace("<p>", "").trim()).filter(Boolean);
   let i = 0;
   const next = () => {
-    if (i >= pages.length) { enterMap(); saveRun(); message("This is Planet Hiss. Walk to a level and press <kbd>Ctrl</kbd>, <kbd>Z</kbd> or <kbd>Space</kbd> to go in.<br><br><kbd>Esc</kbd> pauses; <kbd>Enter</kbd> shows your status."); return; }
+    if (i >= pages.length) { enterMap(); saveRun(); message(B ? B.arrive : "This is Planet Hiss. Walk to a level and press <kbd>Ctrl</kbd>, <kbd>Z</kbd> or <kbd>Space</kbd> to go in.<br><br><kbd>Esc</kbd> pauses; <kbd>Enter</kbd> shows your status."); return; }
     message(pages[i++], { onClose: next });
   };
   next();
