@@ -129,6 +129,11 @@ const TELE_TO_LEVEL = { H01: [[46, "H14"]] };
  * only way to H15, on its island; the map maker can confirm. */
 const SECRET_EXITS = { H14: "H15" };
 
+/* The ship on an E1 world map: the object the map numbers 20 (on H01, by
+ * the start). Recorded as ship: [x, y], its left tile; walkable. Its parts
+ * are the E1 objective items, types 01-04. */
+const SHIP = { H01: 20 };
+
 function convert(d) {
   const at = new Map();
   for (const e of d.entities) at.set(e.x + "," + e.y, e);
@@ -184,12 +189,19 @@ function convert(d) {
     links.push([t[0], t[1], e[0], e[1], "door"]);
     asTele(t);
   }
+  let ship = null;
+  if (SHIP[d.map]) {
+    const tiles = things.filter(t => t[3] === "entrance to unlisted map " + SHIP[d.map]);
+    if (!tiles.length) throw new Error(`${d.map}: no ship (object ${SHIP[d.map]})`);
+    for (const t of tiles) { rows[t[1]] = rows[t[1]].slice(0, t[0]) + "." + rows[t[1]].slice(t[0] + 1); t[2] = "."; t[3] = "ship"; }
+    ship = [Math.min(...tiles.map(t => t[0])), Math.min(...tiles.map(t => t[1]))];
+  }
   const { sockets, bridges, pswitches } = switchesOf(d, rows);
   /* a level whose player starts swimming is under water throughout */
   const swim = d.entities.some(e => e.kind === "player" && /swimming/.test(e.name));
   const secret = SECRET_EXITS[d.map];
   if (secret && !rows.some(r => r.includes("Q"))) throw new Error(`${d.map}: a secret exit to ${secret} but no teleporter`);
-  return { id: d.map, kind: d.kind, engine: d.engine, w: d.width, h: d.height, completion: d.completion, notes: d.notes, rows, things, marks, links, ends, sockets, bridges, pswitches, ...(swim ? { swim } : {}), ...(secret ? { secret } : {}) };
+  return { id: d.map, kind: d.kind, engine: d.engine, w: d.width, h: d.height, completion: d.completion, notes: d.notes, rows, things, marks, links, ends, sockets, bridges, pswitches, ...(swim ? { swim } : {}), ...(secret ? { secret } : {}), ...(ship ? { ship } : {}) };
 }
 
 /* the ones game.js handles; keep in step with it */
@@ -256,6 +268,7 @@ Further notes:
 - Moving platforms (\`M\`, kind from \`things\`): two tiles wide, stood on from above, jumped through from below, and they carry their rider; down + jump drops off one. *Fixed-direction* and the E1 *horizontal/vertical* ones go to and fro at 1 px a tick, turning back when their own (top-left) tile reaches a \`Platform blocker\` mark or their leading edge meets a wall. *Arrow-guided* ones take the direction of the \`Platform path arrow\` on each tile they reach, and wait at a blocker; a platform's own starting tile holds no arrow in the source (one object a cell), so its start direction stands in. 129 of 135 come back round to their start. *Dropping* ones sink under a rider and rise back when left; *sneaky* ones slide two tiles away when Poom jumps at them and drift back; *static* ones stay put. Platform switches (\`pswitches\`, ↑ at the switch) toggle the blocker or arrow at their target.
 - Teleporters (\`Q\`) are world-map things: 35 of the 37 are on the maps of books A, B, F and G. Standing on one with a link, jump or fire goes to its target (the open tile nearest it, if the target is blocked); it is a press, not a touch, because most targets are themselves teleporters. The unlinked ones (A01 and G01's top rows, and two in level H14) are drawn and do nothing.
 - Swimming: the swim ability (\`w\`, in E10 and I10, where collecting it also ends the level) lets Poom swim for the rest of that book. On the world maps, \`~\` shoreline is water: it blocks him until he can swim, which is what keeps E16–E18 and I08, I18 out of reach. Levels whose player starts swimming (\`swim: true\`: E18, I17, I18) are under water throughout: Poom moves freely in all four directions, drifts, sinks slowly, strokes up with jump, and has no pogo or raygun.
+- The ship (\`ship\` on a world map, from \`SHIP\`): Book H's map has one, by the start. Its four parts are the E1 objective items (types 01–04, in H05, H04, H09, H17); picked up, they go with Poom until he takes them to the ship, and with all four aboard the book is done. A book with a ship ends there, not by finishing every level.
 - Secret exits (\`secret\` on a level, from \`SECRET_EXITS\`): touching the level's in-level teleporter (\`Q\`) finishes it and starts the secret level, which isn't needed to finish the book. H14's teleporter leads to H15; afterwards Poom is on H15's island, whose teleporter (46) takes him back to H14.
 - E1 world maps (books C, D, H) number their objects instead of linking them: 1–16 are levels; the rest are the map's own (on H01: 20, by the start, probably the ship; 38, 41 and 46, teleporters). An unfinished level there is a wall, and Poom enters it by walking up to it; done, it is open ground. That is what orders Book H: H02, then H03–H08, then H09–H17. The data gives no teleporter targets: \`TELE_PAIRS\` in game.js pairs H01's 38 and 41, the only way from its start region to its main one. 46 is on an island with H15, Book H's secret level, and waits for the map maker.
 - The ledge (\`-\`), pole (\`|\`) and spikes (\`^\`) are used as the engine already has them.

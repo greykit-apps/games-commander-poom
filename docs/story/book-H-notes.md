@@ -20,9 +20,9 @@ unfinished level is a wall: Poom can't walk past one until it is done.
   through, H09–H14, H16 and H17 are all open, in any order. So the story
   can count on H02 and H08 being done before the second half, and on
   nothing else.
-- **No finale level.** Every level ends through an exit door; none ends on an
-  objective or a rescue. The ending (H18) has to be earned some other way:
-  see the four items below.
+- **No finale level: the ship is the finale.** Every level ends through an
+  exit door; none ends on an objective or a rescue. The book ends when the
+  four items below are back aboard the ship, whichever levels are done.
 
 ## What the story has to supply
 
@@ -30,11 +30,16 @@ unfinished level is a wall: Poom can't walk past one until it is done.
   types 01–04, in that order). Each sits behind a coloured key door, and
   none of them ends its level. Four of something, scattered across the book
   and needed for the end, is exactly the shape of the original game's story:
-  the four stolen parts of Poom's ship. Nothing in the engine requires them
-  yet; the script decides what they are and what having all four does.
-- **A ship, maybe.** Right beside Poom's start on the map is an object the
-  map numbers 20, which in this engine is typically the player's ship. If
-  the four items are ship parts, this is where they go back.
+  the four stolen parts of Poom's ship, and that is how the game now plays
+  them: each is a ship part, Poom carries what he finds (and loses it if he
+  dies before finishing that level), and the book is done when he has taken
+  all four back to the ship. For now they use the original game's names and
+  pictures: the Yarn Drive, Catnip Battery, Whisker Antenna and Laser
+  Pointer, and the ship is the Catamaran. The script decides what they
+  really are.
+- **The ship.** Right beside Poom's start on the map is the object the map
+  numbers 20; the game draws the ship there. Poom can visit it any time: it
+  takes the parts he has and says what's still missing.
 - **Seven hint signs, and the levels built around them.** H03 and H07 are
   story rooms: a short climb with no enemies and no pickups, ending at a sign
   right beside the exit. H10, H11, H12 and H13 are small levels with the sign

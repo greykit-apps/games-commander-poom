@@ -174,7 +174,7 @@ const G = {
 };
 
 function newRun() {
-  return { score: 0, nextLife: 20000, lives: 4, ammo: 0, pogo: true, parts: [false, false, false, false],
+  return { score: 0, nextLife: 20000, lives: 4, ammo: 0, pogo: true, parts: [false, false, false, false], aboard: [false, false, false, false],
     book: BOOK_IDS[0], done: {}, mx: null, my: null, swim: false };
 }
 
@@ -218,6 +218,7 @@ for (const b of BOOK_IDS) {
    * 1-16 are levels, the rest the map's own things. An unfinished level
    * there is a wall: Poom walks up to it to go in. */
   W_.e1 = w.engine === "E1";
+  W_.ship = w.ship || null;
   WORLDS[b] = W_;
 }
 const world = () => WORLDS[G.run.book];
@@ -267,7 +268,13 @@ function loadLevel(n) {
     if (c === "P") { lv.p = makePlayer(px + 2, py + T - 22); rows[y][x] = airOf(x, y); }
     else if (c === "E") { lv.exitAt[x + "," + y] = true; rows[y][x] = "."; }
     else if (c === "X") { lv.edge.add(x + "," + y); rows[y][x] = "."; }
-    else if (c === "!" || c === "w") { lv.items.push({ kind: c === "!" ? "objective" : "swim", part: lv.items.length % 4, x: px, y: py, t: 0 }); rows[y][x] = airOf(x, y); }
+    else if (c === "!" || c === "w") {
+      /* in a book with a ship, objective types 01-04 are its four parts */
+      const th = (def.things || []).find(t => t[0] === x && t[1] === y && t[2] === "!"), type = th && +(/objective type (\d+)/.exec(th[3]) || [])[1];
+      if (c === "!" && WORLDS[def.book].ship && type >= 1 && type <= 4) lv.items.push({ kind: "part", part: type - 1, x: px, y: py, t: 0 });
+      else lv.items.push({ kind: c === "!" ? "objective" : "swim", part: lv.items.length % 4, x: px, y: py, t: 0 });
+      rows[y][x] = airOf(x, y);
+    }
     else if (ITEM_CH[c]) { lv.items.push({ kind: ITEM_CH[c], x: px, y: py, t: Math.random() * 60 | 0 }); rows[y][x] = airOf(x, y); }
     else if (GEM_CH[c] !== undefined) { lv.items.push({ kind: "gem", gem: GEM_CH[c], x: px, y: py, t: 0 }); rows[y][x] = airOf(x, y); }
     else if (c === "*") { lv.items.push({ kind: "part", part: def.part, x: px, y: py, t: 0 }); rows[y][x] = airOf(x, y); }
@@ -923,7 +930,7 @@ function collect(lv, it) {
   else if (it.kind === "part") {
     r.parts[it.part] = true; sfx("bigitem"); addScore(1000);
     const have = r.parts.filter(Boolean).length;
-    message(`<b>You found ${PART_NAMES[it.part]}!</b><br><br>${have === 4 ? "That's all four. Back to the Catamaran!" : `${have} of 4 ship parts. Find the exit.`}`, { icon: ART.parts[it.part] });
+    message(`<b>You found ${PART_NAMES[it.part]}!</b><br><br>${have === 4 ? "That's all four. Back to the Catamaran!" : `${have} of 4 ship parts. Get it back to the Catamaran.`}`, { icon: ART.parts[it.part] });
   }
 }
 
@@ -1122,20 +1129,49 @@ function finishLevel() {
     startLevel(secret);
     return;
   }
-  /* the whole book done: on to the next, or the end */
-  if (world().need.every(id => r.done[id])) {
-    const next = BOOK_IDS[BOOK_IDS.indexOf(r.book) + 1];
-    if (!next) { ending(); return; }
-    const was = r.book;
-    r.book = next; r.mx = r.my = null; r.swim = false;
-    enterMap();
-    saveRun();
-    message(`<b>Book ${bookNumber(was)} is done!</b><br><br>On to Book ${bookNumber(next)}.`);
-    return;
-  }
+  /* the whole book done: on to the next, or the end. A book with a ship
+     ends at the ship instead */
+  if (!world().ship && world().need.every(id => r.done[id])) { bookDone(); return; }
   enterMap();
   saveRun();
   if (Object.values(world().barrier).includes(n)) setTimeout(() => toast("Somewhere on the map, the way opens."), 300);
+}
+
+function bookDone() {
+  const r = G.run, next = BOOK_IDS[BOOK_IDS.indexOf(r.book) + 1];
+  if (!next) { ending(); return; }
+  const was = r.book;
+  r.book = next; r.mx = r.my = null; r.swim = false;
+  r.parts = [false, false, false, false]; r.aboard = [false, false, false, false];
+  enterMap();
+  saveRun();
+  message(`<b>Book ${bookNumber(was)} is done!</b><br><br>On to Book ${bookNumber(next)}.`);
+}
+
+/* the ship: Poom brings back what he's found; with all four parts aboard,
+ * the book is done */
+function boardShip() {
+  const r = G.run;
+  if (!r.aboard) r.aboard = [false, false, false, false];
+  const brought = r.parts.map((h, i) => h && !r.aboard[i] ? i : -1).filter(i => i >= 0);
+  brought.forEach(i => { r.aboard[i] = true; });
+  if (r.aboard.every(Boolean)) {
+    sfx("done");
+    saveRun();
+    message(`<b>The Catamaran is whole again!</b>${brought.length ? `<br><br>Poom bolts in ${PART_NAMES[brought[brought.length - 1]]}.` : ""}`, { iconRow: r.aboard, onClose: bookDone });
+    return;
+  }
+  const missing = r.aboard.map((h, i) => h ? null : PART_NAMES[i]).filter(Boolean);
+  const list = missing.join(", ").replace(/, ([^,]*)$/, " and $1");
+  if (brought.length) { sfx("bigitem"); saveRun(); }
+  else sfx("nope");
+  message(`<b>The Catamaran</b><br><br>${brought.length ? `Poom fits ${brought.map(i => PART_NAMES[i]).join(" and ")}. ` : ""}It still won't fly without ${list}.`, { iconRow: r.aboard });
+}
+function onShip(p) {
+  const s = world().ship;
+  if (!s) return false;
+  const tx = Math.floor((p.x + p.w / 2) / T), ty = Math.floor((p.y + p.h / 2) / T);
+  return ty === s[1] && (tx === s[0] || tx === s[0] + 1);
 }
 
 function loseLife() {
@@ -1225,6 +1261,7 @@ function updateMap() {
     if (G.run.done[here]) { toast(`${levelName(here)}: done.`); sfx("nope"); }
     else { saveRun(); startLevel(here); }
   }
+  if (!here && onShip(p) && (wasPressed("jump") || wasPressed("fire"))) boardShip();
   const tele = world().tele[ctx_ + "," + cty];
   if (tele && !here && (wasPressed("jump") || wasPressed("fire"))) teleport(tele);
   mapCamera(false);
@@ -1423,6 +1460,8 @@ function drawMap() {
     else if (ent) ctx.drawImage(mapArt.marker[MARKER_KINDS[+ent.slice(1) % MARKER_KINDS.length]], x, y);
     else if (ch === "Q") ctx.drawImage(mapArt.tele[(m.t >> 3) % 2], x, y);
   }
+  /* the ship, on its two tiles and the two above */
+  if (world().ship) { const [sx, sy] = world().ship; ctx.drawImage(mapArt.ship, sx * T - cx, (sy - 1) * T - cy); }
   /* done flags: on the map's own flag spot, or the level's first entrance tile */
   const w = world();
   for (const id of w.need) if (G.run.done[id]) {
@@ -1436,7 +1475,7 @@ function drawMap() {
   /* the name of the place underfoot */
   const here = mapHere(p);
   const onTele = !here && world().tele[Math.floor((p.x + p.w / 2) / T) + "," + Math.floor((p.y + p.h / 2) / T)];
-  const label = here ? levelName(here) + (G.run.done[here] ? " (done)" : "") : onTele ? "Teleporter" : "";
+  const label = here ? levelName(here) + (G.run.done[here] ? " (done)" : "") : onShip(p) ? "The Catamaran" : onTele ? "Teleporter" : "";
   mapLabel(label);
   drawHud(null);
 }
@@ -1626,6 +1665,7 @@ function statusWindow() {
   const keys = el("span"); (G.lv ? G.lv.keys : [false, false, false, false]).forEach((k, i) => { const im = imgOf(ART.gems[i]); if (!k) im.classList.add("missing"); keys.appendChild(im); });
   row("Keycards", keys);
   const parts = el("span"); r.parts.forEach((h, i) => { const im = imgOf(ART.parts[i]); im.title = PART_NAMES[i]; if (!h) im.classList.add("missing"); parts.appendChild(im); });
+  if (world().ship) parts.appendChild(el("span", null, ` ${(r.aboard || []).filter(Boolean).length} aboard`));
   row("Ship parts", parts);
   row("Book", String(bookNumber(r.book)));
   if (r.swim) row("Swimming", "yes");
