@@ -190,9 +190,11 @@ const bookNumber = b => BOOK_IDS.indexOf(b) + 1;
 const THEME_OF = { A: "hiss", B: "garden", C: "fort", D: "ice", E: "hiss", F: "garden", G: "fort", H: "ice", I: "hiss" };
 /* A level's own tileset, by its type (docs/story/book-1-story.md). Vault 9,
  * the frozen one, is H09, H11 and H17; the raider camps are H04, H08 (Fort
- * Scrap), H13 and H15 (the Nest). Levels not listed use their book's. */
+ * Scrap), H13 and H15 (the Nest); the rest are the ruins of Old Litterburg.
+ * Levels not listed use their book's. */
 const LEVEL_THEME = { H09: "vaultCold", H11: "vaultCold", H17: "vaultCold", H10: "vault", H14: "vault",
-  H04: "raiders", H08: "raiders", H13: "raiders", H15: "raiders" };
+  H04: "raiders", H08: "raiders", H13: "raiders", H15: "raiders",
+  H02: "ruins", H03: "ruins", H05: "ruins", H06: "ruins", H07: "ruins", H12: "ruins", H16: "ruins" };
 const MAPS = {};
 for (const b of BOOK_IDS) BOOKS[b].chapters.forEach(ch => ch.levels.forEach(lv => { MAPS[lv.id] = lv; lv.book = b; }));
 const levelName = id => `Book ${bookNumber(MAPS[id].book)}, level ${+id.slice(1) - 1}`;

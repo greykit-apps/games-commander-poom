@@ -977,6 +977,9 @@ const THEMES = {
   /* Book 1's raider camps: Fort Scrap and the Scrappers' turf, rusted scrap
    * and plank scaffolding under the Glow's dusk */
   raiders: { sky: 0, far: [6, 4], ground: [6, 4, 8], crust: ["#d07a36", "#f0a050"], alt: [8, 6], plat: [6, 14], bg: [0, 6], liquid: [10, 2, 14], liquidName: "sludge", style: "raiders" },
+  /* Book 1's ruins: Old Litterburg and the roads round it, broken concrete
+   * and rusted girders under the Glow's sickly daylight */
+  ruins: { sky: 0, far: [8, 7], ground: [8, 7, 0], crust: ["#c0b8ac", "#ddd6ca"], alt: [8, 7], plat: [7, 8], bg: [0, 8], liquid: [10, 2, 14], liquidName: "sludge", style: "ruins" },
   vaultCold: { sky: 1, far: [9, 3], ground: [8, 7, 0], crust: ["#b4e6f6", "#e8fbff"], alt: [8, 7], plat: [7, 8], bg: [1, 0], liquid: [11, 15, 3], liquidName: "coolant", style: "vault", cold: true, no: 9 },
 };
 
@@ -1170,6 +1173,7 @@ function paintTiles(themeName) {
 
   if (th.style === "vault") vaultTiles(tiles, th, mk, E);
   if (th.style === "raiders") raiderTiles(tiles, th, mk, E);
+  if (th.style === "ruins") ruinTiles(tiles, th, mk, E);
 
   /* fake wall: looks like ground, walks like air (secret) */
   tiles.fake = tiles.ground[0];
@@ -1289,6 +1293,137 @@ function raiderTiles(tiles, th, mk, E) {
     px(g, WOOD[2], 0, 5, 16, 1);
     px(g, PAINT.red, 2, 3, 1, 5); px(g, PAINT.red, 3, 3, 2, 1); px(g, PAINT.red, 3, 5, 2, 1); px(g, PAINT.red, 6, 3, 1, 5); px(g, PAINT.red, 6, 7, 3, 1);
     for (const [x, y] of [[10, 3], [11, 4], [12, 5], [13, 4], [14, 3], [12, 7]]) px(g, PAINT.yellow, x, y);
+  });
+}
+
+/* VGA ramps for the ruins, dark to light: weathered concrete, old brick */
+const CONCRETE = ["#1d1b19", "#34302c", "#4d4842", "#67615a", "#827b72", "#a0988d", "#c0b8ac", "#ddd6ca"];
+const BRICK = ["#2e130f", "#4f1f17", "#70301f", "#8c3f27", "#a85434", "#c06c46"];
+const WEED = ["#4a4420", "#6e6430", "#948646"];
+
+/* The ruins' own tiles: cracked concrete, some with rebar showing, some
+ * broken brick; rusted I-beams for ledges; bent rebar and broken glass for
+ * the hazard; roll-down shutters for the doors; a stairwell door for the
+ * exit; a loudspeaker on a pole for the signs. Full colour. */
+function ruinTiles(tiles, th, mk, E) {
+  const px = (g, c, x, y, w = 1, h = 1) => { g.fillStyle = c; g.fillRect(x, y, w, h); };
+  /* concrete: mottled, with a crack or two */
+  const concrete = (g, r) => {
+    px(g, CONCRETE[4], 0, 0, T, T);
+    for (let i = 0; i < 40; i++) px(g, CONCRETE[3 + (r() * 3 | 0)], r() * T | 0, r() * T | 0, 1 + (r() * 2 | 0), 1);
+    for (let k = 0; k < 2; k++) {
+      let x = r() * T | 0, y = r() * 6 | 0;
+      for (let i = 0; i < 7; i++) { px(g, CONCRETE[1], x, y); px(g, CONCRETE[6], x + 1, y); x += (r() * 3 | 0) - 1; y++; if (x < 0 || x >= T) break; }
+    }
+  };
+  const block = (top, kind, seed) => mk(g => {
+    const r = rng(seed);
+    if (kind === 2) {
+      /* broken brick: courses, half-bricks offset, a chunk knocked out */
+      px(g, CONCRETE[2], 0, 0, T, T);
+      for (let y = 0; y < T; y += 4) for (let x = (y & 4) ? -4 : 0; x < T; x += 8) {
+        px(g, BRICK[2 + (r() * 3 | 0)], x + 1, y + 1, 7, 3); px(g, BRICK[5], x + 1, y + 1, 7, 1); px(g, BRICK[1], x + 1, y + 3, 7, 1);
+      }
+      px(g, CONCRETE[1], 9, 9, 5, 4); px(g, CONCRETE[0], 10, 10, 3, 2);
+    } else concrete(g, r);
+    if (kind === 1) {
+      /* a ragged spall where the concrete has come away, a bar showing */
+      const sx = 3 + (r() * 6 | 0), sy = 5 + (r() * 5 | 0);
+      for (const [dx, dy, w] of [[1, 0, 4], [0, 1, 6], [0, 2, 7], [1, 3, 5], [2, 4, 3]]) px(g, CONCRETE[2], sx + dx, sy + dy, w, 1);
+      px(g, CONCRETE[1], sx + 1, sy + 4, 4, 1); px(g, CONCRETE[6], sx + 1, sy - 1, 4, 1);
+      for (let k = 0; k < 6; k++) px(g, k ? RUST[4] : RUST[6], sx + k, sy + 2);
+      px(g, RUST[2], sx + 1, sy + 3, 5, 1);
+    }
+    px(g, CONCRETE[1], 0, T - 1, T, 1); px(g, CONCRETE[2], T - 1, 0, 1, T);
+    if (top) {
+      /* a crumbled top edge: chunks out of it, rubble, a tuft of dead grass */
+      px(g, CONCRETE[7], 0, 0, T, 1); px(g, CONCRETE[6], 0, 1, T, 1);
+      for (let x = 0; x < T; x++) if (r() < .25) px(g, "rgba(0,0,0,0)", x, 0);
+      for (let x = 0; x < T; x += 1) if (r() < .2) { g.clearRect(x, 0, 1, 1 + (r() * 2 | 0)); }
+      px(g, CONCRETE[2], 0, 2, T, 1);
+      for (let i = 0; i < 3; i++) px(g, CONCRETE[5 + (r() * 3 | 0)], r() * T | 0, 2 + (r() * 2 | 0));
+      if (r() < .6) { const x = 2 + (r() * 11 | 0); px(g, WEED[1], x, 0, 1, 2); px(g, WEED[2], x + 1, 0, 1, 1); px(g, WEED[0], x - 1, 1, 1, 1); }
+    }
+  });
+  tiles.ground = [block(false, 0, 5), block(false, 1, 17), block(false, 2, 29)];
+  tiles.groundTop = [block(true, 0, 9), block(true, 0, 21), block(true, 1, 33)];
+
+  /* a ledge is a rusted I-beam: flanges top and bottom, a riveted web */
+  tiles.plat = mk(g => {
+    const r = rng(11);
+    px(g, RUST[4], 0, 0, T, 2); px(g, RUST[6], 0, 0, T, 1);
+    px(g, RUST[2], 2, 2, T - 4, 3); px(g, RUST[3], 2, 2, T - 4, 1);
+    px(g, RUST[3], 0, 5, T, 2); px(g, RUST[1], 0, 6, T, 1);
+    for (const x of [3, 8, 13]) px(g, RUST[5], x, 3);
+    for (let i = 0; i < 5; i++) px(g, RUST[1], r() * T | 0, r() * 7 | 0);
+  });
+
+  /* the hazard: bent rebar up out of the rubble, and broken glass */
+  tiles.spikes = mk(g => {
+    px(g, CONCRETE[3], 0, 13, T, 3); px(g, CONCRETE[5], 0, 13, T, 1);
+    for (const [x, h, lean] of [[2, 10, 1], [6, 13, -1], [11, 9, 2], [14, 11, 0]]) {
+      for (let k = 0; k < h; k++) { const xx = x + Math.round(lean * k / h); px(g, k < 2 ? RUST[6] : RUST[4], xx, 13 - k); px(g, RUST[2], xx + 1, 13 - k); }
+    }
+    /* glass: pale shards with a glint */
+    g.fillStyle = "rgba(190, 230, 225, 0.85)";
+    for (const [x, h] of [[4, 5], [9, 6]]) { g.beginPath(); g.moveTo(x, 13); g.lineTo(x + 1, 13 - h); g.lineTo(x + 3, 13); g.fill(); }
+    px(g, "#ffffff", 5, 9); px(g, "#ffffff", 10, 8);
+  });
+
+  /* doors: roll-down storefront shutters painted in the door's colour; a
+     keypad on the top tile, slats below */
+  const COLOURS = [[12, 4], [14, 6], [10, 2], [9, 1], [7, 8]];
+  const door = (a, b, top) => mk(g => {
+    px(g, CONCRETE[5], 0, 0, T, T); px(g, CONCRETE[6], 0, 0, 1, T); px(g, CONCRETE[2], T - 1, 0, 1, T);
+    for (let y = top ? 4 : 0; y < T; y += 3) { px(g, VSTEEL[4], 1, y, T - 2, 2); px(g, VSTEEL[6], 1, y, T - 2, 1); px(g, VSTEEL[1], 1, y + 2, T - 2, 1); }
+    if (top) {
+      px(g, CONCRETE[3], 1, 0, T - 2, 4); px(g, CONCRETE[6], 1, 0, T - 2, 1);
+      px(g, E(b), 1, 8, T - 2, 5); px(g, E(a), 1, 9, T - 2, 3);
+      g.fillStyle = "rgba(255, 255, 255, 0.3)"; g.fillRect(1, 9, T - 2, 1);
+      px(g, VSTEEL[0], 11, 1, 4, 4); px(g, E(a), 12, 2, 2, 1); px(g, VSTEEL[6], 12, 3, 1, 1); px(g, VSTEEL[6], 13, 3, 1, 1);
+    } else {
+      px(g, E(b), 1, 13, T - 2, 2);
+      px(g, RUST[3], 3, 4, 2, 1); px(g, RUST[3], 10, 9, 3, 1);
+    }
+  });
+  tiles.doors = COLOURS.map(([a, b]) => door(a, b, true));
+  tiles.doorsBelow = COLOURS.map(([a, b]) => door(a, b, false));
+
+  /* the exit: a stairwell door in a concrete frame, a green EXIT lamp over
+     it; open, stairs going up into the light */
+  const stair = open => { const c = makeCanvas(T, T * 2), g = c.getContext("2d");
+    px(g, CONCRETE[5], 0, 2, T, 30); px(g, CONCRETE[7], 0, 2, T, 1); px(g, CONCRETE[6], 0, 2, 1, 30); px(g, CONCRETE[2], T - 1, 2, 1, 30);
+    if (open) {
+      px(g, "#141210", 2, 5, 12, 27);
+      for (let k = 0; k < 6; k++) { const y = 30 - k * 4, x = 2 + k * 2; px(g, CONCRETE[3 + (k >> 1)], x, y, 14 - x, 2); px(g, CONCRETE[6], x, y, 14 - x, 1); }
+      g.fillStyle = "rgba(255, 236, 170, 0.45)"; g.fillRect(8, 5, 6, 10);
+    } else {
+      px(g, "#5a6a4a", 2, 5, 12, 27); px(g, "#76885e", 2, 5, 12, 1); px(g, "#3a4630", 13, 5, 1, 27);
+      px(g, "#76885e", 4, 8, 8, 9); px(g, "#4a5a3c", 4, 16, 8, 1);
+      px(g, VSTEEL[6], 3, 19, 10, 1); px(g, VSTEEL[3], 3, 20, 10, 1);
+      px(g, RUST[4], 5, 24, 3, 2); px(g, RUST[3], 10, 12, 2, 3);
+    }
+    g.fillStyle = "rgba(82, 224, 106, 0.30)"; g.fillRect(3, 0, 10, 5);
+    px(g, "#1f7a33", 5, 0, 6, 3); px(g, "#52e06a", 6, 0, 4, 2); px(g, "#c8ffd2", 7, 0, 2, 1);
+    return c; };
+  tiles.exit = [stair(false), stair(true)];
+
+  /* ice: frost on concrete */
+  tiles.ice = mk(g => {
+    const r = rng(43);
+    g.drawImage(tiles.ground[0], 0, 0);
+    for (let y = 0; y < 4; y++) px(g, ["#e9fbff", "#b2e4f6", "#78c2e4", "#4a92c0"][y], 0, y, T, 1);
+    for (let i = 0; i < 10; i++) px(g, r() < .5 ? "#b2e4f6" : "#e9fbff", r() * T | 0, 4 + (r() * 12 | 0));
+  });
+
+  /* a hint sign is a loudspeaker on a pole, a little plate under it */
+  tiles.sign = mk(g => {
+    px(g, VSTEEL[3], 7, 6, 2, 10); px(g, VSTEEL[5], 7, 6, 1, 10);
+    g.fillStyle = VSTEEL[5]; g.beginPath(); g.moveTo(8, 3); g.lineTo(14, 0); g.lineTo(14, 7); g.closePath(); g.fill();
+    g.fillStyle = VSTEEL[2]; g.beginPath(); g.moveTo(13, 1); g.lineTo(15, 0); g.lineTo(15, 7); g.lineTo(13, 6); g.closePath(); g.fill();
+    px(g, VSTEEL[7], 9, 3, 4, 1);
+    px(g, "#2d5a8a", 2, 9, 12, 5); px(g, "#4a86c0", 2, 9, 12, 1); px(g, "#e8eef4", 4, 11, 8, 1);
+    px(g, RUST[4], 3, 13, 2, 1);
   });
 }
 
@@ -1465,6 +1600,7 @@ function paintFar(themeName) {
   }
   if (th.style === "vault") return paintVaultFar(th);
   if (th.style === "raiders") return paintRaiderFar();
+  if (th.style === "ruins") return paintRuinFar();
   return c;
 }
 
@@ -1500,6 +1636,45 @@ function paintRaiderFar() {
   px(PAINT.lamp, 252, 114, 5, 3); px(dark, 257, 92, 2, 18); px("#a0201c", 259, 92, 10, 5);
   /* scaffold poles and flags along the roofline */
   for (const fx of [40, 120, 190]) { px(dark, fx, 146, 2, 30); px("#a0201c", fx + 2, 146, 7, 4); }
+  return c;
+}
+
+/* The ruins behind: the Glow's hazy daylight, sickly yellow-green, and
+ * Old Litterburg's broken skyline in three layers, the far ones paler in
+ * the haze: towers with their tops sheared off, empty windows, a billboard,
+ * a water tower, and a radio mast with a red light (Auntie's). */
+function paintRuinFar() {
+  const c = makeCanvas(320, 200), g = c.getContext("2d"), r = rng(17);
+  const px = (col, x, y, w = 1, h = 1) => { g.fillStyle = col; g.fillRect(x, y, w, h); };
+  const stops = [[0, [92, 106, 88]], [60, [140, 150, 104]], [120, [196, 192, 128]], [170, [232, 220, 160]]];
+  const at = y => { for (let i = 1; i < stops.length; i++) if (y <= stops[i][0]) { const [y0, a] = stops[i - 1], [y1, b] = stops[i], f = (y - y0) / (y1 - y0); return a.map((v, k) => Math.round(v + (b[k] - v) * f)); } return stops[stops.length - 1][1]; };
+  for (let y = 0; y < 200; y += 5) { const [R, G, B] = at(y); px(`rgb(${R},${G},${B})`, 0, y, 320, 5); }
+  /* a pale sun behind the haze */
+  g.fillStyle = "rgba(255, 250, 210, 0.55)"; g.beginPath(); g.arc(250, 46, 14, 0, Math.PI * 2); g.fill();
+  g.fillStyle = "rgba(255, 250, 220, 0.18)"; g.beginPath(); g.arc(250, 46, 26, 0, Math.PI * 2); g.fill();
+  /* the radio mast, far off, with its red light */
+  const mast = "#8c9278";
+  px(mast, 58, 70, 2, 70); for (let y = 74; y < 140; y += 6) { px(mast, 55, y, 8, 1); }
+  px("#ff3b2f", 58, 67, 2, 2); g.fillStyle = "rgba(255, 59, 47, 0.25)"; g.beginPath(); g.arc(59, 68, 5, 0, Math.PI * 2); g.fill();
+  /* three layers of towers, nearer is darker; tops sheared at an angle */
+  const layer = (col, win, y0, hmin, hmax, wmin, wmax, seed) => {
+    const rr = rng(seed); let x = -10;
+    while (x < 330) {
+      const w = wmin + (rr() * (wmax - wmin) | 0), h = hmin + (rr() * (hmax - hmin) | 0), top = y0 - h, cut = rr() < .6 ? (rr() * 12 | 0) : 0;
+      g.fillStyle = col; g.beginPath(); g.moveTo(x, 200); g.lineTo(x, top + (rr() < .5 ? cut : 0)); g.lineTo(x + w, top + (rr() < .5 ? 0 : cut)); g.lineTo(x + w, 200); g.fill();
+      if (win) for (let wy = top + 8; wy < 196; wy += 6) for (let wx = x + 3; wx < x + w - 3; wx += 5) if (rr() < .7) px(win, wx, wy, 2, 3);
+      x += w + (rr() * 6 | 0);
+    }
+  };
+  layer("#9ea08a", null, 150, 30, 70, 14, 30, 3);
+  layer("#787c66", "#9a9c84", 166, 20, 60, 16, 34, 5);
+  /* a billboard on stilts, and a water tower */
+  px("#4a4d40", 196, 112, 2, 40); px("#4a4d40", 224, 112, 2, 40);
+  px("#5a5e4c", 186, 92, 50, 22); px("#c8b47a", 188, 94, 46, 18); px("#a04a36", 190, 97, 20, 12); px("#e8dcb0", 214, 98, 18, 3); px("#e8dcb0", 214, 103, 14, 3);
+  px("#55594c", 116, 120, 2, 40); px("#55594c", 132, 120, 2, 40); px("#55594c", 113, 100, 24, 22); px("#6a6e5c", 113, 100, 24, 3);
+  layer("#4a4d40", "#33352c", 184, 8, 34, 18, 40, 9);
+  /* rubble along the bottom */
+  for (let i = 0; i < 60; i++) { const x = r() * 320 | 0, w = 2 + (r() * 6 | 0); px(r() < .5 ? "#3a3d33" : "#55594c", x, 192 + (r() * 4 | 0), w, 8); }
   return c;
 }
 
