@@ -1,0 +1,30 @@
+; tile-ascii-map/1
+; map:    H05  set: H  engine: E1  kind: level
+; size:   120 x 24  (width x height; 1 char = one tile; origin top-left)
+; legend: ' ' empty / passable  '#' solid block  '-' one-way platform (solid from above only)  '^' hazard: touching or landing on it kills  'D' door (locked door, keycard door, or warp door)  'X' level exit  '$' points pickup (incl. collect-100-for-a-life pickups)  '+' power-up / resource (ammo, extra life, weapon, movement ability, shield)  'k' key / keycard  '!' objective item (quest items, boss weak points)  '@' player start  'e' enemy / hostile creature
+; entities: enemy=10, player=1  (full list in H05.json)
+;===============================================================================
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+  #$$$$$$$     ##########################################               ##           $  $                          $$#  
+  #$$$$$             $    $    D                        #               ##         $      $               #^##########  
+  #$$$$       $         e      D        e                               ##       $    ##    $            ####   #       
+  #$$$         #               #                         $         +    ##          ######                e D     X     
+  #$$        $ #  #######################################          ##   ##        ##########                D   ! X     
+  #$          ##                                       k#  $            ##   #########################################  
+  #$        $ ##              e                e        ###             ##                                           #  
+  #          ### ##                                     ###  $         ###                                           #  
+  #        $ # # ########################  ########  ########       ################################               + #  
+  #         ## #  $ $ $ $     $$$$       $$        $$   #####  $        $$                         ###   e      #### #  
+  #       $ #  #                                        #$$$###                                     k###             #  
+  #        ##  #                         --        --   #$$$###  $                                   #####           #  
+  #      $ #   # #########   ######    ######     ####  #$$   ###                         ^    ^     #######         #  
+  #       ##   #                                        ##    ###    $     $        ######################$$##       #  
+  #     $ #    #           -                            ##      ####    ###   $                               ##     #  
+  #  @   ##    #     e    ---       --       e-  -     -###            e######   $                          e        #  
+  #      #######         -----      --        -$$-     -###             #########                                    #  
+  ####################################################################################################################  
+  ####################################################################################################################  
+                                                                                                                        
+                                                                                                                        

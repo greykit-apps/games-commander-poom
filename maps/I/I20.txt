@@ -1,0 +1,23 @@
+; tile-ascii-map/1
+; map:    I20  set: I  engine: E2  kind: highscores
+; size:   24 x 17  (width x height; 1 char = one tile; origin top-left)
+; legend: ' ' empty / passable  '#' solid block  '@' player start  'e' enemy / hostile creature
+; entities: enemy=4, player=1  (full list in I20.json)
+;===============================================================================
+########################
+########################
+##                    ##
+##                    ##
+##    e          e    ##
+##                    ##
+##                    ##
+##                    ##
+##                    ##
+##                    ##
+##                    ##
+##                    ##
+##                    ##
+## @     e    e       ##
+########################
+########################
+########################

@@ -1,0 +1,1297 @@
+{
+ "format": "tile-ascii-map/1",
+ "map": "E01",
+ "set": "E",
+ "engine": "E2",
+ "kind": "world",
+ "notes": [
+  "untargeted doors (exits): 1"
+ ],
+ "width": 61,
+ "height": 66,
+ "legend": {
+  " ": "empty / passable",
+  "#": "solid block",
+  "/": "slope rising to the right",
+  "\\": "slope falling to the right",
+  "|": "climbable pole",
+  "~": "shoreline / water edge (world maps)",
+  "@": "player start",
+  "L": "world-map level entrance",
+  "*": "other special object"
+ },
+ "glyph_counts": {
+  " ": 2143,
+  "#": 1706,
+  "/": 39,
+  "\\": 25,
+  "|": 2,
+  "~": 8,
+  "@": 1,
+  "L": 101,
+  "*": 1
+ },
+ "grid": [
+  "#############################################################",
+  "#############################################################",
+  "####                             ####                      ##",
+  "#####                         ########   ######            ##",
+  "## ###          ####### ###  ####LLLL#   ######            ##",
+  "##  ###          LLL ########## LLLLL#   ##LL##            ##",
+  "##   ###        #LLLL    #####    ####   ##LL##            ##",
+  "##    ###       ###               ###    ##LL###           ##",
+  "##     ###       ##\\               ###  ##    ##           ##",
+  "##      ###      #######\\           ######     ##          ##",
+  "##       ##       ##  ####\\          ####       #          ##",
+  "##       ###           #####\\                  /#          ##",
+  "######## ####             #####\\              /##          ##",
+  "####LL##  ###               #######\\          ###          ##",
+  "####LL###  ##                     ##\\          ###         ##",
+  "##         ###                     ###\\          ##        ##",
+  "##         ####                    ####           ##       ##",
+  "##          ###   ###             ###    /####\\   ##       ##",
+  "##           #########           ###    /## ###   #        ##",
+  "##           *     ###    ##     ##    /## ####   #        ##",
+  "##                  #########    #  /#### ###     #        ##",
+  "##                         ##    ######   ##      ##       ##",
+  "##                 #       #  #############  ########      ##",
+  "##                         # ####    ###### /###LL###      ##",
+  "##                         #### LLLLLL      ####LL##       ##",
+  "## ######                  ###  LLL# L     /####LL##       ##",
+  "## ######                 ### L##LL#L    /######  #####    ##",
+  "## ##LL###             ###### L #LL#     ###  ##     ###   ##",
+  "## ##LL##             ###  ## #  LL   /###    ##      ##   ##",
+  "##           ###########  ###         ###    ###      ###  ##",
+  "##         /###      ##  ###          ##    ###  ########  ##",
+  "##         ###          ###       /####    ###   ###LL###  ##",
+  "##         ###############        ####    ###    ###LL##   ##",
+  "##                                ##       #     ###LL##   ##",
+  "#########################\\      /###       #    /###  #### ##",
+  "##                  ######      ###        #    ####    ## ##",
+  "##                   #####   /####         #   ## ##\\    # ##",
+  "##       ####       ####    /####          ##  #   ##\\  @####",
+  "##       ####       ###    /##             #LLL##   ##\\ LL###",
+  "##      ##LL##########    /##               ##LL#    ########",
+  "##      ##LL###          /##                #LLL#          ##",
+  "##      #          /####### ####            #LL #########  ##",
+  "##     ##       /#####  ########         ###\\  /###    ##  ##",
+  "##     ##\\      #####   #####LL##        ####~~### /#~~######",
+  "##     #####\\   ##     ######LL###       ###       ##LL######",
+  "##      #####\\  ########       ###       ###      /##########",
+  "##          ##\\  ######         ##       ###      ###### ####",
+  "##           ##\\   ###         /##       ###      ###### ####",
+  "##         ## ##\\           /#####        ##      ###### ####",
+  "##        #|#####         //## #####      ##      ######  ###",
+  "##        #LL# ##   //####### ####|##      #      ######  ###",
+  "##      ###LL###   /###  ### ########      #              ###",
+  "##      ###  ##   /##    #########LL##     #######\\    /#####",
+  "##      ##       /##     ##     ##LL####   ########  /#######",
+  "##      ##      /##      #            ##   #####LL~  #LL#####",
+  "##      ##########      ##           /##   #####LL~  #LL#####",
+  "##      #####  ###      ##\\         /##    ########\\ #~~#####",
+  "##                      ######\\ /#####     #########\\    ####",
+  "##                       ###########       ##################",
+  "###    ##    ##    ##    ##    ###  ## # # ##   ## ## ### ###",
+  "##       ####  ####  ####  #### #  #   # # # # #   #   #  ###",
+  "##      #########################   #  # # ##   #  ##  #  ###",
+  "##      #########################    # # # # #   # #   #   ##",
+  "##      ####################LL###  ##   #  ##  ##  ##  #  ###",
+  "#############################################################",
+  "#############################################################"
+ ],
+ "terrain": [
+  "#############################################################",
+  "#############################################################",
+  "####                             ####                      ##",
+  "#####                         ########   ######            ##",
+  "## ###          ####### ###  #########   ######            ##",
+  "##  ###          #   ##########     ##   ##  ##            ##",
+  "##   ###        #|       #####    ####   ##  ##            ##",
+  "##    ###       ###               ###    ##  ###           ##",
+  "##     ###       ##\\               ###  ##    ##           ##",
+  "##      ###      #######\\           ######     ##          ##",
+  "##       ##       ##  ####\\          ####       #          ##",
+  "##       ###           #####\\                  /#          ##",
+  "######## ####             #####\\              /##          ##",
+  "########  ###               #######\\          ###          ##",
+  "####  ###  ##                     ##\\          ###         ##",
+  "##         ###                     ###\\          ##        ##",
+  "##         ####                    ####           ##       ##",
+  "##          ###   ###             ###    /####\\   ##       ##",
+  "##           #########           ###    /## ###   #        ##",
+  "##                 ###    ##     ##    /## ####   #        ##",
+  "##                  #########    #  /#### ###     #        ##",
+  "##                         ##    ######   ##      ##       ##",
+  "##                 #       #  #############  ########      ##",
+  "##                         # ####    ###### /###  ###      ##",
+  "##                         ####             ####  ##       ##",
+  "## ######                  ###    ##       /####  ##       ##",
+  "## ######                 ###  ##  #     /######  #####    ##",
+  "## ##  ###             ######   #  #     ###  ##     ###   ##",
+  "## ##  ##             ###  ## #       /###    ##      ##   ##",
+  "##           ###########  ###         ###    ###      ###  ##",
+  "##         /###      ##  ###          ##    ###  ########  ##",
+  "##         ###          ###       /####    ###   ###  ###  ##",
+  "##         ###############        ####    ###    ###  ##   ##",
+  "##                                ##       #     ###  ##   ##",
+  "#########################\\      /###       #    /###  #### ##",
+  "##                  ######      ###        #    ####    ## ##",
+  "##                   #####   /####         #   ## ##\\    # ##",
+  "##       ####       ####    /####          ##  #   ##\\   ####",
+  "##       ####       ###    /##             # \\ ##   ##\\  ####",
+  "##      ##  ##########    /##               ##  #    ########",
+  "##      ##  ###          /##                #   #          ##",
+  "##      #          /####### ####            #   #########  ##",
+  "##     ##       /#####  ########         ###\\  /###    ##  ##",
+  "##     ##\\      #####   #####  ##        ####~~### /#~~######",
+  "##     #####\\   ##     ######  ###       ###       ##  ######",
+  "##      #####\\  ########       ###       ###      /##########",
+  "##          ##\\  ######         ##       ###      ###### ####",
+  "##           ##\\   ###         /##       ###      ###### ####",
+  "##         ## ##\\           /#####        ##      ###### ####",
+  "##        #|#####         //## #####      ##      ######  ###",
+  "##        #### ##   //####### ####|##      #      ######  ###",
+  "##      ###  ###   /###  ### ########      #              ###",
+  "##      ###  ##   /##    #########  ##     #######\\    /#####",
+  "##      ##       /##     ##     ##  ####   ########  /#######",
+  "##      ##      /##      #            ##   #####  ~  ## #####",
+  "##      ##########      ##           /##   #####\\ ~  #  #####",
+  "##      #####  ###      ##\\         /##    ########\\ #~~#####",
+  "##                      ######\\ /#####     #########\\    ####",
+  "##                       ###########       ##################",
+  "###    ##    ##    ##    ##    ###  ## # # ##   ## ## ### ###",
+  "##       ####  ####  ####  #### #  #   # # # # #   #   #  ###",
+  "##      #########################   #  # # ##   #  ##  #  ###",
+  "##      #########################    # # # # #   # #   #   ##",
+  "##      ####################XX###  ##   #  ##  ##  ##  #  ###",
+  "#############################################################",
+  "#############################################################"
+ ],
+ "entities": [
+  {
+   "x": 31,
+   "y": 4,
+   "code": 61445,
+   "kind": "marker",
+   "name": "done-flag spot for E06",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 33,
+   "y": 4,
+   "code": 49157,
+   "kind": "level_entrance",
+   "name": "entrance to E06",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 34,
+   "y": 4,
+   "code": 49157,
+   "kind": "level_entrance",
+   "name": "entrance to E06",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 35,
+   "y": 4,
+   "code": 49157,
+   "kind": "level_entrance",
+   "name": "entrance to E06",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 36,
+   "y": 4,
+   "code": 49157,
+   "kind": "level_entrance",
+   "name": "entrance to E06",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 17,
+   "y": 5,
+   "code": 49156,
+   "kind": "level_entrance",
+   "name": "entrance to E05",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 18,
+   "y": 5,
+   "code": 49156,
+   "kind": "level_entrance",
+   "name": "entrance to E05",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 19,
+   "y": 5,
+   "code": 49156,
+   "kind": "level_entrance",
+   "name": "entrance to E05",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 21,
+   "y": 5,
+   "code": 61444,
+   "kind": "marker",
+   "name": "done-flag spot for E05",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 32,
+   "y": 5,
+   "code": 49157,
+   "kind": "level_entrance",
+   "name": "entrance to E06",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 33,
+   "y": 5,
+   "code": 49157,
+   "kind": "level_entrance",
+   "name": "entrance to E06",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 34,
+   "y": 5,
+   "code": 49157,
+   "kind": "level_entrance",
+   "name": "entrance to E06",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 35,
+   "y": 5,
+   "code": 49157,
+   "kind": "level_entrance",
+   "name": "entrance to E06",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 36,
+   "y": 5,
+   "code": 49157,
+   "kind": "level_entrance",
+   "name": "entrance to E06",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 43,
+   "y": 5,
+   "code": 49158,
+   "kind": "level_entrance",
+   "name": "entrance to E07",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 44,
+   "y": 5,
+   "code": 49158,
+   "kind": "level_entrance",
+   "name": "entrance to E07",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 17,
+   "y": 6,
+   "code": 49156,
+   "kind": "level_entrance",
+   "name": "entrance to E05",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 18,
+   "y": 6,
+   "code": 49156,
+   "kind": "level_entrance",
+   "name": "entrance to E05",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 19,
+   "y": 6,
+   "code": 49156,
+   "kind": "level_entrance",
+   "name": "entrance to E05",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 20,
+   "y": 6,
+   "code": 49156,
+   "kind": "level_entrance",
+   "name": "entrance to E05",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 43,
+   "y": 6,
+   "code": 49158,
+   "kind": "level_entrance",
+   "name": "entrance to E07",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 44,
+   "y": 6,
+   "code": 49158,
+   "kind": "level_entrance",
+   "name": "entrance to E07",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 43,
+   "y": 7,
+   "code": 49158,
+   "kind": "level_entrance",
+   "name": "entrance to E07",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 44,
+   "y": 7,
+   "code": 49158,
+   "kind": "level_entrance",
+   "name": "entrance to E07",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 46,
+   "y": 8,
+   "code": 61446,
+   "kind": "marker",
+   "name": "done-flag spot for E07",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 4,
+   "y": 13,
+   "code": 49162,
+   "kind": "level_entrance",
+   "name": "entrance to E11",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 5,
+   "y": 13,
+   "code": 49162,
+   "kind": "level_entrance",
+   "name": "entrance to E11",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 4,
+   "y": 14,
+   "code": 49162,
+   "kind": "level_entrance",
+   "name": "entrance to E11",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 5,
+   "y": 14,
+   "code": 49162,
+   "kind": "level_entrance",
+   "name": "entrance to E11",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 8,
+   "y": 14,
+   "code": 61450,
+   "kind": "marker",
+   "name": "done-flag spot for E11",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 13,
+   "y": 19,
+   "code": 33,
+   "kind": "special",
+   "name": "special type 01 (world map)",
+   "difficulty": "",
+   "glyph": "*"
+  },
+  {
+   "x": 50,
+   "y": 21,
+   "code": 61442,
+   "kind": "marker",
+   "name": "done-flag spot for E03",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 19,
+   "y": 22,
+   "code": 61449,
+   "kind": "marker",
+   "name": "done-flag spot for E10",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 48,
+   "y": 22,
+   "code": 53250,
+   "kind": "marker",
+   "name": "removed when E03 is done",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 49,
+   "y": 22,
+   "code": 53250,
+   "kind": "marker",
+   "name": "removed when E03 is done",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 48,
+   "y": 23,
+   "code": 49154,
+   "kind": "level_entrance",
+   "name": "entrance to E03",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 49,
+   "y": 23,
+   "code": 49154,
+   "kind": "level_entrance",
+   "name": "entrance to E03",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 32,
+   "y": 24,
+   "code": 49159,
+   "kind": "level_entrance",
+   "name": "entrance to E08",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 33,
+   "y": 24,
+   "code": 49159,
+   "kind": "level_entrance",
+   "name": "entrance to E08",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 34,
+   "y": 24,
+   "code": 49159,
+   "kind": "level_entrance",
+   "name": "entrance to E08",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 35,
+   "y": 24,
+   "code": 49159,
+   "kind": "level_entrance",
+   "name": "entrance to E08",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 36,
+   "y": 24,
+   "code": 49159,
+   "kind": "level_entrance",
+   "name": "entrance to E08",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 37,
+   "y": 24,
+   "code": 49159,
+   "kind": "level_entrance",
+   "name": "entrance to E08",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 48,
+   "y": 24,
+   "code": 49154,
+   "kind": "level_entrance",
+   "name": "entrance to E03",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 49,
+   "y": 24,
+   "code": 49154,
+   "kind": "level_entrance",
+   "name": "entrance to E03",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 32,
+   "y": 25,
+   "code": 49159,
+   "kind": "level_entrance",
+   "name": "entrance to E08",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 33,
+   "y": 25,
+   "code": 49159,
+   "kind": "level_entrance",
+   "name": "entrance to E08",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 34,
+   "y": 25,
+   "code": 49159,
+   "kind": "level_entrance",
+   "name": "entrance to E08",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 37,
+   "y": 25,
+   "code": 49159,
+   "kind": "level_entrance",
+   "name": "entrance to E08",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 48,
+   "y": 25,
+   "code": 49154,
+   "kind": "level_entrance",
+   "name": "entrance to E03",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 49,
+   "y": 25,
+   "code": 49154,
+   "kind": "level_entrance",
+   "name": "entrance to E03",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 30,
+   "y": 26,
+   "code": 49159,
+   "kind": "level_entrance",
+   "name": "entrance to E08",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 33,
+   "y": 26,
+   "code": 49159,
+   "kind": "level_entrance",
+   "name": "entrance to E08",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 34,
+   "y": 26,
+   "code": 49159,
+   "kind": "level_entrance",
+   "name": "entrance to E08",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 36,
+   "y": 26,
+   "code": 49159,
+   "kind": "level_entrance",
+   "name": "entrance to E08",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 5,
+   "y": 27,
+   "code": 49160,
+   "kind": "level_entrance",
+   "name": "entrance to E09",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 6,
+   "y": 27,
+   "code": 49160,
+   "kind": "level_entrance",
+   "name": "entrance to E09",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 9,
+   "y": 27,
+   "code": 61448,
+   "kind": "marker",
+   "name": "done-flag spot for E09",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 30,
+   "y": 27,
+   "code": 49159,
+   "kind": "level_entrance",
+   "name": "entrance to E08",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 33,
+   "y": 27,
+   "code": 49159,
+   "kind": "level_entrance",
+   "name": "entrance to E08",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 34,
+   "y": 27,
+   "code": 49159,
+   "kind": "level_entrance",
+   "name": "entrance to E08",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 5,
+   "y": 28,
+   "code": 49160,
+   "kind": "level_entrance",
+   "name": "entrance to E09",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 6,
+   "y": 28,
+   "code": 49160,
+   "kind": "level_entrance",
+   "name": "entrance to E09",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 30,
+   "y": 28,
+   "code": 61447,
+   "kind": "marker",
+   "name": "done-flag spot for E08",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 33,
+   "y": 28,
+   "code": 49159,
+   "kind": "level_entrance",
+   "name": "entrance to E08",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 34,
+   "y": 28,
+   "code": 49159,
+   "kind": "level_entrance",
+   "name": "entrance to E08",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 54,
+   "y": 29,
+   "code": 61441,
+   "kind": "marker",
+   "name": "done-flag spot for E02",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 52,
+   "y": 30,
+   "code": 53249,
+   "kind": "marker",
+   "name": "removed when E02 is done",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 53,
+   "y": 30,
+   "code": 53249,
+   "kind": "marker",
+   "name": "removed when E02 is done",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 52,
+   "y": 31,
+   "code": 49153,
+   "kind": "level_entrance",
+   "name": "entrance to E02",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 53,
+   "y": 31,
+   "code": 49153,
+   "kind": "level_entrance",
+   "name": "entrance to E02",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 52,
+   "y": 32,
+   "code": 49153,
+   "kind": "level_entrance",
+   "name": "entrance to E02",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 53,
+   "y": 32,
+   "code": 49153,
+   "kind": "level_entrance",
+   "name": "entrance to E02",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 52,
+   "y": 33,
+   "code": 49153,
+   "kind": "level_entrance",
+   "name": "entrance to E02",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 53,
+   "y": 33,
+   "code": 49153,
+   "kind": "level_entrance",
+   "name": "entrance to E02",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 47,
+   "y": 36,
+   "code": 61443,
+   "kind": "marker",
+   "name": "done-flag spot for E04",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 56,
+   "y": 37,
+   "code": 3,
+   "kind": "player",
+   "name": "player start (world map)",
+   "difficulty": "",
+   "glyph": "@"
+  },
+  {
+   "x": 44,
+   "y": 38,
+   "code": 49155,
+   "kind": "level_entrance",
+   "name": "entrance to E04",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 45,
+   "y": 38,
+   "code": 49155,
+   "kind": "level_entrance",
+   "name": "entrance to E04",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 46,
+   "y": 38,
+   "code": 49155,
+   "kind": "level_entrance",
+   "name": "entrance to E04",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 56,
+   "y": 38,
+   "code": 49170,
+   "kind": "level_entrance",
+   "name": "entrance to E19",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 57,
+   "y": 38,
+   "code": 49170,
+   "kind": "level_entrance",
+   "name": "entrance to E19",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 10,
+   "y": 39,
+   "code": 49163,
+   "kind": "level_entrance",
+   "name": "entrance to E12",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 11,
+   "y": 39,
+   "code": 49163,
+   "kind": "level_entrance",
+   "name": "entrance to E12",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 46,
+   "y": 39,
+   "code": 49155,
+   "kind": "level_entrance",
+   "name": "entrance to E04",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 47,
+   "y": 39,
+   "code": 49155,
+   "kind": "level_entrance",
+   "name": "entrance to E04",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 10,
+   "y": 40,
+   "code": 49163,
+   "kind": "level_entrance",
+   "name": "entrance to E12",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 11,
+   "y": 40,
+   "code": 49163,
+   "kind": "level_entrance",
+   "name": "entrance to E12",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 14,
+   "y": 40,
+   "code": 61451,
+   "kind": "marker",
+   "name": "done-flag spot for E12",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 45,
+   "y": 40,
+   "code": 49155,
+   "kind": "level_entrance",
+   "name": "entrance to E04",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 46,
+   "y": 40,
+   "code": 49155,
+   "kind": "level_entrance",
+   "name": "entrance to E04",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 47,
+   "y": 40,
+   "code": 49155,
+   "kind": "level_entrance",
+   "name": "entrance to E04",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 45,
+   "y": 41,
+   "code": 49155,
+   "kind": "level_entrance",
+   "name": "entrance to E04",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 46,
+   "y": 41,
+   "code": 49155,
+   "kind": "level_entrance",
+   "name": "entrance to E04",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 29,
+   "y": 43,
+   "code": 49164,
+   "kind": "level_entrance",
+   "name": "entrance to E13",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 30,
+   "y": 43,
+   "code": 49164,
+   "kind": "level_entrance",
+   "name": "entrance to E13",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 29,
+   "y": 44,
+   "code": 49164,
+   "kind": "level_entrance",
+   "name": "entrance to E13",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 30,
+   "y": 44,
+   "code": 49164,
+   "kind": "level_entrance",
+   "name": "entrance to E13",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 53,
+   "y": 44,
+   "code": 49167,
+   "kind": "level_entrance",
+   "name": "entrance to E16",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 54,
+   "y": 44,
+   "code": 49167,
+   "kind": "level_entrance",
+   "name": "entrance to E16",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 31,
+   "y": 45,
+   "code": 61452,
+   "kind": "marker",
+   "name": "done-flag spot for E13",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 56,
+   "y": 45,
+   "code": 61455,
+   "kind": "marker",
+   "name": "done-flag spot for E16",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 11,
+   "y": 50,
+   "code": 49165,
+   "kind": "level_entrance",
+   "name": "entrance to E14",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 12,
+   "y": 50,
+   "code": 49165,
+   "kind": "level_entrance",
+   "name": "entrance to E14",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 11,
+   "y": 51,
+   "code": 49165,
+   "kind": "level_entrance",
+   "name": "entrance to E14",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 12,
+   "y": 51,
+   "code": 49165,
+   "kind": "level_entrance",
+   "name": "entrance to E14",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 15,
+   "y": 51,
+   "code": 61453,
+   "kind": "marker",
+   "name": "done-flag spot for E14",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 34,
+   "y": 52,
+   "code": 49166,
+   "kind": "level_entrance",
+   "name": "entrance to E15",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 35,
+   "y": 52,
+   "code": 49166,
+   "kind": "level_entrance",
+   "name": "entrance to E15",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 44,
+   "y": 52,
+   "code": 61456,
+   "kind": "marker",
+   "name": "done-flag spot for E17",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 57,
+   "y": 52,
+   "code": 61457,
+   "kind": "marker",
+   "name": "done-flag spot for E18",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 34,
+   "y": 53,
+   "code": 49166,
+   "kind": "level_entrance",
+   "name": "entrance to E15",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 35,
+   "y": 53,
+   "code": 49166,
+   "kind": "level_entrance",
+   "name": "entrance to E15",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 38,
+   "y": 53,
+   "code": 61454,
+   "kind": "marker",
+   "name": "done-flag spot for E15",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 48,
+   "y": 54,
+   "code": 49168,
+   "kind": "level_entrance",
+   "name": "entrance to E17",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 49,
+   "y": 54,
+   "code": 49168,
+   "kind": "level_entrance",
+   "name": "entrance to E17",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 54,
+   "y": 54,
+   "code": 49169,
+   "kind": "level_entrance",
+   "name": "entrance to E18",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 55,
+   "y": 54,
+   "code": 49169,
+   "kind": "level_entrance",
+   "name": "entrance to E18",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 48,
+   "y": 55,
+   "code": 49168,
+   "kind": "level_entrance",
+   "name": "entrance to E17",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 49,
+   "y": 55,
+   "code": 49168,
+   "kind": "level_entrance",
+   "name": "entrance to E17",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 54,
+   "y": 55,
+   "code": 49169,
+   "kind": "level_entrance",
+   "name": "entrance to E18",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 55,
+   "y": 55,
+   "code": 49169,
+   "kind": "level_entrance",
+   "name": "entrance to E18",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 34,
+   "y": 59,
+   "code": 25,
+   "kind": "marker",
+   "name": "camera limit (horizontal)",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 28,
+   "y": 63,
+   "code": 49161,
+   "kind": "level_entrance",
+   "name": "entrance to E10",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 29,
+   "y": 63,
+   "code": 49161,
+   "kind": "level_entrance",
+   "name": "entrance to E10",
+   "difficulty": "",
+   "glyph": "L"
+  }
+ ]
+}

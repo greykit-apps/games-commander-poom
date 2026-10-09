@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Commander Poom — Lost on Planet Hiss</title>
+<meta name="description" content="A sixteen-colour platformer in the spirit of the 1990 Commander Keen games. Pogo, zap and bop your way across Planet Hiss to win back the four stolen parts of your starship.">
+<meta name="theme-color" content="#000000">
+<meta name="color-scheme" content="dark">
+<meta name="referrer" content="no-referrer">
+<meta property="og:title" content="Commander Poom">
+<meta property="og:description" content="A sixteen-colour platformer in the spirit of the 1990 Commander Keen games. Pogo, zap and bop your way across Planet Hiss to win back the four stolen parts of your starship.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://greykit.com/games/commanderpoom/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="A sixteen-colour platformer in the spirit of the 1990 Commander Keen games. Pogo, zap and bop your way across Planet Hiss to win back the four stolen parts of your starship.">
+<meta property="og:url" content="https://greykit.com/games/commanderpoom/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Commander Poom">
+<meta name="twitter:description" content="A sixteen-colour platformer in the spirit of the 1990 Commander Keen games. Pogo, zap and bop your way across Planet Hiss to win back the four stolen parts of your starship.">
+<meta name="twitter:image" content="https://greykit.com/games/commanderpoom/og.png">
+<meta name="twitter:image:alt" content="A sixteen-colour platformer in the spirit of the 1990 Commander Keen games. Pogo, zap and bop your way across Planet Hiss to win back the four stolen parts of your starship.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap">
+<style>
+:root{
+  --ega0:#000;--ega1:#0000aa;--ega3:#00aaaa;--ega7:#aaaaaa;--ega8:#555555;--ega9:#5555ff;
+  --ega11:#55ffff;--ega12:#ff5555;--ega13:#ff55ff;--ega14:#ffff55;--ega15:#ffffff;
+  --pix:"Press Start 2P",ui-monospace,"Courier New",monospace;
+}
+html,body{margin:0;height:100%;background:#000;overflow:hidden}
+body{display:grid;place-items:center;color:var(--ega15);font-family:var(--pix);
+  -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:none}
+
+/* the canon boot (games-meta STANDARD.md §3) reads these; its look is the
+   family's, not this game's */
+.gk-boot{--bg:#05070f;--accent:#54f2ff;--dim:#7d8aa8;--good:#4ade6a;
+  font-family:"Courier New","Lucida Console",monospace;font-size:14px}
+
+#stage{position:relative;overflow:hidden;background:#000}
+#screen{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;image-rendering:crisp-edges}
+#ui{position:absolute;left:0;top:0;width:320px;height:200px;transform-origin:0 0;font-size:8px;line-height:1.5}
+img.px{image-rendering:pixelated;vertical-align:middle}
+img.missing{filter:grayscale(1) brightness(.35)}
+kbd{font:inherit;color:var(--ega14)}
+
+/* ---- the logo ---- */
+#logo{position:absolute;left:0;right:0;top:8px;text-align:center;pointer-events:none}
+#logo .cmd{font-size:10px;letter-spacing:4px;color:var(--ega11);text-shadow:1px 1px 0 var(--ega1)}
+#logo .poom{font-size:28px;line-height:1;margin-top:4px;color:var(--ega14);letter-spacing:2px;
+  text-shadow:1px 1px 0 var(--ega12),2px 2px 0 var(--ega12),3px 3px 0 #aa0000,4px 4px 0 #aa0000,5px 5px 0 #000}
+#logo .ep{margin-top:10px;font-size:7px;color:var(--ega13)}
+#logo[hidden]{display:none}
+
+/* ---- overlays ---- */
+.overlay{position:absolute;inset:0;display:grid;place-items:center;z-index:5}
+.box{background:var(--ega1);color:var(--ega15);border:1px solid var(--ega11);box-shadow:0 0 0 1px var(--ega1),0 0 0 2px var(--ega15),3px 3px 0 2px #000;
+  padding:8px 10px}
+.box h2{margin:0 0 6px;font-size:8px;font-weight:400;color:var(--ega14);letter-spacing:1px;text-transform:uppercase}
+.box p{margin:0 0 6px}
+.box p:last-child{margin-bottom:0}
+.box b{color:var(--ega14);font-weight:400}
+.hint{color:var(--ega11);font-size:6px;text-align:right;margin-top:6px!important}
+.msg{width:220px;text-align:left}
+.msg > img{display:block;margin:0 auto 8px}
+.msg input{font:inherit;width:100%;box-sizing:border-box;background:#000;color:var(--ega14);border:1px solid var(--ega11);padding:3px;outline:none;margin:2px 0 4px;-webkit-user-select:text;user-select:text}
+.iconrow{display:flex;gap:6px;justify-content:center;margin-bottom:6px}
+.card{text-align:center;min-width:170px}
+.card .small{font-size:6px;color:var(--ega11)}
+
+.menu{min-width:150px}
+.menu .items{display:flex;flex-direction:column;gap:1px}
+.menu .gap{height:4px}
+.menu button,.page .tabs button,.page .x{font:inherit;color:var(--ega15);background:transparent;border:0;padding:2px 4px;cursor:pointer;
+  display:flex;align-items:center;gap:4px;text-align:left}
+.menu button .lbl{flex:1}
+.menu button .meta{color:var(--ega11);font-size:6px}
+.menu button kbd{font-size:6px;color:var(--ega7);min-width:8px;text-align:right}
+.menu button .cur{color:var(--ega14);visibility:hidden;width:7px}
+.menu button:focus{outline:none}
+.menu button.sel{background:#aa0000}
+.menu button.sel .cur{visibility:visible;animation:blink .5s steps(1) infinite}
+.menu button:disabled{color:var(--ega8)}
+@keyframes blink{50%{visibility:hidden}}
+.foot{margin-top:6px;font-size:6px;color:var(--ega11)}
+.foot a,.credit a{color:var(--ega11)}
+.ask .menu{max-width:230px}
+.ask h2{text-transform:none;line-height:1.6}
+
+.title{place-items:end end;padding:0 10px 7px 0;box-sizing:border-box}
+.title .menu{min-width:150px;padding:4px 7px}
+.title .menu button{padding:1px 4px;line-height:1.25}
+.title .menu .gap{height:3px}
+.title .foot{margin-top:4px}
+
+.page{width:286px;height:172px;display:flex;flex-direction:column;box-sizing:border-box}
+.page .phead{display:flex;align-items:center}
+.page .phead h2{flex:1;margin:0}
+.page .x{font-size:10px;padding:0 2px}
+.page .tabs{display:flex;gap:2px;margin:4px 0}
+.page .tabs button{padding:2px 4px;border:1px solid var(--ega9);font-size:6px}
+.page .tabs button[aria-selected="true"]{background:#aa0000;border-color:var(--ega14);color:var(--ega14)}
+.page .pbody{flex:1;overflow-y:auto;font-size:6px;line-height:1.7;padding-right:4px;color:#dfe8ff}
+.page .pbody p{margin:0 0 6px}
+.page .pbody table{border-collapse:collapse}
+.page .pbody td{padding:1px 6px 1px 0;vertical-align:top}
+.page .entries{display:flex;flex-direction:column;gap:6px}
+.page .entry{display:flex;gap:8px;align-items:center}
+.page .entry .pic{width:48px;flex:none;display:grid;place-items:center}
+.page .entry .pic img{max-width:48px;height:auto}
+.scores{width:100%;font-size:7px}
+.scores td.num{text-align:right;color:var(--ega14)}
+.scores tr.me td{color:var(--ega12)}
+
+.status{width:220px}
+.sgrid{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;font-size:7px}
+.sgrid .k{color:var(--ega11)}
+.sgrid img{margin-right:3px}
+
+/* ---- map label, toasts, sound ---- */
+#maplabel{position:absolute;left:50%;bottom:4px;transform:translateX(-50%);background:#000;border:1px solid var(--ega8);
+  padding:2px 6px;font-size:6px;color:var(--ega14);white-space:nowrap;z-index:2}
+#toast{position:absolute;left:50%;top:30px;transform:translateX(-50%);background:var(--ega1);border:1px solid var(--ega11);
+  padding:3px 6px;font-size:6px;max-width:260px;text-align:center;z-index:6}
+#snd{position:absolute;right:3px;top:3px;z-index:7;font:inherit;font-size:7px;width:13px;height:13px;padding:0;line-height:1;
+  background:#000;color:var(--ega11);border:1px solid var(--ega8);cursor:pointer}
+#snd[aria-pressed="false"]{color:var(--ega8)}
+[hidden]{display:none!important}
+
+/* ---- touch ---- */
+#touch{position:fixed;inset:auto 0 0 0;height:0;z-index:10;pointer-events:none}
+#touch button{position:fixed;pointer-events:auto;width:58px;height:58px;border-radius:50%;border:2px solid rgba(85,255,255,.5);
+  background:rgba(0,0,170,.35);color:#fff;font:10px var(--pix);touch-action:none}
+#touch button.on{background:rgba(255,85,85,.55)}
+#touch [data-a=left]{left:12px;bottom:24px}
+#touch [data-a=right]{left:82px;bottom:24px}
+#touch [data-a=up]{left:47px;bottom:92px;width:46px;height:46px}
+#touch [data-a=down]{left:152px;bottom:24px;width:46px;height:46px}
+#touch [data-a=jump]{right:12px;bottom:24px}
+#touch [data-a=fire]{right:82px;bottom:24px}
+#touch [data-a=pogo]{right:47px;bottom:92px;width:46px;height:46px}
+#touch [data-a=pause]{right:12px;top:12px;width:40px;height:40px;bottom:auto}
+#touch [data-a=status]{right:60px;top:12px;width:40px;height:40px;bottom:auto}
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="screen" width="320" height="200" aria-label="Commander Poom"></canvas>
+  <div id="ui">
+    <div id="logo"><div class="cmd">COMMANDER</div><div class="poom">POOM</div><div class="ep">Episode One: Lost on Planet Hiss</div></div>
+    <div id="maplabel" hidden></div>
+    <div id="toast" hidden role="status"></div>
+    <button id="snd" aria-label="Sound" aria-pressed="true" title="Sound (M)">♪</button>
+  </div>
+</div>
+<div id="touch" hidden>
+  <button data-a="left" aria-label="Left">◀</button><button data-a="right" aria-label="Right">▶</button>
+  <button data-a="up" aria-label="Up">▲</button><button data-a="down" aria-label="Down">▼</button>
+  <button data-a="jump" aria-label="Jump">JUMP</button><button data-a="fire" aria-label="Fire">FIRE</button>
+  <button data-a="pogo" aria-label="Pogo">POGO</button>
+  <button data-a="pause" aria-label="Pause">II</button><button data-a="status" aria-label="Status">?</button>
+</div>
+<script src="js/gk-title.js?v=6080c669"></script>
+<script src="js/art.js?v=17b9bc6f"></script>
+<script src="js/levels.js?v=7b17a4cd"></script>
+<script src="js/game.js?v=8839e0c1"></script>
+</body>
+</html>

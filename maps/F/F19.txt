@@ -1,0 +1,23 @@
+; tile-ascii-map/1
+; map:    F19  set: F  engine: E2  kind: highscores
+; size:   24 x 17  (width x height; 1 char = one tile; origin top-left)
+; legend: ' ' empty / passable  '#' solid block  '@' player start  'e' enemy / hostile creature  'p' moving platform
+; entities: enemy=3, marker=5, platform=1, player=1  (full list in F19.json)
+;===============================================================================
+########################
+########################
+##                    ##
+##                    ##
+##                    ##
+##                    ##
+##                    ##
+##                    ##
+##                    ##
+##                    ##
+##                    ##
+##                    ##
+##                    ##
+##  e     @         e ##
+################e#######
+############p###########
+########################

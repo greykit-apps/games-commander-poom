@@ -1,0 +1,671 @@
+{
+ "format": "tile-ascii-map/1",
+ "map": "C03",
+ "set": "C",
+ "engine": "E1",
+ "kind": "level",
+ "notes": [],
+ "width": 74,
+ "height": 30,
+ "legend": {
+  " ": "empty / passable",
+  "#": "solid block",
+  "-": "one-way platform (solid from above only)",
+  "^": "hazard: touching or landing on it kills",
+  "D": "door (locked door, keycard door, or warp door)",
+  "X": "level exit",
+  "?": "message / hint trigger",
+  "$": "points pickup (incl. collect-100-for-a-life pickups)",
+  "k": "key / keycard",
+  "@": "player start",
+  "e": "enemy / hostile creature",
+  "p": "moving platform"
+ },
+ "glyph_counts": {
+  " ": 1535,
+  "#": 488,
+  "-": 66,
+  "^": 19,
+  "D": 2,
+  "X": 2,
+  "?": 8,
+  "$": 88,
+  "k": 1,
+  "@": 1,
+  "e": 9,
+  "p": 1
+ },
+ "grid": [
+  "                                                                          ",
+  "                                                                          ",
+  "  ######################################################################  ",
+  "  #@ ##   #     #                                  ##                  #  ",
+  "  #  ## $$#     # $  $   $$   $                    ##                $$#  ",
+  "  #  ##         # -  --  --  --            $ ^  ^$ ##  $$$$  $$      --#  ",
+  "  #  ##   D X   #                 $$$$    -------- ##  ----            #  ",
+  "  #  ##  eD X   # $$$      $$$$                    ##                  #  ",
+  "  #  ##  ########      $$                          ##                  #  ",
+  "  #  ##                                                 $$  ----  $$   #  ",
+  "  #  ## $                       --------                               #  ",
+  "  #  ## #####        p ##                                            $ #  ",
+  "  #  ##                           $e      e        ## #######  ####### #  ",
+  "  #  ##       ^^^^^^^           #### $#####  $$    ##                  #  ",
+  "  #  ## $$$   #######                 #####      --##                  #  ",
+  "  #  ##                           $$ $## ##        ##       ----       #  ",
+  "  #  ## $  $   $$   $   $$    ######  ## ##  $$    ## $     $$$$      $#  ",
+  "  #  ##    --  --  --                $## ##      --## $               $#  ",
+  "  #  ## $$$ e                     e$  ## ##        ## $####      ???? $#  ",
+  "  #  ##  #############  $$  ######## $## ##  $$    ## $               $#  ",
+  "  #  ## $                             ## ##      --##                  #  ",
+  "  #  ##  $$ e                     e   ## ###       ##   --        --   #  ",
+  "  #  ## $###############  ############## ###       ##       ----       #  ",
+  "  #                                   ## ### ## #####                  #  ",
+  "  #     $                             ## ### e     ##  ?   e        ?  #  ",
+  "  #                     --            ## ##       k##  ? $$$ ^^ $$$ ?  #  ",
+  "  ######################################### -------#####################  ",
+  "  #########################################^^^^^^^^#####################  ",
+  "                                                                          ",
+  "                                                                          "
+ ],
+ "terrain": [
+  "                                                                          ",
+  "                                                                          ",
+  "  ######################################################################  ",
+  "  #  ##   #     #                                  ##                  #  ",
+  "  #  ## $$#     # $  $   $$   $                    ##                $$#  ",
+  "  #  ##         # -  --  --  --            $ ^  ^$ ##  $$$$  $$      --#  ",
+  "  #  ##   D X   #                 $$$$    -------- ##  ----            #  ",
+  "  #  ##   D X   # $$$      $$$$                    ##                  #  ",
+  "  #  ##  ########      $$                          ##                  #  ",
+  "  #  ##                                                 $$  ----  $$   #  ",
+  "  #  ## $                       --------                               #  ",
+  "  #  ## #####          ##                                            $ #  ",
+  "  #  ##                           $$               ## #######  ####### #  ",
+  "  #  ##       ^^^^^^^           #### $#####  $$    ##                  #  ",
+  "  #  ## $$$   #######                 #####      --##                  #  ",
+  "  #  ##                           $$ $## ##        ##       ----       #  ",
+  "  #  ## $  $   $$   $   $$    ######  ## ##  $$    ## $     $$$$      $#  ",
+  "  #  ##    --  --  --                $## ##      --## $               $#  ",
+  "  #  ## $$$                       $$  ## ##        ## $####      ???? $#  ",
+  "  #  ##  #############  $$  ######## $## ##  $$    ## $               $#  ",
+  "  #  ## $                             ## ##      --##                  #  ",
+  "  #  ##  $$                           ## ###       ##   --        --   #  ",
+  "  #  ## $###############  ############## ###       ##       ----       #  ",
+  "  #                                   ## ### ## #####                  #  ",
+  "  #     $                             ## ###       ##  ?            ?  #  ",
+  "  #                     --            ## ##       k##  ? $$$ ^^ $$$ ?  #  ",
+  "  ######################################### -------#####################  ",
+  "  #########################################^^^^^^^^#####################  ",
+  "                                                                          ",
+  "                                                                          "
+ ],
+ "entities": [
+  {
+   "x": 3,
+   "y": 3,
+   "code": 255,
+   "kind": "player",
+   "name": "player start",
+   "difficulty": "",
+   "glyph": "@"
+  },
+  {
+   "x": 9,
+   "y": 7,
+   "code": 4,
+   "kind": "enemy",
+   "name": "enemy type 01",
+   "difficulty": "",
+   "glyph": "e"
+  },
+  {
+   "x": 21,
+   "y": 11,
+   "code": 6,
+   "kind": "platform",
+   "name": "Platform (horizontal)",
+   "difficulty": "",
+   "glyph": "p"
+  },
+  {
+   "x": 35,
+   "y": 12,
+   "code": 4,
+   "kind": "enemy",
+   "name": "enemy type 01",
+   "difficulty": "",
+   "glyph": "e"
+  },
+  {
+   "x": 42,
+   "y": 12,
+   "code": 4,
+   "kind": "enemy",
+   "name": "enemy type 01",
+   "difficulty": "",
+   "glyph": "e"
+  },
+  {
+   "x": 12,
+   "y": 18,
+   "code": 4,
+   "kind": "enemy",
+   "name": "enemy type 01",
+   "difficulty": "",
+   "glyph": "e"
+  },
+  {
+   "x": 34,
+   "y": 18,
+   "code": 4,
+   "kind": "enemy",
+   "name": "enemy type 01",
+   "difficulty": "",
+   "glyph": "e"
+  },
+  {
+   "x": 12,
+   "y": 21,
+   "code": 4,
+   "kind": "enemy",
+   "name": "enemy type 01",
+   "difficulty": "",
+   "glyph": "e"
+  },
+  {
+   "x": 34,
+   "y": 21,
+   "code": 4,
+   "kind": "enemy",
+   "name": "enemy type 01",
+   "difficulty": "",
+   "glyph": "e"
+  },
+  {
+   "x": 45,
+   "y": 24,
+   "code": 1,
+   "kind": "enemy",
+   "name": "enemy type 02",
+   "difficulty": "",
+   "glyph": "e"
+  },
+  {
+   "x": 59,
+   "y": 24,
+   "code": 5,
+   "kind": "enemy",
+   "name": "enemy type 03",
+   "difficulty": "",
+   "glyph": "e"
+  },
+  {
+   "x": 22,
+   "y": 29,
+   "code": 150,
+   "kind": "unknown",
+   "name": "unused sprite value 150",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 23,
+   "y": 29,
+   "code": 149,
+   "kind": "unknown",
+   "name": "unused sprite value 149",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 24,
+   "y": 29,
+   "code": 150,
+   "kind": "unknown",
+   "name": "unused sprite value 150",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 25,
+   "y": 29,
+   "code": 151,
+   "kind": "unknown",
+   "name": "unused sprite value 151",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 26,
+   "y": 29,
+   "code": 143,
+   "kind": "unknown",
+   "name": "unused sprite value 143",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 27,
+   "y": 29,
+   "code": 149,
+   "kind": "unknown",
+   "name": "unused sprite value 149",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 28,
+   "y": 29,
+   "code": 150,
+   "kind": "unknown",
+   "name": "unused sprite value 150",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 29,
+   "y": 29,
+   "code": 151,
+   "kind": "unknown",
+   "name": "unused sprite value 151",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 30,
+   "y": 29,
+   "code": 38287,
+   "kind": "unknown",
+   "name": "unused sprite value 38287",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 31,
+   "y": 29,
+   "code": 38293,
+   "kind": "unknown",
+   "name": "unused sprite value 38293",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 32,
+   "y": 29,
+   "code": 38550,
+   "kind": "unknown",
+   "name": "unused sprite value 38550",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 33,
+   "y": 29,
+   "code": 38550,
+   "kind": "unknown",
+   "name": "unused sprite value 38550",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 34,
+   "y": 29,
+   "code": 38550,
+   "kind": "unknown",
+   "name": "unused sprite value 38550",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 35,
+   "y": 29,
+   "code": 38807,
+   "kind": "unknown",
+   "name": "unused sprite value 38807",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 36,
+   "y": 29,
+   "code": 36759,
+   "kind": "unknown",
+   "name": "unused sprite value 36759",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 37,
+   "y": 29,
+   "code": 36751,
+   "kind": "unknown",
+   "name": "unused sprite value 36751",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 38,
+   "y": 29,
+   "code": 36751,
+   "kind": "unknown",
+   "name": "unused sprite value 36751",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 39,
+   "y": 29,
+   "code": 36751,
+   "kind": "unknown",
+   "name": "unused sprite value 36751",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 40,
+   "y": 29,
+   "code": 36751,
+   "kind": "unknown",
+   "name": "unused sprite value 36751",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 41,
+   "y": 29,
+   "code": 36751,
+   "kind": "unknown",
+   "name": "unused sprite value 36751",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 42,
+   "y": 29,
+   "code": 36751,
+   "kind": "unknown",
+   "name": "unused sprite value 36751",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 43,
+   "y": 29,
+   "code": 36751,
+   "kind": "unknown",
+   "name": "unused sprite value 36751",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 44,
+   "y": 29,
+   "code": 36751,
+   "kind": "unknown",
+   "name": "unused sprite value 36751",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 45,
+   "y": 29,
+   "code": 36751,
+   "kind": "unknown",
+   "name": "unused sprite value 36751",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 46,
+   "y": 29,
+   "code": 36751,
+   "kind": "unknown",
+   "name": "unused sprite value 36751",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 47,
+   "y": 29,
+   "code": 36751,
+   "kind": "unknown",
+   "name": "unused sprite value 36751",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 48,
+   "y": 29,
+   "code": 57743,
+   "kind": "unknown",
+   "name": "unused sprite value 57743",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 49,
+   "y": 29,
+   "code": 57825,
+   "kind": "unknown",
+   "name": "unused sprite value 57825",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 50,
+   "y": 29,
+   "code": 58082,
+   "kind": "unknown",
+   "name": "unused sprite value 58082",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 51,
+   "y": 29,
+   "code": 58338,
+   "kind": "unknown",
+   "name": "unused sprite value 58338",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 52,
+   "y": 29,
+   "code": 58339,
+   "kind": "unknown",
+   "name": "unused sprite value 58339",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 53,
+   "y": 29,
+   "code": 38036,
+   "kind": "unknown",
+   "name": "unused sprite value 38036",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 54,
+   "y": 29,
+   "code": 47252,
+   "kind": "unknown",
+   "name": "unused sprite value 47252",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 55,
+   "y": 29,
+   "code": 47288,
+   "kind": "unknown",
+   "name": "unused sprite value 47288",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 56,
+   "y": 29,
+   "code": 47545,
+   "kind": "unknown",
+   "name": "unused sprite value 47545",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 57,
+   "y": 29,
+   "code": 37049,
+   "kind": "unknown",
+   "name": "unused sprite value 37049",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 58,
+   "y": 29,
+   "code": 37008,
+   "kind": "unknown",
+   "name": "unused sprite value 37008",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 59,
+   "y": 29,
+   "code": 37008,
+   "kind": "unknown",
+   "name": "unused sprite value 37008",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 60,
+   "y": 29,
+   "code": 37008,
+   "kind": "unknown",
+   "name": "unused sprite value 37008",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 61,
+   "y": 29,
+   "code": 37008,
+   "kind": "unknown",
+   "name": "unused sprite value 37008",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 62,
+   "y": 29,
+   "code": 37008,
+   "kind": "unknown",
+   "name": "unused sprite value 37008",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 63,
+   "y": 29,
+   "code": 47760,
+   "kind": "unknown",
+   "name": "unused sprite value 47760",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 64,
+   "y": 29,
+   "code": 47802,
+   "kind": "unknown",
+   "name": "unused sprite value 47802",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 65,
+   "y": 29,
+   "code": 39064,
+   "kind": "unknown",
+   "name": "unused sprite value 39064",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 66,
+   "y": 29,
+   "code": 152,
+   "kind": "unknown",
+   "name": "unused sprite value 152",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 67,
+   "y": 29,
+   "code": 143,
+   "kind": "unknown",
+   "name": "unused sprite value 143",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 68,
+   "y": 29,
+   "code": 143,
+   "kind": "unknown",
+   "name": "unused sprite value 143",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 69,
+   "y": 29,
+   "code": 184,
+   "kind": "unknown",
+   "name": "unused sprite value 184",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 70,
+   "y": 29,
+   "code": 185,
+   "kind": "unknown",
+   "name": "unused sprite value 185",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 71,
+   "y": 29,
+   "code": 144,
+   "kind": "unknown",
+   "name": "unused sprite value 144",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 72,
+   "y": 29,
+   "code": 144,
+   "kind": "unknown",
+   "name": "unused sprite value 144",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 73,
+   "y": 29,
+   "code": 144,
+   "kind": "unknown",
+   "name": "unused sprite value 144",
+   "difficulty": "",
+   "glyph": null
+  }
+ ]
+}
