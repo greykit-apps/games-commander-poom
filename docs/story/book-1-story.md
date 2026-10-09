@@ -127,6 +127,23 @@ graffiti is Scrapper.
 | H13 | Scrapper camp | Graffiti | "LT. GRIZ HAS THE SHINY THING. DON'T TOUCH THE SHINY THING." |
 | H16 | ruins, the long street | Auntie Static | "Two ways out of Litterburg, sugar. Either'll do." (H16 has two exit doors.) |
 
+## The ending
+
+Played when the fourth part is aboard (`BOOK_TEXT.H.ending` in game.js), after
+the ship's "The Catamaran is whole again!":
+
+1. The Yarn Drive catches; the Catamaran rises out of the crash valley.
+2. The Glow from above: the Vault hatches, the smoke over Fort Scrap, Old
+   Litterburg's towers. It almost looks pretty.
+3. Auntie Static on the radio: Rex will be sore; she'll be in touch. Poom
+   never told her his frequency.
+4. Junk Baron Rex, on a throne of hubcaps, watches the light climb: "Find out
+   where it's going." (Rex never appears in Book 1; this sets him up.)
+5. The End of Book One, the score, and on to the next book.
+
+If Book 1 is ever the last book played to the end of the game, the same pages
+end the game, with the final score.
+
 ## Settled
 
 - **Poom and the Catamaran.** Poom is the hero, the Catamaran is his ship,

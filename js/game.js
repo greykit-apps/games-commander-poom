@@ -1224,12 +1224,23 @@ function finishLevel() {
 function bookDone() {
   const r = G.run, next = BOOK_IDS[BOOK_IDS.indexOf(r.book) + 1];
   if (!next) { ending(); return; }
-  const was = r.book;
-  r.book = next; r.mx = r.my = null; r.swim = false;
-  r.parts = [false, false, false, false]; r.aboard = [false, false, false, false];
-  enterMap();
-  saveRun();
-  message(`<b>Book ${bookNumber(was)} is done!</b><br><br>On to Book ${bookNumber(next)}.`);
+  const was = r.book, pages = BOOK_TEXT[was] && BOOK_TEXT[was].ending;
+  /* a book with its own ending plays it before moving on */
+  if (pages) playPages(pages(r.score, bookNumber(next)), moveOn);
+  else moveOn();
+  function moveOn() {
+    r.book = next; r.mx = r.my = null; r.swim = false;
+    r.parts = [false, false, false, false]; r.aboard = [false, false, false, false];
+    enterMap();
+    saveRun();
+    if (!pages) message(`<b>Book ${bookNumber(was)} is done!</b><br><br>On to Book ${bookNumber(next)}.`);
+  }
+}
+/* a run of message pages, then done */
+function playPages(pages, done) {
+  let i = 0;
+  const next = () => { if (i >= pages.length) { done(); return; } message(pages[i++], { onClose: next }); };
+  next();
 }
 
 /* the ship: Poom brings back what he's found; with all four parts aboard,
@@ -1877,6 +1888,16 @@ const BOOK_TEXT = {
       [I.gems[0], "Vault keycards", "Open the door of the same colour, in this level."],
       [ART.parts[0], "Ship parts", "Four, each in a lieutenant's strongroom. Take them to the Catamaran."],
     ]; },
+    /* the pages played when the book is done, after the ship's own message;
+       the last says what comes next (next: the next book's number, or
+       null when this was the last) */
+    ending: (score, next) => [
+      "The Yarn Drive coughs, catches and hums. Green dust lifts off the hull in a cloud, and the Catamaran rises out of the crash valley.",
+      "Below, the Glow spreads out in the last of the light: the Vault hatches, the smoke over Fort Scrap, the broken towers of Old Litterburg. From up here it almost looks pretty.",
+      "The radio crackles. <i>\"Nice flying, sugar. Rex is going to be sore about this. Keep your dial right where it is: I'll be in touch.\"</i><br><br>Then static. Poom never told Auntie Static his frequency.",
+      "Far below, on a throne of hubcaps, <b>Junk Baron Rex</b> watches a little light climb into the sky.<br><br>\"Find out where it's going,\" he growls.",
+      `<b>The End</b> of Book One: Down in the Glow.<br><br>${next ? `Score so far: ${score}.<br><br>On to Book ${next}.` : `Final score: ${score}.<br><br>Commander Poom will return.`}`,
+    ],
   },
 };
 /* the book the help is about: the one being played, or Book 1 */
@@ -2029,18 +2050,15 @@ function ending() {
   sfx("done");
   const r = G.run;
   addScore(10000);
-  const pages = [
+  /* the last book played ends the game in its own words, bonus included */
+  const own = BOOK_TEXT[r.book] && BOOK_TEXT[r.book].ending;
+  const pages = own ? own(r.score, null) : [
     "<b>The Catamaran is whole again.</b><br><br>Poom bolts in the Laser Pointer, spins up the Yarn Drive, and Planet Hiss falls away beneath him. Bonus: 10,000 points.",
     "He lands in the back yard with a soft <i>thump</i>, hides the ship behind the shed, and is in bed, eyes shut, when the front door opens.",
     "\"Was he good?\" his mom asks the babysitter. \"Purrfect,\" says the babysitter.<br><br>From the hall closet comes a faint, hungry whirr...",
     `<b>The End</b> of Episode One.<br><br>Final score: ${r.score}.<br><br>Commander Poom will return.`,
   ];
-  let i = 0;
-  const next = () => {
-    if (i >= pages.length) { store.del(KEYS.save); recordScore(r.score, k => { openTitle(); if (k >= 0) openScores(k); }); return; }
-    message(pages[i++], { onClose: next });
-  };
-  next();
+  playPages(pages, () => { store.del(KEYS.save); recordScore(r.score, k => { openTitle(); if (k >= 0) openScores(k); }); });
 }
 
 /* ------------------------------------------------------------------ */
