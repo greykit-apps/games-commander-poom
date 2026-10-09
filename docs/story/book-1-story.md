@@ -127,6 +127,25 @@ graffiti is Scrapper.
 | H13 | Scrapper camp | Graffiti | "LT. GRIZ HAS THE SHINY THING. DON'T TOUCH THE SHINY THING." |
 | H16 | ruins, the long street | Auntie Static | "Two ways out of Litterburg, sugar. Either'll do." (H16 has two exit doors.) |
 
+## Place names
+
+Each level's name on the map and on its title card (`BOOK_TEXT.H.places`):
+
+| Level | Place | | Level | Place |
+|---|---|---|---|---|
+| H02 | The Valley Road | | H10 | Vault 6 |
+| H03 | Auntie's Tower | | H11 | Vault 9, Cold Storage |
+| H04 | Griz's Camp | | H12 | Scrapper Turf |
+| H05 | Old Litterburg | | H13 | The Lookout |
+| H06 | The Overpass | | H14 | Vault 6, the Lab |
+| H07 | The Far Tower | | H15 | The Nest |
+| H08 | Fort Scrap | | H16 | Litterburg Main Street |
+| H09 | Vault 9 | | H17 | Vault 9, the Deep Freeze |
+
+The game's own talk (toasts, pickups, the ship, game over, the status
+window, the high-score table, the boot lines) is in `BOOK_TEXT.H.say` and
+friends; anything a book doesn't reword falls back to the original's.
+
 ## The ending
 
 Played when the fourth part is aboard (`BOOK_TEXT.H.ending` in game.js), after

@@ -228,7 +228,11 @@ const LEVEL_THEME = { H09: "vaultCold", H11: "vaultCold", H17: "vaultCold", H10:
   H02: "ruins", H03: "ruins", H05: "ruins", H06: "ruins", H07: "ruins", H12: "ruins", H16: "ruins" };
 const MAPS = {};
 for (const b of BOOK_IDS) BOOKS[b].chapters.forEach(ch => ch.levels.forEach(lv => { MAPS[lv.id] = lv; lv.book = b; }));
-const levelName = id => `Book ${bookNumber(MAPS[id].book)}, level ${+id.slice(1) - 1}`;
+/* a level's name: its place in a book that names its places, or its number */
+const levelName = id => {
+  const B = BOOK_TEXT[MAPS[id].book], place = B && B.places && B.places[id];
+  return place ? `Level ${+id.slice(1) - 1}: ${place}` : `Book ${bookNumber(MAPS[id].book)}, level ${+id.slice(1) - 1}`;
+};
 
 /* what a world map's markers mean, worked out once per book */
 const WORLDS = {};
@@ -597,7 +601,7 @@ function updatePlayer(lv) {
 
   /* pogo on and off */
   if (wasPressed("pogo") && !p.climbing && !lv.swim) {
-    if (!run.pogo) { if (!seen("nopogo")) toast("You don't have a pogo stick yet."); sfx("click"); }
+    if (!run.pogo) { if (!seen("nopogo")) toast(say("noPogo", "You don't have a pogo stick yet.")); sfx("click"); }
     else if (!p.pogo) {
       if (rectClear(lv, p.x, p.y - POGO_H, p.w, POGO_H)) {
         p.pogo = true; p.y -= POGO_H; p.h = PH + POGO_H;
@@ -608,7 +612,7 @@ function updatePlayer(lv) {
 
   /* through a warp door: up, standing in front of one */
   const door = !p.climbing && warpAt(lv, p);
-  if (door && !seen("warpdoor")) toast("A door. Press \u2191 to go through.");
+  if (door && !seen("warpdoor")) toast(say("warpDoor", "A door. Press \u2191 to go through."));
   if (door && wasPressed("up")) { warpTo(lv, p, door); return; }
 
   /* a key socket: stand at it with its keycard */
@@ -616,7 +620,7 @@ function updatePlayer(lv) {
     const s = lv.socketAt[k];
     if (!s || s.filled) continue;
     if (lv.keys[s.gem]) fillSocket(lv, s);
-    else if (lv.socketWarned !== s) { lv.socketWarned = s; toast(`A ${GEM_NAMES[s.gem]} keycard goes here.`); }
+    else if (lv.socketWarned !== s) { lv.socketWarned = s; toast(say("socket", c => `A ${c} keycard goes here.`, GEM_NAMES[s.gem])); }
   }
 
   /* a bridge switch: up, standing at it */
@@ -737,7 +741,7 @@ function updatePlayer(lv) {
       const sy = p.y + (p.climbing ? 8 : 12);
       lv.shots.push({ kind: "zap", x: p.face > 0 ? p.x + p.w : p.x - 5, y: sy, w: 5, h: 2, vx: KP.shotSpeed * p.face, t: 0, mine: true });
       sfx("shoot");
-    } else { sfx("click"); if (!seen("noammo")) toast("Click. The raygun is empty. Look for charges."); }
+    } else { sfx("click"); if (!seen("noammo")) toast(say("noAmmo", "Click. The raygun is empty. Look for charges.")); }
   }
 
   if (!p.onGround && !p.climbing) p.anim = 0; else if (Math.abs(p.vx) > 0.3) p.anim += Math.abs(p.vx) * 0.09; else p.anim = 0;
@@ -760,7 +764,7 @@ function updatePlayer(lv) {
       const d = DOOR_CH[tileAt(lv, tx, ty)];
       /* a silver door's colour isn't in the maps: any keycard opens it */
       if (d !== undefined && (lv.keys[d] || d === 4 && lv.keys.some(Boolean))) openDoor(lv, tx, ty);
-      else if (d !== undefined && !lv.warned) { lv.warned = true; toast(d === 4 ? "A locked door. It needs a keycard." : `A ${GEM_NAMES[d]} door. It needs a ${GEM_NAMES[d]} keycard.`); }
+      else if (d !== undefined && !lv.warned) { lv.warned = true; toast(say("lockedDoor", c => c ? `A ${c} door. It needs a ${c} keycard.` : "A locked door. It needs a keycard.", d === 4 ? null : GEM_NAMES[d])); }
     }
   }
 
@@ -973,16 +977,16 @@ function collect(lv, it) {
   const r = G.run;
   it.gone = true;
   if (POINTS[it.kind]) { addScore(POINTS[it.kind]); popup(it, String(POINTS[it.kind])); sfx(POINTS[it.kind] >= 1000 ? "bigitem" : "item"); }
-  else if (it.kind === "ammo") { r.ammo += 5; popup(it, "+5"); sfx("pick"); if (!seen("ammo")) message("<b>Raygun charge!</b> Five shots. Fire with <kbd>Space</kbd> or <kbd>C</kbd>."); }
+  else if (it.kind === "ammo") { r.ammo += 5; popup(it, "+5"); sfx("pick"); if (!seen("ammo")) message(say("ammo", "<b>Raygun charge!</b> Five shots. Fire with <kbd>Space</kbd> or <kbd>C</kbd>.")); }
   else if (it.kind === "life") { r.lives++; popup(it, "1UP"); sfx("life"); }
   else if (it.kind === "gem") { lv.keys[it.gem] = true; sfx("gem"); popup(it, GEM_NAMES[it.gem].toUpperCase()); }
   else if (it.kind === "pogo") {
     r.pogo = true; sfx("bigitem");
-    message("<b>You found a pogo stick!</b><br><br>Press <kbd>Alt</kbd> or <kbd>X</kbd> to hop on and off. Hold <kbd>Ctrl</kbd> or <kbd>Z</kbd> as you land for a big bounce.");
+    message(say("pogo", "<b>You found a pogo stick!</b><br><br>Press <kbd>Alt</kbd> or <kbd>X</kbd> to hop on and off. Hold <kbd>Ctrl</kbd> or <kbd>Z</kbd> as you land for a big bounce."));
   }
   else if (it.kind === "swim") {
     r.swim = true; addScore(1000); popup(it, "1000"); sfx("bigitem");
-    message("<b>You can swim!</b><br><br>On the map, Poom can wade in where the shore meets the water.");
+    message(say("swim", "<b>You can swim!</b><br><br>On the map, Poom can wade in where the shore meets the water."));
     if (it.ends && --lv.endsLeft === 0) finishBy(lv, "objective");
   }
   else if (it.kind === "objective") {
@@ -992,7 +996,7 @@ function collect(lv, it) {
   else if (it.kind === "part") {
     r.parts[it.part] = true; sfx("bigitem"); addScore(1000);
     const have = r.parts.filter(Boolean).length;
-    message(`<b>You found ${PART_NAMES[it.part]}!</b><br><br>${have === 4 ? "That's all four. Back to the Catamaran!" : `${have} of 4 ship parts. Get it back to the Catamaran.`}`, { icon: ART.parts[it.part] });
+    message(say("part", (name, n) => `<b>You found ${name}!</b><br><br>${n === 4 ? "That's all four. Back to the Catamaran!" : `${n} of 4 ship parts. Get it back to the Catamaran.`}`, PART_NAMES[it.part], have), { icon: ART.parts[it.part] });
   }
 }
 
@@ -1136,7 +1140,7 @@ function hurtEnemy(lv, e, shot) {
     const big = e.type === "W";
     for (let i = 0; i < (big ? 6 : 1); i++) lv.fx.push({ kind: "poof", x: e.x + e.w / 2 - 5 + (big ? (Math.random() - .5) * 30 : 0), y: e.y + e.h / 2 - 3 + (big ? (Math.random() - .5) * 40 : 0), t: -i * 5 });
     if (e.points) { addScore(e.points); popup({ x: e.x + e.w / 2 - 8, y: e.y }, String(e.points)); }
-    if (big) message("<b>The Grand Vacuumoid has been unplugged!</b><br><br>Grab the Laser Pointer and get out of here.");
+    if (big) message(say("bossDown", "<b>The Grand Vacuumoid has been unplugged!</b><br><br>Grab the Laser Pointer and get out of here."));
   } else sfx("hit");
 }
 
@@ -1218,7 +1222,7 @@ function finishLevel() {
   if (!world().ship && world().need.every(id => r.done[id])) { bookDone(); return; }
   enterMap();
   saveRun();
-  if (Object.values(world().barrier).includes(n)) setTimeout(() => toast("Somewhere on the map, the way opens."), 300);
+  if (Object.values(world().barrier).includes(n)) setTimeout(() => toast(say("wayOpens", "Somewhere on the map, the way opens.")), 300);
 }
 
 function bookDone() {
@@ -1253,14 +1257,14 @@ function boardShip() {
   if (r.aboard.every(Boolean)) {
     sfx("done");
     saveRun();
-    message(`<b>The Catamaran is whole again!</b>${brought.length ? `<br><br>Poom bolts in ${PART_NAMES[brought[brought.length - 1]]}.` : ""}`, { iconRow: r.aboard, onClose: bookDone });
+    message(say("shipWhole", last => `<b>The Catamaran is whole again!</b>${last ? `<br><br>Poom bolts in ${last}.` : ""}`, brought.length ? PART_NAMES[brought[brought.length - 1]] : null), { iconRow: r.aboard, onClose: bookDone });
     return;
   }
   const missing = r.aboard.map((h, i) => h ? null : PART_NAMES[i]).filter(Boolean);
   const list = missing.join(", ").replace(/, ([^,]*)$/, " and $1");
   if (brought.length) { sfx("bigitem"); saveRun(); }
   else sfx("nope");
-  message(`<b>The Catamaran</b><br><br>${brought.length ? `Poom fits ${brought.map(i => PART_NAMES[i]).join(" and ")}. ` : ""}It still won't fly without ${list}.`, { iconRow: r.aboard });
+  message(say("shipMissing", (fits, still) => `<b>The Catamaran</b><br><br>${fits ? `Poom fits ${fits}. ` : ""}It still won't fly without ${still}.`, brought.map(i => PART_NAMES[i]).join(" and "), list), { iconRow: r.aboard });
 }
 function onShip(p) {
   const s = world().ship;
@@ -1277,7 +1281,7 @@ function loseLife() {
   if (G.run.lives < 0) { G.run.lives = 0; gameOver(); return; }
   enterMap();
   saveRun();
-  message(G.run.lives === 0 ? "Poom shakes it off.<br><br><b>This is your last life.</b>" : `Poom shakes it off.<br><br>${G.run.lives} ${G.run.lives === 1 ? "life" : "lives"} left.`);
+  message(say("lostLife", n => n === 0 ? "Poom shakes it off.<br><br><b>This is your last life.</b>" : `Poom shakes it off.<br><br>${n} ${n === 1 ? "life" : "lives"} left.`, G.run.lives));
 }
 
 /* ------------------------------------------------------------------ */
@@ -1340,8 +1344,8 @@ function updateMap() {
   const blocked = (x, y) => {
     for (const [cx, cy] of boxPoints(x, y, p.w, p.h)) {
       const ch = mapTile(Math.floor(cx / T), Math.floor(cy / T));
-      if (ch === "~" && mapSolid(ch) && !m.waterWarned) { m.waterWarned = true; toast("Water. Poom can't swim. Not yet."); }
-      if (mapPointSolid(cx, cy)) { if (barrierOn(Math.floor(cx / T), Math.floor(cy / T)) && !m.fieldWarned) { m.fieldWarned = true; toast("Something blocks the way. Finish the levels nearby."); } return true; }
+      if (ch === "~" && mapSolid(ch) && !m.waterWarned) { m.waterWarned = true; toast(say("water", "Water. Poom can't swim. Not yet.")); }
+      if (mapPointSolid(cx, cy)) { if (barrierOn(Math.floor(cx / T), Math.floor(cy / T)) && !m.fieldWarned) { m.fieldWarned = true; toast(say("blocked", "Something blocks the way. Finish the levels nearby.")); } return true; }
     }
     return false;
   };
@@ -1354,7 +1358,7 @@ function updateMap() {
   const ctx_ = Math.floor((p.x + p.w / 2) / T), cty = Math.floor((p.y + p.h / 2) / T);
   const here = mapHere(p);
   if (here && (wasPressed("jump") || wasPressed("fire"))) {
-    if (G.run.done[here]) { toast(`${levelName(here)}: done.`); sfx("nope"); }
+    if (G.run.done[here]) { toast(say("levelDone", name => `${name}: done.`, levelName(here))); sfx("nope"); }
     else { saveRun(); startLevel(here); }
   }
   if (!here && onShip(p) && (wasPressed("jump") || wasPressed("fire"))) boardShip();
@@ -1791,7 +1795,7 @@ function statusWindow() {
   row("Score", String(r.score));
   row("Extra life at", String(r.nextLife));
   row("Lives", String(r.lives));
-  row("Raygun", r.ammo ? `${r.ammo} charge${r.ammo === 1 ? "" : "s"}` : "empty");
+  row("Raygun", say("raygun", n => n ? `${n} charge${n === 1 ? "" : "s"}` : "empty", r.ammo));
   const keys = el("span"); (G.lv ? G.lv.keys : [false, false, false, false]).forEach((k, i) => { const im = imgOf(ART.gems[i]); if (!k) im.classList.add("missing"); keys.appendChild(im); });
   row("Keycards", keys);
   const parts = el("span"); r.parts.forEach((h, i) => { const im = imgOf(ART.parts[i]); im.title = PART_NAMES[i]; if (!h) im.classList.add("missing"); parts.appendChild(im); });
@@ -1888,6 +1892,40 @@ const BOOK_TEXT = {
       [I.gems[0], "Vault keycards", "Open the door of the same colour, in this level."],
       [ART.parts[0], "Ship parts", "Four, each in a lieutenant's strongroom. Take them to the Catamaran."],
     ]; },
+    /* its places: a level's name on the map and its title card */
+    places: {
+      H02: "The Valley Road", H03: "Auntie's Tower", H04: "Griz's Camp", H05: "Old Litterburg",
+      H06: "The Overpass", H07: "The Far Tower", H08: "Fort Scrap", H09: "Vault 9",
+      H10: "Vault 6", H11: "Vault 9, Cold Storage", H12: "Scrapper Turf", H13: "The Lookout",
+      H14: "Vault 6, the Lab", H15: "The Nest", H16: "Litterburg Main Street", H17: "Vault 9, the Deep Freeze",
+    },
+    /* the game's own talk, in the Glow's words (see say()) */
+    say: {
+      noPogo: "No pogo stick. Not yet.",
+      warpDoor: "A hatch. Press \u2191 to go through.",
+      socket: c => `A ${c} card reader. A ${c} keycard goes here.`,
+      noAmmo: "Click. The raygun is empty. Look for energy cells.",
+      lockedDoor: c => c ? `A ${c} security door. It wants a ${c} keycard.` : "A locked security door. It wants a keycard.",
+      ammo: "<b>Energy cell!</b> Five shots for the raygun. Fire with <kbd>Space</kbd> or <kbd>C</kbd>.",
+      pogo: "<b>You found a pogo stick!</b><br><br>Pre-war, rusty, and still springy. Press <kbd>Alt</kbd> or <kbd>X</kbd> to hop on and off. Hold <kbd>Ctrl</kbd> or <kbd>Z</kbd> as you land for a big bounce.",
+      swim: "<b>You can swim!</b><br><br>Hold your breath and don't drink it. On the map, Poom can wade in where the shore meets the water.",
+      part: (name, n) => `<b>You took back ${name}!</b><br><br>${n === 4 ? "That's all four. Back to the Catamaran, before the Scrappers notice!" : `${n} of 4 ship parts. Get it back to the Catamaran.`}`,
+      bossDown: "<b>The lieutenant is down!</b><br><br>Grab the part and get out of here.",
+      wayOpens: "Somewhere in the Glow, the road opens.",
+      shipWhole: last => `<b>The Catamaran is whole again!</b>${last ? `<br><br>Poom bolts in ${last} and wipes off the Scrapper paint.` : ""}`,
+      shipMissing: (fits, still) => `<b>The Catamaran</b><br><br>${fits ? `Poom bolts in ${fits}. ` : ""}It still won't fly without ${still}. The Scrappers have the rest.`,
+      lostLife: n => n === 0 ? "Poom dusts himself off.<br><br><b>This is your last life.</b>" : `Poom dusts himself off.<br><br>${n} ${n === 1 ? "life" : "lives"} left.`,
+      water: "Glowing water. Poom isn't going in that. Not yet.",
+      blocked: "The road's shut. Clear the places nearby.",
+      levelDone: name => `${name}: cleared.`,
+      raygun: n => n ? `${n} shot${n === 1 ? "" : "s"}` : "empty",
+      gameOver: n => `<b>Game over.</b><br><br>The Glow wins this one. Commander Poom is out of lives. Final score: ${n}.`,
+      highScore: n => `<b>A high score!</b><br><br>${n} caps' worth. Auntie Static wants your name for the broadcast.`,
+    },
+    /* the high-score table before anyone's on it */
+    scores: [["Junk Baron Rex", 20000], ["Auntie Static", 15000], ["Lt. Griz", 10000], ["Sentrybot", 7500], ["Glowmouse #7", 5000], ["Scrap Hound", 2500], ["The Overseer", 1000]],
+    /* the boot screen's lines */
+    boot: ["256 colours: ok", "geiger counter: clicking"],
     /* the pages played when the book is done, after the ship's own message;
        the last says what comes next (next: the next book's number, or
        null when this was the last) */
@@ -1902,6 +1940,12 @@ const BOOK_TEXT = {
 };
 /* the book the help is about: the one being played, or Book 1 */
 const textBook = () => BOOK_TEXT[themeBook()];
+/* a line of the game's own talk, in the current book's words: its say[key]
+ * (text, or a function of args) if it has one, else the original's */
+function say(key, original, ...args) {
+  const B = textBook(), v = B && B.say && B.say[key];
+  return v === undefined ? (typeof original === "function" ? original(...args) : original) : typeof v === "function" ? v(...args) : v;
+}
 
 function openHelp() {
   const B = textBook();
@@ -1949,7 +1993,8 @@ function openSettings() {
 const DEFAULT_SCORES = [
   ["Grandma Puma", 20000], ["Mousel #7", 15000], ["Mr. Whiskers", 10000], ["Roombot", 7500], ["The Hose", 5000], ["Barky", 2500], ["Poom's Mom", 1000],
 ];
-function scores() { return store.get(KEYS.scores, null) || DEFAULT_SCORES.slice(); }
+/* until there are real scores, the table is the current book's cast */
+function scores() { const B = textBook(); return store.get(KEYS.scores, null) || ((B && B.scores) || DEFAULT_SCORES).slice(); }
 function openScores(highlight = -1) {
   const list = scores();
   const rows = list.map(([n, s], i) => `<tr${i === highlight ? ' class="me"' : ""}><td>${i + 1}.</td><td>${escapeHTML(n)}</td><td class="num">${s}</td></tr>`).join("");
@@ -1959,7 +2004,7 @@ const escapeHTML = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": 
 
 function enterName(score, then) {
   const wrap = el("div", "overlay"), box = el("div", "box msg");
-  box.appendChild(el("p", null, `<b>A high score!</b><br><br>${score} points. Your name?`));
+  box.appendChild(el("p", null, say("highScore", n => `<b>A high score!</b><br><br>${n} points. Your name?`, score)));
   const input = el("input"); input.maxLength = 14; input.value = store.get(NS + "_name_v1", "") || "";
   input.setAttribute("aria-label", "Your name");
   box.appendChild(input);
@@ -2042,7 +2087,7 @@ function gameOver() {
   const score = G.run.score;
   store.del(KEYS.save);
   sfx("die");
-  message(`<b>Game over.</b><br><br>Commander Poom is out of lives. Final score: ${score}.`, { onClose: () => recordScore(score, i => { openTitle(); if (i >= 0) openScores(i); }) });
+  message(say("gameOver", n => `<b>Game over.</b><br><br>Commander Poom is out of lives. Final score: ${n}.`, score), { onClose: () => recordScore(score, i => { openTitle(); if (i >= 0) openScores(i); }) });
 }
 
 function ending() {
@@ -2127,7 +2172,8 @@ function boot() {
   mapArt = classicMap;
   G.map = { t: 0, p: null };
   injectTitleCSS();
-  const run = runBoot({ lines: [bootReloadLine(), "sixteen colours: ok", "pc speaker: ok"] });
+  const B = BOOK_TEXT[themeBook()];
+  const run = runBoot({ lines: [bootReloadLine(), ...((B && B.boot) || ["sixteen colours: ok", "pc speaker: ok"])] });
   fit();
   setupTouch();
   syncSoundButton();
