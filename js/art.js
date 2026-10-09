@@ -11,9 +11,13 @@ const EGA = ["#000000", "#0000aa", "#00aa00", "#00aaaa", "#aa0000", "#aa00aa", "
   "#555555", "#5555ff", "#55ff55", "#55ffff", "#ff5555", "#ff55ff", "#ffff55", "#ffffff",
   /* past the sixteen, VGA-style, for Poom: EGA has no tawny. g tawny, h its
    * shade, i cream (muzzle, inner ears), k the dark tip of the tail */
-  "#dba363", "#a8743c", "#f6e3bd", "#3a2412"];
+  "#dba363", "#a8743c", "#f6e3bd", "#3a2412",
+  /* the ranger look (Book 1): l m n a duster, dark to light; o p q a combat
+   * helmet, dark to light; r s the goggles' red and their glow; t the tan
+   * strap; u boots */
+  "#2e2016", "#4e3826", "#70533a", "#26272a", "#43464a", "#6c7076", "#c8261c", "#ff8a6a", "#b88a54", "#1c130c"];
 /* grid letters for the extra colours, indexed from 16 */
-const EXTRA = "ghik";
+const EXTRA = "ghiklmnopqrstu";
 
 function makeCanvas(w, h) {
   const c = document.createElement("canvas");
@@ -323,6 +327,92 @@ const TAIL_BACK = [
   "...............kkk",
   "..............kkk",
 ];
+
+/* Poom's looks, one per book (game.js picks). Each recolours the same
+ * grids, so every pose and frame lines up: the head's helmet (C, its
+ * stripe F, its rim 4) and eyes (F, pupils 0); the body's jersey 9,
+ * shorts 5, socks F, shoes C. Classic is Poom as he was first drawn. */
+const recolour = (rows, map) => rows.map(r => [...r].map(c => map[c] || c).join(""));
+const LOOKS = {
+  classic: { head: r => r, body: r => r, map: r => r },
+  /* the ranger (Book 1, the wasteland): a combat helmet over a gas mask
+     with red-glowing eyepieces (RANGER_HEAD); a long brown duster with a
+     tan strap across it, flaring over the knees; slate trousers, boots. */
+  ranger: {
+    head: rows => rows === P_HEAD ? RANGER_HEAD : rows === P_HEAD_BACK ? RANGER_HEAD_BACK : RANGER_HEAD_OUT,
+    body: rows => rows.map((r, y) => {
+      if (y === 0) return r.replace(/h/g, "l");
+      if (y <= 5) {
+        const first = r.indexOf("9");
+        return [...r].map((c, x) => c !== "9" ? c : x === first ? "l" : x === first + y ? "t" : "m").join("");
+      }
+      if (y <= 8) {
+        /* the duster's skirt: mid brown, a dark hem, flaring a pixel past the legs */
+        const cells = [...r], first = r.indexOf("5"), last = r.lastIndexOf("5");
+        if (first < 0) return recolour([r], { F: "u", C: "u" })[0];
+        const out = cells.map((c, x) => c !== "5" ? c : y === 8 || x === first ? "l" : "m");
+        if (y >= 7) { if (first > 0 && out[first - 1] === ".") out[first - 1] = "l"; if (last + 1 < out.length && out[last + 1] === ".") out[last + 1] = "l"; }
+        if (y === 8) for (let x = first; x <= last; x++) if (out[x] === ".") out[x] = "l";
+        return out.join("");
+      }
+      return recolour([r], { 5: "p", F: "u", C: "u" })[0];
+    }),
+    map: rows => {
+      const b = rows.findIndex(r => r.includes("9"));
+      return rows.map((r, y) => {
+        /* the head from above: helmet, and the mask over the face */
+        if (y < b) return /[C4]/.test(r) ? recolour([r], { C: "p", F: "q", 4: "o" })[0] : recolour([r.replace(/F0/g, "sr")], { F: "s", i: "p", D: "q" })[0];
+        if (r.includes("9")) { const first = r.indexOf("9"); return [...r].map((c, x) => c !== "9" ? c : x === first ? "l" : x === first + (y - b) + 3 ? "t" : "m").join(""); }
+        return recolour([r], { 5: y === b + 2 ? "m" : "p", C: "u" })[0];
+      });
+    },
+  },
+};
+/* the ranger's head: a rounded combat helmet with a brim, over a gas mask
+ * with round eyepieces glowing red and a respirator snout; his ears poke up
+ * through the top. Front, back, and knocked out (the eyepieces dark). */
+const RANGER_HEAD = [
+  "..g.....g.....",
+  ".gig...gig....",
+  "..oppppppp....",
+  ".oppppqqpppp..",
+  "opppppppppppo.",
+  "oooooooooooooo",
+  ".gggpppppppp..",
+  ".gggpsrppsrp..",
+  ".gggppppppqqo.",
+  "..ggppppppoqqo",
+];
+const RANGER_HEAD_BACK = [
+  "..g.....g.....",
+  ".ggg...ggg....",
+  ".ooppppppppo..",
+  "oppppqpppppp..",
+  "oppppppppppp..",
+  "oooooooooooo..",
+  ".gggggggggg...",
+  ".ggoooooogg...",
+  ".gggggggggg...",
+  "..gggggggg....",
+];
+const RANGER_HEAD_OUT = [
+  "..g.....g.....",
+  ".gig...gig....",
+  "..oppppppp....",
+  ".oppppqqpppp..",
+  "opppppppppppo.",
+  "oooooooooooooo",
+  ".gggpppppppp..",
+  ".gggpoopppoop.",
+  ".gggppppppqqo.",
+  "..ggppppppoqqo",
+];
+
+/* dress Poom: the sprites the game draws come from the look in use */
+function useLook(name) {
+  const L = ART.looks[name] || ART.looks.classic;
+  ART.poom = L.poom; ART.map = L.map;
+}
 
 /* the pogo stick, under Poom's feet: extended and compressed */
 const POGO_LONG = [
@@ -888,7 +978,7 @@ const STAR = ["E", ".", "E"];
 /* ------------------------------------------------------------------ */
 /* Build                                                                 */
 
-const ART = { poom: {}, map: {}, mousel: {}, barker: {}, vac: {}, boss: {}, roombot: {}, tank: {}, items: {}, gems: [], parts: [] };
+const ART = { looks: {}, poom: {}, map: {}, mousel: {}, barker: {}, vac: {}, boss: {}, roombot: {}, tank: {}, items: {}, gems: [], parts: [] };
 
 function both(c) { return { r: c, l: flipped(c) }; }
 
@@ -898,15 +988,20 @@ function buildArt() {
     const t = tail[y] || "";
     return [...r].map((c, x) => c === "." && t[x] && t[x] !== "." ? t[x] : c).join("");
   });
-  for (const [k, body] of Object.entries(P_BODY)) {
-    const backView = k === "back" || k === "climb0" || k === "climb1";
-    const head = backView ? P_HEAD_BACK : k === "dead" ? P_HEAD_DIZZY : P_HEAD;
-    const tail = backView ? TAIL_BACK : k === "walk1" ? TAIL_SWING : TAIL_SIDE;
-    ART.poom[k] = both(sprite(head.map(pad).concat(overlay(body.map(pad), tail))));
+  /* Poom in every look: the same grids, recoloured (see LOOKS) */
+  for (const [look, dress] of Object.entries(LOOKS)) {
+    const L = ART.looks[look] = { poom: {}, map: {} };
+    for (const [k, body] of Object.entries(P_BODY)) {
+      const backView = k === "back" || k === "climb0" || k === "climb1";
+      const head = backView ? P_HEAD_BACK : k === "dead" ? P_HEAD_DIZZY : P_HEAD;
+      const tail = backView ? TAIL_BACK : k === "walk1" ? TAIL_SWING : TAIL_SIDE;
+      L.poom[k] = both(sprite(dress.head(head).map(pad).concat(overlay(dress.body(body).map(pad), tail))));
+    }
+    for (const [k, g] of Object.entries(MAP_POOM)) L.map[k] = both(sprite(dress.map(g)));
   }
+  useLook("classic");
   ART.pogoLong = both(sprite(POGO_LONG));
   ART.pogoShort = both(sprite(POGO_SHORT));
-  for (const [k, g] of Object.entries(MAP_POOM)) ART.map[k] = both(sprite(g));
   for (const [k, g] of Object.entries(MOUSEL)) ART.mousel[k] = both(sprite(g));
   for (const [k, g] of Object.entries(BARKER)) ART.barker[k] = both(sprite(g));
   for (const [k, g] of Object.entries(VACUUMOID)) ART.vac[k] = both(sprite(g));
