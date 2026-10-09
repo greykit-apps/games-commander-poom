@@ -618,7 +618,7 @@ function updatePlayer(lv) {
 
   /* a hint sign: up, standing at it, reads it */
   const sign = !door && !p.climbing && signAt(lv, p);
-  if (sign && lv.signNear !== sign) { lv.signNear = sign; toast(say("signNear", "A sign. Press \u2191 to read it.")); }
+  if (sign && lv.signNear !== sign) { lv.signNear = sign; toast(say("signNear", "A sign. Press \u2191 to read it.", lv.theme)); }
   if (!sign) lv.signNear = null;
   if (sign && wasPressed("up")) { readSign(lv, sign); return; }
 
@@ -1934,7 +1934,8 @@ const BOOK_TEXT = {
     },
     /* the game's own talk, in the Glow's words (see say()) */
     say: {
-      signNear: "A loudspeaker, a terminal, a scrawl. Press \u2191 to read it.",
+      /* named for what a sign is in its level's tileset (art.js) */
+      signNear: tiles => ({ ruins: "A loudspeaker. Press \u2191 to listen.", vault: "A terminal. Press \u2191 to read it.", vaultCold: "A terminal. Press \u2191 to read it.", raiders: "Scrapper graffiti. Press \u2191 to read it." })[tiles] || "A sign. Press \u2191 to read it.",
       noPogo: "No pogo stick. Not yet.",
       warpDoor: "A hatch. Press \u2191 to go through.",
       socket: c => `A ${c} card reader. A ${c} keycard goes here.`,
