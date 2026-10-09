@@ -15,6 +15,8 @@ spirit of *Fallout*; its names, art and text are all original.
 
 <https://greykit.com/games/commanderpoom/>
 
+![The title screen: the amber Commander Poom logo and "Book One: Down in the Glow" over a dusk sky, the Catamaran crash-landed and smoking on the left with ranger Poom beside it, Auntie Static's radio mast and a ruined skyline behind, and the menu in a rusted-steel panel](screenshots/title.png)
+
 No build step, no dependencies, no network at play time. Saves stay in your
 browser's `localStorage`. Every sound is synthesized in the page with Web
 Audio; `M`, or the note in the corner, turns it off.
@@ -31,6 +33,16 @@ Audio; `M`, or the note in the corner, turns it off.
 | `Esc` | pause |
 
 A gamepad works too, and on a touch screen the controls appear on screen.
+
+### The Glow
+
+![The world map: Poom on a dusty road between rock ridges, a Scrapper camp flying the banner of a place already cleared, and ruined towers further off; the wrist-computer scorebox reads 6850 in green](screenshots/map.png)
+
+![Old Litterburg: ranger Poom on a broken concrete street under a hazy sun, a Glowmouse beside him, a faded billboard and rusted girders above, tins of tuna to collect along the top](screenshots/ruins.png)
+
+![Vault 9, frozen: icicles along the ceiling, a round blast door marked 9, two auto-turrets firing as Poom passes, and a Sentrybot rolling along the icy walkway](screenshots/vault.png)
+
+![A Vault terminal, read in Vault 9: "VAULT 9 COLD-SLEEP STATUS: COOLANT BREACH. Floors may be slippery. Have a nice day."](screenshots/sign.png)
 
 ## The repo
 
