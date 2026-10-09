@@ -36,7 +36,7 @@ A gamepad works too, and on a touch screen the controls appear on screen.
 
 ### The Glow
 
-![The world map: Poom on a dusty road between rock ridges, a Scrapper camp flying the banner of a place already cleared, and ruined towers further off; the wrist-computer scorebox reads 6850 in green](screenshots/map.png)
+![The world map: Poom on a dusty road between rock ridges, a cleared Scrapper camp and a cleared ruin flying their banners, and a bobbing amber arrow over the ruined towers of Old Litterburg, the next place he can reach; the wrist-computer scorebox reads 6850 in green](screenshots/map.png)
 
 ![Old Litterburg: ranger Poom on a broken concrete street under a hazy sun, a Glowmouse beside him, a faded billboard and rusted girders above, tins of tuna to collect along the top](screenshots/ruins.png)
 
