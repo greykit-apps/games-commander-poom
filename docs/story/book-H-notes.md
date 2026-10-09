@@ -51,12 +51,14 @@ unfinished level is a wall: Poom can't walk past one until it is done.
 
 ## A secret level
 
-**H15 can't be reached by walking the map.** It is on an island with a
-teleporter (number 46) and nothing else. **H14 has a teleporter inside the
-level**, at (124, 71), which the data gives no target for. That is very
-likely the way in: through H14's teleporter to the island, H15, and out by
-46. The story needs to say what H15 is, and the map maker can confirm the
-route.
+**H15 is the secret level.** It can't be reached by walking the map: it is
+on an island with a teleporter and nothing else. **H14 has a teleporter
+inside the level**, at (124, 71), and in the game it is the way in: touching
+it ends H14 and starts H15. Afterwards Poom is on H15's island, and the
+island's teleporter takes him back to H14. H15 is a bonus: Book 1 can be
+finished without it. The data doesn't give these links, so the map maker
+can confirm them; the story needs to say what H15 is, and why H14 has a
+teleporter to it.
 
 ## Other things to know
 

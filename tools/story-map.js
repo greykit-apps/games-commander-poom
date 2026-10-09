@@ -213,7 +213,7 @@ function levelSection(l) {
     if (g === "N" && !rescues.some(o => o[0] === x && o[1] === y)) add(x, y, `NPC (${nm}), not a rescue`);
     if (g === "Z") add(x, y, `Special object (${nm})`);
     /* a teleporter is two tiles tall: list it once */
-    if (g === "Q" && !l.things.some(t => t[2] === "Q" && t[0] === x && t[1] === y - 1)) add(x, y, "**Teleporter in the level** — where it goes isn't in the data");
+    if (g === "Q" && !l.things.some(t => t[2] === "Q" && t[0] === x && t[1] === y - 1)) add(x, y, l.secret ? `**Secret exit: a teleporter to ${name(l.secret)}** — touching it ends this level and starts that one` : "**Teleporter in the level** — where it goes isn't in the data");
   }
   l.rows.forEach((r, y) => [...r].forEach((c, x) => { if (c === "H") add(x, y, "**Hint sign** — needs its text"); }));
   for (const so of l.sockets) add(so.x, so.y, `Key socket, ${GEMS[so.gem]} — opens a door ${so.door.length} tiles tall at (${so.door[0][0]}, ${so.door[0][1]})`);
@@ -291,8 +291,11 @@ order.tiers.forEach((t, i) => {
     out.push(`   - ${name(id)}${i === 0 ? "" : nd.length ? ` — needs ${nd.map(name).join(" and ")} done` : " — opens once the step before is done (more than one way in)"}${order.opens[id] ? `; finishing it clears ${plural(order.opens[id], "barrier tile")}` : ""}`);
   }
 });
-if (order.never.length) {
-  out.push("", `**Not reachable by walking the map: ${order.never.map(name).join(", ")}.**${order.arrivals.length ? ` The map has a "player arrival point" at ${order.arrivals.map(a => `(${a.join(", ")})`).join(", ")}, in a walled-off part of the map, so something outside the map (a secret exit in a level, perhaps) must bring Poom there. The story needs to say what.` : ""}${order.lone.length ? ` The map has ${plural(order.lone.length, "teleporter")} with no link, at ${order.lone.map(a => `(${a.join(", ")})`).join(", ")}: where ${order.lone.length === 1 ? "it goes" : "they go"} isn't in the data.` : ""}`);
+const secretFrom = Object.fromEntries(LEVELS.filter(l => l.secret).map(l => [l.secret, l.id]));
+const lost = order.never.filter(id => !secretFrom[id]);
+for (const id of order.never.filter(id => secretFrom[id])) out.push("", `**${name(id)} is a secret level.** The map can't walk to it; ${name(secretFrom[id])} has a teleporter that leads there, and Poom is left on its part of the map afterwards. It isn't needed to finish the book.`);
+if (lost.length) {
+  out.push("", `**Not reachable by walking the map: ${lost.map(name).join(", ")}.**${order.arrivals.length ? ` The map has a "player arrival point" at ${order.arrivals.map(a => `(${a.join(", ")})`).join(", ")}, in a walled-off part of the map, so something outside the map (a secret exit in a level, perhaps) must bring Poom there. The story needs to say what.` : ""}${order.lone.length ? ` The map has ${plural(order.lone.length, "teleporter")} with no link, at ${order.lone.map(a => `(${a.join(", ")})`).join(", ")}: where ${order.lone.length === 1 ? "it goes" : "they go"} isn't in the data.` : ""}`);
 }
 out.push("", "Levels in the same step can be played in any order, so the story can't assume one of them comes before another.", "");
 

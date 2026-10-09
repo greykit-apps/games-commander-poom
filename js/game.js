@@ -211,7 +211,9 @@ for (const b of BOOK_IDS) {
   const starts = w.things.filter(t => t[2] === "P");
   const start = starts.find(t => /player start/.test(t[3])) || starts[0];
   W_.start = start ? [start[0], start[1]] : [1, 1];
-  W_.need = [...new Set(Object.values(W_.entrance))].sort();
+  /* a secret level is a bonus: the book is done without it */
+  const secret = new Set(BOOKS[b].chapters.flatMap(c => c.levels).map(l => l.secret).filter(Boolean));
+  W_.need = [...new Set(Object.values(W_.entrance))].filter(id => !secret.has(id)).sort();
   /* E1 maps (the older engine) number their objects instead of linking them:
    * 1-16 are levels, the rest the map's own things. An unfinished level
    * there is a wall: Poom walks up to it to go in. */
@@ -249,7 +251,7 @@ function loadLevel(n) {
   const rows = def.rows.map(r => [...r]);
   const h = rows.length, w = rows[0].length;
   const lv = { n, def, w, h, tiles: rows, back: [], ents: [], items: [], shots: [], fx: [], keys: [false, false, false, false, false],
-    theme, ice: false, swim: !!def.swim, t: 0, p: null, exits: [], exitAt: {}, edge: new Set(), npcs: [], endsLeft: 0, warp: {}, warpDoors: [], sockets: [], socketAt: {}, bridges: [], switchAt: {}, deckAt: new Set(), plats: [], pmark: new Map(), pswitchAt: {}, over: null, slope: slopesOf(rows) };
+    theme, ice: false, swim: !!def.swim, t: 0, p: null, exits: [], exitAt: {}, edge: new Set(), npcs: [], endsLeft: 0, warp: {}, warpDoors: [], sockets: [], socketAt: {}, bridges: [], switchAt: {}, deckAt: new Set(), plats: [], pmark: new Map(), pswitchAt: {}, secretAt: new Set(), over: null, slope: slopesOf(rows) };
   /* Under a slope the maps leave the odd non-solid tile where the ground's
    * edge was drawn. Boxed in on both sides, it is ground. */
   const isSl = (x, y) => !!(lv.slope[y] && lv.slope[y][x]);
@@ -336,6 +338,9 @@ function loadLevel(n) {
     const k = { ...s, on: false, mark: lv.pmark.get(s.tx + "," + s.ty) || "B" };
     lv.pswitchAt[s.x + "," + s.y] = k;
   }
+
+  /* a secret exit: the level's teleporter */
+  if (def.secret) for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (rows[y][x] === "Q") { lv.secretAt.add(x + "," + y); rows[y][x] = "."; }
 
   /* what else finishes the level: the source's rescue NPCs and objectives */
   for (const [x, y, g, , how] of def.ends || []) {
@@ -703,6 +708,7 @@ function updatePlayer(lv) {
   for (let ty = hy0; ty <= hy1; ty++) for (let tx = Math.floor(p.x / T); tx <= Math.floor((p.x + p.w - 1) / T); tx++) {
     const k = tx + "," + ty;
     if (lv.edge.has(k)) return finishBy(lv, "edge");
+    if (lv.secretAt.has(k)) return finishBy(lv, "secret");
     const door = lv.exitAt[k];
     if (door) { p.x = door.x + T / 2 - p.w / 2; return finishBy(lv, door); }
   }
@@ -1068,6 +1074,7 @@ function startLevel(n) {
   G.mode = "level";
   centerCamera(true);
   sfx("enter");
+  mapLabel("");   /* the map's place name is the map's: not over a level */
   levelTitle(levelName(n));
 }
 
@@ -1102,9 +1109,19 @@ function centerCamera(snap) {
 }
 
 function finishLevel() {
-  const n = G.lv.n, r = G.run;
+  const n = G.lv.n, r = G.run, secret = G.lv.exitUsed === "secret" && G.lv.def.secret;
   r.done[n] = true;
   G.lv = null;
+  /* a secret exit: straight into the secret level, with Poom left on its
+     part of the map for after */
+  if (secret) {
+    const spot = nearestOpen(...world().first[secret]);
+    if (spot) { r.mx = spot[0] * T + 4; r.my = spot[1] * T + 5; }
+    enterMap();
+    saveRun();
+    startLevel(secret);
+    return;
+  }
   /* the whole book done: on to the next, or the end */
   if (world().need.every(id => r.done[id])) {
     const next = BOOK_IDS[BOOK_IDS.indexOf(r.book) + 1];
@@ -1179,7 +1196,8 @@ function entranceAt(tx, ty) { return world().entrance[tx + "," + ty] || null; }
 function mapHere(p) {
   const at = entranceAt(Math.floor((p.x + p.w / 2) / T), Math.floor((p.y + p.h / 2) / T));
   if (at || !world().e1) return at;
-  for (const [cx, cy] of boxPoints(p.x - 2, p.y - 2, p.w + 4, p.h + 4)) { const e = entranceAt(Math.floor(cx / T), Math.floor(cy / T)); if (e) return e; }
+  /* within five pixels: enough to reach a level from the middle of the next tile */
+  for (const [cx, cy] of boxPoints(p.x - 5, p.y - 5, p.w + 10, p.h + 10)) { const e = entranceAt(Math.floor(cx / T), Math.floor(cy / T)); if (e) return e; }
   return null;
 }
 
@@ -1212,13 +1230,18 @@ function updateMap() {
   mapCamera(false);
 }
 
+/* the open map tile nearest a tile, within three: open for Poom's box */
+function nearestOpen(tx, ty) {
+  const open = (x, y) => !boxPoints(x * T + 4, y * T + 5, 8, 6).some(([a, b]) => mapPointSolid(a, b));
+  for (let r = 0; r <= 3; r++)
+    for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++)
+      if (Math.max(Math.abs(dx), Math.abs(dy)) === r && open(tx + dx, ty + dy)) return [tx + dx, ty + dy];
+  return null;
+}
+
 /* a teleporter: to its target tile, or the open tile nearest it */
 function teleport([tx, ty]) {
-  const p = G.map.p, open = (x, y) => !mapSolid(mapTile(x, y));
-  let spot = null;
-  for (let r = 0; r <= 3 && !spot; r++)
-    for (let dy = -r; dy <= r && !spot; dy++) for (let dx = -r; dx <= r && !spot; dx++)
-      if (Math.max(Math.abs(dx), Math.abs(dy)) === r && open(tx + dx, ty + dy)) spot = [tx + dx, ty + dy];
+  const p = G.map.p, spot = nearestOpen(tx, ty);
   if (!spot) { sfx("nope"); return; }
   p.x = spot[0] * T + (T - p.w) / 2; p.y = spot[1] * T + (T - p.h) / 2;
   G.run.mx = p.x; G.run.my = p.y;
@@ -1265,6 +1288,8 @@ function drawLevel() {
   for (const b of lv.bridges) ctx.drawImage(art.switch[b.on ? 1 : 0], b.x * T - cx, b.y * T - cy);
   for (const k of Object.keys(lv.pswitchAt)) { const s = lv.pswitchAt[k]; ctx.drawImage(art.switch[s.on ? 1 : 0], s.x * T - cx, s.y * T - cy); }
   drawPlats(lv, cx, cy);
+  /* the secret teleporter: a warp arch, a tile wide, drawn from its top tile */
+  for (const k of lv.secretAt) { const [x, y] = k.split(",").map(Number); if (!lv.secretAt.has(x + "," + (y - 1))) ctx.drawImage(art.warp[(lv.t >> 2) % 4], x * T - cx, y * T - cy, T, T * 2); }
   for (const d of lv.warpDoors) if (d.x - cx > -d.w && d.x - cx < W && d.y - cy > -d.h && d.y - cy < H) ctx.drawImage(art.warp[(lv.t >> 3) % 4], d.x - cx, d.y - cy, d.w, d.h);
   for (const e of lv.exits) ctx.drawImage(art.exit[lv.exitUsed === e ? 1 : 0], e.x - cx, e.y - cy);
 

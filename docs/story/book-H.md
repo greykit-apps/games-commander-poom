@@ -12,7 +12,7 @@ Generated from the map data by `tools/story-map.js H`. It says where in Book H t
 
 ## The world map
 
-Poom starts at (12, 37). The map has 2 linked teleporters. On this map an unfinished level is a wall: Poom can't walk past one until it is done. Some paths are shut until a level is done; this is the order the map lets levels be played, if each one is done as soon as it can be:
+Poom starts at (12, 37). The map has 3 linked teleporters. On this map an unfinished level is a wall: Poom can't walk past one until it is done. Some paths are shut until a level is done; this is the order the map lets levels be played, if each one is done as soon as it can be:
 
 1. **Open from the start**:
    - H02 (level 1)
@@ -33,7 +33,7 @@ Poom starts at (12, 37). The map has 2 linked teleporters. On this map an unfini
    - H16 (level 15) — needs H02 (level 1) and H08 (level 7) done
    - H17 (level 16) — needs H02 (level 1) and H08 (level 7) done
 
-**Not reachable by walking the map: H15 (level 14).** The map has 1 teleporter with no link, at (62, 37): where it goes isn't in the data.
+**H15 (level 14) is a secret level.** The map can't walk to it; H14 (level 13) has a teleporter that leads there, and Poom is left on its part of the map afterwards. It isn't needed to finish the book.
 
 Levels in the same step can be played in any order, so the story can't assume one of them comes before another.
 
@@ -237,7 +237,7 @@ Terrain: ice, hazards.
 
 **Along the way** (rough order, start first):
 
-- **Teleporter in the level** — where it goes isn't in the data — (124, 71), bottom right, middle
+- **Secret exit: a teleporter to H15 (level 14)** — touching it ends this level and starts that one — (124, 71), bottom right, middle
 - Keycard, blue — (54, 37), centre, middle
 - Keycard, yellow — (123, 58), bottom right, late
 - Keycard, green — (121, 5), top right, late
