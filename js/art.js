@@ -2160,6 +2160,46 @@ function paintWasteMap(classic) {
   return { ...classic, ground, rockAt, rock: rockAt(0), water, field, flag, tele, ship, markerFor: marker, teleName: "Tube station" };
 }
 
+/* The wasteland's title backdrop, 320x200, painted once: a dusk sky in
+ * bands, a swollen sun low on the right, a ruined skyline and Auntie's
+ * mast against it, mesas, cracked ground, and the Catamaran crash-landed
+ * on the left with its scorch. The animated parts (stars, smoke, the
+ * mast's light, Poom) are drawn over it by game.js. */
+function paintWasteTitle(shipBare) {
+  const c = makeCanvas(320, 200), g = c.getContext("2d"), r = rng(23);
+  const px = (col, x, y, w = 1, h = 1) => { g.fillStyle = col; g.fillRect(x, y, w, h); };
+  const stops = [[0, [10, 8, 26]], [80, [36, 18, 58]], [118, [110, 32, 66]], [142, [178, 60, 46]], [162, [228, 118, 48]], [176, [246, 184, 80]]];
+  const at = y => { for (let i = 1; i < stops.length; i++) if (y <= stops[i][0]) { const [y0, a] = stops[i - 1], [y1, b] = stops[i], f = (y - y0) / (y1 - y0); return a.map((v, k) => Math.round(v + (b[k] - v) * f)); } return stops[stops.length - 1][1]; };
+  for (let y = 0; y < 200; y += 4) { const [R, G, B] = at(y); px(`rgb(${R},${G},${B})`, 0, y, 320, 4); }
+  /* the sun, swollen, setting behind the mesas on the left (the right is
+     the menu's) */
+  g.fillStyle = "rgba(255, 220, 140, 0.25)"; g.beginPath(); g.arc(66, 128, 32, 0, Math.PI * 2); g.fill();
+  g.fillStyle = "#ffd88a"; g.beginPath(); g.arc(66, 128, 20, 0, Math.PI * 2); g.fill();
+  g.fillStyle = "#fff0c4"; g.beginPath(); g.arc(66, 128, 13, 0, Math.PI * 2); g.fill();
+  /* the ruined skyline: towers with their tops sheared off, a few windows lit */
+  let x = 96;
+  while (x < 320) {
+    const w = 10 + (r() * 16 | 0), h = 20 + (r() * 34 | 0), top = 168 - h, cut = r() * 10 | 0;
+    g.fillStyle = "#3a1c2a"; g.beginPath(); g.moveTo(x, 200); g.lineTo(x, top + (r() < .5 ? cut : 0)); g.lineTo(x + w, top + (r() < .5 ? 0 : cut)); g.lineTo(x + w, 200); g.fill();
+    for (let wy = top + 6; wy < 166; wy += 6) for (let wx = x + 2; wx < x + w - 2; wx += 4) if (r() < .08) px("#ffd36a", wx, wy, 1, 2);
+    x += w + (r() * 4 | 0);
+  }
+  /* mesas on the left, low enough that the sun sinks behind them */
+  g.fillStyle = "#4a2230"; g.beginPath(); g.moveTo(0, 200); g.lineTo(0, 146); g.lineTo(30, 146); g.lineTo(38, 134); g.lineTo(104, 134); g.lineTo(112, 154); g.lineTo(150, 154); g.lineTo(150, 200); g.fill();
+  g.fillStyle = "#6a3238"; g.beginPath(); g.moveTo(38, 134); g.lineTo(104, 134); g.lineTo(102, 138); g.lineTo(40, 138); g.closePath(); g.fill();
+  /* Auntie's mast, at the left edge */
+  px("#2a1420", 14, 104, 2, 70); for (let y = 108; y < 172; y += 6) px("#2a1420", 11, y, 8, 1);
+  /* the ground: cracked earth catching the last light */
+  for (let y = 172; y < 200; y++) px(y < 175 ? "#a07850" : y < 184 ? "#7a5a3a" : "#5a422c", 0, y, 320, 1);
+  for (let i = 0; i < 60; i++) px(r() < .5 ? "#4a3424" : "#b8905e", r() * 320 | 0, 174 + (r() * 26 | 0), 1 + (r() * 3 | 0), 1);
+  for (let k = 0; k < 6; k++) { let cx = r() * 320 | 0, cy = 176; for (let i = 0; i < 10; i++) { px("#3a2818", cx, cy); cx += (r() * 3 | 0) - 1; cy++; } }
+  /* the Catamaran, crash-landed: a scorch, the ship tilted and doubled */
+  g.fillStyle = "rgba(24, 12, 8, 0.7)"; g.beginPath(); g.ellipse(46, 182, 34, 7, 0, 0, Math.PI * 2); g.fill();
+  g.save(); g.imageSmoothingEnabled = false; g.translate(46, 160); g.rotate(-0.22); g.drawImage(shipBare, 0, 0, 32, 32, -32, -30, 64, 64); g.restore();
+  px("#3a2818", 14, 180, 8, 2); px("#3a2818", 68, 182, 10, 2);
+  return c;
+}
+
 /* world-map tiles, painted once */
 function paintMapTiles() {
   const mk = fn => { const c = makeCanvas(T, T); fn(c.getContext("2d")); return c; }, E = i => EGA[i];

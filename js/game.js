@@ -8,7 +8,7 @@
 
 const W = 320, H = 200;
 const NS = "commanderpoom";
-const KEYS = { save: NS + "_save_v2", scores: NS + "_scores_v1", muted: NS + "_muted_v1", seen: NS + "_seen_v1", speed: NS + "_speed_v1" };
+const KEYS = { save: NS + "_save_v2", scores: NS + "_scores_v1", muted: NS + "_muted_v1", seen: NS + "_seen_v1", speed: NS + "_speed_v1", lastBook: NS + "_book_v1" };
 
 const canvas = document.getElementById("screen");
 const ctx = canvas.getContext("2d");
@@ -187,13 +187,37 @@ function newRun() {
 const BOOK_ORDER = ["H", "A", "B", "C", "D", "E", "F", "G", "I"];
 const BOOK_IDS = BOOK_ORDER.filter(b => BOOKS[b]);
 const bookNumber = b => BOOK_IDS.indexOf(b) + 1;
-/* Poom's look and the item set in each book (js/art.js LOOKS and item
- * sets); books not listed: classic */
-const POOM_LOOK = { H: "ranger" };
-const ITEM_SET = { H: "wasteland" };
-const MAP_SET = { H: "wasteland" };
-const CREATURE_SET = { H: "wasteland" };
-const dressFor = book => { useLook(POOM_LOOK[book] || "classic"); useItems(ITEM_SET[book] || "classic"); useCreatures(CREATURE_SET[book] || "classic"); mapArt = mapArtSets[MAP_SET[book]] || mapArtSets.classic; };
+/* Themes. A book's theme is everything about how the game looks and reads
+ * while that book is played: Poom's look, the items, the creatures and the
+ * world map (js/art.js), the title screen and logo, the subtitle, and its
+ * words (BOOK_TEXT). The whole game wears the theme of the book being
+ * played, or of the last one played: the title screen too. A new book
+ * with its own theme adds an entry to BOOK_THEMES and one to THEME_OF_BOOK.
+ * Books not listed wear classic, the original game's. Level tilesets are
+ * per level (LEVEL_THEME). */
+const BOOK_THEMES = {
+  classic: { name: "classic", look: "classic", items: "classic", creatures: "classic", map: "classic", title: "classic", subtitle: "Episode One: Lost on Planet Hiss" },
+  wasteland: { name: "wasteland", look: "ranger", items: "wasteland", creatures: "wasteland", map: "wasteland", title: "wasteland", subtitle: "Book One: Down in the Glow" },
+};
+const THEME_OF_BOOK = { H: "wasteland" };
+const themeOf = book => BOOK_THEMES[THEME_OF_BOOK[book]] || BOOK_THEMES.classic;
+let theme = BOOK_THEMES.classic;
+/* the book the game is themed for: the one being played, else the last
+ * one played, else Book 1 */
+function themeBook() {
+  if (G.run && G.run.book) return G.run.book;
+  const last = store.get(KEYS.lastBook, null);
+  return BOOKS[last] ? last : BOOK_IDS[0];
+}
+/* dress the whole game for a book, and remember it as the last played */
+function dressFor(book) {
+  theme = themeOf(book);
+  useLook(theme.look); useItems(theme.items); useCreatures(theme.creatures);
+  mapArt = mapArtSets[theme.map] || mapArtSets.classic;
+  logoEl().dataset.look = theme.name; document.getElementById("ui").dataset.look = theme.name;
+  document.title = "Commander Poom \u2014 " + theme.subtitle;
+  if (BOOKS[book]) store.set(KEYS.lastBook, book);
+}
 const THEME_OF = { A: "hiss", B: "garden", C: "fort", D: "ice", E: "hiss", F: "garden", G: "fort", H: "ice", I: "hiss" };
 /* A level's own tileset, by its type (docs/story/book-1-story.md). Vault 9,
  * the frozen one, is H09, H11 and H17; the raider camps are H04, H08 (Fort
@@ -1571,7 +1595,10 @@ function mapLabel(text) {
 
 /* the title's backdrop: stars over the red edge of Planet Hiss */
 const titleStars = Array.from({ length: 90 }, (_, i) => ({ x: (i * 97) % 320, y: (i * 61) % 150, c: [15, 7, 14, 11][i % 4], s: i % 7 }));
+/* the title screen's backdrop, by theme */
+let wasteTitleBg = null;
 function drawTitleScene(t) {
+  if (theme.title === "wasteland") return drawWasteTitle(t);
   ctx.fillStyle = "#000"; ctx.fillRect(0, 0, W, H);
   for (const s of titleStars) if ((t >> 4) % 7 !== s.s) { ctx.fillStyle = EGA[s.c]; ctx.fillRect(s.x, s.y, 1, 1); }
   /* the planet */
@@ -1586,6 +1613,26 @@ function drawTitleScene(t) {
   ctx.drawImage(mapArt.shipBare, 0, 0, 32, 32, 30, 140, 64, 64);
   const pose = (t >> 5) % 8 === 0 ? "shoot" : "stand";
   ctx.drawImage(ART.poom[pose].r, 96, 179);
+}
+
+/* The wasteland's title: the Glow at dusk over a ruined skyline, the
+ * Catamaran crash-landed and smoking, Poom beside it in his ranger gear,
+ * Auntie Static's mast blinking far off. */
+function drawWasteTitle(t) {
+  if (!wasteTitleBg) wasteTitleBg = paintWasteTitle(mapArtSets.classic.shipBare);
+  ctx.drawImage(wasteTitleBg, 0, 0);
+  /* stars, a few twinkling */
+  for (const s of titleStars) if (s.y < 70 && (t >> 4) % 7 !== s.s) { ctx.fillStyle = s.c === 14 ? "#ffe9a8" : "#c8c0d8"; ctx.fillRect(s.x, s.y, 1, 1); }
+  /* the mast's light */
+  if ((t >> 5) % 2) { ctx.fillStyle = "rgba(255, 59, 47, 0.35)"; ctx.beginPath(); ctx.arc(15, 103, 4, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = "#ff3b2f"; ctx.fillRect(14, 102, 2, 2); }
+  /* smoke off the wreck */
+  for (let i = 0; i < 6; i++) {
+    const k = ((t * 0.4) + i * 17) % 100;
+    ctx.fillStyle = `rgba(70, 64, 60, ${0.6 * (1 - k / 100)})`;
+    ctx.beginPath(); ctx.arc(58 + k * 0.3 + Math.sin((t + i * 40) / 25) * 2, 150 - k * 0.8, 2 + k * 0.07, 0, Math.PI * 2); ctx.fill();
+  }
+  const pose = (t >> 5) % 8 === 0 ? "shoot" : "stand", spr = ART.poom[pose].r;
+  ctx.drawImage(spr, 76, 192 - spr.height);
 }
 
 /* ------------------------------------------------------------------ */
@@ -1833,7 +1880,7 @@ const BOOK_TEXT = {
   },
 };
 /* the book the help is about: the one being played, or Book 1 */
-const textBook = () => BOOK_TEXT[(G.run && G.run.book) || BOOK_IDS[0]];
+const textBook = () => BOOK_TEXT[themeBook()];
 
 function openHelp() {
   const B = textBook();
@@ -1842,7 +1889,7 @@ function openHelp() {
     ["Controls", CONTROLS.replace(/<p>On the map[\s\S]*?<\/p>/, B.map)],
     ["Creatures", spriteRow(B.creatures())],
     ["Items", spriteRow(B.items())],
-    ["About", ABOUT],
+    ["About", aboutText()],
   ]);
   page("Help", [
     ["Story", STORY],
@@ -1861,11 +1908,11 @@ function openHelp() {
       [ART.gems[0], "Keycards", "Open the door of the same colour, for this level."],
       [ART.parts[0], "Ship parts", "Four of them. The whole point."],
     ])],
-    ["About", ABOUT],
+    ["About", aboutText()],
   ]);
 }
 
-const ABOUT = `<p><b>Commander Poom</b> &mdash; Episode One: <i>Lost on Planet Hiss</i>.</p>
+const aboutText = () => `<p><b>Commander Poom</b> &mdash; <i>${theme.subtitle}</i>.</p>
 <p>A love letter to the Commander Keen games of 1990 and 1991, and to sixteen colours, a PC speaker and a pogo stick. Every sprite, level and sound is new; nothing is borrowed but the feeling.</p>
 <p class="credit gk-credit">Built by <a href="https://greykit.com/" target="_blank" rel="noopener">greykit.com</a></p>`;
 
@@ -1917,7 +1964,7 @@ function recordScore(score, done) {
 
 function openTitle() {
   UI.clear();
-  useLook("classic"); useItems("classic"); useCreatures("classic"); mapArt = mapArtSets.classic;
+  dressFor(themeBook());
   G.mode = "title"; G.lv = null; mapLabel("");
   const saved = store.get(KEYS.save, null);
   showLogo();
@@ -1931,7 +1978,7 @@ function openTitle() {
     "gap",
     { label: "Settings", key: "S", act: () => openSettings() },
     { label: "Help", key: "?", act: () => openHelp() },
-    { label: "About", key: "A", act: () => page("About", [["", ABOUT]]) },
+    { label: "About", key: "A", act: () => page("About", [["", aboutText()]]) },
   ].filter(Boolean);
   menu("", items, { cls: "title", footer: '<span class="gk-credit">Built by <a href="https://greykit.com/" target="_blank" rel="noopener">greykit.com</a></span>' });
 }
@@ -1939,9 +1986,8 @@ function openTitle() {
  * card, with the level's name, which fades after a moment. Nothing keeps
  * it up over play: frame() fades it if it's left showing. */
 const logoEl = () => document.getElementById("logo");
-const LOGO_LINE = "Episode One: Lost on Planet Hiss";
 let logoTimer = null;
-function showLogo(line = LOGO_LINE) {
+function showLogo(line = theme.subtitle) {
   clearTimeout(logoTimer); logoTimer = null;
   const el = logoEl();
   el.querySelector(".ep").textContent = line;

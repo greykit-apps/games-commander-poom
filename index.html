@@ -50,7 +50,7 @@ body{display:grid;place-items:center;color:var(--ega15);font-family:var(--pix);
 #ui{position:absolute;left:0;top:0;width:320px;height:200px;transform-origin:0 0;font-size:8px;line-height:1.5}
 img.px{image-rendering:pixelated;vertical-align:middle}
 img.missing{filter:grayscale(1) brightness(.35)}
-kbd{font:inherit;color:var(--ega14)}
+kbd{font:inherit;color:var(--ui-head)}
 
 /* ---- the logo ---- */
 #logo{position:absolute;left:0;right:0;top:8px;text-align:center;pointer-events:none}
@@ -61,39 +61,55 @@ kbd{font:inherit;color:var(--ega14)}
 #logo[hidden]{display:none}
 #logo{transition:opacity 1s ease}
 #logo.fading{opacity:0}
+/* the logo by theme (game.js dressFor): the wasteland's is amber and rust */
+#logo[data-look="wasteland"] .cmd{color:#ffb85a;text-shadow:1px 1px 0 #5a2410}
+#logo[data-look="wasteland"] .poom{color:#ffd23f;text-shadow:1px 1px 0 #d07a36,2px 2px 0 #d07a36,3px 3px 0 #7a3a1c,4px 4px 0 #7a3a1c,5px 5px 0 #000}
+#logo[data-look="wasteland"] .ep{color:#f0d0a0}
+
+/* ---- the UI's colours, by theme (game.js dressFor sets #ui's data-look);
+   classic is the original EGA blue box ---- */
+#ui{--ui-bg:var(--ega1);--ui-text:var(--ega15);--ui-accent:var(--ega11);--ui-head:var(--ega14);--ui-sel:#aa0000;
+  --ui-tab:var(--ega9);--ui-body:#dfe8ff;--ui-dim:var(--ega7);--ui-me:var(--ega12)}
+/* the wasteland's is a rusted steel plate, amber lettering, rust highlight */
+#ui[data-look="wasteland"]{--ui-bg:#2e1e16;--ui-text:#f0d8b0;--ui-accent:#e0a050;--ui-head:#ffd23f;--ui-sel:#8a3218;
+  --ui-tab:#7a4a2a;--ui-body:#e8d4b4;--ui-dim:#a08060;--ui-me:#ff8a50}
+/* the canon scrollbar (gk-title.js) is steel blue; a themed UI repaints it */
+#ui[data-look="wasteland"] *{scrollbar-color:#8a5a32 transparent}
+#ui[data-look="wasteland"] ::-webkit-scrollbar-thumb{background:#8a5a32;background-clip:padding-box}
+#ui[data-look="wasteland"] ::-webkit-scrollbar-thumb:hover{background:#c07a40;background-clip:padding-box}
 
 /* ---- overlays ---- */
 .overlay{position:absolute;inset:0;display:grid;place-items:center;z-index:5}
-.box{background:var(--ega1);color:var(--ega15);border:1px solid var(--ega11);box-shadow:0 0 0 1px var(--ega1),0 0 0 2px var(--ega15),3px 3px 0 2px #000;
+.box{background:var(--ui-bg);color:var(--ui-text);border:1px solid var(--ui-accent);box-shadow:0 0 0 1px var(--ui-bg),0 0 0 2px var(--ui-text),3px 3px 0 2px #000;
   padding:8px 10px}
-.box h2{margin:0 0 6px;font-size:8px;font-weight:400;color:var(--ega14);letter-spacing:1px;text-transform:uppercase}
+.box h2{margin:0 0 6px;font-size:8px;font-weight:400;color:var(--ui-head);letter-spacing:1px;text-transform:uppercase}
 .box p{margin:0 0 6px}
 .box p:last-child{margin-bottom:0}
-.box b{color:var(--ega14);font-weight:400}
-.hint{color:var(--ega11);font-size:6px;text-align:right;margin-top:6px!important}
+.box b{color:var(--ui-head);font-weight:400}
+.hint{color:var(--ui-accent);font-size:6px;text-align:right;margin-top:6px!important}
 .msg{width:220px;text-align:left}
 .msg > img{display:block;margin:0 auto 8px}
-.msg input{font:inherit;width:100%;box-sizing:border-box;background:#000;color:var(--ega14);border:1px solid var(--ega11);padding:3px;outline:none;margin:2px 0 4px;-webkit-user-select:text;user-select:text}
+.msg input{font:inherit;width:100%;box-sizing:border-box;background:#000;color:var(--ui-head);border:1px solid var(--ui-accent);padding:3px;outline:none;margin:2px 0 4px;-webkit-user-select:text;user-select:text}
 .iconrow{display:flex;gap:6px;justify-content:center;margin-bottom:6px}
 .card{text-align:center;min-width:170px}
-.card .small{font-size:6px;color:var(--ega11)}
+.card .small{font-size:6px;color:var(--ui-accent)}
 
 .menu{min-width:150px}
 .menu .items{display:flex;flex-direction:column;gap:1px}
 .menu .gap{height:4px}
-.menu button,.page .tabs button,.page .x{font:inherit;color:var(--ega15);background:transparent;border:0;padding:2px 4px;cursor:pointer;
+.menu button,.page .tabs button,.page .x{font:inherit;color:var(--ui-text);background:transparent;border:0;padding:2px 4px;cursor:pointer;
   display:flex;align-items:center;gap:4px;text-align:left}
 .menu button .lbl{flex:1}
-.menu button .meta{color:var(--ega11);font-size:6px}
-.menu button kbd{font-size:6px;color:var(--ega7);min-width:8px;text-align:right}
-.menu button .cur{color:var(--ega14);visibility:hidden;width:7px}
+.menu button .meta{color:var(--ui-accent);font-size:6px}
+.menu button kbd{font-size:6px;color:var(--ui-dim);min-width:8px;text-align:right}
+.menu button .cur{color:var(--ui-head);visibility:hidden;width:7px}
 .menu button:focus{outline:none}
-.menu button.sel{background:#aa0000}
+.menu button.sel{background:var(--ui-sel)}
 .menu button.sel .cur{visibility:visible;animation:blink .5s steps(1) infinite}
 .menu button:disabled{color:var(--ega8)}
 @keyframes blink{50%{visibility:hidden}}
-.foot{margin-top:6px;font-size:6px;color:var(--ega11)}
-.foot a,.credit a{color:var(--ega11)}
+.foot{margin-top:6px;font-size:6px;color:var(--ui-accent)}
+.foot a,.credit a{color:var(--ui-accent)}
 .ask .menu{max-width:230px}
 .ask h2{text-transform:none;line-height:1.6}
 
@@ -108,9 +124,9 @@ kbd{font:inherit;color:var(--ega14)}
 .page .phead h2{flex:1;margin:0}
 .page .x{font-size:10px;padding:0 2px}
 .page .tabs{display:flex;gap:2px;margin:4px 0}
-.page .tabs button{padding:2px 4px;border:1px solid var(--ega9);font-size:6px}
-.page .tabs button[aria-selected="true"]{background:#aa0000;border-color:var(--ega14);color:var(--ega14)}
-.page .pbody{flex:1;overflow-y:auto;font-size:6px;line-height:1.7;padding-right:4px;color:#dfe8ff}
+.page .tabs button{padding:2px 4px;border:1px solid var(--ui-tab);font-size:6px}
+.page .tabs button[aria-selected="true"]{background:var(--ui-sel);border-color:var(--ui-head);color:var(--ui-head)}
+.page .pbody{flex:1;overflow-y:auto;font-size:6px;line-height:1.7;padding-right:4px;color:var(--ui-body)}
 .page .pbody p{margin:0 0 6px}
 .page .pbody table{border-collapse:collapse}
 .page .pbody td{padding:1px 6px 1px 0;vertical-align:top}
@@ -119,21 +135,21 @@ kbd{font:inherit;color:var(--ega14)}
 .page .entry .pic{width:48px;flex:none;display:grid;place-items:center}
 .page .entry .pic img{max-width:48px;height:auto}
 .scores{width:100%;font-size:7px}
-.scores td.num{text-align:right;color:var(--ega14)}
-.scores tr.me td{color:var(--ega12)}
+.scores td.num{text-align:right;color:var(--ui-head)}
+.scores tr.me td{color:var(--ui-me)}
 
 .status{width:220px}
 .sgrid{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;font-size:7px}
-.sgrid .k{color:var(--ega11)}
+.sgrid .k{color:var(--ui-accent)}
 .sgrid img{margin-right:3px}
 
 /* ---- map label, toasts, sound ---- */
 #maplabel{position:absolute;left:50%;bottom:4px;transform:translateX(-50%);background:#000;border:1px solid var(--ega8);
-  padding:2px 6px;font-size:6px;color:var(--ega14);white-space:nowrap;z-index:2}
-#toast{position:absolute;left:50%;top:30px;transform:translateX(-50%);background:var(--ega1);border:1px solid var(--ega11);
+  padding:2px 6px;font-size:6px;color:var(--ui-head);white-space:nowrap;z-index:2}
+#toast{position:absolute;left:50%;top:30px;transform:translateX(-50%);background:var(--ui-bg);border:1px solid var(--ui-accent);
   padding:3px 6px;font-size:6px;max-width:260px;text-align:center;z-index:6}
 #snd{position:absolute;right:3px;top:3px;z-index:7;font:inherit;font-size:7px;width:13px;height:13px;padding:0;line-height:1;
-  background:#000;color:var(--ega11);border:1px solid var(--ega8);cursor:pointer}
+  background:#000;color:var(--ui-accent);border:1px solid var(--ega8);cursor:pointer}
 #snd[aria-pressed="false"]{color:var(--ega8)}
 [hidden]{display:none!important}
 
@@ -171,7 +187,7 @@ kbd{font:inherit;color:var(--ega14)}
   <button data-a="pause" aria-label="Pause">II</button><button data-a="status" aria-label="Status">?</button>
 </div>
 <script src="js/gk-title.js?v=6080c669"></script>
-<script src="js/art.js?v=c88dc2e7"></script>
+<script src="js/art.js?v=6d53ea62"></script>
 <script src="js/books/A.js?v=161a0844"></script>
 <script src="js/books/B.js?v=7a5b59b7"></script>
 <script src="js/books/C.js?v=6d474a92"></script>
@@ -181,6 +197,6 @@ kbd{font:inherit;color:var(--ega14)}
 <script src="js/books/G.js?v=271fc791"></script>
 <script src="js/books/H.js?v=4ae984c1"></script>
 <script src="js/books/I.js?v=13d9ef6c"></script>
-<script src="js/game.js?v=c46d77c8"></script>
+<script src="js/game.js?v=b1e3c8ae"></script>
 </body>
 </html>
