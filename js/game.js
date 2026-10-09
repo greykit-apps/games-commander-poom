@@ -80,14 +80,49 @@ const SFX = {
   pick: [[1200, 1200, 30], [1600, 1600, 40]],
 };
 
+/* The wasteland's sounds: a Sound Blaster rather than a PC speaker. Each is
+ * { wave, steps (as above), vib: [Hz, cents] wobble, noise: { ms, f (band
+ * centre), q, g (gain) } a burst of filtered static, g: the tone's gain }.
+ * Tin and springs, static and hiss, 50s jingles. */
+const WASTE_SFX = {
+  jump: { wave: "triangle", steps: [[300, 640, 80]] },
+  pogo: { wave: "triangle", steps: [[200, 560, 60], [560, 820, 60]], vib: [28, 40] },
+  bigpogo: { wave: "triangle", steps: [[180, 560, 60], [560, 1100, 100]], vib: [28, 50] },
+  shoot: { wave: "sawtooth", steps: [[1800, 300, 110]], g: 0.035, noise: { ms: 60, f: 3200, q: 1, g: 0.05 } },
+  click: { noise: { ms: 22, f: 1800, q: 4, g: 0.12 } },
+  bump: { wave: "triangle", steps: [[140, 100, 40]], noise: { ms: 30, f: 300, q: 1, g: 0.1 } },
+  item: { wave: "triangle", steps: [[2637, 2637, 30], [3520, 3520, 70]], g: 0.07 },
+  bigitem: { wave: "triangle", steps: [[523, 523, 80], [659, 659, 80], [784, 784, 80], [880, 880, 170]] },
+  gem: { wave: "square", steps: [[1200, 1200, 60], [1600, 1600, 100]], g: 0.035 },
+  door: { wave: "sawtooth", steps: [[90, 60, 260]], g: 0.04, noise: { ms: 260, f: 900, q: 0.7, g: 0.1 } },
+  push: { wave: "sawtooth", steps: [[200, 150, 60]], g: 0.04 },
+  stun: { wave: "triangle", steps: [[1500, 2200, 40], [2200, 900, 80]] },
+  hit: { wave: "square", steps: [[500, 200, 70]], g: 0.035, noise: { ms: 70, f: 1200, q: 1, g: 0.08 } },
+  kill: { wave: "sawtooth", steps: [[600, 60, 200]], g: 0.04, noise: { ms: 200, f: 600, q: 0.8, g: 0.12 } },
+  ricochet: { wave: "triangle", steps: [[3000, 2200, 60]], noise: { ms: 40, f: 4000, q: 2, g: 0.06 } },
+  tank: { wave: "sawtooth", steps: [[220, 90, 120]], g: 0.04, noise: { ms: 90, f: 500, q: 1, g: 0.08 } },
+  die: { wave: "sawtooth", steps: [[700, 500, 150], [500, 330, 150], [330, 220, 180], [220, 55, 450]], vib: [6, 60], g: 0.045 },
+  done: { wave: "triangle", steps: [[392, 392, 90], [523, 523, 90], [659, 659, 90], [784, 784, 130], [659, 659, 80], [784, 784, 280]] },
+  life: { wave: "triangle", steps: [[523, 523, 70], [784, 784, 70], [1047, 1047, 220]], vib: [12, 40] },
+  enter: { wave: "sawtooth", steps: [[200, 500, 160]], g: 0.035, noise: { ms: 180, f: 700, q: 0.8, g: 0.08 } },
+  nope: { wave: "square", steps: [[180, 180, 70], [120, 120, 110]], g: 0.04 },
+  menu: { wave: "triangle", steps: [[900, 900, 15]], noise: { ms: 12, f: 2500, q: 3, g: 0.06 } },
+  pick: { wave: "triangle", steps: [[1300, 1300, 30], [1750, 1750, 40]] },
+  /* the geiger counter, ticking away in the background */
+  geiger: { noise: { ms: 5, f: 3500, q: 2, g: 0.05 } },
+};
+const SOUND_SETS = { classic: SFX, wasteland: WASTE_SFX };
+
 const audio = {
-  ctx: null, muted: store.get(KEYS.muted, "0") === "1",
+  ctx: null, muted: store.get(KEYS.muted, "0") === "1", set: SFX, noiseBuf: null,
   unlock() {
     if (this.ctx) { if (this.ctx.state === "suspended") this.ctx.resume(); return; }
     try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { this.ctx = null; }
   },
   play(name) {
-    if (this.muted || !this.ctx || !SFX[name]) return;
+    const snd = this.set[name] || SFX[name];
+    if (this.muted || !this.ctx || !snd) return;
+    if (!Array.isArray(snd)) return this.voice(snd);
     const a = this.ctx, o = a.createOscillator(), g = a.createGain();
     o.type = "square";
     let t = a.currentTime + 0.005;
@@ -104,8 +139,59 @@ const audio = {
     o.connect(g); g.connect(a.destination);
     o.start(); o.stop(t + 0.02);
   },
+  /* a themed sound: a tone of any wave, wobbled, and/or a burst of static */
+  voice({ wave = "square", steps = null, vib = null, noise = null, g: vol = 0.06 }) {
+    const a = this.ctx, t0 = a.currentTime + 0.005;
+    if (steps) {
+      const o = a.createOscillator(), g = a.createGain();
+      o.type = wave;
+      let t = t0;
+      o.frequency.setValueAtTime(steps[0][0], t);
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(vol, t + 0.004);
+      for (const [f0, f1, ms] of steps) {
+        o.frequency.setValueAtTime(f0, t);
+        o.frequency.linearRampToValueAtTime(f1, t + ms / 1000);
+        t += ms / 1000;
+      }
+      g.gain.setValueAtTime(vol, t - 0.01);
+      g.gain.linearRampToValueAtTime(0, t + 0.01);
+      if (vib) {
+        const lfo = a.createOscillator(), depth = a.createGain();
+        lfo.frequency.value = vib[0]; depth.gain.value = vib[1];
+        lfo.connect(depth); depth.connect(o.detune);
+        lfo.start(t0); lfo.stop(t + 0.02);
+      }
+      o.connect(g); g.connect(a.destination);
+      o.start(t0); o.stop(t + 0.02);
+    }
+    if (noise) {
+      if (!this.noiseBuf) {
+        this.noiseBuf = a.createBuffer(1, a.sampleRate, a.sampleRate);
+        const d = this.noiseBuf.getChannelData(0);
+        for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+      }
+      const src = a.createBufferSource(), bp = a.createBiquadFilter(), g = a.createGain(), end = t0 + noise.ms / 1000;
+      src.buffer = this.noiseBuf;
+      bp.type = "bandpass"; bp.frequency.value = noise.f; bp.Q.value = noise.q;
+      g.gain.setValueAtTime(noise.g, t0);
+      g.gain.exponentialRampToValueAtTime(0.0005, end);
+      src.connect(bp); bp.connect(g); g.connect(a.destination);
+      src.start(t0, Math.random() * 0.5); src.stop(end + 0.01);
+    }
+  },
   setMuted(m) { this.muted = m; store.set(KEYS.muted, m ? "1" : "0"); },
 };
+function useSound(name) { audio.set = SOUND_SETS[name] || SFX; }
+/* the geiger counter: a click now and then, in bursts, on a theme that has
+ * one, while Poom is out in the Glow (the map or a level) */
+let geigerNext = 0;
+function geigerTick() {
+  if (!audio.set.geiger || (G.mode !== "map" && G.mode !== "level") || UI.top()) return;
+  if (G.t < geigerNext) return;
+  sfx("geiger");
+  geigerNext = G.t + (Math.random() < 0.3 ? 3 + Math.random() * 6 : 40 + Math.random() * 160);
+}
 const sfx = n => audio.play(n);
 
 /* ------------------------------------------------------------------ */
@@ -197,7 +283,7 @@ const bookNumber = b => BOOK_IDS.indexOf(b) + 1;
  * per level (LEVEL_THEME). */
 const BOOK_THEMES = {
   classic: { name: "classic", look: "classic", items: "classic", creatures: "classic", map: "classic", title: "classic", subtitle: "Episode One: Lost on Planet Hiss" },
-  wasteland: { name: "wasteland", look: "ranger", items: "wasteland", creatures: "wasteland", map: "wasteland", title: "wasteland", subtitle: "Book One: Down in the Glow", hud: "wrist" },
+  wasteland: { name: "wasteland", look: "ranger", items: "wasteland", creatures: "wasteland", map: "wasteland", title: "wasteland", subtitle: "Book One: Down in the Glow", hud: "wrist", sound: "wasteland" },
 };
 const THEME_OF_BOOK = { H: "wasteland" };
 /* a book with no theme of its own wears Book 1's */
@@ -215,7 +301,7 @@ function themeBook() {
 /* dress the whole game for a book, and remember it as the last played */
 function dressFor(book) {
   theme = themeOf(book);
-  useLook(theme.look); useItems(theme.items); useCreatures(theme.creatures);
+  useLook(theme.look); useItems(theme.items); useCreatures(theme.creatures); useSound(theme.sound);
   mapArt = mapArtSets[theme.map] || mapArtSets.classic;
   logoEl().dataset.look = theme.name; document.getElementById("ui").dataset.look = theme.name;
   document.title = "Commander Poom \u2014 " + theme.subtitle;
@@ -2236,6 +2322,7 @@ function frame(now) {
   while (acc >= STEP) {
     acc -= STEP;
     G.t++;
+    geigerTick();
     if (!UI.top()) {
       if (wasPressed("mute")) toggleMute();
       if (G.mode === "level" || G.mode === "map") {
