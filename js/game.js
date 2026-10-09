@@ -175,7 +175,7 @@ const G = {
 
 function newRun() {
   return { score: 0, nextLife: 20000, lives: 4, ammo: 0, pogo: true, parts: [false, false, false, false],
-    book: BOOK_IDS[0], done: {}, mx: null, my: null };
+    book: BOOK_IDS[0], done: {}, mx: null, my: null, swim: false };
 }
 
 /* ------------------------------------------------------------------ */
@@ -241,7 +241,7 @@ function loadLevel(n) {
   const rows = def.rows.map(r => [...r]);
   const h = rows.length, w = rows[0].length;
   const lv = { n, def, w, h, tiles: rows, back: [], ents: [], items: [], shots: [], fx: [], keys: [false, false, false, false, false],
-    theme, ice: false, t: 0, p: null, exits: [], exitAt: {}, edge: new Set(), npcs: [], endsLeft: 0, warp: {}, warpDoors: [], sockets: [], socketAt: {}, bridges: [], switchAt: {}, deckAt: new Set(), plats: [], pmark: new Map(), pswitchAt: {}, over: null, slope: slopesOf(rows) };
+    theme, ice: false, swim: !!def.swim, t: 0, p: null, exits: [], exitAt: {}, edge: new Set(), npcs: [], endsLeft: 0, warp: {}, warpDoors: [], sockets: [], socketAt: {}, bridges: [], switchAt: {}, deckAt: new Set(), plats: [], pmark: new Map(), pswitchAt: {}, over: null, slope: slopesOf(rows) };
   /* Under a slope the maps leave the odd non-solid tile where the ground's
    * edge was drawn. Boxed in on both sides, it is ground. */
   const isSl = (x, y) => !!(lv.slope[y] && lv.slope[y][x]);
@@ -510,8 +510,11 @@ function updatePlayer(lv) {
   const underfoot = tileAt(lv, Math.floor((p.x + p.w / 2) / T), Math.floor((p.y + p.h + 1) / T));
   const ice = lv.ice || (p.onGround && underfoot === "i");
 
+  /* under water: no pogo, no poles, no raygun; he swims */
+  if (lv.swim) swimMove(lv, p, ax, U, D);
+
   /* pogo on and off */
-  if (wasPressed("pogo") && !p.climbing) {
+  if (wasPressed("pogo") && !p.climbing && !lv.swim) {
     if (!run.pogo) { if (!seen("nopogo")) toast("You don't have a pogo stick yet."); sfx("click"); }
     else if (!p.pogo) {
       if (rectClear(lv, p.x, p.y - POGO_H, p.w, POGO_H)) {
@@ -577,7 +580,7 @@ function updatePlayer(lv) {
     }
   }
 
-  if (!p.climbing) {
+  if (!p.climbing && !lv.swim) {
     const busy = p.crouch > 0 || p.compress > 0;
     const stance = p.shootT > 0 && p.onGround && !p.pogo;
 
@@ -643,7 +646,7 @@ function updatePlayer(lv) {
   /* fire: one shot per press, at most one every seven ticks. On the ground
      he plants his feet to fire; in the air he keeps his momentum. Firing
      takes him off the pogo. */
-  if (wasPressed("fire") && p.fireCool === 0) {
+  if (wasPressed("fire") && p.fireCool === 0 && !lv.swim) {
     p.fireCool = KP.refire; p.shootT = KP.fireStance;
     if (p.pogo && !p.climbing) { p.pogo = false; p.y += POGO_H; p.h = PH; p.compress = 0; }
     if (p.onGround) p.vx = 0;
@@ -698,6 +701,22 @@ function updatePlayer(lv) {
 
   /* someone to rescue */
   for (const n of lv.npcs) if (!n.saved && overlap(pb, n)) { n.saved = true; popup(n, "SAVED"); return finishBy(lv, n); }
+}
+
+/* Swimming: the arrows push him every way, he drifts and slowly sinks,
+ * and jump is a stroke upward. */
+const SWIM = { accel: 0.07, max: 1.4, drag: 0.96, sink: 0.012, stroke: 1.3 };
+function swimMove(lv, p, ax, U, D) {
+  p.climbing = false; p.pogo = false; p.h = PH; p.poleCool = 2; p.crouch = p.compress = 0;
+  const ay = (D ? 1 : 0) - (U ? 1 : 0);
+  p.vx = (p.vx + ax * SWIM.accel) * SWIM.drag;
+  p.vy = (p.vy + ay * SWIM.accel + SWIM.sink) * SWIM.drag;
+  if (p.buffer > 0) { p.buffer = 0; p.vy -= SWIM.stroke; sfx("jump"); }
+  p.vx = Math.max(-SWIM.max, Math.min(SWIM.max, p.vx));
+  p.vy = Math.max(-SWIM.max * 1.5, Math.min(SWIM.max, p.vy));
+  moveBody(lv, p);
+  p.anim += 0.08;
+  if (lv.t % 40 === 0) lv.fx.push({ kind: "bubble", x: p.x + (p.face > 0 ? p.w : 0), y: p.y + 4, t: 0 });
 }
 
 /* the "x,y" keys of the tiles a body overlaps */
@@ -878,7 +897,12 @@ function collect(lv, it) {
     r.pogo = true; sfx("bigitem");
     message("<b>You found a pogo stick!</b><br><br>Press <kbd>Alt</kbd> or <kbd>X</kbd> to hop on and off. Hold <kbd>Ctrl</kbd> or <kbd>Z</kbd> as you land for a big bounce.");
   }
-  else if (it.kind === "objective" || it.kind === "swim") {
+  else if (it.kind === "swim") {
+    r.swim = true; addScore(1000); popup(it, "1000"); sfx("bigitem");
+    message("<b>You can swim!</b><br><br>On the map, Poom can wade in where the shore meets the water.");
+    if (it.ends && --lv.endsLeft === 0) finishBy(lv, "objective");
+  }
+  else if (it.kind === "objective") {
     addScore(1000); popup(it, "1000"); sfx("bigitem");
     if (it.ends && --lv.endsLeft === 0) finishBy(lv, "objective");
   }
@@ -1048,8 +1072,8 @@ function updateLevel() {
   for (const e of lv.ents) if (e.alive && Math.abs(e.x - lv.p.x) < 400) updateEnemy(lv, e);
   lv.ents = lv.ents.filter(e => e.alive);
   updateShots(lv);
-  for (const f of lv.fx) { f.t++; if (f.kind === "text") f.y -= 0.5; }
-  lv.fx = lv.fx.filter(f => f.t < (f.kind === "text" ? 50 : 12));
+  for (const f of lv.fx) { f.t++; if (f.kind === "text") f.y -= 0.5; if (f.kind === "bubble") { f.y -= 0.6; f.x += Math.sin(f.t / 6) * 0.3; } }
+  lv.fx = lv.fx.filter(f => f.t < (f.kind === "text" ? 50 : f.kind === "bubble" ? 90 : 12));
   centerCamera(false);
 }
 
@@ -1078,7 +1102,7 @@ function finishLevel() {
     const next = BOOK_IDS[BOOK_IDS.indexOf(r.book) + 1];
     if (!next) { ending(); return; }
     const was = r.book;
-    r.book = next; r.mx = r.my = null;
+    r.book = next; r.mx = r.my = null; r.swim = false;
     enterMap();
     saveRun();
     message(`<b>Book ${was} is done!</b><br><br>On to Book ${next}.`);
@@ -1122,7 +1146,7 @@ function mapTile(tx, ty) {
   return (w.rows[ty] || "")[tx] || "#";
 }
 function barrierOn(tx, ty) { const need = world().barrier[tx + "," + ty]; return !!need && !G.run.done[need]; }
-function mapSolid(ch) { return ch === "#" || ch === "~"; }
+function mapSolid(ch) { return ch === "#" || (ch === "~" && !G.run.swim); }
 function entranceAt(tx, ty) { return world().entrance[tx + "," + ty] || null; }
 
 function updateMap() {
@@ -1132,6 +1156,7 @@ function updateMap() {
   const blocked = (x, y) => {
     for (const [cx, cy] of [[x, y], [x + p.w - 1, y], [x, y + p.h - 1], [x + p.w - 1, y + p.h - 1]]) {
       const ch = mapTile(Math.floor(cx / T), Math.floor(cy / T));
+      if (ch === "~" && mapSolid(ch) && !m.waterWarned) { m.waterWarned = true; toast("Water. Poom can't swim. Not yet."); }
       if (mapSolid(ch)) { if (barrierOn(Math.floor(cx / T), Math.floor(cy / T)) && !m.fieldWarned) { m.fieldWarned = true; toast("Something blocks the way. Finish the levels nearby."); } return true; }
     }
     return false;
@@ -1231,8 +1256,10 @@ function drawLevel() {
   for (const f of lv.fx) {
     if (f.t < 0) continue;
     if (f.kind === "poof") ctx.drawImage(ART.poof[f.t < 6 ? 0 : 1], Math.round(f.x) - cx, Math.round(f.y) - cy);
+    if (f.kind === "bubble") { ctx.strokeStyle = EGA[11]; ctx.beginPath(); ctx.arc(Math.round(f.x) - cx, Math.round(f.y) - cy, 1.5 + (f.t > 40 ? 0.5 : 0), 0, Math.PI * 2); ctx.stroke(); }
     if (f.kind === "text") drawSmallText(f.text, Math.round(f.x) - cx, Math.round(f.y) - cy, f.t % 8 < 4 ? 15 : 14, true);
   }
+  if (lv.swim) { ctx.fillStyle = "rgba(0, 0, 170, 0.28)"; ctx.fillRect(0, 0, W, H); }
   drawHud(lv);
 }
 
@@ -1533,6 +1560,7 @@ function statusWindow() {
   const parts = el("span"); r.parts.forEach((h, i) => { const im = imgOf(ART.parts[i]); im.title = PART_NAMES[i]; if (!h) im.classList.add("missing"); parts.appendChild(im); });
   row("Ship parts", parts);
   row("Book", r.book);
+  if (r.swim) row("Swimming", "yes");
   row("Levels done", `${world().need.filter(id => r.done[id]).length} of ${world().need.length}`);
   box.appendChild(grid);
   box.appendChild(el("p", "hint", "press a key"));

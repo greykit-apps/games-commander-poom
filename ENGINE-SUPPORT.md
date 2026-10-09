@@ -32,7 +32,7 @@ Glyphs marked "no" are air until the engine learns them.
 | `d` | locked doors (colour absent from the source) | yes | 96 |
 | `q` | keycards with no stated colour | yes | 59 |
 | `u` | 2000-point pickup (medal) | yes | 235 |
-| `w` | swim ability (and swimming starts) | no | 2 |
+| `w` | swim ability | yes | 2 |
 | `!` | objective items (collected, or shot) | yes | 52 |
 | `e` | enemies (per-type behaviour) | no | 2943 |
 | `G` | turrets / emitters | no | 279 |
@@ -52,6 +52,7 @@ Further notes:
 - Warp doors (`D`): standing in front of one, ↑ takes Poom to its link's target, with his feet in the target tile (nudged up if that tile has no room). Each `D` tile has its own target, so each half of a door leads to its own half of the arrival. Door links that sit on anything but a `D` (107 of them: on blocks, ledges and air) are no door and are ignored.
 - Moving platforms (`M`, kind from `things`): two tiles wide, stood on from above, jumped through from below, and they carry their rider; down + jump drops off one. *Fixed-direction* and the E1 *horizontal/vertical* ones go to and fro at 1 px a tick, turning back when their own (top-left) tile reaches a `Platform blocker` mark or their leading edge meets a wall. *Arrow-guided* ones take the direction of the `Platform path arrow` on each tile they reach, and wait at a blocker; a platform's own starting tile holds no arrow in the source (one object a cell), so its start direction stands in. 129 of 135 come back round to their start. *Dropping* ones sink under a rider and rise back when left; *sneaky* ones slide two tiles away when Poom jumps at them and drift back; *static* ones stay put. Platform switches (`pswitches`, ↑ at the switch) toggle the blocker or arrow at their target.
 - Teleporters (`Q`) are world-map things: 35 of the 37 are on the maps of books A, B, F and G. Standing on one with a link, jump or fire goes to its target (the open tile nearest it, if the target is blocked); it is a press, not a touch, because most targets are themselves teleporters. The unlinked ones (A01 and G01's top rows, and two in level H14) are drawn and do nothing.
+- Swimming: the swim ability (`w`, in E10 and I10, where collecting it also ends the level) lets Poom swim for the rest of that book. On the world maps, `~` shoreline is water: it blocks him until he can swim, which is what keeps E16–E18 and I08, I18 out of reach. Levels whose player starts swimming (`swim: true`: E18, I17, I18) are under water throughout: Poom moves freely in all four directions, drifts, sinks slowly, strokes up with jump, and has no pogo or raygun.
 - The ledge (`-`), pole (`|`) and spikes (`^`) are used as the engine already has them.
 
 ## Per book
