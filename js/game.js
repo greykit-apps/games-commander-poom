@@ -2089,7 +2089,7 @@ const CONTROLS = `<table>
 <tr><td><kbd>&uarr;</kbd> <kbd>&darr;</kbd></td><td>climb a pole</td></tr>
 <tr><td><kbd>&uarr;</kbd></td><td>read a sign; go through a door</td></tr>
 <tr><td><kbd>&darr;</kbd> + jump</td><td>drop through a ledge</td></tr>
-<tr><td><kbd>Enter</kbd></td><td>status: score, lives, keycards, ship parts</td></tr>
+<tr><td><kbd>Enter</kbd></td><td>status: score, lives, parts</td></tr>
 <tr><td><kbd>Esc</kbd></td><td>pause</td></tr>
 <tr><td><kbd>M</kbd></td><td>sound on and off</td></tr>
 </table>
