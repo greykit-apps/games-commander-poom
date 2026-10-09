@@ -188,6 +188,9 @@ const BOOK_ORDER = ["H", "A", "B", "C", "D", "E", "F", "G", "I"];
 const BOOK_IDS = BOOK_ORDER.filter(b => BOOKS[b]);
 const bookNumber = b => BOOK_IDS.indexOf(b) + 1;
 const THEME_OF = { A: "hiss", B: "garden", C: "fort", D: "ice", E: "hiss", F: "garden", G: "fort", H: "ice", I: "hiss" };
+/* A level's own tileset, by its type (docs/story/book-1-story.md). Vault 9,
+ * the frozen one, is H09, H11 and H17. Levels not listed use their book's. */
+const LEVEL_THEME = { H09: "vaultCold", H11: "vaultCold", H17: "vaultCold", H10: "vault", H14: "vault" };
 const MAPS = {};
 for (const b of BOOK_IDS) BOOKS[b].chapters.forEach(ch => ch.levels.forEach(lv => { MAPS[lv.id] = lv; lv.book = b; }));
 const levelName = id => `Book ${bookNumber(MAPS[id].book)}, level ${+id.slice(1) - 1}`;
@@ -248,11 +251,11 @@ const GEM_NAMES = ["red", "yellow", "green", "blue", "silver"];
 const BELT = { "<": -1, ">": 1 };
 
 function loadLevel(n) {
-  const def = MAPS[n], theme = THEME_OF[def.book];
+  const def = MAPS[n], theme = LEVEL_THEME[n] || THEME_OF[def.book];
   const rows = def.rows.map(r => [...r]);
   const h = rows.length, w = rows[0].length;
   const lv = { n, def, w, h, tiles: rows, back: [], ents: [], items: [], shots: [], fx: [], keys: [false, false, false, false, false],
-    theme, ice: false, swim: !!def.swim, t: 0, p: null, exits: [], exitAt: {}, edge: new Set(), npcs: [], endsLeft: 0, warp: {}, warpDoors: [], sockets: [], socketAt: {}, bridges: [], switchAt: {}, deckAt: new Set(), plats: [], pmark: new Map(), pswitchAt: {}, secretAt: new Set(), over: null, slope: slopesOf(rows) };
+    theme, ice: false, swim: !!def.swim, t: 0, p: null, exits: [], exitAt: {}, edge: new Set(), npcs: [], endsLeft: 0, warp: {}, warpDoors: [], sockets: [], socketAt: {}, bridges: [], switchAt: {}, deckAt: new Set(), plats: [], pmark: new Map(), pswitchAt: {}, secretAt: new Set(), signDrop: {}, over: null, slope: slopesOf(rows) };
   /* Under a slope the maps leave the odd non-solid tile where the ground's
    * edge was drawn. Boxed in on both sides, it is ground. */
   const isSl = (x, y) => !!(lv.slope[y] && lv.slope[y][x]);
@@ -344,6 +347,14 @@ function loadLevel(n) {
   for (const s of def.pswitches || []) {
     const k = { ...s, on: false, mark: lv.pmark.get(s.tx + "," + s.ty) || "B" };
     lv.pswitchAt[s.x + "," + s.y] = k;
+  }
+
+  /* a hint sign stands on the floor below it, up to three tiles down: the
+     maps put the sign where its message is, not always on the ground */
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (rows[y][x] === "H") {
+    let d = 0;
+    while (d < 3 && y + d + 1 < h && !isSolid(rows[y + d + 1][x]) && rows[y + d + 1][x] !== "-") d++;
+    if (d < 3) lv.signDrop[x + "," + y] = d;
   }
 
   /* a secret exit: the level's teleporter */
@@ -1315,9 +1326,10 @@ function drawLevel() {
     else if (ch === "^") ctx.drawImage(art.spikes, x, y);
     else if (ch === "~") ctx.drawImage(art.liquid[(lv.t >> 3) % 4], x, y);
     else if (ch === "|") ctx.drawImage(art.pole, x, y);
-    else if (DOOR_CH[ch] !== undefined) ctx.drawImage(art.doors[DOOR_CH[ch]], x, y);
-    else if (SOCKET_DOOR[ch] !== undefined) ctx.drawImage(art.doors[SOCKET_DOOR[ch]], x, y);
+    else if (DOOR_CH[ch] !== undefined) ctx.drawImage((lv.tiles[ty - 1] || [])[tx] === ch && art.doorsBelow ? art.doorsBelow[DOOR_CH[ch]] : art.doors[DOOR_CH[ch]], x, y);
+    else if (SOCKET_DOOR[ch] !== undefined) ctx.drawImage((lv.tiles[ty - 1] || [])[tx] === ch && art.doorsBelow ? art.doorsBelow[SOCKET_DOOR[ch]] : art.doors[SOCKET_DOOR[ch]], x, y);
     else if (ch === "i") ctx.drawImage(art.ice, x, y);
+    else if (ch === "H") ctx.drawImage(art.sign, x, y + (lv.signDrop[tx + "," + ty] || 0) * T);
     else if (BELT[ch]) ctx.drawImage(art.conveyor[ch === ">" ? 1 : 0][(lv.t >> 2) % 4], x, y);
     else if (ch === "/" || ch === "\\") { const sl = lv.slope[ty][tx]; ctx.drawImage(art.slope(sl[0], sl[1]), x, y); }
   }

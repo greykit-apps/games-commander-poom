@@ -971,6 +971,10 @@ const THEMES = {
   fort: { sky: 0, far: [8, 1], ground: [8, 7, 0], crust: [7, 15], alt: [8, 7], plat: [6, 14], bg: [1, 0], liquid: [10, 2, 14], liquidName: "toxic dust" },
   /* the catnip gardens */
   garden: { sky: 1, far: [2, 3], ground: [6, 2, 10], crust: [10, 2], alt: [2, 6], plat: [6, 14], bg: [0, 2], bgRock: true, liquid: [9, 3, 15], liquidName: "deep water" },
+  /* Book 1 (docs/story/book-1-story.md): a Vault, an underground shelter of
+   * riveted steel; and Vault 9, the cold-sleep shelter whose coolant burst */
+  vault: { sky: 0, far: [8, 7], ground: [8, 7, 0], crust: [7, 15], alt: [8, 7], plat: [7, 8], bg: [0, 8], liquid: [11, 15, 3], liquidName: "coolant", style: "vault", no: 6 },
+  vaultCold: { sky: 1, far: [9, 3], ground: [8, 7, 0], crust: [15, 11], alt: [8, 7], plat: [7, 8], bg: [1, 0], liquid: [11, 15, 3], liquidName: "coolant", style: "vault", cold: true, no: 9 },
 };
 
 function paintTiles(themeName) {
@@ -1152,9 +1156,142 @@ function paintTiles(themeName) {
     g.strokeStyle = E(th.crust[1]); g.lineWidth = 1; g.beginPath(); g.moveTo(0, T - hl + 0.5); g.lineTo(T, T - hr + 0.5); g.stroke();
   }));
 
+  /* a hint sign: a board on a post */
+  tiles.sign = mk(g => {
+    g.fillStyle = E(6); g.fillRect(7, 8, 2, 8);
+    g.fillStyle = E(6); g.fillRect(1, 1, 14, 8);
+    g.fillStyle = E(14); g.fillRect(2, 2, 12, 6);
+    g.fillStyle = E(6); for (const y of [3, 5]) g.fillRect(3, y, 10, 1);
+  });
+
+  if (th.style === "vault") vaultTiles(tiles, th, mk, E);
+
   /* fake wall: looks like ground, walks like air (secret) */
   tiles.fake = tiles.ground[0];
   return tiles;
+}
+
+/* The Vault's own tiles, over the shared ones. Steel panels, catwalks,
+ * security doors, a lift for the exit, terminals for the signs; cold, it is
+ * all frosted, and the hazards are ice instead of live wires. */
+function vaultTiles(tiles, th, mk, E) {
+  const cold = !!th.cold;
+  const rivet = (g, x, y) => { g.fillStyle = E(7); g.fillRect(x, y, 2, 2); g.fillStyle = E(15); g.fillRect(x, y, 1, 1); g.fillStyle = E(0); g.fillRect(x + 1, y + 1, 1, 1); };
+  const frost = (g, r, n) => { for (let i = 0; i < n; i++) { g.fillStyle = E(r() < .5 ? 11 : 15); g.fillRect(r() * T | 0, r() * T | 0, 1, 1); } };
+
+  /* a steel panel: bevelled, riveted; three kinds so a wall isn't one
+     panel repeated: plain, a vent, a seam */
+  const panel = (top, kind, seed) => mk(g => {
+    const r = rng(seed);
+    g.fillStyle = E(8); g.fillRect(0, 0, T, T);
+    g.fillStyle = E(7); g.fillRect(0, 0, T, 1); g.fillRect(0, 0, 1, T);
+    g.fillStyle = E(0); g.fillRect(0, T - 1, T, 1); g.fillRect(T - 1, 0, 1, T);
+    rivet(g, 2, 2); rivet(g, 12, 2); rivet(g, 2, 12); rivet(g, 12, 12);
+    if (kind === 1) { g.fillStyle = E(0); for (const y of [6, 8, 10]) g.fillRect(5, y, 6, 1); g.fillStyle = E(7); for (const y of [7, 9, 11]) g.fillRect(5, y, 6, 1); }
+    if (kind === 2) { g.fillStyle = E(0); g.fillRect(1, 7, T - 2, 1); g.fillStyle = E(7); g.fillRect(1, 8, T - 2, 1); }
+    if (cold) frost(g, r, 10);
+    if (top) {
+      /* a floor plate on top; cold, a lip of frost with icicles under it */
+      g.fillStyle = E(7); g.fillRect(0, 0, T, 3);
+      g.fillStyle = E(15); g.fillRect(0, 0, T, 1);
+      g.fillStyle = E(0); g.fillRect(0, 3, T, 1);
+      if (cold) {
+        g.fillStyle = E(15); g.fillRect(0, 0, T, 2); g.fillStyle = E(11); g.fillRect(0, 2, T, 1);
+        for (let x = 1; x < T; x += 3) if (r() < .7) { const len = 1 + (r() * 4 | 0); g.fillStyle = E(11); g.fillRect(x, 3, 1, len); g.fillStyle = E(15); g.fillRect(x, 3, 1, 1); }
+      }
+    }
+  });
+  tiles.ground = [panel(false, 0, 7), panel(false, 1, 19), panel(false, 2, 31)];
+  tiles.groundTop = [panel(true, 0, 11), panel(true, 0, 23), panel(true, 1, 37)];
+
+  /* a catwalk: grating on a frame */
+  tiles.plat = mk(g => {
+    g.fillStyle = E(7); g.fillRect(0, 0, T, 5);
+    g.fillStyle = E(15); g.fillRect(0, 0, T, 1);
+    g.fillStyle = E(0); for (let x = 1; x < T; x += 3) g.fillRect(x, 2, 2, 2);
+    g.fillStyle = E(8); g.fillRect(0, 4, T, 1); g.fillRect(2, 5, 2, 3); g.fillRect(12, 5, 2, 3);
+    if (cold) { g.fillStyle = E(15); g.fillRect(0, 0, T, 1); g.fillStyle = E(11); g.fillRect(4, 5, 1, 2); g.fillRect(9, 5, 1, 3); }
+  });
+
+  /* the hazard: a sparking cable on a floor grate, or, cold, ice shards */
+  tiles.spikes = mk(g => {
+    if (cold) {
+      for (let i = 0; i < 4; i++) {
+        const x = i * 4;
+        g.fillStyle = E(11); g.beginPath(); g.moveTo(x, 16); g.lineTo(x + 2, 6 + (i % 2) * 2); g.lineTo(x + 4, 16); g.fill();
+        g.fillStyle = E(15); g.fillRect(x + 2, 7 + (i % 2) * 2, 1, 4);
+        g.fillStyle = E(9); g.fillRect(x + 3, 12, 1, 4);
+      }
+      return;
+    }
+    g.fillStyle = E(8); g.fillRect(0, 12, T, 4);
+    g.fillStyle = E(0); for (let x = 1; x < T; x += 3) g.fillRect(x, 13, 2, 2);
+    g.strokeStyle = E(14); g.lineWidth = 1;
+    g.beginPath(); g.moveTo(1, 12); g.lineTo(4, 7); g.lineTo(6, 10); g.lineTo(9, 5); g.lineTo(11, 9); g.lineTo(14, 6); g.stroke();
+    g.fillStyle = E(15); for (const [x, y] of [[4, 7], [9, 5], [14, 6]]) g.fillRect(x, y, 1, 1);
+    g.fillStyle = E(11); g.fillRect(6, 9, 1, 1); g.fillRect(11, 8, 1, 1);
+  });
+
+  /* security doors: a steel slab with a band in the door's colour and a
+     card reader on its top tile; the tiles below are the slab. Red,
+     yellow, green, blue, and silver */
+  const door = (a, b, top) => mk(g => {
+    g.fillStyle = E(7); g.fillRect(0, 0, T, T);
+    g.fillStyle = E(8); g.fillRect(2, 0, T - 4, T);
+    g.fillStyle = E(0); g.fillRect(T / 2, 0, 1, T);
+    if (top) {
+      g.fillStyle = E(b); g.fillRect(2, 8, T - 4, 6);
+      g.fillStyle = E(a); g.fillRect(2, 9, T - 4, 4);
+      g.fillStyle = E(0); g.fillRect(T / 2, 8, 1, 6);
+      g.fillStyle = E(0); g.fillRect(10, 2, 4, 4); g.fillStyle = E(a); g.fillRect(11, 3, 2, 2);
+      g.fillStyle = E(15); g.fillRect(0, 0, T, 1);
+    } else {
+      g.fillStyle = E(b); g.fillRect(2, 13, T - 4, 2);
+      g.fillStyle = E(7); for (const y of [4, 9]) { g.fillRect(3, y, 4, 1); g.fillRect(9, y, 4, 1); }
+    }
+    if (cold) { g.fillStyle = E(top ? 15 : 11); g.fillRect(2, 0, T - 4, 1); g.fillStyle = E(11); g.fillRect(3, 12, 1, 2); g.fillRect(12, 13, 1, 2); }
+  });
+  const COLOURS = [[12, 4], [14, 6], [10, 2], [9, 1], [7, 8]];
+  tiles.doors = COLOURS.map(([a, b]) => door(a, b, true));
+  tiles.doorsBelow = COLOURS.map(([a, b]) => door(a, b, false));
+
+  /* the exit: a lift, 16x32. Shut, two steel leaves and a green lamp; open,
+     a lit car */
+  const lift = open => { const c = makeCanvas(T, T * 2), g = c.getContext("2d");
+    g.fillStyle = E(7); g.fillRect(0, 2, T, 30);
+    g.fillStyle = E(15); g.fillRect(0, 2, T, 1);
+    if (open) { g.fillStyle = E(0); g.fillRect(2, 5, 12, 27); g.fillStyle = E(14); g.fillRect(3, 6, 10, 1); g.fillStyle = E(8); g.fillRect(2, 30, 12, 2); }
+    else {
+      g.fillStyle = E(8); g.fillRect(2, 5, 12, 27);
+      g.fillStyle = E(0); g.fillRect(7, 5, 2, 27);
+      g.fillStyle = E(7); for (let y = 9; y < 30; y += 6) { g.fillRect(3, y, 3, 1); g.fillRect(10, y, 3, 1); }
+      /* up arrows: the way out */
+      g.fillStyle = E(10); g.fillRect(4, 14, 1, 1); g.fillRect(3, 15, 3, 1); g.fillRect(11, 14, 1, 1); g.fillRect(10, 15, 3, 1);
+    }
+    g.fillStyle = E(2); g.fillRect(5, 0, 6, 3); g.fillStyle = E(10); g.fillRect(6, 0, 4, 2);
+    if (cold) { g.fillStyle = E(15); g.fillRect(0, 2, T, 2); g.fillStyle = E(11); g.fillRect(1, 4, 1, 3); g.fillRect(14, 4, 1, 2); }
+    return c; };
+  tiles.exit = [lift(false), lift(true)];
+
+  /* ice: a steel floor under thick frost */
+  tiles.ice = mk(g => {
+    const r = rng(41);
+    g.drawImage(tiles.ground[0], 0, 0);
+    g.fillStyle = E(11); g.fillRect(0, 0, T, 5);
+    g.fillStyle = E(15); g.fillRect(0, 0, T, 1); g.fillRect(2, 1, 4, 1); g.fillRect(10, 2, 3, 1);
+    g.fillStyle = E(3); g.fillRect(0, 5, T, 1);
+    frost(g, r, 14);
+  });
+
+  /* a hint sign is a terminal: a screen of green text on a stand */
+  tiles.sign = mk(g => {
+    g.fillStyle = E(8); g.fillRect(6, 11, 4, 3); g.fillRect(3, 14, 10, 2);
+    g.fillStyle = E(7); g.fillRect(1, 1, 14, 10);
+    g.fillStyle = E(0); g.fillRect(2, 2, 12, 8);
+    g.fillStyle = E(10); for (const [y, w] of [[3, 8], [5, 10], [7, 6]]) g.fillRect(3, y, w, 1);
+    g.fillStyle = E(2); g.fillRect(3, 4, 5, 1); g.fillRect(3, 6, 7, 1);
+    g.fillStyle = E(15); g.fillRect(1, 1, 14, 1);
+  });
 }
 
 /* far background: a strip of silhouettes per theme, repeated, scrolled at
@@ -1180,6 +1317,49 @@ function paintFar(themeName) {
   if (themeName === "fort") {
     g.fillStyle = EGA[8];
     for (let x = 10; x < 320; x += 60) { g.fillRect(x, 90, 26, 110); for (let k = 0; k < 26; k += 8) g.fillRect(x + k, 84, 5, 6); g.fillStyle = EGA[14]; g.fillRect(x + 10, 110, 4, 6); g.fillStyle = EGA[8]; }
+  }
+  if (th.style === "vault") return paintVaultFar(th);
+  return c;
+}
+
+/* The Vault behind: no sky, no hills; a wall of panels, pipes and conduits,
+ * warning lamps, and the great round door the shelter was sealed with.
+ * Cold, it is blue and hung with icicles. */
+function paintVaultFar(th) {
+  const c = makeCanvas(320, 200), g = c.getContext("2d"), r = rng(7), E = i => EGA[i], cold = !!th.cold;
+  const base = cold ? 1 : 0, line = cold ? 9 : 8, hi = cold ? 11 : 7;
+  g.fillStyle = E(base); g.fillRect(0, 0, 320, 200);
+  /* the panel grid */
+  g.fillStyle = E(line);
+  for (let x = 0; x < 320; x += 40) g.fillRect(x, 0, 1, 200);
+  for (let y = 0; y < 200; y += 32) g.fillRect(0, y, 320, 1);
+  for (let x = 0; x < 320; x += 40) for (let y = 0; y < 200; y += 32) { g.fillRect(x + 3, y + 3, 1, 1); g.fillRect(x + 36, y + 3, 1, 1); }
+  /* the sealed door: a ring of cog teeth round a dark wheel */
+  const dx = 236, dy = 92;
+  g.fillStyle = E(line);
+  for (let i = 0; i < 12; i++) { const a = i * Math.PI / 6; g.save(); g.translate(dx + Math.cos(a) * 44, dy + Math.sin(a) * 44); g.rotate(a); g.fillRect(-5, -6, 10, 12); g.restore(); }
+  g.beginPath(); g.arc(dx, dy, 44, 0, Math.PI * 2); g.fill();
+  g.fillStyle = E(base); g.beginPath(); g.arc(dx, dy, 34, 0, Math.PI * 2); g.fill();
+  g.fillStyle = E(line); g.beginPath(); g.arc(dx, dy, 30, 0, Math.PI * 2); g.fill();
+  g.strokeStyle = E(hi); g.lineWidth = 1; g.beginPath(); g.arc(dx, dy, 30, Math.PI * 1.1, Math.PI * 1.6); g.stroke();
+  g.fillStyle = E(base); for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4; g.fillRect(dx + Math.cos(a) * 22 - 2, dy + Math.sin(a) * 22 - 2, 4, 4); }
+  g.font = "bold 18px monospace"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillStyle = E(0); g.fillText(String(th.no), dx + 1, dy + 2); g.fillStyle = E(14); g.fillText(String(th.no), dx, dy + 1);
+  /* pipes: vertical runs with collars, and a conduit along the top */
+  for (const x of [22, 66, 150]) {
+    g.fillStyle = E(line); g.fillRect(x, 0, 6, 200);
+    g.fillStyle = E(hi); g.fillRect(x + 1, 0, 1, 200);
+    for (let y = 18 + (x % 30); y < 200; y += 46) { g.fillStyle = E(line); g.fillRect(x - 2, y, 10, 4); g.fillStyle = E(hi); g.fillRect(x - 2, y, 10, 1); }
+  }
+  g.fillStyle = E(line); g.fillRect(0, 14, 320, 5); g.fillStyle = E(hi); g.fillRect(0, 15, 320, 1);
+  /* warning lamps, on the pipes */
+  for (const [x, y] of [[22, 60], [66, 130], [150, 44], [150, 170]]) {
+    g.fillStyle = E(0); g.fillRect(x - 2, y - 1, 10, 6);
+    g.fillStyle = E(4); g.fillRect(x - 1, y, 8, 4); g.fillStyle = E(12); g.fillRect(x, y, 6, 1);
+  }
+  /* cold: frost, and icicles off the conduit */
+  if (cold) {
+    for (let i = 0; i < 120; i++) { g.fillStyle = E(r() < .5 ? 9 : 11); g.fillRect(r() * 320 | 0, r() * 200 | 0, 1, 1); }
+    for (let x = 2; x < 320; x += 5) { const len = 2 + (r() * 8 | 0); g.fillStyle = E(11); g.fillRect(x, 19, 1, len); g.fillStyle = E(15); g.fillRect(x, 19, 1, 1); }
   }
   return c;
 }
