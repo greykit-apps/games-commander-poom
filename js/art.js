@@ -1076,6 +1076,18 @@ function paintTiles(themeName) {
     return c; };
   tiles.exit = [exitDoor(false), exitDoor(true)];
 
+  /* a warp door, 32x32: a dark arch with a shimmer that moves, four frames */
+  tiles.warp = [0, 1, 2, 3].map(f => { const c = makeCanvas(T * 2, T * 2), g = c.getContext("2d");
+    g.fillStyle = E(8); g.fillRect(2, 2, 28, 30);
+    g.fillStyle = E(7); g.fillRect(2, 2, 28, 2); g.fillRect(2, 2, 2, 30); g.fillRect(28, 2, 2, 30);
+    g.fillStyle = E(15); g.fillRect(2, 2, 28, 1);
+    g.fillStyle = E(1); g.fillRect(5, 5, 22, 27);
+    g.fillStyle = E(5); for (let y = 5 + f * 2; y < 32; y += 8) g.fillRect(5, y, 22, 2);
+    g.fillStyle = E(13); for (let y = 6 + f * 2; y < 32; y += 8) g.fillRect(9 + (y % 3) * 3, y, 6, 1);
+    /* a violet lamp over the arch: not the way out, the way through */
+    g.fillStyle = E(5); g.fillRect(12, 0, 8, 3); g.fillStyle = E(13); g.fillRect(13, 0, 6, 2);
+    return c; });
+
   /* ice: ground under a pale, glassy crust */
   tiles.ice = mk(g => {
     g.drawImage(tiles.ground[0], 0, 0);

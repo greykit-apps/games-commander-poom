@@ -237,7 +237,7 @@ function loadLevel(n) {
   const rows = def.rows.map(r => [...r]);
   const h = rows.length, w = rows[0].length;
   const lv = { n, def, w, h, tiles: rows, back: [], ents: [], items: [], shots: [], fx: [], keys: [false, false, false, false, false],
-    theme, ice: false, t: 0, p: null, exits: [], exitAt: {}, edge: new Set(), npcs: [], endsLeft: 0, over: null, slope: slopesOf(rows) };
+    theme, ice: false, t: 0, p: null, exits: [], exitAt: {}, edge: new Set(), npcs: [], endsLeft: 0, warp: {}, warpDoors: [], over: null, slope: slopesOf(rows) };
   /* Under a slope the maps leave the odd non-solid tile where the ground's
    * edge was drawn. Boxed in on both sides, it is ground. */
   const isSl = (x, y) => !!(lv.slope[y] && lv.slope[y][x]);
@@ -279,6 +279,20 @@ function loadLevel(n) {
     const foot = fy <= g.ty1 + 3 && fy < h ? fy : g.ty1 + 1;
     g.x = (g.tx0 + g.tx1) * T / 2; g.y = foot * T - T * 2;
     lv.exits.push(g);
+  }
+
+  /* Warp doors. Each D tile has its own target (the left half of a door
+   * leads to the left half of the arrival); a link on anything but a D is
+   * not a door and is ignored. A door is two tiles wide; drawn two columns
+   * at a time, over its D rows and, when it is one row tall, the row below. */
+  for (const [x, y, tx, ty, kind] of def.links || []) if (kind === "door" && rows[y] && rows[y][x] === "D") lv.warp[x + "," + y] = [tx, ty];
+  const doneD = new Set();
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    if (rows[y][x] !== "D" || doneD.has(x + "," + y)) continue;
+    let x1 = x; while (x1 + 1 < w && rows[y][x1 + 1] === "D" && x1 - x < 1) x1++;
+    let y1 = y; while (y1 + 1 < h && rows[y1 + 1][x] === "D") y1++;
+    for (let yy = y; yy <= y1; yy++) for (let xx = x; xx <= x1; xx++) doneD.add(xx + "," + yy);
+    lv.warpDoors.push({ x: x * T, y: y * T, w: (x1 - x + 1) * T, h: Math.max(2, y1 - y + 1) * T });
   }
 
   /* what else finishes the level: the source's rescue NPCs and objectives */
@@ -465,6 +479,11 @@ function updatePlayer(lv) {
     } else { p.pogo = false; p.y += POGO_H; p.h = PH; }
   }
 
+  /* through a warp door: up, standing in front of one */
+  const door = !p.climbing && warpAt(lv, p);
+  if (door && !seen("warpdoor")) toast("A door. Press \u2191 to go through.");
+  if (door && wasPressed("up")) { warpTo(lv, p, door); return; }
+
   /* grab a pole */
   const cx = p.x + p.w / 2;
   const poleAt = y => tileAt(lv, Math.floor(cx / T), Math.floor(y / T)) === "|";
@@ -621,6 +640,31 @@ function updatePlayer(lv) {
 
   /* someone to rescue */
   for (const n of lv.npcs) if (!n.saved && overlap(pb, n)) { n.saved = true; popup(n, "SAVED"); return finishBy(lv, n); }
+}
+
+/* the warp door Poom is standing in, as its target, or null. The tile
+ * under his middle wins, so each half of a door goes to its own place. */
+function warpAt(lv, p) {
+  const mid = Math.floor((p.x + p.w / 2) / T);
+  let found = null;
+  for (let ty = Math.floor(p.y / T); ty <= Math.floor((p.y + p.h - 1) / T); ty++)
+    for (let tx = Math.floor(p.x / T); tx <= Math.floor((p.x + p.w - 1) / T); tx++) {
+      const t = lv.warp[tx + "," + ty];
+      if (t && (tx === mid || !found)) found = t;
+    }
+  return found;
+}
+
+/* arrive with his feet in the target tile; if that's no room, a little higher */
+function warpTo(lv, p, [tx, ty]) {
+  lv.fx.push({ kind: "poof", x: p.x, y: p.y + 6, t: 0 });
+  if (p.pogo) { p.pogo = false; p.h = PH; }
+  p.x = tx * T + (T - p.w) / 2; p.y = (ty + 1) * T - p.h;
+  for (let up = 0; up < 3 && !rectClear(lv, p.x, p.y, p.w, p.h); up++) p.y -= T;
+  p.vx = p.vy = 0; p.crouch = p.compress = 0; p.poleCool = 12;
+  lv.fx.push({ kind: "poof", x: p.x, y: p.y + 6, t: 0 });
+  sfx("door");
+  centerCamera(true);
 }
 
 /* the level is over: Poom heads out, then finishLevel */
@@ -957,6 +1001,7 @@ function drawLevel() {
     else if (BELT[ch]) ctx.drawImage(art.conveyor[ch === ">" ? 1 : 0][(lv.t >> 2) % 4], x, y);
     else if (ch === "/" || ch === "\\") { const sl = lv.slope[ty][tx]; ctx.drawImage(art.slope(sl[0], sl[1]), x, y); }
   }
+  for (const d of lv.warpDoors) if (d.x - cx > -d.w && d.x - cx < W && d.y - cy > -d.h && d.y - cy < H) ctx.drawImage(art.warp[(lv.t >> 3) % 4], d.x - cx, d.y - cy, d.w, d.h);
   for (const e of lv.exits) ctx.drawImage(art.exit[lv.exitUsed === e ? 1 : 0], e.x - cx, e.y - cy);
 
   for (const it of lv.items) {

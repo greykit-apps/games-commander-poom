@@ -28,7 +28,7 @@ Glyphs marked "no" are air until the engine learns them.
 | `Q` | teleporters / elevators | no | 37 |
 | `j` | key sockets | no | 186 |
 | `H` | hint triggers | no | 217 |
-| `D` | warp doors | no | 596 |
+| `D` | warp doors | yes | 596 |
 | `d` | locked doors (colour absent from the source) | yes | 96 |
 | `q` | keycards with no stated colour | yes | 59 |
 | `u` | 2000-point pickup (medal) | yes | 235 |
@@ -49,6 +49,7 @@ Further notes:
 - Ice (`i`) is solid with the original game's ice handling while standing on it; conveyors (`< >`) are solid and carry the player 1 px a tick. Enemies ignore both.
 - `~` in world maps is shoreline; in levels it is fire/water, as before.
 - How a level ends comes from the source's `completion` list (maps2/README.md, *Level completion*). `exit_tile`: an `X` away from the map edge becomes `E`, an exit door; walking into any `E` tile finishes the level, and each group of them is drawn as one door standing on the floor below it. `map_edge`: an `X` in the outer two columns stays `X`, unseen; walking into one finishes the level. `objective`: the level's `ends` objectives (`!`, and the two swim-ability pickups flagged as ending E and I levels) are picked up by touch or destroyed by a shot, and the last one finishes the level. `rescue`: touching an `ends` NPC finishes the level. Falling out of the bottom still kills.
+- Warp doors (`D`): standing in front of one, ↑ takes Poom to its link's target, with his feet in the target tile (nudged up if that tile has no room). Each `D` tile has its own target, so each half of a door leads to its own half of the arrival. Door links that sit on anything but a `D` (107 of them: on blocks, ledges and air) are no door and are ignored.
 - The ledge (`-`), pole (`|`) and spikes (`^`) are used as the engine already has them.
 
 ## Per book

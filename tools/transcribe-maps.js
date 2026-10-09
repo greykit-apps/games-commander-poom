@@ -91,7 +91,7 @@ function convert(d) {
 }
 
 /* the ones game.js handles; keep in step with it */
-const DONE = new Set(["/", "\\", "i", "<", ">", "d", "q", "u", "l", "!"]);
+const DONE = new Set(["/", "\\", "i", "<", ">", "d", "q", "u", "l", "!", "D"]);
 
 fs.mkdirSync(OUT, { recursive: true });
 const report = [];
@@ -113,7 +113,7 @@ for (const book of "ABCDEFGHI".split("")) {
     per.push([m.id, m.kind || "world", m.w, m.h, used]);
   }
   fs.writeFileSync(path.join(OUT, book + ".js"),
-    `/* Book ${book}: transcribed from maps/${book}/ by tools/transcribe-maps.js. See ENGINE-SUPPORT.md. */\n` +
+    `/* Book ${book}: transcribed from maps2/${book}/ by tools/transcribe-maps.js. See ENGINE-SUPPORT.md. */\n` +
     `"use strict";\nwindow.BOOKS = window.BOOKS || {};\nBOOKS.${book} = ${JSON.stringify(B)};\n`);
   report.push([book, per, B.skipped]);
 }
@@ -150,6 +150,7 @@ Further notes:
 - Ice (\`i\`) is solid with the original game's ice handling while standing on it; conveyors (\`< >\`) are solid and carry the player 1 px a tick. Enemies ignore both.
 - \`~\` in world maps is shoreline; in levels it is fire/water, as before.
 - How a level ends comes from the source's \`completion\` list (maps2/README.md, *Level completion*). \`exit_tile\`: an \`X\` away from the map edge becomes \`E\`, an exit door; walking into any \`E\` tile finishes the level, and each group of them is drawn as one door standing on the floor below it. \`map_edge\`: an \`X\` in the outer two columns stays \`X\`, unseen; walking into one finishes the level. \`objective\`: the level's \`ends\` objectives (\`!\`, and the two swim-ability pickups flagged as ending E and I levels) are picked up by touch or destroyed by a shot, and the last one finishes the level. \`rescue\`: touching an \`ends\` NPC finishes the level. Falling out of the bottom still kills.
+- Warp doors (\`D\`): standing in front of one, ↑ takes Poom to its link's target, with his feet in the target tile (nudged up if that tile has no room). Each \`D\` tile has its own target, so each half of a door leads to its own half of the arrival. Door links that sit on anything but a \`D\` (107 of them: on blocks, ledges and air) are no door and are ignored.
 - The ledge (\`-\`), pole (\`|\`) and spikes (\`^\`) are used as the engine already has them.
 
 ## Per book
