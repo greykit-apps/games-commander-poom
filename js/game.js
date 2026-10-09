@@ -174,7 +174,7 @@ const G = {
 };
 
 function newRun() {
-  return { score: 0, nextLife: 20000, lives: 4, ammo: 0, pogo: false, parts: [false, false, false, false],
+  return { score: 0, nextLife: 20000, lives: 4, ammo: 0, pogo: true, parts: [false, false, false, false],
     book: BOOK_IDS[0], done: {}, mx: null, my: null };
 }
 
@@ -1249,7 +1249,6 @@ function statusWindow() {
   row("Extra life at", String(r.nextLife));
   row("Lives", String(r.lives));
   row("Raygun", r.ammo ? `${r.ammo} charge${r.ammo === 1 ? "" : "s"}` : "empty");
-  row("Pogo stick", r.pogo ? "yes" : "not yet");
   const keys = el("span"); (G.lv ? G.lv.keys : [false, false, false, false]).forEach((k, i) => { const im = imgOf(ART.gems[i]); if (!k) im.classList.add("missing"); keys.appendChild(im); });
   row("Keycards", keys);
   const parts = el("span"); r.parts.forEach((h, i) => { const im = imgOf(ART.parts[i]); im.title = PART_NAMES[i]; if (!h) im.classList.add("missing"); parts.appendChild(im); });
@@ -1305,7 +1304,7 @@ const STORY = `<p>Poom Purrington is eight years old, has an IQ of 314, and has 
 const CONTROLS = `<table>
 <tr><td><kbd>&larr;</kbd> <kbd>&rarr;</kbd> / <kbd>A</kbd> <kbd>D</kbd></td><td>walk</td></tr>
 <tr><td><kbd>Ctrl</kbd> / <kbd>Z</kbd></td><td>jump &mdash; hold it to jump higher</td></tr>
-<tr><td><kbd>Alt</kbd> / <kbd>X</kbd></td><td>pogo stick on and off, once you have one</td></tr>
+<tr><td><kbd>Alt</kbd> / <kbd>X</kbd></td><td>pogo stick on and off</td></tr>
 <tr><td><kbd>Space</kbd> / <kbd>C</kbd></td><td>fire the raygun</td></tr>
 <tr><td><kbd>&uarr;</kbd> <kbd>&darr;</kbd></td><td>climb a pole</td></tr>
 <tr><td><kbd>&darr;</kbd> + jump</td><td>drop through a ledge</td></tr>
@@ -1334,7 +1333,6 @@ function openHelp() {
       [ART.items.ammo, "Raygun charge", "Five shots."],
       [ART.items.life, "Plush Poom", "An extra life."],
       [ART.gems[0], "Keycards", "Open the door of the same colour, for this level."],
-      [ART.items.pogo, "Pogo stick", "Bounces higher than you can jump. Yours to keep."],
       [ART.parts[0], "Ship parts", "Four of them. The whole point."],
     ])],
     ["About", ABOUT],
@@ -1526,7 +1524,7 @@ function boot() {
   if (MAPS[lvq] || WORLDS[bq]) {
     run.cancel();
     hideLogo();
-    G.run = newRun(); G.run.pogo = true; G.run.ammo = 50;
+    G.run = newRun(); G.run.ammo = 50;
     G.run.book = MAPS[lvq] ? MAPS[lvq].book : bq;
     G.map.p = null;
     enterMap();
