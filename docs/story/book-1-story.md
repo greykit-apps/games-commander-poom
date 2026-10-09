@@ -99,7 +99,7 @@ exit door, hint sign, and the four coloured doors. Plus a far background.
 | **Ruins** | a little ice (23) | Broken concrete, rebar hazard, sky and skyline behind. Most exit doors (16) and signs (4). |
 | **Wasteland map** | ground, rock, level markers per type, teleporter (Tube station), the ship, done flags | The current map has only ground, rock and markers. Each level's marker should show its type: a Vault door, a camp, a ruined building. |
 
-**Items, shared by all three:**
+**Items, shared by all three** (made: the `wasteland` item set in js/art.js; sheet in docs/art/wasteland-items.png):
 
 | Now | Proposal |
 |---|---|

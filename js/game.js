@@ -187,9 +187,11 @@ function newRun() {
 const BOOK_ORDER = ["H", "A", "B", "C", "D", "E", "F", "G", "I"];
 const BOOK_IDS = BOOK_ORDER.filter(b => BOOKS[b]);
 const bookNumber = b => BOOK_IDS.indexOf(b) + 1;
-/* Poom's look in each book (js/art.js LOOKS); books not listed: classic */
+/* Poom's look and the item set in each book (js/art.js LOOKS and item
+ * sets); books not listed: classic */
 const POOM_LOOK = { H: "ranger" };
-const dressFor = book => useLook(POOM_LOOK[book] || "classic");
+const ITEM_SET = { H: "wasteland" };
+const dressFor = book => { useLook(POOM_LOOK[book] || "classic"); useItems(ITEM_SET[book] || "classic"); };
 const THEME_OF = { A: "hiss", B: "garden", C: "fort", D: "ice", E: "hiss", F: "garden", G: "fort", H: "ice", I: "hiss" };
 /* A level's own tileset, by its type (docs/story/book-1-story.md). Vault 9,
  * the frozen one, is H09, H11 and H17; the raider camps are H04, H08 (Fort
@@ -1827,7 +1829,7 @@ function recordScore(score, done) {
 
 function openTitle() {
   UI.clear();
-  useLook("classic");
+  useLook("classic"); useItems("classic");
   G.mode = "title"; G.lv = null; mapLabel("");
   const saved = store.get(KEYS.save, null);
   showLogo();

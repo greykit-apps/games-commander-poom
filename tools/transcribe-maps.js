@@ -115,6 +115,7 @@ function switchesOf(d, rows) {
  * doors 2-5, in that order; the colours are a guess (yellow, red, green,
  * blue), the pairing is not. */
 const E1_KEY = { 18: "y", 19: "r", 20: "g", 21: "b" };
+const E1_POINTS = { 6: "f", 7: "m", 8: "n", 9: "c", 10: "t" };
 const E1_DOOR = { 2: "2", 3: "1", 4: "3", 5: "4" };   /* Poom's doors: 1 red 2 yellow 3 green 4 blue */
 
 /* Teleporters the data can't link: E1 maps number their objects, with no
@@ -148,7 +149,10 @@ function convert(d) {
     for (let x = 0; x < d.width; x++) {
       const c = d.grid[y][x], e = at.get(x + "," + y);
       let g;
-      if (c === "$") g = POINTS[(e && /points (\d+)/.exec(e.name) || [])[1]] || "f";
+      /* E1 points are tiles told apart by behaviour, 6-10: taken as the
+         five tiers in order, lowest first (the source doesn't say) */
+      if (c === "$" && e1 && E1_POINTS[e1(x, y)]) g = E1_POINTS[e1(x, y)];
+      else if (c === "$") g = POINTS[(e && /points (\d+)/.exec(e.name) || [])[1]] || "f";
       else if (c === "+") g = !e ? "a" : /extra life/.test(e.name) ? "L" : /swim/.test(e.name) ? "w" : "a";
       else if (c === "k" && e1 && E1_KEY[e1(x, y)]) g = E1_KEY[e1(x, y)];
       else if (c === "k") g = !e ? "q" : KEY[(/\((\w+)\)/.exec(e.name) || [])[1]] || "q";

@@ -27,12 +27,14 @@ function makeCanvas(w, h) {
 
 /* A grid into a canvas. Rows are padded to the widest; outline adds a
  * black pixel beside every painted one that has a clear neighbour. */
-function sprite(rows, { outline = true, swap = null } = {}) {
+function sprite(rows, { outline = true, swap = null, pal = null } = {}) {
   const w = Math.max(...rows.map(r => r.length)), h = rows.length, pad = outline ? 1 : 0;
   const W = w + pad * 2, H = h + pad * 2;
   const grid = Array.from({ length: H }, () => new Array(W).fill(-1));
   rows.forEach((r, y) => [...r].forEach((ch, x) => {
     if (ch === "." || ch === " ") return;
+    /* a sprite's own palette first (full colour), then EGA and the extras */
+    if (pal && pal[ch]) { grid[y + pad][x + pad] = pal[ch]; return; }
     let v = EXTRA.includes(ch) ? 16 + EXTRA.indexOf(ch) : parseInt(ch, 16);
     if (Number.isNaN(v)) return;
     if (swap && swap[v] !== undefined) v = swap[v];
@@ -42,14 +44,14 @@ function sprite(rows, { outline = true, swap = null } = {}) {
     const src = grid.map(r => r.slice());
     for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
       if (src[y][x] !== -1) continue;
-      const n = (yy, xx) => yy >= 0 && yy < H && xx >= 0 && xx < W && src[yy][xx] > 0;
+      const n = (yy, xx) => yy >= 0 && yy < H && xx >= 0 && xx < W && src[yy][xx] !== -1 && src[yy][xx] !== 0;
       if (n(y - 1, x) || n(y + 1, x) || n(y, x - 1) || n(y, x + 1)) grid[y][x] = 0;
     }
   }
   const c = makeCanvas(W, H), g = c.getContext("2d");
   for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
-    if (grid[y][x] < 0) continue;
-    g.fillStyle = EGA[grid[y][x]];
+    if (grid[y][x] === -1) continue;
+    g.fillStyle = typeof grid[y][x] === "string" ? grid[y][x] : EGA[grid[y][x]];
     g.fillRect(x, y, 1, 1);
   }
   return c;
@@ -407,6 +409,12 @@ const RANGER_HEAD_OUT = [
   ".oooppppppqqo.",
   "..ooppppppoqqo",
 ];
+
+/* the items the game draws come from the set in use */
+function useItems(name) {
+  const S = ART.itemSets[name] || ART.itemSets.classic;
+  ART.items = S.items; ART.gems = S.gems;
+}
 
 /* dress Poom: the sprites the game draws come from the look in use */
 function useLook(name) {
@@ -889,6 +897,105 @@ const ITEMS = {
   ],
 };
 
+/* Item sets, one per book (game.js picks), like Poom's looks. classic is
+ * the set above; a set replaces what it lists. The wasteland (Book 1),
+ * after docs/story/book-1-story.md: bottle caps, tuna, clean water and
+ * Sunny Snax for points (the pre-war medal and gold trophy stay), an
+ * energy cell for the raygun, a Poom bobblehead for an extra life, and
+ * Vault keycards. Full colour: each grid has its own palette. */
+const WASTE_PAL = {
+  s: "#7c8088", w: "#dfe3e8", r: "#c8302a", R: "#ff7a62", d: "#7e1a14", b: "#2f5f9e", B: "#6a9ee0",
+  y: "#f2cf3e", Y: "#fff3a8", f: "#f08a3c", c: "#9fd8ee", l: "#4aa6d8", h: "#e8fbff", k: "#2a4f8a",
+  g: "#5cff7a", G: "#d8ffe0", e: "#2c9a46", t: "#dba363", u: "#a8743c",
+  o: "#26272a", p: "#43464a", q: "#6c7076", m: "#4e3826", n: "#2e2016", S: "#ff4a3a",
+};
+const WASTE_ITEMS = {
+  /* a bottle cap: crimped silver rim, a red top */
+  fish: [
+    ".swswsw.",
+    "swrrrrws",
+    "wrRRrrrw",
+    "srRrrrrs",
+    "wrrrrrdw",
+    "srrrrdds",
+    "wsrrddsw",
+    ".wswsws.",
+  ],
+  /* a tin of tuna: a blue label with a fish on it */
+  milk: [
+    ".wwwwwwww.",
+    "wsssssssssw",
+    "bbbbbbbbbbb",
+    "bbyffffbBbb",
+    "bbbbfffbbbb",
+    "bBbbbbbbbbb",
+    "ddddddddddd",
+  ],
+  /* a bottle of clean water */
+  yarn: [
+    "..kk..",
+    "..cc..",
+    ".cccc.",
+    "cllllc",
+    "clhllc",
+    "wwwwww",
+    "wbbbbw",
+    "wwwwww",
+    "cllllc",
+    "clllhc",
+    ".cccc.",
+  ],
+  /* a box of Sunny Snax: a sun on red */
+  catnip: [
+    "rrrrrrrr",
+    "rrYyyrrr",
+    "ryYYyyrr",
+    "ryyyyyrr",
+    "rryyyrrr",
+    "wwwwwwww",
+    "wbbwbbbw",
+    "wwwwwwww",
+    "rrrrrrrr",
+    "dddddddd",
+  ],
+  /* an energy cell, glowing */
+  ammo: [
+    "..ww..",
+    ".swws.",
+    "sgGggs",
+    "sggggs",
+    "sgGgee",
+    "sggggs",
+    "sgGggs",
+    ".ssss.",
+  ],
+  /* a Poom bobblehead: his ranger helmet, a tiny duster, a base */
+  life: [
+    ".t.....t.",
+    "tut...tut",
+    "ooooooooo",
+    "oppppppqo",
+    "opSrppSro",
+    "opppppppo",
+    ".opppppo.",
+    "...sss...",
+    "..mmmmm..",
+    "..mnmmm..",
+    ".rrrrrrr.",
+  ],
+};
+/* a Vault keycard: a stripe in its colour, a gold chip */
+const KEYCARD = [
+  "wwwwwwwwww",
+  "wccccccccw",
+  "wddddddddw",
+  "wwwwwwwwww",
+  "wyywwwwssw",
+  "wyywwwwwww",
+  "ssssssssss",
+];
+const KEYCARD_COLOURS = [["#e0352e", "#8a1e18"], ["#f2cf3e", "#9a7a12"], ["#52e06a", "#1f7a33"], ["#4a86e8", "#1c3f8a"], ["#c4ccd5", "#6c7076"]];
+
 /* keycard gems: one shape, four colours (red, yellow, green, blue) */
 const GEM = [
   "...FF...",
@@ -1009,10 +1116,15 @@ function buildArt() {
   for (const [k, g] of Object.entries(VACUUMOID)) ART.boss[k] = both(sprite(g, { swap: { 5: 4, 13: 14, 7: 12, 8: 6 } }));
   for (const [k, g] of Object.entries(ROOMBOT)) ART.roombot[k] = both(sprite(g));
   for (const [k, g] of Object.entries(CLAWTANK)) ART.tank[k] = both(sprite(g));
-  for (const [k, g] of Object.entries(ITEMS)) ART.items[k] = sprite(g);
-  ART.gems = GEM_SWAPS.map(s => sprite(GEM, { swap: s }));
+  /* item sets: classic, and the wasteland over it */
+  const classic = { items: {}, gems: GEM_SWAPS.map(s => sprite(GEM, { swap: s })) };
+  for (const [k, g] of Object.entries(ITEMS)) classic.items[k] = sprite(g);
   /* the keycard whose colour the map doesn't say: silver */
-  ART.gems.push(sprite(GEM, { swap: { 15: 15, 12: 7, 4: 8 } }));
+  classic.gems.push(sprite(GEM, { swap: { 15: 15, 12: 7, 4: 8 } }));
+  const waste = { items: { ...classic.items }, gems: KEYCARD_COLOURS.map(([c, d]) => sprite(KEYCARD, { pal: { ...WASTE_PAL, c, d } })) };
+  for (const [k, g] of Object.entries(WASTE_ITEMS)) waste.items[k] = sprite(g, { pal: WASTE_PAL });
+  ART.itemSets = { classic, wasteland: waste };
+  useItems("classic");
   ART.parts = PARTS.map(g => sprite(g));
   ART.zap = ZAP.map(g => sprite(g, { outline: false }));
   ART.hairball = HAIRBALL.map(g => sprite(g));
