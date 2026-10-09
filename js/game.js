@@ -197,7 +197,7 @@ const bookNumber = b => BOOK_IDS.indexOf(b) + 1;
  * per level (LEVEL_THEME). */
 const BOOK_THEMES = {
   classic: { name: "classic", look: "classic", items: "classic", creatures: "classic", map: "classic", title: "classic", subtitle: "Episode One: Lost on Planet Hiss" },
-  wasteland: { name: "wasteland", look: "ranger", items: "wasteland", creatures: "wasteland", map: "wasteland", title: "wasteland", subtitle: "Book One: Down in the Glow" },
+  wasteland: { name: "wasteland", look: "ranger", items: "wasteland", creatures: "wasteland", map: "wasteland", title: "wasteland", subtitle: "Book One: Down in the Glow", hud: "wrist" },
 };
 const THEME_OF_BOOK = { H: "wasteland" };
 const themeOf = book => BOOK_THEMES[THEME_OF_BOOK[book]] || BOOK_THEMES.classic;
@@ -1532,13 +1532,15 @@ function drawEnemy(e, cx, cy) {
 function drawDigits(n, x, y, len, set = "red") {
   const s = String(n).padStart(len, " ");
   [...s].forEach((ch, i) => {
-    if (ch === " ") ctx.drawImage(ART.digits.dim[8], x + i * 6, y);
+    if (ch === " ") ctx.drawImage((ART.digits[set + "Dim"] || ART.digits.dim)[8], x + i * 6, y);
     else ctx.drawImage(ART.digits[set][+ch], x + i * 6, y);
   });
 }
 
-/* the scorebox, top left: score; lives; raygun charges; keycards */
+/* the scorebox, top left: score; lives; raygun charges; keycards. A theme
+ * may have its own (theme.hud) */
 function drawHud(lv) {
+  if (theme.hud === "wrist") return drawWristHud(lv);
   const r = G.run;
   ctx.fillStyle = "#000"; ctx.fillRect(3, 3, 59, 22);
   ctx.fillStyle = EGA[8]; ctx.fillRect(3, 3, 59, 1); ctx.fillRect(3, 24, 59, 1); ctx.fillRect(3, 3, 1, 22); ctx.fillRect(61, 3, 1, 22);
@@ -1548,6 +1550,55 @@ function drawHud(lv) {
   ctx.drawImage(ART.items.ammo, 32, 15, 6, 9);
   drawDigits(Math.min(r.ammo, 99), 40, 16, 2);
   if (lv) lv.keys.forEach((k, i) => { if (k) ctx.drawImage(ART.gems[i], 64 + i * 10, 4, 8, 7); });
+}
+
+/* the wasteland's scorebox: a chunky wrist computer, olive casing, a dial,
+ * and a green phosphor screen with the icons in green too */
+const phosphor = new WeakMap();
+function inPhosphor(img) {
+  let c = phosphor.get(img);
+  if (c) return c;
+  c = makeCanvas(img.width, img.height);
+  const g = c.getContext("2d");
+  g.drawImage(img, 0, 0);
+  const d = g.getImageData(0, 0, c.width, c.height), px = d.data;
+  for (let i = 0; i < px.length; i += 4) {
+    if (!px[i + 3]) continue;
+    const l = (px[i] * 0.3 + px[i + 1] * 0.59 + px[i + 2] * 0.11) / 255, k = 0.25 + l * 0.85;
+    px[i] = 40 * k; px[i + 1] = Math.min(255, 255 * k); px[i + 2] = 70 * k;
+  }
+  g.putImageData(d, 0, 0);
+  phosphor.set(img, c);
+  return c;
+}
+function drawWristHud(lv) {
+  const r = G.run, f = (c, x, y, w, h) => { ctx.fillStyle = c; ctx.fillRect(x, y, w, h); };
+  /* the casing */
+  f("#000", 2, 3, 88, 29); f("#000", 3, 2, 86, 31);
+  f("#4e4628", 3, 3, 86, 29);
+  f("#7c6e44", 4, 3, 84, 1); f("#7c6e44", 3, 4, 1, 27);
+  f("#2c2614", 4, 31, 84, 1); f("#2c2614", 88, 4, 1, 27);
+  f("#3a3420", 70, 5, 1, 25);
+  for (const [sx, sy] of [[5, 5], [5, 28], [85, 5], [85, 28]]) { f("#a8966a", sx, sy, 2, 2); f("#3a3420", sx + 1, sy + 1, 1, 1); }
+  /* the screen: dark glass, phosphor glow, scanlines */
+  f("#1a1a10", 7, 5, 62, 25);
+  f("#04170b", 8, 6, 60, 23);
+  ctx.fillStyle = "rgba(110, 255, 140, 0.07)"; ctx.fillRect(8, 6, 60, 11);
+  drawDigits(r.score, 10, 8, 9, "green");
+  f("#1c5a2a", 10, 16, 56, 1);
+  ctx.drawImage(inPhosphor(ART.items.life), 9, 18, 9, 10);
+  drawDigits(Math.min(r.lives, 99), 19, 20, 2, "green");
+  ctx.drawImage(inPhosphor(ART.items.ammo), 36, 19, 6, 9);
+  drawDigits(Math.min(r.ammo, 99), 44, 20, 2, "green");
+  ctx.fillStyle = "rgba(0, 0, 0, 0.28)"; for (let y = 6; y < 29; y += 2) ctx.fillRect(8, y, 60, 1);
+  /* the dial, and a power light that breathes */
+  ctx.fillStyle = "#1e1a0e"; ctx.beginPath(); ctx.arc(79.5, 14.5, 6, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = "#8a7a4c"; ctx.beginPath(); ctx.arc(79.5, 14.5, 5, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = "#62562f"; ctx.beginPath(); ctx.arc(80, 15, 3.5, 0, Math.PI * 2); ctx.fill();
+  f("#d8c890", 79, 10, 1, 4);
+  const glow = 0.55 + 0.45 * Math.sin(G.t / 30);
+  f("#1e1a0e", 76, 24, 7, 4); ctx.fillStyle = `rgba(120, 255, 140, ${glow})`; ctx.fillRect(77, 25, 5, 2);
+  if (lv) lv.keys.forEach((k, i) => { if (k) ctx.drawImage(ART.gems[i], 93 + i * 10, 4, 8, 7); });
 }
 
 /* a tiny pixel font for floating score text: digits from the LED set,

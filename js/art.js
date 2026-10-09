@@ -1277,7 +1277,9 @@ function buildDigits() {
     }));
     return c;
   });
-  return { red: make(EGA[12]), dim: make("#3a0000"), white: make(EGA[15]), yellow: make(EGA[14]) };
+  return { red: make(EGA[12]), dim: make("#3a0000"), white: make(EGA[15]), yellow: make(EGA[14]),
+    /* the wasteland's wrist computer: green phosphor, and its unlit segments */
+    green: make("#8aff9a"), greenDim: make("#0f3a1c") };
 }
 
 /* ------------------------------------------------------------------ */
