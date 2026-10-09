@@ -34,6 +34,18 @@
  * `ends` ([x, y, glyph, name, "rescue" | "objective"]): the things whose
  * rescue or collection finishes the level. `completion` is the source's
  * list of ways the level ends: exit_tile, map_edge, rescue, objective.
+ *
+ * Switches and key sockets are worked out from the raw tiles (E2 only):
+ *   sockets  [{ x, y, gem, door: [[x, y]...] }]  a socket's colour comes from
+ *            its tile (7 red, 8 yellow, 9 blue, 10 green); its door is the
+ *            column of door tiles from its target down, written 5 6 7 8 (red
+ *            yellow green blue) in the rows. The foot of such a column the
+ *            maps call X; it is door, not exit.
+ *   bridges  [{ x, y, deck: [[x, y]...], on }]  a bridge switch (tile 15)
+ *            toggles the bridge whose second tile is its target: the deck
+ *            in the row below, from the target to the bridge's end. `on` is
+ *            whether it starts out solid (58 of 61 do).
+ * Platform switches (tile 5) steer moving platforms and are left for them.
  */
 const fs = require("fs");
 const path = require("path");
@@ -51,11 +63,49 @@ const KEY = { red: "r", yellow: "y", green: "g", blue: "b" };
 /* what each glyph beyond the original game's needs from the engine */
 const NEEDS = {
   "/": "slopes rising right", "\\": "slopes falling right", i: "ice / slippery floor", "<": "conveyor left", ">": "conveyor right",
-  S: "switches", Q: "teleporters / elevators", j: "key sockets", H: "hint triggers", D: "warp doors",
+  S: "switches (bridge switches done; platform switches wait for moving platforms)", Q: "teleporters / elevators", j: "key sockets (and the doors they open: 5 6 7 8)", H: "hint triggers", D: "warp doors",
   d: "locked doors (colour absent from the source)", q: "keycards with no stated colour", u: "2000-point pickup (medal)",
   w: "swim ability (and swimming starts)", "!": "objective items (collected, or shot)", e: "enemies (per-type behaviour)", G: "turrets / emitters",
   N: "NPCs / rescue targets", M: "moving platforms (paths, dropping, sneaky)", Z: "special objects", l: "world-map level entrances",
 };
+
+const GEM_OF_SOCKET = { 7: 0, 8: 1, 9: 3, 10: 2 };   /* red yellow blue green -> Poom's r y g b order */
+
+/* sockets and bridges, from the raw tiles; edits rows in place */
+function switchesOf(d, rows) {
+  const out = { sockets: [], bridges: [] };
+  if (d.engine !== "E2") return out;
+  const raw = JSON.parse(fs.readFileSync(path.join(MAPS, d.set, d.map + ".raw.json"), "utf8"));
+  const fg = raw.planes.foreground, tp = raw.tile_properties;
+  const intile = (x, y) => ((tp[fg[y][x]] || {}).intile || 0) & 127;
+  const put = (x, y, g) => { rows[y] = rows[y].slice(0, x) + g + rows[y].slice(x + 1); };
+  /* a run of one family of tiles: non-empty, each id close to the last */
+  const run = (x, y, dx, dy, ok) => {
+    const cells = [];
+    for (let px = x, py = y, prev = null; py < d.height && px < d.width; px += dx, py += dy) {
+      const t = fg[py][px];
+      if (!t || (prev !== null && Math.abs(t - prev) > 18 && !ok(px, py))) break;
+      cells.push([px, py]); prev = t;
+    }
+    return cells;
+  };
+  for (const e of d.entities) {
+    if (e.kind !== "switch_link") continue;
+    const kind = intile(e.x, e.y), [tx, ty] = e.target;
+    if (GEM_OF_SOCKET[kind] !== undefined) {
+      const gem = GEM_OF_SOCKET[kind], door = run(tx, ty, 0, 1, () => false);
+      for (const [x, y] of door) put(x, y, String(5 + gem));
+      out.sockets.push({ x: e.x, y: e.y, gem, door });
+    } else if (kind === 15) {
+      const ti = intile(tx, ty);
+      const top = run(tx, ty, 1, 0, (x, y) => ti && intile(x, y) === ti);
+      /* a bridge can start out or in: its deck is solid in the rows or not */
+      const deck = top.map(([x, y]) => [x, y + 1]).filter(([x, y]) => y < d.height);
+      out.bridges.push({ x: e.x, y: e.y, deck, on: deck.some(([x, y]) => rows[y][x] === "#") });
+    }
+  }
+  return out;
+}
 
 function convert(d) {
   const at = new Map();
@@ -87,11 +137,12 @@ function convert(d) {
     /* the grid shows one object per tile, so these come from the entities */
     if (e.ends_level) ends.push([e.x, e.y, e.kind === "npc" ? "N" : e.kind === "powerup" ? "w" : e.glyph === "L" ? "l" : "!", e.name, e.ends_level]);
   }
-  return { id: d.map, kind: d.kind, w: d.width, h: d.height, completion: d.completion, notes: d.notes, rows, things, marks, links, ends };
+  const { sockets, bridges } = switchesOf(d, rows);
+  return { id: d.map, kind: d.kind, w: d.width, h: d.height, completion: d.completion, notes: d.notes, rows, things, marks, links, ends, sockets, bridges };
 }
 
 /* the ones game.js handles; keep in step with it */
-const DONE = new Set(["/", "\\", "i", "<", ">", "d", "q", "u", "l", "!", "D"]);
+const DONE = new Set(["/", "\\", "i", "<", ">", "d", "q", "u", "l", "!", "D", "j"]);
 
 fs.mkdirSync(OUT, { recursive: true });
 const report = [];

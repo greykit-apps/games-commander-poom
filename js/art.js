@@ -1076,6 +1076,30 @@ function paintTiles(themeName) {
     return c; };
   tiles.exit = [exitDoor(false), exitDoor(true)];
 
+  /* a bridge switch: a lever on a plate, thrown left (0) or right (1) */
+  tiles.switch = [0, 1].map(on => mk(g => {
+    g.fillStyle = E(8); g.fillRect(3, 9, 10, 7);
+    g.fillStyle = E(7); g.fillRect(3, 9, 10, 1); g.fillRect(3, 9, 1, 7);
+    g.fillStyle = E(on ? 10 : 12); g.fillRect(6, 12, 4, 2);
+    g.strokeStyle = E(15); g.lineWidth = 2; g.beginPath(); g.moveTo(8, 11); g.lineTo(on ? 13 : 3, 3); g.stroke();
+    g.fillStyle = E(14); g.beginPath(); g.arc(on ? 13 : 3, 3, 2, 0, Math.PI * 2); g.fill();
+  }));
+
+  /* a key socket: a dark holder the size of a keycard */
+  tiles.socket = mk(g => {
+    g.fillStyle = E(8); g.fillRect(2, 2, 12, 12);
+    g.fillStyle = E(7); g.fillRect(2, 2, 12, 1); g.fillRect(2, 2, 1, 12);
+    g.fillStyle = E(0); g.fillRect(4, 4, 8, 8);
+  });
+
+  /* a bridge's deck: planks on a beam */
+  tiles.bridge = mk(g => {
+    g.fillStyle = E(6); g.fillRect(0, 0, T, 6);
+    g.fillStyle = E(14); g.fillRect(0, 0, T, 1);
+    g.fillStyle = E(4); for (let x = 3; x < T; x += 4) g.fillRect(x, 1, 1, 5);
+    g.fillStyle = E(8); g.fillRect(0, 6, T, 2);
+  });
+
   /* a warp door, 32x32: a dark arch with a shimmer that moves, four frames */
   tiles.warp = [0, 1, 2, 3].map(f => { const c = makeCanvas(T * 2, T * 2), g = c.getContext("2d");
     g.fillStyle = E(8); g.fillRect(2, 2, 28, 30);

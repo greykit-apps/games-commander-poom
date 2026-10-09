@@ -24,9 +24,9 @@ Glyphs marked "no" are air until the engine learns them.
 | `i` | ice / slippery floor | yes | 1825 |
 | `<` | conveyor left | yes | 0 |
 | `>` | conveyor right | yes | 92 |
-| `S` | switches | no | 200 |
+| `S` | switches (bridge switches done; platform switches wait for moving platforms) | no | 200 |
 | `Q` | teleporters / elevators | no | 37 |
-| `j` | key sockets | no | 186 |
+| `j` | key sockets (and the doors they open: 5 6 7 8) | yes | 186 |
 | `H` | hint triggers | no | 217 |
 | `D` | warp doors | yes | 596 |
 | `d` | locked doors (colour absent from the source) | yes | 96 |

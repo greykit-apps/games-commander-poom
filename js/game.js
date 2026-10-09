@@ -222,7 +222,9 @@ function addScore(n) {
 /* ------------------------------------------------------------------ */
 /* the level                                                             */
 
-const SOLID = new Set(["#", "=", "1", "2", "3", "4", "d", "i", "<", ">"]);
+const SOLID = new Set(["#", "=", "1", "2", "3", "4", "5", "6", "7", "8", "d", "i", "<", ">"]);
+/* doors a key socket opens: 5 6 7 8, red yellow green blue */
+const SOCKET_DOOR = { 5: 0, 6: 1, 7: 2, 8: 3 };
 const ITEM_CH = { f: "fish", m: "milk", n: "yarn", c: "catnip", u: "medal", t: "trophy", a: "ammo", L: "life", O: "pogo" };
 const POINTS = { fish: 100, milk: 200, yarn: 500, catnip: 1000, medal: 2000, trophy: 5000 };
 /* q is a keycard whose colour the map doesn't give; d is a locked door
@@ -237,7 +239,7 @@ function loadLevel(n) {
   const rows = def.rows.map(r => [...r]);
   const h = rows.length, w = rows[0].length;
   const lv = { n, def, w, h, tiles: rows, back: [], ents: [], items: [], shots: [], fx: [], keys: [false, false, false, false, false],
-    theme, ice: false, t: 0, p: null, exits: [], exitAt: {}, edge: new Set(), npcs: [], endsLeft: 0, warp: {}, warpDoors: [], over: null, slope: slopesOf(rows) };
+    theme, ice: false, t: 0, p: null, exits: [], exitAt: {}, edge: new Set(), npcs: [], endsLeft: 0, warp: {}, warpDoors: [], sockets: [], socketAt: {}, bridges: [], switchAt: {}, deckAt: new Set(), over: null, slope: slopesOf(rows) };
   /* Under a slope the maps leave the odd non-solid tile where the ground's
    * edge was drawn. Boxed in on both sides, it is ground. */
   const isSl = (x, y) => !!(lv.slope[y] && lv.slope[y][x]);
@@ -293,6 +295,18 @@ function loadLevel(n) {
     let y1 = y; while (y1 + 1 < h && rows[y1 + 1][x] === "D") y1++;
     for (let yy = y; yy <= y1; yy++) for (let xx = x; xx <= x1; xx++) doneD.add(xx + "," + yy);
     lv.warpDoors.push({ x: x * T, y: y * T, w: (x1 - x + 1) * T, h: Math.max(2, y1 - y + 1) * T });
+  }
+
+  /* key sockets, and the doors they open; bridge switches, and their decks */
+  for (const s of def.sockets || []) {
+    const k = { ...s, filled: false };
+    lv.sockets.push(k); lv.socketAt[s.x + "," + s.y] = k;
+    if (rows[s.y][s.x] === "j") rows[s.y][s.x] = ".";
+  }
+  for (const b of def.bridges || []) {
+    const k = { ...b };
+    lv.bridges.push(k); lv.switchAt[b.x + "," + b.y] = k;
+    for (const [x, y] of b.deck) lv.deckAt.add(x + "," + y);
   }
 
   /* what else finishes the level: the source's rescue NPCs and objectives */
@@ -484,6 +498,20 @@ function updatePlayer(lv) {
   if (door && !seen("warpdoor")) toast("A door. Press \u2191 to go through.");
   if (door && wasPressed("up")) { warpTo(lv, p, door); return; }
 
+  /* a key socket: stand at it with its keycard */
+  for (const k of tilesUnder(p)) {
+    const s = lv.socketAt[k];
+    if (!s || s.filled) continue;
+    if (lv.keys[s.gem]) fillSocket(lv, s);
+    else if (lv.socketWarned !== s) { lv.socketWarned = s; toast(`A ${GEM_NAMES[s.gem]} keycard goes here.`); }
+  }
+
+  /* a bridge switch: up, standing at it */
+  if (wasPressed("up") && !p.climbing) {
+    const b = tilesUnder(p).map(k => lv.switchAt[k]).find(Boolean);
+    if (b) { flipBridge(lv, b); return; }
+  }
+
   /* grab a pole */
   const cx = p.x + p.w / 2;
   const poleAt = y => tileAt(lv, Math.floor(cx / T), Math.floor(y / T)) === "|";
@@ -640,6 +668,34 @@ function updatePlayer(lv) {
 
   /* someone to rescue */
   for (const n of lv.npcs) if (!n.saved && overlap(pb, n)) { n.saved = true; popup(n, "SAVED"); return finishBy(lv, n); }
+}
+
+/* the "x,y" keys of the tiles a body overlaps */
+function tilesUnder(b) {
+  const out = [];
+  for (let ty = Math.floor(b.y / T); ty <= Math.floor((b.y + b.h - 1) / T); ty++)
+    for (let tx = Math.floor(b.x / T); tx <= Math.floor((b.x + b.w - 1) / T); tx++) out.push(tx + "," + ty);
+  return out;
+}
+
+/* the keycard goes in, and its door opens, top to bottom */
+function fillSocket(lv, s) {
+  s.filled = true; lv.keys[s.gem] = false;
+  s.door.forEach(([x, y], i) => {
+    if (SOCKET_DOOR[lv.tiles[y][x]] === undefined) return;
+    lv.tiles[y][x] = ".";
+    lv.fx.push({ kind: "poof", x: x * T + 3, y: y * T + 5, t: -i * 4 });
+  });
+  sfx("door");
+}
+
+/* a bridge switch: the deck goes solid, or goes away. Not out from under
+ * someone standing in its row: it waits until they are clear. */
+function flipBridge(lv, b) {
+  b.on = !b.on;
+  for (const [x, y] of b.deck) lv.tiles[y][x] = b.on ? "#" : ".";
+  if (b.on && !rectClear(lv, lv.p.x, lv.p.y, lv.p.w, lv.p.h)) { b.on = false; for (const [x, y] of b.deck) lv.tiles[y][x] = "."; sfx("nope"); return; }
+  sfx("click");
 }
 
 /* the warp door Poom is standing in, as its target, or null. The tile
@@ -990,17 +1046,21 @@ function drawLevel() {
     const ch = lv.tiles[ty][tx], x = tx * T - cx, y = ty * T - cy;
     if (lv.back[ty][tx] && !solidLike(ch)) ctx.drawImage(art.bgwall, x, y);
     const v = (tx * 7 + ty * 13) % 3;
-    if (ch === "#" || ch === "%") ctx.drawImage(solidLike((lv.tiles[ty - 1] || [])[tx]) ? art.ground[v] : art.groundTop[v], x, y);
+    if (ch === "#" && lv.deckAt.has(tx + "," + ty)) ctx.drawImage(art.bridge, x, y);
+    else if (ch === "#" || ch === "%") ctx.drawImage(solidLike((lv.tiles[ty - 1] || [])[tx]) ? art.ground[v] : art.groundTop[v], x, y);
     else if (ch === "=") ctx.drawImage(art.brick, x, y);
     else if (ch === "-") ctx.drawImage(art.plat, x, y);
     else if (ch === "^") ctx.drawImage(art.spikes, x, y);
     else if (ch === "~") ctx.drawImage(art.liquid[(lv.t >> 3) % 4], x, y);
     else if (ch === "|") ctx.drawImage(art.pole, x, y);
     else if (DOOR_CH[ch] !== undefined) ctx.drawImage(art.doors[DOOR_CH[ch]], x, y);
+    else if (SOCKET_DOOR[ch] !== undefined) ctx.drawImage(art.doors[SOCKET_DOOR[ch]], x, y);
     else if (ch === "i") ctx.drawImage(art.ice, x, y);
     else if (BELT[ch]) ctx.drawImage(art.conveyor[ch === ">" ? 1 : 0][(lv.t >> 2) % 4], x, y);
     else if (ch === "/" || ch === "\\") { const sl = lv.slope[ty][tx]; ctx.drawImage(art.slope(sl[0], sl[1]), x, y); }
   }
+  for (const s of lv.sockets) { ctx.drawImage(art.socket, s.x * T - cx, s.y * T - cy); if (s.filled) ctx.drawImage(ART.gems[s.gem], s.x * T + 4 - cx, s.y * T + 4 - cy); }
+  for (const b of lv.bridges) ctx.drawImage(art.switch[b.on ? 1 : 0], b.x * T - cx, b.y * T - cy);
   for (const d of lv.warpDoors) if (d.x - cx > -d.w && d.x - cx < W && d.y - cy > -d.h && d.y - cy < H) ctx.drawImage(art.warp[(lv.t >> 3) % 4], d.x - cx, d.y - cy, d.w, d.h);
   for (const e of lv.exits) ctx.drawImage(art.exit[lv.exitUsed === e ? 1 : 0], e.x - cx, e.y - cy);
 
