@@ -200,7 +200,10 @@ const BOOK_THEMES = {
   wasteland: { name: "wasteland", look: "ranger", items: "wasteland", creatures: "wasteland", map: "wasteland", title: "wasteland", subtitle: "Book One: Down in the Glow", hud: "wrist" },
 };
 const THEME_OF_BOOK = { H: "wasteland" };
-const themeOf = book => BOOK_THEMES[THEME_OF_BOOK[book]] || BOOK_THEMES.classic;
+/* a book with no theme of its own wears Book 1's */
+const themeOf = book => BOOK_THEMES[THEME_OF_BOOK[book] || THEME_OF_BOOK[BOOK_IDS[0]]] || BOOK_THEMES.classic;
+/* the book a theme's words come from: the first that has that theme and words */
+const themeHome = () => BOOK_IDS.find(b => THEME_OF_BOOK[b] === theme.name && BOOK_TEXT[b]);
 let theme = BOOK_THEMES.classic;
 /* the book the game is themed for: the one being played, else the last
  * one played, else Book 1 */
@@ -2024,8 +2027,10 @@ const BOOK_TEXT = {
     ],
   },
 };
-/* the book the help is about: the one being played, or Book 1 */
-const textBook = () => BOOK_TEXT[themeBook()];
+/* the words the help and the game's talk use: the book being played's, or,
+ * if it has none yet, those of the book whose theme it wears. A book's
+ * places, signs and ending are its own and never borrowed */
+const textBook = () => BOOK_TEXT[themeBook()] || BOOK_TEXT[themeHome()];
 /* a line of the game's own talk, in the current book's words: its say[key]
  * (text, or a function of args) if it has one, else the original's */
 function say(key, original, ...args) {
