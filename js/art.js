@@ -1932,6 +1932,112 @@ function paintVaultFar(th) {
   return c;
 }
 
+/* The wasteland's world map (Book 1): the Glow from above. Cracked dusty
+ * earth in four variants; rock drawn as continuous outcrop, lit on its top
+ * edge and shaded on its bottom wherever it meets open ground; a glowing
+ * irradiated pool for water; a striped barricade for barriers; a banner
+ * with a star for a done level; a Tube station hatch for a teleporter;
+ * the Catamaran crash-landed, scorched and smoking. Level markers (32x32,
+ * drawn once over each entrance) show the level's type: a vault door set
+ * in rock, a Scrapper camp, a broken building. Full colour. */
+function paintWasteMap(classic) {
+  const mk = (fn, w = T, h = T) => { const c = makeCanvas(w, h); fn(c.getContext("2d")); return c; };
+  const px = (g, col, x, y, w = 1, h = 1) => { g.fillStyle = col; g.fillRect(x, y, w, h); };
+  const EARTH = ["#6e5a3a", "#86704a", "#9c8456", "#b29a68", "#c8b07c"];
+  const ROCK = ["#2c1e18", "#4a3226", "#664634", "#82583e", "#a0704c", "#c08c60"];
+  const ground = [0, 1, 2, 3].map(v => mk(g => {
+    const r = rng(101 + v * 17);
+    px(g, EARTH[2], 0, 0, T, T);
+    for (let i = 0; i < 26; i++) px(g, EARTH[1 + (r() * 4 | 0)], r() * T | 0, r() * T | 0, 1 + (r() * 2 | 0), 1);
+    /* a crack */
+    if (v !== 3) { let x = r() * T | 0, y = 0; for (let i = 0; i < 9 && y < T; i++) { px(g, EARTH[0], x, y); x += (r() * 3 | 0) - 1; y += 1 + (r() < .3 ? 1 : 0); } }
+    /* dead grass, a pebble */
+    if (v === 1) { px(g, "#8a8446", 4, 9, 1, 2); px(g, "#a8a258", 5, 8, 1, 3); px(g, "#8a8446", 6, 10, 1, 1); }
+    if (v === 2) { px(g, ROCK[2], 11, 5, 2, 2); px(g, ROCK[4], 11, 5); }
+  }));
+  /* rock, by which sides are open: 1 above, 2 right, 4 below, 8 left */
+  const rockCache = {};
+  const rockAt = mask => rockCache[mask] || (rockCache[mask] = mk(g => {
+    const r = rng(7 + mask);
+    px(g, ROCK[2], 0, 0, T, T);
+    for (let i = 0; i < 30; i++) px(g, ROCK[1 + (r() * 4 | 0)], r() * T | 0, r() * T | 0, 1 + (r() * 3 | 0), 1);
+    for (let i = 0; i < 3; i++) { const x = r() * 12 | 0, y = r() * 12 | 0; px(g, ROCK[4], x, y, 3, 1); px(g, ROCK[1], x, y + 1, 3, 1); }
+    if (mask & 1) { px(g, ROCK[5], 0, 0, T, 1); px(g, ROCK[4], 0, 1, T, 2); for (let x = 0; x < T; x++) if (r() < .3) px(g, EARTH[2], x, 0); }
+    if (mask & 8) { px(g, ROCK[4], 0, 0, 1, T); }
+    if (mask & 2) { px(g, ROCK[1], T - 1, 0, 1, T); }
+    if (mask & 4) { px(g, ROCK[0], 0, T - 2, T, 2); px(g, "rgba(0,0,0,0.35)", 0, T - 4, T, 2); }
+  }));
+  /* an irradiated pool, glowing, two frames */
+  const water = [0, 1].map(f => mk(g => {
+    px(g, "#1f4a34", 0, 0, T, T);
+    for (let y = 2; y < T; y += 5) for (let x = (y + f * 3) % 6; x < T; x += 6) { px(g, "#5ed27a", x, y, 3, 1); px(g, "#b8ffc4", x + 1, y, 1, 1); }
+  }));
+  /* a barricade: a striped bar on trestles */
+  const field = [0, 1, 2].map(f => mk(g => {
+    g.drawImage(ground[0], 0, 0);
+    px(g, "#3a2a1d", 2, 8, 2, 7); px(g, "#3a2a1d", 12, 8, 2, 7);
+    for (let x = 0; x < T; x++) px(g, ((x + f * 2) >> 2) & 1 ? "#d8d4c8" : "#c8302a", x, 5, 1, 4);
+    px(g, "#000", 0, 9, T, 1);
+  }));
+  /* a done level's banner: a pole, a brown banner, a gold star */
+  const flag = mk(g => {
+    px(g, "#c8b07c", 3, 1, 1, 14); px(g, "#6e5a3a", 4, 1, 1, 14);
+    px(g, "#7e2a1a", 4, 1, 9, 6); px(g, "#a83a24", 4, 1, 9, 1);
+    px(g, "#f2cf3e", 7, 3, 3, 1); px(g, "#f2cf3e", 8, 2, 1, 3); px(g, "#fff3a8", 8, 3);
+  });
+  /* a Tube station: a round hatch in a concrete pad, a blue sign blinking */
+  const tele = [0, 1].map(f => mk(g => {
+    g.drawImage(ground[2], 0, 0);
+    px(g, "#827b72", 1, 3, 14, 12); px(g, "#a0988d", 1, 3, 14, 1); px(g, "#4d4842", 1, 14, 14, 1);
+    g.fillStyle = "#2b2f34"; g.beginPath(); g.arc(8, 9, 5, 0, Math.PI * 2); g.fill();
+    g.strokeStyle = "#5c636b"; g.lineWidth = 1; g.beginPath(); g.arc(8, 9, 4.5, 0, Math.PI * 2); g.stroke();
+    px(g, "#5c636b", 4, 9, 9, 1); px(g, "#5c636b", 8, 5, 1, 9);
+    px(g, "#3a3d33", 13, 0, 1, 4); px(g, f ? "#6a9ee0" : "#2f5f9e", 11, 0, 5, 3); px(g, "#e8eef4", 12, 1, 3, 1);
+  }));
+  /* the Catamaran crash-landed: a scorch, the ship, smoke */
+  const ship = mk(g => {
+    for (const [x, y] of [[0, 0], [16, 0], [0, 16], [16, 16]]) g.drawImage(ground[(x + y) >> 4 & 3], x, y);
+    g.fillStyle = "rgba(20, 12, 8, 0.6)"; g.beginPath(); g.ellipse(16, 27, 15, 5, 0, 0, Math.PI * 2); g.fill();
+    g.save(); g.translate(16, 16); g.rotate(-0.18); g.drawImage(classic.shipBare, -16, -16); g.restore();
+    g.fillStyle = "rgba(90, 90, 90, 0.75)"; for (const [x, y, r] of [[22, 8, 3], [25, 4, 2.5], [27, 1, 2]]) { g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill(); }
+  }, 32, 32);
+  /* the level markers, 32x32, by level type */
+  const marker = {
+    vault: mk(g => {
+      g.fillStyle = ROCK[2]; g.beginPath(); g.moveTo(1, 31); g.lineTo(4, 10); g.lineTo(12, 3); g.lineTo(22, 4); g.lineTo(29, 12); g.lineTo(31, 31); g.closePath(); g.fill();
+      g.fillStyle = ROCK[4]; g.beginPath(); g.moveTo(4, 10); g.lineTo(12, 3); g.lineTo(22, 4); g.lineTo(18, 7); g.lineTo(9, 9); g.closePath(); g.fill();
+      const ring = g.createRadialGradient(13, 16, 2, 16, 19, 11); ring.addColorStop(0, "#c4ccd5"); ring.addColorStop(1, "#3d4752");
+      g.fillStyle = "#1c222a"; g.beginPath(); g.arc(16, 19, 10, 0, Math.PI * 2); g.fill();
+      for (let i = 0; i < 10; i++) { const a = i * Math.PI / 5; g.fillStyle = "#535f6c"; g.fillRect(16 + Math.cos(a) * 9 - 1.5, 19 + Math.sin(a) * 9 - 1.5, 3, 3); }
+      g.fillStyle = ring; g.beginPath(); g.arc(16, 19, 7.5, 0, Math.PI * 2); g.fill();
+      g.fillStyle = "#ffd23f"; g.fillRect(15, 17, 2, 5); g.fillRect(14, 18, 4, 1);
+      px(g, "rgba(0,0,0,0.35)", 3, 29, 26, 2);
+    }, 32, 32),
+    camp: mk(g => {
+      px(g, "rgba(0,0,0,0.3)", 3, 28, 27, 3);
+      /* a scrap shack: corrugated walls, a lean-to roof, a door */
+      for (let x = 6; x < 26; x++) px(g, ["#5c2c17", "#7a3a1c", "#9a4b22", "#7a3a1c"][x % 4], x, 14, 1, 15);
+      g.fillStyle = "#3e444b"; g.beginPath(); g.moveTo(4, 15); g.lineTo(27, 10); g.lineTo(28, 13); g.lineTo(5, 18); g.closePath(); g.fill();
+      px(g, "#828a93", 5, 15, 22, 1);
+      px(g, "#1e0f0a", 13, 20, 6, 9); px(g, "#ffd36a", 22, 18, 3, 3);
+      /* fence posts and a red flag */
+      for (const x of [1, 28]) { px(g, "#432a16", x, 20, 2, 10); px(g, "#82552a", x, 20, 2, 1); }
+      px(g, "#2a1a0e", 25, 1, 1, 12); px(g, "#c8302a", 26, 1, 6, 4); px(g, "#e0503a", 26, 1, 6, 1);
+    }, 32, 32),
+    ruin: mk(g => {
+      px(g, "rgba(0,0,0,0.3)", 3, 28, 27, 3);
+      /* a broken building: concrete, a sheared top, empty windows, rubble */
+      g.fillStyle = "#827b72"; g.beginPath(); g.moveTo(5, 30); g.lineTo(5, 9); g.lineTo(11, 4); g.lineTo(15, 8); g.lineTo(20, 2); g.lineTo(26, 7); g.lineTo(26, 30); g.closePath(); g.fill();
+      g.fillStyle = "#a0988d"; g.beginPath(); g.moveTo(5, 9); g.lineTo(11, 4); g.lineTo(15, 8); g.lineTo(20, 2); g.lineTo(21, 4); g.lineTo(15, 10); g.lineTo(11, 6); g.lineTo(6, 11); g.closePath(); g.fill();
+      px(g, "#4d4842", 25, 8, 1, 22);
+      for (let y = 11; y < 27; y += 5) for (let x = 8; x < 24; x += 5) if ((x * 3 + y) % 7) { px(g, "#1d1b19", x, y, 3, 3); px(g, "#34302c", x, y + 2, 3, 1); }
+      px(g, "#67615a", 2, 27, 7, 3); px(g, "#a0988d", 3, 27, 3, 1); px(g, "#67615a", 22, 28, 8, 2);
+      px(g, "#b8622b", 12, 2, 1, 4); px(g, "#b8622b", 16, 5, 1, 3);
+    }, 32, 32),
+  };
+  return { ...classic, ground, rockAt, rock: rockAt(0), water, field, flag, tele, ship, markerFor: marker, teleName: "Tube station" };
+}
+
 /* world-map tiles, painted once */
 function paintMapTiles() {
   const mk = fn => { const c = makeCanvas(T, T); fn(c.getContext("2d")); return c; }, E = i => EGA[i];

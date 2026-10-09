@@ -97,7 +97,7 @@ exit door, hint sign, and the four coloured doors. Plus a far background.
 | **Vault** | ice (1,802 tiles), turret mounts, teleporter pad (H14) | Most-used walls of all (5,822). Two looks: frozen (Vault 9) and plain. Ice is cold-sleep frost on steel. |
 | **Raiders** | lots of ledges (839): scaffolding and planks | Scrap-metal walls, barbed-wire hazard. |
 | **Ruins** | a little ice (23) | Broken concrete, rebar hazard, sky and skyline behind. Most exit doors (16) and signs (4). |
-| **Wasteland map** | ground, rock, level markers per type, teleporter (Tube station), the ship, done flags | The current map has only ground, rock and markers. Each level's marker should show its type: a Vault door, a camp, a ruined building. |
+| **Wasteland map** | ground, rock, level markers per type, teleporter (Tube station), the ship, done flags | The current map has only ground, rock and markers. Each level's marker should show its type: a Vault door, a camp, a ruined building. | **Made** (`paintWasteMap` in js/art.js).
 
 **Items, shared by all three** (made: the `wasteland` item set in js/art.js; sheet in docs/art/wasteland-items.png):
 

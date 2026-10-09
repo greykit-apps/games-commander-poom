@@ -191,7 +191,8 @@ const bookNumber = b => BOOK_IDS.indexOf(b) + 1;
  * sets); books not listed: classic */
 const POOM_LOOK = { H: "ranger" };
 const ITEM_SET = { H: "wasteland" };
-const dressFor = book => { useLook(POOM_LOOK[book] || "classic"); useItems(ITEM_SET[book] || "classic"); };
+const MAP_SET = { H: "wasteland" };
+const dressFor = book => { useLook(POOM_LOOK[book] || "classic"); useItems(ITEM_SET[book] || "classic"); mapArt = mapArtSets[MAP_SET[book]] || mapArtSets.classic; };
 const THEME_OF = { A: "hiss", B: "garden", C: "fort", D: "ice", E: "hiss", F: "garden", G: "fort", H: "ice", I: "hiss" };
 /* A level's own tileset, by its type (docs/story/book-1-story.md). Vault 9,
  * the frozen one, is H09, H11 and H17; the raider camps are H04, H08 (Fort
@@ -230,6 +231,12 @@ for (const b of BOOK_IDS) {
    * 1-16 are levels, the rest the map's own things. An unfinished level
    * there is a wall: Poom walks up to it to go in. */
   W_.e1 = w.engine === "E1";
+  /* each entrance's bounding box, in tiles: a marker is drawn once over it */
+  W_.box = {};
+  for (const [k, id] of Object.entries(W_.entrance)) {
+    const [x, y] = k.split(",").map(Number), b = W_.box[id] || (W_.box[id] = { x0: x, y0: y, x1: x, y1: y });
+    b.x0 = Math.min(b.x0, x); b.y0 = Math.min(b.y0, y); b.x1 = Math.max(b.x1, x); b.y1 = Math.max(b.y1, y);
+  }
   W_.ship = w.ship || null;
   WORLDS[b] = W_;
 }
@@ -1466,7 +1473,7 @@ function drawSmallText(text, x, y, col, center) {
   });
 }
 
-let mapArt = null;
+let mapArt = null, mapArtSets = null;
 const MARKER_KINDS = ["dome", "cave", "igloo", "gate", "fort", "castle"];
 function drawMap() {
   const m = G.map, c = G.cam, cx = Math.round(c.x), cy = Math.round(c.y);
@@ -1475,13 +1482,23 @@ function drawMap() {
   for (let ty = ty0; ty <= ty0 + Math.ceil(H / T); ty++) for (let tx = tx0; tx <= tx0 + Math.ceil(W / T); tx++) {
     const ch = mapTile(tx, ty), x = tx * T - cx, y = ty * T - cy;
     if (ch === "~") { ctx.drawImage(mapArt.water[((m.t >> 5) + tx + ty) % 2], x, y); continue; }
-    ctx.drawImage(mapArt.ground, x, y);
+    ctx.drawImage(Array.isArray(mapArt.ground) ? mapArt.ground[(tx * 7 + ty * 13) & 3] : mapArt.ground, x, y);
     const ent = entranceAt(tx, ty);
     if (barrierOn(tx, ty)) ctx.drawImage(mapArt.field[(m.t >> 2) % 3], x, y);
-    else if (ch === "#") ctx.drawImage(mapArt.rock, x, y);
+    else if (ch === "#") {
+      /* rock, lit and shaded where it meets open ground, if the set can */
+      const open = (dx, dy) => mapTile(tx + dx, ty + dy) !== "#";
+      ctx.drawImage(mapArt.rockAt ? mapArt.rockAt((open(0, -1) ? 1 : 0) | (open(1, 0) ? 2 : 0) | (open(0, 1) ? 4 : 0) | (open(-1, 0) ? 8 : 0)) : mapArt.rock, x, y);
+    }
     else if (ch === "/" || ch === "\\") drawDiagonal(ch === "/" ? "LR" : "LL", x, y);
-    else if (ent) ctx.drawImage(mapArt.marker[MARKER_KINDS[+ent.slice(1) % MARKER_KINDS.length]], x, y);
+    else if (ent && !mapArt.markerFor) ctx.drawImage(mapArt.marker[MARKER_KINDS[+ent.slice(1) % MARKER_KINDS.length]], x, y);
     else if (ch === "Q") ctx.drawImage(mapArt.tele[(m.t >> 3) % 2], x, y);
+  }
+  /* a set with its own markers draws one per entrance, by the level's type */
+  if (mapArt.markerFor) for (const [id, b] of Object.entries(world().box)) {
+    const kind = { vault: "vault", vaultCold: "vault", raiders: "camp", ruins: "ruin" }[LEVEL_THEME[id]] || "ruin";
+    const mx = (b.x0 + b.x1 + 1) * T / 2 - 16 - cx, my = (b.y1 + 1) * T - 32 - cy;
+    if (mx > -32 && mx < W && my > -32 && my < H) ctx.drawImage(mapArt.markerFor[kind], mx, my);
   }
   /* the ship, on its two tiles and the two above */
   if (world().ship) { const [sx, sy] = world().ship; ctx.drawImage(mapArt.ship, sx * T - cx, (sy - 1) * T - cy); }
@@ -1498,7 +1515,7 @@ function drawMap() {
   /* the name of the place underfoot */
   const here = mapHere(p);
   const onTele = !here && world().tele[Math.floor((p.x + p.w / 2) / T) + "," + Math.floor((p.y + p.h / 2) / T)];
-  const label = here ? levelName(here) + (G.run.done[here] ? " (done)" : "") : onShip(p) ? "The Catamaran" : onTele ? "Teleporter" : "";
+  const label = here ? levelName(here) + (G.run.done[here] ? " (done)" : "") : onShip(p) ? "The Catamaran" : onTele ? mapArt.teleName || "Teleporter" : "";
   mapLabel(label);
   drawHud(null);
 }
@@ -1829,7 +1846,7 @@ function recordScore(score, done) {
 
 function openTitle() {
   UI.clear();
-  useLook("classic"); useItems("classic");
+  useLook("classic"); useItems("classic"); mapArt = mapArtSets.classic;
   G.mode = "title"; G.lv = null; mapLabel("");
   const saved = store.get(KEYS.save, null);
   showLogo();
@@ -1969,7 +1986,9 @@ function frame(now) {
 
 function boot() {
   buildArt();
-  mapArt = paintMapTiles();
+  const classicMap = paintMapTiles();
+  mapArtSets = { classic: classicMap, wasteland: paintWasteMap(classicMap) };
+  mapArt = classicMap;
   G.map = { t: 0, p: null };
   injectTitleCSS();
   const run = runBoot({ lines: [bootReloadLine(), "sixteen colours: ok", "pc speaker: ok"] });
