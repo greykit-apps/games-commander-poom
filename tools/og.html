@@ -14,36 +14,37 @@
 <canvas width="1200" height="630"></canvas>
 <script src="../js/art.js"></script>
 <script>
+/* Book 1's card: the wasteland title scene, wider, with ranger Poom by the
+   crashed Catamaran, a few of the Glow's creatures and the logo in amber */
 buildArt();
+useLook("ranger"); useCreatures("wasteland"); useItems("wasteland");
 const mapArt = paintMapTiles();
 const c = document.querySelector("canvas"), g = c.getContext("2d");
 g.imageSmoothingEnabled = false;
 /* the scene at 400x210, three times over */
-const s = makeCanvas(400, 210), x = s.getContext("2d");
+const s = paintWasteTitle(mapArt.shipBare, 400, 210), x = s.getContext("2d");
 x.imageSmoothingEnabled = false;
-x.fillStyle = "#000"; x.fillRect(0, 0, 400, 210);
-for (let i = 0; i < 140; i++) { x.fillStyle = EGA[[15, 7, 14, 11][i % 4]]; x.fillRect((i * 97) % 400, (i * 61) % 160, 1, 1); }
-x.fillStyle = EGA[4]; x.beginPath(); x.ellipse(200, 350, 380, 170, 0, 0, Math.PI * 2); x.fill();
-x.fillStyle = EGA[6]; x.beginPath(); x.ellipse(200, 356, 380, 168, 0, 0, Math.PI * 2); x.fill();
-x.fillStyle = EGA[12]; for (let i = 0; i < 60; i++) x.fillRect((i * 53) % 400, 192 + (i * 7) % 18, 2, 1);
-x.fillStyle = EGA[5]; x.beginPath(); x.arc(350, 40, 18, 0, Math.PI * 2); x.fill();
-x.fillStyle = EGA[13]; x.beginPath(); x.arc(345, 35, 14, 0, Math.PI * 2); x.fill();
-x.strokeStyle = EGA[14]; x.beginPath(); x.ellipse(350, 40, 30, 6, -0.3, 0, Math.PI * 2); x.stroke();
-x.drawImage(mapArt.shipBare, 0, 0, 32, 32, 22, 136, 64, 64);
-x.drawImage(ART.poom.jump.r, 104, 152);
-x.drawImage(ART.pogoLong.r, 107, 175);
-x.drawImage(ART.mousel.look.l, 170, 189);
-x.drawImage(ART.vac.walk0.r, 330, 171);
-x.drawImage(ART.parts[0], 230, 150); x.drawImage(ART.parts[1], 252, 140); x.drawImage(ART.parts[2], 274, 150); x.drawImage(ART.parts[3], 296, 140);
+for (let i = 0; i < 90; i++) { const sy = (i * 61) % 70; x.fillStyle = i % 3 ? "#c8c0d8" : "#ffe9a8"; x.fillRect((i * 97) % 400, sy, 1, 1); }
+x.fillStyle = "#ff3b2f"; x.fillRect(14, 102, 2, 2);
+for (let i = 0; i < 3; i++) { x.fillStyle = `rgba(70, 64, 60, ${0.55 - i * 0.15})`; x.beginPath(); x.arc(58 + i * 4, 148 - i * 9, 2 + i, 0, Math.PI * 2); x.fill(); }
+const foot = (spr, px) => x.drawImage(spr, px, 192 - spr.height);
+foot(ART.poom.stand.r, 76);
+foot(ART.mousel.walk0.l, 190);
+foot(ART.barker.walk0.l, 286);
+foot(ART.vac.walk0.l, 340);
+ART.parts.forEach((p, i) => x.drawImage(p, 226 + i * 22, 140 + (i % 2) * 8));
 g.drawImage(s, 0, 0, 1200, 630);
 document.fonts.load("48px 'Press Start 2P'").then(() => {
   g.textAlign = "center"; g.textBaseline = "top";
-  g.font = "36px 'Press Start 2P'"; g.fillStyle = EGA[11]; g.fillText("COMMANDER", 600, 70);
+  g.font = "36px 'Press Start 2P'";
+  g.fillStyle = "#5a2410"; g.fillText("COMMANDER", 603, 73);
+  g.fillStyle = "#ffb85a"; g.fillText("COMMANDER", 600, 70);
   g.font = "120px 'Press Start 2P'";
-  for (let i = 5; i >= 1; i--) { g.fillStyle = i > 3 ? "#000" : i > 1 ? "#aa0000" : EGA[12]; g.fillText("POOM", 600 + i * 4, 120 + i * 4); }
-  g.fillStyle = EGA[14]; g.fillText("POOM", 600, 120);
-  g.font = "22px 'Press Start 2P'"; g.fillStyle = EGA[13]; g.fillText("Episode One: Lost on Planet Hiss", 600, 290);
-  g.font = "16px 'Press Start 2P'"; g.fillStyle = EGA[15]; g.fillText("Run. Jump. Pogo. Zap. Find the four stolen ship parts.", 600, 340);
+  for (let i = 5; i >= 1; i--) { g.fillStyle = i > 4 ? "#000" : i > 2 ? "#7a3a1c" : "#d07a36"; g.fillText("POOM", 600 + i * 4, 120 + i * 4); }
+  g.fillStyle = "#ffd23f"; g.fillText("POOM", 600, 120);
+  const shadowed = (text, y, col) => { g.fillStyle = "#2a1020"; g.fillText(text, 603, y + 3); g.fillStyle = col; g.fillText(text, 600, y); };
+  g.font = "22px 'Press Start 2P'"; shadowed("Book One: Down in the Glow", 290, "#f0d0a0");
+  g.font = "16px 'Press Start 2P'"; shadowed("Run. Jump. Pogo. Zap. Take back the four stolen ship parts.", 340, "#fff0d8");
   document.title = "ready";
 });
 </script>

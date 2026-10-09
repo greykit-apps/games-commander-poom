@@ -2162,17 +2162,18 @@ function paintWasteMap(classic) {
   return { ...classic, ground, rockAt, rock: rockAt(0), water, field, flag, tele, ship, markerFor: marker, teleName: "Tube station" };
 }
 
-/* The wasteland's title backdrop, 320x200, painted once: a dusk sky in
- * bands, a swollen sun low on the right, a ruined skyline and Auntie's
- * mast against it, mesas, cracked ground, and the Catamaran crash-landed
- * on the left with its scorch. The animated parts (stars, smoke, the
- * mast's light, Poom) are drawn over it by game.js. */
-function paintWasteTitle(shipBare) {
-  const c = makeCanvas(320, 200), g = c.getContext("2d"), r = rng(23);
+/* The wasteland's title backdrop, 320x200 unless asked for bigger (the
+ * share card's carries the skyline and the ground further), painted once:
+ * a dusk sky in bands, a swollen sun setting behind mesas on the left,
+ * Auntie's mast, a ruined skyline, cracked ground, and the Catamaran
+ * crash-landed on the left with its scorch. The animated parts (stars,
+ * smoke, the mast's light, Poom) are drawn over it by game.js. */
+function paintWasteTitle(shipBare, W_ = 320, H_ = 200) {
+  const c = makeCanvas(W_, H_), g = c.getContext("2d"), r = rng(23);
   const px = (col, x, y, w = 1, h = 1) => { g.fillStyle = col; g.fillRect(x, y, w, h); };
   const stops = [[0, [10, 8, 26]], [80, [36, 18, 58]], [118, [110, 32, 66]], [142, [178, 60, 46]], [162, [228, 118, 48]], [176, [246, 184, 80]]];
   const at = y => { for (let i = 1; i < stops.length; i++) if (y <= stops[i][0]) { const [y0, a] = stops[i - 1], [y1, b] = stops[i], f = (y - y0) / (y1 - y0); return a.map((v, k) => Math.round(v + (b[k] - v) * f)); } return stops[stops.length - 1][1]; };
-  for (let y = 0; y < 200; y += 4) { const [R, G, B] = at(y); px(`rgb(${R},${G},${B})`, 0, y, 320, 4); }
+  for (let y = 0; y < H_; y += 4) { const [R, G, B] = at(y); px(`rgb(${R},${G},${B})`, 0, y, W_, 4); }
   /* the sun, swollen, setting behind the mesas on the left (the right is
      the menu's) */
   g.fillStyle = "rgba(255, 220, 140, 0.25)"; g.beginPath(); g.arc(66, 128, 32, 0, Math.PI * 2); g.fill();
@@ -2180,7 +2181,7 @@ function paintWasteTitle(shipBare) {
   g.fillStyle = "#fff0c4"; g.beginPath(); g.arc(66, 128, 13, 0, Math.PI * 2); g.fill();
   /* the ruined skyline: towers with their tops sheared off, a few windows lit */
   let x = 96;
-  while (x < 320) {
+  while (x < W_) {
     const w = 10 + (r() * 16 | 0), h = 20 + (r() * 34 | 0), top = 168 - h, cut = r() * 10 | 0;
     g.fillStyle = "#3a1c2a"; g.beginPath(); g.moveTo(x, 200); g.lineTo(x, top + (r() < .5 ? cut : 0)); g.lineTo(x + w, top + (r() < .5 ? 0 : cut)); g.lineTo(x + w, 200); g.fill();
     for (let wy = top + 6; wy < 166; wy += 6) for (let wx = x + 2; wx < x + w - 2; wx += 4) if (r() < .08) px("#ffd36a", wx, wy, 1, 2);
@@ -2192,9 +2193,9 @@ function paintWasteTitle(shipBare) {
   /* Auntie's mast, at the left edge */
   px("#2a1420", 14, 104, 2, 70); for (let y = 108; y < 172; y += 6) px("#2a1420", 11, y, 8, 1);
   /* the ground: cracked earth catching the last light */
-  for (let y = 172; y < 200; y++) px(y < 175 ? "#a07850" : y < 184 ? "#7a5a3a" : "#5a422c", 0, y, 320, 1);
-  for (let i = 0; i < 60; i++) px(r() < .5 ? "#4a3424" : "#b8905e", r() * 320 | 0, 174 + (r() * 26 | 0), 1 + (r() * 3 | 0), 1);
-  for (let k = 0; k < 6; k++) { let cx = r() * 320 | 0, cy = 176; for (let i = 0; i < 10; i++) { px("#3a2818", cx, cy); cx += (r() * 3 | 0) - 1; cy++; } }
+  for (let y = 172; y < H_; y++) px(y < 175 ? "#a07850" : y < 184 ? "#7a5a3a" : "#5a422c", 0, y, W_, 1);
+  for (let i = 0; i < 60 * W_ / 320; i++) px(r() < .5 ? "#4a3424" : "#b8905e", r() * W_ | 0, 174 + (r() * (H_ - 174) | 0), 1 + (r() * 3 | 0), 1);
+  for (let k = 0; k < 6 * W_ / 320; k++) { let cx = r() * W_ | 0, cy = 176; for (let i = 0; i < 10; i++) { px("#3a2818", cx, cy); cx += (r() * 3 | 0) - 1; cy++; } }
   /* the Catamaran, crash-landed: a scorch, the ship tilted and doubled */
   g.fillStyle = "rgba(24, 12, 8, 0.7)"; g.beginPath(); g.ellipse(46, 182, 34, 7, 0, 0, Math.PI * 2); g.fill();
   g.save(); g.imageSmoothingEnabled = false; g.translate(46, 160); g.rotate(-0.22); g.drawImage(shipBare, 0, 0, 32, 32, -32, -30, 64, 64); g.restore();
