@@ -24,7 +24,7 @@ Glyphs marked "no" are air until the engine learns them.
 | `i` | ice / slippery floor | yes | 1825 |
 | `<` | conveyor left | yes | 0 |
 | `>` | conveyor right | yes | 92 |
-| `S` | switches (bridge switches done; platform switches wait for moving platforms) | no | 200 |
+| `S` | switches (bridge and platform switches) | yes | 200 |
 | `Q` | teleporters / elevators | no | 37 |
 | `j` | key sockets (and the doors they open: 5 6 7 8) | yes | 186 |
 | `H` | hint triggers | no | 217 |
@@ -37,7 +37,7 @@ Glyphs marked "no" are air until the engine learns them.
 | `e` | enemies (per-type behaviour) | no | 2943 |
 | `G` | turrets / emitters | no | 279 |
 | `N` | NPCs / rescue targets | no | 21 |
-| `M` | moving platforms (paths, dropping, sneaky) | no | 656 |
+| `M` | moving platforms (paths, dropping, sneaky) | yes | 656 |
 | `Z` | special objects | no | 38 |
 | `l` | world-map level entrances | yes | 757 |
 
@@ -50,6 +50,7 @@ Further notes:
 - `~` in world maps is shoreline; in levels it is fire/water, as before.
 - How a level ends comes from the source's `completion` list (maps2/README.md, *Level completion*). `exit_tile`: an `X` away from the map edge becomes `E`, an exit door; walking into any `E` tile finishes the level, and each group of them is drawn as one door standing on the floor below it. `map_edge`: an `X` in the outer two columns stays `X`, unseen; walking into one finishes the level. `objective`: the level's `ends` objectives (`!`, and the two swim-ability pickups flagged as ending E and I levels) are picked up by touch or destroyed by a shot, and the last one finishes the level. `rescue`: touching an `ends` NPC finishes the level. Falling out of the bottom still kills.
 - Warp doors (`D`): standing in front of one, ↑ takes Poom to its link's target, with his feet in the target tile (nudged up if that tile has no room). Each `D` tile has its own target, so each half of a door leads to its own half of the arrival. Door links that sit on anything but a `D` (107 of them: on blocks, ledges and air) are no door and are ignored.
+- Moving platforms (`M`, kind from `things`): two tiles wide, stood on from above, jumped through from below, and they carry their rider; down + jump drops off one. *Fixed-direction* and the E1 *horizontal/vertical* ones go to and fro at 1 px a tick, turning back when their own (top-left) tile reaches a `Platform blocker` mark or their leading edge meets a wall. *Arrow-guided* ones take the direction of the `Platform path arrow` on each tile they reach, and wait at a blocker; a platform's own starting tile holds no arrow in the source (one object a cell), so its start direction stands in. 129 of 135 come back round to their start. *Dropping* ones sink under a rider and rise back when left; *sneaky* ones slide two tiles away when Poom jumps at them and drift back; *static* ones stay put. Platform switches (`pswitches`, ↑ at the switch) toggle the blocker or arrow at their target.
 - The ledge (`-`), pole (`|`) and spikes (`^`) are used as the engine already has them.
 
 ## Per book

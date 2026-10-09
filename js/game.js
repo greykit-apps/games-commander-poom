@@ -239,7 +239,7 @@ function loadLevel(n) {
   const rows = def.rows.map(r => [...r]);
   const h = rows.length, w = rows[0].length;
   const lv = { n, def, w, h, tiles: rows, back: [], ents: [], items: [], shots: [], fx: [], keys: [false, false, false, false, false],
-    theme, ice: false, t: 0, p: null, exits: [], exitAt: {}, edge: new Set(), npcs: [], endsLeft: 0, warp: {}, warpDoors: [], sockets: [], socketAt: {}, bridges: [], switchAt: {}, deckAt: new Set(), over: null, slope: slopesOf(rows) };
+    theme, ice: false, t: 0, p: null, exits: [], exitAt: {}, edge: new Set(), npcs: [], endsLeft: 0, warp: {}, warpDoors: [], sockets: [], socketAt: {}, bridges: [], switchAt: {}, deckAt: new Set(), plats: [], pmark: new Map(), pswitchAt: {}, over: null, slope: slopesOf(rows) };
   /* Under a slope the maps leave the odd non-solid tile where the ground's
    * edge was drawn. Boxed in on both sides, it is ground. */
   const isSl = (x, y) => !!(lv.slope[y] && lv.slope[y][x]);
@@ -307,6 +307,24 @@ function loadLevel(n) {
     const k = { ...b };
     lv.bridges.push(k); lv.switchAt[b.x + "," + b.y] = k;
     for (const [x, y] of b.deck) lv.deckAt.add(x + "," + y);
+  }
+
+  /* moving platforms, the markers that steer them, and their switches */
+  for (const [x, y, name] of def.marks || []) {
+    if (/^Platform blocker/.test(name)) lv.pmark.set(x + "," + y, "B");
+    const m = /^Platform path arrow (\w+)$/.exec(name);
+    if (m && DIRS[m[1]]) lv.pmark.set(x + "," + y, m[1]);
+  }
+  for (const [x, y, g, name] of def.things || []) if (g === "M") {
+    const pl = makePlat(name, x * T, y * T);
+    lv.plats.push(pl); rows[y][x] = ".";
+    /* the map holds one object a cell, so an arrow-guided platform's own cell
+       has no arrow: its starting direction is that cell's arrow */
+    if (pl.kind === "arrow" && !lv.pmark.has(x + "," + y)) lv.pmark.set(x + "," + y, pl.dirName);
+  }
+  for (const s of def.pswitches || []) {
+    const k = { ...s, on: false, mark: lv.pmark.get(s.tx + "," + s.ty) || "B" };
+    lv.pswitchAt[s.x + "," + s.y] = k;
   }
 
   /* what else finishes the level: the source's rescue NPCs and objectives */
@@ -382,7 +400,7 @@ function moveX(lv, b, dx, hit) {
 function moveBody(lv, b, oneway = true) {
   const hit = { left: false, right: false, top: false, bottom: false };
   moveX(lv, b, b.vx, hit);
-  const wasGround = b.onGround, falling = b.vy >= 0;
+  const wasGround = b.onGround, falling = b.vy >= 0, prevBottom = b.y + b.h;
   b.onGround = false;
   let ny = b.y + b.vy;
   const tx0 = Math.floor(b.x / T), tx1 = Math.floor((b.x + b.w - 1) / T);
@@ -409,6 +427,14 @@ function moveBody(lv, b, oneway = true) {
       if (top === null) continue;
       if (b.y + b.h >= top || (wasGround && top - (b.y + b.h) <= 8)) { b.y = top - b.h; hit.bottom = true; b.onGround = true; b.onSlope = true; }
       break;
+    }
+  }
+  /* a moving platform, for Poom: land on it, or keep standing on it */
+  if (b === lv.p) {
+    b.riding = null;
+    if (falling && !hit.bottom && !b.dropT) {
+      const pl = landOnPlat(lv, b, prevBottom);
+      if (pl) { b.y = pl.y - b.h; hit.bottom = true; b.onGround = true; b.riding = pl; }
     }
   }
   if (hit.bottom || hit.top) b.vy = 0;
@@ -510,6 +536,8 @@ function updatePlayer(lv) {
   if (wasPressed("up") && !p.climbing) {
     const b = tilesUnder(p).map(k => lv.switchAt[k]).find(Boolean);
     if (b) { flipBridge(lv, b); return; }
+    const ps = tilesUnder(p).map(k => lv.pswitchAt[k]).find(Boolean);
+    if (ps) { flipPlatSwitch(lv, ps); return; }
   }
 
   /* grab a pole */
@@ -572,7 +600,7 @@ function updatePlayer(lv) {
     if (p.onGround) p.coyote = 4; else if (p.coyote > 0) p.coyote--;
     if (!p.pogo && !busy && p.buffer > 0 && p.coyote > 0) {
       const under = tileAt(lv, Math.floor(cx / T), Math.floor((p.y + p.h + 1) / T));
-      if (D && under === "-") { p.dropT = 10; p.y += 2; }
+      if (D && (under === "-" || p.riding)) { p.dropT = 10; p.y += 2; p.riding = null; }
       else { p.crouch = KP.jumpCrouch; p.crouchHeld = 0; p.vx = ice ? p.vx : 0; }
       p.buffer = 0; p.coyote = 0;
     }
@@ -696,6 +724,102 @@ function flipBridge(lv, b) {
   for (const [x, y] of b.deck) lv.tiles[y][x] = b.on ? "#" : ".";
   if (b.on && !rectClear(lv, lv.p.x, lv.p.y, lv.p.w, lv.p.h)) { b.on = false; for (const [x, y] of b.deck) lv.tiles[y][x] = "."; sfx("nope"); return; }
   sfx("click");
+}
+
+/* ------------------------------------------------------------------ */
+/* moving platforms. Two tiles wide; stood on from above, jumped through
+ * from below, and they carry whoever stands on them.                     */
+
+const DIRS = { N: [0, -1], NE: [1, -1], E: [1, 0], SE: [1, 1], S: [0, 1], SW: [-1, 1], W: [-1, 0], NW: [-1, -1],
+  up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0], horizontal: [1, 0], vertical: [0, 1] };
+
+function makePlat(name, x, y) {
+  let m, kind = "static", dir = [0, 0];
+  let dirName = null;
+  if ((m = /\(start (\w+)\)/.exec(name))) { kind = "arrow"; dir = DIRS[m[1]]; dirName = m[1]; }
+  else if ((m = /\((moving \w+|horizontal|vertical)\)/.exec(name))) { kind = "line"; dir = DIRS[m[1].replace("moving ", "")]; }
+  else if (/Dropping/.test(name)) kind = "drop";
+  else if (/Sneaky/.test(name)) kind = "sneaky";
+  return { kind, x, y, x0: x, y0: y, w: T * 2, h: 8, dx: 0, dy: 0, dir: dir.slice(), dirName, vy: 0, wait: false };
+}
+
+/* a platform switch: its marker comes and goes */
+function flipPlatSwitch(lv, s) {
+  s.on = !s.on;
+  const k = s.tx + "," + s.ty;
+  if (lv.pmark.has(k)) lv.pmark.delete(k); else lv.pmark.set(k, s.mark);
+  sfx("click");
+}
+
+/* is a platform's leading edge going into a wall? */
+function platWalled(lv, pl, dir) {
+  const [ux, uy] = dir;
+  const xs = ux > 0 ? [Math.floor((pl.x + pl.w) / T)] : ux < 0 ? [Math.floor((pl.x - 1) / T)] : [Math.floor(pl.x / T), Math.floor((pl.x + pl.w - 1) / T)];
+  const ys = uy > 0 ? [Math.floor((pl.y + T) / T)] : uy < 0 ? [Math.floor((pl.y - 1) / T)] : [Math.floor(pl.y / T)];
+  for (const tx of xs) for (const ty of ys) if (isSolid(tileAt(lv, tx, ty))) return true;
+  return false;
+}
+
+function updatePlats(lv) {
+  const p = lv.p;
+  for (const pl of lv.plats) {
+    const ox = pl.x, oy = pl.y, ridden = p.riding === pl;
+    if (pl.kind === "line") {
+      /* to and fro: turns back once its own tile (its top-left) reaches a
+         blocker, or when its leading edge meets a wall */
+      if (pl.x % T === 0 && pl.y % T === 0) {
+        const atBlock = (pl.x !== pl.x0 || pl.y !== pl.y0) && lv.pmark.get(pl.x / T + "," + pl.y / T) === "B";
+        if (atBlock || platWalled(lv, pl, pl.dir)) { pl.dir = [-pl.dir[0], -pl.dir[1]]; if (platWalled(lv, pl, pl.dir)) pl.dir = [0, 0]; }
+      }
+      pl.x += pl.dir[0]; pl.y += pl.dir[1];
+    } else if (pl.kind === "arrow") {
+      /* on each tile it takes the direction of the arrow there; it waits at a blocker */
+      if (pl.x % T === 0 && pl.y % T === 0) {
+        const mk = lv.pmark.get(pl.x / T + "," + pl.y / T);
+        pl.wait = mk === "B";
+        if (mk && mk !== "B") pl.dir = DIRS[mk].slice();
+      }
+      if (!pl.wait) { pl.x += pl.dir[0]; pl.y += pl.dir[1]; }
+    } else if (pl.kind === "drop") {
+      /* sinks under a rider, faster and faster; comes back up when left */
+      if (ridden) { pl.vy = Math.min(pl.vy + 0.08, 3); if (!isSolid(tileAt(lv, Math.floor((pl.x + T) / T), Math.floor((pl.y + pl.vy + T) / T)))) pl.y += pl.vy; }
+      else { pl.vy = 0; if (pl.y > pl.y0) pl.y = Math.max(pl.y0, pl.y - 1); }
+    } else if (pl.kind === "sneaky") {
+      /* jump at it and it slides out of reach; then drifts back */
+      const pc = p.x + p.w / 2, mid = pl.x0 + T;
+      if (!p.onGround && p.state === "play" && Math.abs(pc - mid) < T * 3 && p.y + p.h < pl.y) pl.flee = pc < mid ? 1 : -1;
+      else if (p.onGround && !ridden) pl.flee = 0;
+      const want = pl.x0 + (pl.flee || 0) * T * 2;
+      pl.x += Math.sign(want - pl.x) * Math.min(Math.abs(want - pl.x), pl.flee ? 4 : 1);
+    }
+    /* never off the map: back the way it came */
+    if (pl.x < 0 || pl.x + pl.w > lv.w * T || pl.y < 0 || pl.y + T > lv.h * T) { pl.x = ox; pl.y = oy; pl.dir = [-pl.dir[0], -pl.dir[1]]; }
+    pl.dx = pl.x - ox; pl.dy = pl.y - oy;
+  }
+  /* carry the rider */
+  const r = p.riding;
+  if (r && p.state === "play" && !p.climbing) {
+    if (r.dx) moveX(lv, p, r.dx, {});
+    if (r.dy) { p.y += r.dy; if (r.dy < 0 && !rectClear(lv, p.x, p.y, p.w, p.h)) { p.y -= r.dy; p.riding = null; } }
+  }
+}
+
+/* land on a platform: a body falling through a platform's top this tick */
+function landOnPlat(lv, b, prevBottom) {
+  for (const pl of lv.plats) {
+    if (b.x + b.w <= pl.x || b.x >= pl.x + pl.w) continue;
+    const top = pl.y;
+    if (prevBottom <= Math.max(top, top - pl.dy) + 1 && b.y + b.h >= top) return pl;
+  }
+  return null;
+}
+
+function drawPlats(lv, cx, cy) {
+  for (const pl of lv.plats) {
+    const x = Math.round(pl.x) - cx, y = Math.round(pl.y) - cy;
+    if (x < -pl.w || x > W || y < -16 || y > H) continue;
+    ctx.drawImage(lv.art.platform[pl.kind === "drop" ? 1 : pl.kind === "static" ? 2 : 0][(lv.t >> 3) % 2], x, y);
+  }
 }
 
 /* the warp door Poom is standing in, as its target, or null. The tile
@@ -916,6 +1040,7 @@ function startLevel(n) {
 function updateLevel() {
   const lv = G.lv;
   lv.t++;
+  updatePlats(lv);
   updatePlayer(lv);
   if (G.mode !== "level") return;
   for (const e of lv.ents) if (e.alive && Math.abs(e.x - lv.p.x) < 400) updateEnemy(lv, e);
@@ -1061,6 +1186,8 @@ function drawLevel() {
   }
   for (const s of lv.sockets) { ctx.drawImage(art.socket, s.x * T - cx, s.y * T - cy); if (s.filled) ctx.drawImage(ART.gems[s.gem], s.x * T + 4 - cx, s.y * T + 4 - cy); }
   for (const b of lv.bridges) ctx.drawImage(art.switch[b.on ? 1 : 0], b.x * T - cx, b.y * T - cy);
+  for (const k of Object.keys(lv.pswitchAt)) { const s = lv.pswitchAt[k]; ctx.drawImage(art.switch[s.on ? 1 : 0], s.x * T - cx, s.y * T - cy); }
+  drawPlats(lv, cx, cy);
   for (const d of lv.warpDoors) if (d.x - cx > -d.w && d.x - cx < W && d.y - cy > -d.h && d.y - cy < H) ctx.drawImage(art.warp[(lv.t >> 3) % 4], d.x - cx, d.y - cy, d.w, d.h);
   for (const e of lv.exits) ctx.drawImage(art.exit[lv.exitUsed === e ? 1 : 0], e.x - cx, e.y - cy);
 

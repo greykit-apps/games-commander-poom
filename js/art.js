@@ -1092,6 +1092,17 @@ function paintTiles(themeName) {
     g.fillStyle = E(0); g.fillRect(4, 4, 8, 8);
   });
 
+  /* a moving platform, 32x8, two frames of its running lights; a dropping
+   * one in warning orange, a static one dark */
+  tiles.platform = [[7, 9, 11], [6, 12, 14], [8, 7, 8]].map(([body, lamp0, lamp1]) => [0, 1].map(f => {
+    const c = makeCanvas(T * 2, 8), g = c.getContext("2d");
+    g.fillStyle = E(body); g.fillRect(0, 0, 32, 6);
+    g.fillStyle = E(15); g.fillRect(0, 0, 32, 1);
+    g.fillStyle = E(0); g.fillRect(0, 6, 32, 2); g.fillRect(1, 5, 30, 1);
+    for (let x = 3; x < 32; x += 8) { g.fillStyle = E((x >> 3) % 2 === f ? lamp1 : lamp0); g.fillRect(x, 2, 3, 2); }
+    return c;
+  }));
+
   /* a bridge's deck: planks on a beam */
   tiles.bridge = mk(g => {
     g.fillStyle = E(6); g.fillRect(0, 0, T, 6);

@@ -45,7 +45,8 @@
  *            toggles the bridge whose second tile is its target: the deck
  *            in the row below, from the target to the bridge's end. `on` is
  *            whether it starts out solid (58 of 61 do).
- * Platform switches (tile 5) steer moving platforms and are left for them.
+ *   pswitches [{ x, y, tx, ty }]  a platform switch (tile 5) toggles the
+ *            platform marker (blocker or path arrow) at its target.
  */
 const fs = require("fs");
 const path = require("path");
@@ -63,7 +64,7 @@ const KEY = { red: "r", yellow: "y", green: "g", blue: "b" };
 /* what each glyph beyond the original game's needs from the engine */
 const NEEDS = {
   "/": "slopes rising right", "\\": "slopes falling right", i: "ice / slippery floor", "<": "conveyor left", ">": "conveyor right",
-  S: "switches (bridge switches done; platform switches wait for moving platforms)", Q: "teleporters / elevators", j: "key sockets (and the doors they open: 5 6 7 8)", H: "hint triggers", D: "warp doors",
+  S: "switches (bridge and platform switches)", Q: "teleporters / elevators", j: "key sockets (and the doors they open: 5 6 7 8)", H: "hint triggers", D: "warp doors",
   d: "locked doors (colour absent from the source)", q: "keycards with no stated colour", u: "2000-point pickup (medal)",
   w: "swim ability (and swimming starts)", "!": "objective items (collected, or shot)", e: "enemies (per-type behaviour)", G: "turrets / emitters",
   N: "NPCs / rescue targets", M: "moving platforms (paths, dropping, sneaky)", Z: "special objects", l: "world-map level entrances",
@@ -73,7 +74,7 @@ const GEM_OF_SOCKET = { 7: 0, 8: 1, 9: 3, 10: 2 };   /* red yellow blue green ->
 
 /* sockets and bridges, from the raw tiles; edits rows in place */
 function switchesOf(d, rows) {
-  const out = { sockets: [], bridges: [] };
+  const out = { sockets: [], bridges: [], pswitches: [] };
   if (d.engine !== "E2") return out;
   const raw = JSON.parse(fs.readFileSync(path.join(MAPS, d.set, d.map + ".raw.json"), "utf8"));
   const fg = raw.planes.foreground, tp = raw.tile_properties;
@@ -96,6 +97,8 @@ function switchesOf(d, rows) {
       const gem = GEM_OF_SOCKET[kind], door = run(tx, ty, 0, 1, () => false);
       for (const [x, y] of door) put(x, y, String(5 + gem));
       out.sockets.push({ x: e.x, y: e.y, gem, door });
+    } else if (kind === 5) {
+      out.pswitches.push({ x: e.x, y: e.y, tx, ty });
     } else if (kind === 15) {
       const ti = intile(tx, ty);
       const top = run(tx, ty, 1, 0, (x, y) => ti && intile(x, y) === ti);
@@ -137,12 +140,12 @@ function convert(d) {
     /* the grid shows one object per tile, so these come from the entities */
     if (e.ends_level) ends.push([e.x, e.y, e.kind === "npc" ? "N" : e.kind === "powerup" ? "w" : e.glyph === "L" ? "l" : "!", e.name, e.ends_level]);
   }
-  const { sockets, bridges } = switchesOf(d, rows);
-  return { id: d.map, kind: d.kind, w: d.width, h: d.height, completion: d.completion, notes: d.notes, rows, things, marks, links, ends, sockets, bridges };
+  const { sockets, bridges, pswitches } = switchesOf(d, rows);
+  return { id: d.map, kind: d.kind, w: d.width, h: d.height, completion: d.completion, notes: d.notes, rows, things, marks, links, ends, sockets, bridges, pswitches };
 }
 
 /* the ones game.js handles; keep in step with it */
-const DONE = new Set(["/", "\\", "i", "<", ">", "d", "q", "u", "l", "!", "D", "j"]);
+const DONE = new Set(["/", "\\", "i", "<", ">", "d", "q", "u", "l", "!", "D", "j", "S", "M"]);
 
 fs.mkdirSync(OUT, { recursive: true });
 const report = [];
@@ -202,6 +205,7 @@ Further notes:
 - \`~\` in world maps is shoreline; in levels it is fire/water, as before.
 - How a level ends comes from the source's \`completion\` list (maps2/README.md, *Level completion*). \`exit_tile\`: an \`X\` away from the map edge becomes \`E\`, an exit door; walking into any \`E\` tile finishes the level, and each group of them is drawn as one door standing on the floor below it. \`map_edge\`: an \`X\` in the outer two columns stays \`X\`, unseen; walking into one finishes the level. \`objective\`: the level's \`ends\` objectives (\`!\`, and the two swim-ability pickups flagged as ending E and I levels) are picked up by touch or destroyed by a shot, and the last one finishes the level. \`rescue\`: touching an \`ends\` NPC finishes the level. Falling out of the bottom still kills.
 - Warp doors (\`D\`): standing in front of one, ↑ takes Poom to its link's target, with his feet in the target tile (nudged up if that tile has no room). Each \`D\` tile has its own target, so each half of a door leads to its own half of the arrival. Door links that sit on anything but a \`D\` (107 of them: on blocks, ledges and air) are no door and are ignored.
+- Moving platforms (\`M\`, kind from \`things\`): two tiles wide, stood on from above, jumped through from below, and they carry their rider; down + jump drops off one. *Fixed-direction* and the E1 *horizontal/vertical* ones go to and fro at 1 px a tick, turning back when their own (top-left) tile reaches a \`Platform blocker\` mark or their leading edge meets a wall. *Arrow-guided* ones take the direction of the \`Platform path arrow\` on each tile they reach, and wait at a blocker; a platform's own starting tile holds no arrow in the source (one object a cell), so its start direction stands in. 129 of 135 come back round to their start. *Dropping* ones sink under a rider and rise back when left; *sneaky* ones slide two tiles away when Poom jumps at them and drift back; *static* ones stay put. Platform switches (\`pswitches\`, ↑ at the switch) toggle the blocker or arrow at their target.
 - The ledge (\`-\`), pole (\`|\`) and spikes (\`^\`) are used as the engine already has them.
 
 ## Per book
