@@ -182,11 +182,15 @@ function newRun() {
 /* the books: js/books/<A-I>.js, each a world map and its levels.         */
 /* Levels are addressed by map id (A02), never by number.                */
 
-const BOOK_IDS = Object.keys(BOOKS).sort();
+/* The order the books are played in; Book 1 is the first. Map sets keep
+ * their letters (H01, H02...), the player sees numbers. */
+const BOOK_ORDER = ["H", "A", "B", "C", "D", "E", "F", "G", "I"];
+const BOOK_IDS = BOOK_ORDER.filter(b => BOOKS[b]);
+const bookNumber = b => BOOK_IDS.indexOf(b) + 1;
 const THEME_OF = { A: "hiss", B: "garden", C: "fort", D: "ice", E: "hiss", F: "garden", G: "fort", H: "ice", I: "hiss" };
 const MAPS = {};
 for (const b of BOOK_IDS) BOOKS[b].chapters.forEach(ch => ch.levels.forEach(lv => { MAPS[lv.id] = lv; lv.book = b; }));
-const levelName = id => `Book ${MAPS[id].book}, level ${+id.slice(1) - 1}`;
+const levelName = id => `Book ${bookNumber(MAPS[id].book)}, level ${+id.slice(1) - 1}`;
 
 /* what a world map's markers mean, worked out once per book */
 const WORLDS = {};
@@ -1105,7 +1109,7 @@ function finishLevel() {
     r.book = next; r.mx = r.my = null; r.swim = false;
     enterMap();
     saveRun();
-    message(`<b>Book ${was} is done!</b><br><br>On to Book ${next}.`);
+    message(`<b>Book ${bookNumber(was)} is done!</b><br><br>On to Book ${bookNumber(next)}.`);
     return;
   }
   enterMap();
@@ -1585,7 +1589,7 @@ function statusWindow() {
   row("Keycards", keys);
   const parts = el("span"); r.parts.forEach((h, i) => { const im = imgOf(ART.parts[i]); im.title = PART_NAMES[i]; if (!h) im.classList.add("missing"); parts.appendChild(im); });
   row("Ship parts", parts);
-  row("Book", r.book);
+  row("Book", String(bookNumber(r.book)));
   if (r.swim) row("Swimming", "yes");
   row("Levels done", `${world().need.filter(id => r.done[id]).length} of ${world().need.length}`);
   box.appendChild(grid);
