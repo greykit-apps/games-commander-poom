@@ -1,0 +1,28 @@
+; tile-ascii-map/1
+; map:    H02  set: H  engine: E1  kind: level
+; size:   120 x 21  (width x height; 1 char = one tile; origin top-left)
+; legend: ' ' empty / passable  '#' solid block  '-' one-way platform (solid from above only)  '^' hazard: touching or landing on it kills  'X' level exit  '$' points pickup (incl. collect-100-for-a-life pickups)  '+' power-up / resource (ammo, extra life, weapon, movement ability, shield)  '@' player start  'e' enemy / hostile creature
+; entities: enemy=8, player=1  (full list in H02.json)
+; completion: exit_tile
+;===============================================================================
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+  #                                                                                                                  #  
+  ####                                                           $  $     $  $     $    $    $   $                   #  
+  ## #        $                                                                                                      #  
+  ####        --  --  --  --  --             e           e                     $ e             e                     #  
+  #                                  ##                         ##             ##                  ##                #  
+  #    $ $ $                         #############################             ######################            X   #  
+  #                                 -## $                       ##             ##          $$      ##  --     $  X   #  
+  #                         -    -                       $                                                 e ####-####  
+  #             $$                               +               $  $     $  $             ##                #########  
+  ############                         ---    ----                                                        ###        #  
+  ############       ####              ---              ###     ------ $ ------                        ###           #  
+  #              --                    ---              ###                         ##  ##          ###              #  
+  #@            ----       e  ###      ---            ### ###             e       ####  ####  e                      #  
+  #            ------         ###      ---            ### ###     ^^            ######  ######    #         ^    ^  $#  
+  ####################################################################################  ##############################  
+  ####################################################################################^^##############################  
+                                                                                                                        
+                                                                                                                        

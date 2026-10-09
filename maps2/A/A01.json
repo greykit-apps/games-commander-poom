@@ -1,0 +1,1395 @@
+{
+ "format": "tile-ascii-map/1",
+ "map": "A01",
+ "set": "A",
+ "engine": "E2",
+ "kind": "world",
+ "completion": [],
+ "exit_tiles": 0,
+ "edge_exit_cells": 0,
+ "notes": [],
+ "width": 86,
+ "height": 108,
+ "legend": {
+  " ": "empty / passable",
+  "#": "solid block",
+  "-": "one-way platform (solid from above only)",
+  "/": "slope rising to the right",
+  "\\": "slope falling to the right",
+  "|": "climbable pole",
+  "S": "switch",
+  "T": "teleporter / elevator",
+  "@": "player start",
+  "L": "world-map level entrance"
+ },
+ "glyph_counts": {
+  " ": 7999,
+  "#": 1059,
+  "-": 42,
+  "/": 42,
+  "\\": 49,
+  "|": 4,
+  "S": 2,
+  "T": 17,
+  "@": 2,
+  "L": 72
+ },
+ "grid": [
+  "                                                                                      ",
+  "##########TTT                                                                         ",
+  "                                                                                      ",
+  "                                                                                      ",
+  "                                                                                      ",
+  "                                                                                      ",
+  "                                                                                      ",
+  "                                                                                      ",
+  "                                                                                      ",
+  "                                                                                      ",
+  "                      /###\\                                                           ",
+  "                     / ### \\                                                          ",
+  "                      ##T##                                              #            ",
+  "                     ### ###                                       ####  #            ",
+  "                     #######                                  ## ##  ##  ##           ",
+  "                     #######                                 ### ##TT########         ",
+  "         /     \\ /   #######   \\ /     \\                   #  #####  #####  #         ",
+  "         ####### ###############  ######                   #  #LL##  ##LL## #         ",
+  "         # #T# ###     # #     ### #T# #                  -  #LLL     #LLL###-        ",
+  "         # # # ###             ### # # #                     #LL        LL#           ",
+  "         #           /#####\\           #                    #-\\          /- #         ",
+  "          \\         /       \\         /                       ###--##--## #           ",
+  "         # ######\\  ##     ##  /###### #                         --                   ",
+  "          #      #  #       #  #      #                              -- #             ",
+  "                 #  # /###\\ #  #                                \\      /#             ",
+  "         /     \\ #  # # # # #  # /#####\\                        #--##-- #             ",
+  "         ####### #  #\\## ##/#  # #######                                              ",
+  "         # #T# ###  # #   # #  ### #T# #                         --  --               ",
+  "         # # # ###   ##   ##   ### # # #                           ####               ",
+  "         #                             #                     ######  ######           ",
+  "          \\                           /                     #   ###TT##-#####         ",
+  "         # ###########\\   /########### #                   ### # ###### #T###         ",
+  "          #           #   #           #                    #     ##LL## # # #         ",
+  "                      #\\ /#                                #          #     #         ",
+  "                    / #L#L# \\                               \\              /#         ",
+  "                    ###LLL###                               ###-\\      /-## #         ",
+  "                    ##    @ #                                   #--##-- #             ",
+  "                     \\     /                                                          ",
+  "                    # ##### #                                                         ",
+  "                     #     #                                                          ",
+  "                                                                                      ",
+  "                                                                                      ",
+  "                                                                                      ",
+  "                       |SS|                                                           ",
+  "                     ##|  |                                                           ",
+  "                                                                                      ",
+  "    /#                                                                                ",
+  "   -#\\                             /#                                      #          ",
+  "   ###             #  ####     ## -#\\                                                 ",
+  "      ##            ###LL###      ###----                       ###############       ",
+  "                    #      #                       /#           #   ###     # #       ",
+  "         ###       #       #                      -#\\       #   #   #T##@#    #       ",
+  "        #####     #         #     ##########      ###           #   # #   #####       ",
+  "        ##########          #  ####      #T##                   #         #LL##       ",
+  "       ##LLL# #     ###  /######### # #  # # #                  #          LL #       ",
+  "       #            ###  ##-###              #                  # #           #       ",
+  "        \\\\               #####LL             #                  #             #       ",
+  "          ####----##\\\\       #LL             #                  ###############       ",
+  "                      ########LL  #        //                                         ",
+  "                       ####  ### //##\\  /###                                          ",
+  "                        #########     #-#\\                                            ",
+  "       /#                              ###                                            ",
+  "      -#\\      ##                     ##                                              ",
+  "      ###                             ##                                              ",
+  "                                                                                      ",
+  "                                                                                      ",
+  "                                                                                      ",
+  "                                                                                      ",
+  "                                                                         #            ",
+  "       ####                                                                           ",
+  "       #####                                                         /      \\         ",
+  "       ##T# ##                                                      /        \\        ",
+  "  ##### # ## #  #### /#  ##                                          #####  #         ",
+  "  #          ###  # # #####                 ####                    ###LL#####        ",
+  "  # # #    /###    LL######             ##   -##                    #  LL#   #        ",
+  "  #        #  #     LL##  ##         ### ###   #\\#                  #        #        ",
+  "   \\       #  #  ######     #########  # LL#######                  ##########        ",
+  "   ##\\      ###  #   \\           LL#     LL#######                  # # LL####        ",
+  "      #\\\\   /##   ### #\\         LL#            ##                  ## #   # #        ",
+  "       ###  ###     #   #############\\         /                    #        #        ",
+  "       #     ##\\   /#      #          #\\#  /###                      \\      /         ",
+  "       #     ####  ##                   ###                         # ###### #        ",
+  "        \\           #                                                #      #         ",
+  "         ##\\       /#                                                                 ",
+  "           ########                                                                   ",
+  "                                                                                      ",
+  "                                                                                      ",
+  "                                                                                      ",
+  "                                                                                      ",
+  "                                                                                      ",
+  "                                                                                      ",
+  "        ###                                                                           ",
+  "         LL######              #########                        ######                ",
+  "        LLL# #  ##########     #       #                        ## # #                ",
+  "        LLL     #        #     # # #   #                     ##### # #\\               ",
+  "         #               #######       #############       ### LL#######              ",
+  "         ##        #       #                       #     ###   LL#######              ",
+  "          ############                           LLL######          # ##              ",
+  "                     #        #      ############LLL# ##              #               ",
+  "                     ###########     ######      ###\\ #         #######               ",
+  "                               #      #T# #       # #        ####                     ",
+  "                               #      # # #         # #   ####                        ",
+  "                               ###        #         #######                           ",
+  "                                 ##########                                           ",
+  "                                                                                      ",
+  "                                                                                      ",
+  "                                                                                      ",
+  "                                                                                      "
+ ],
+ "terrain": [
+  "                                                                                      ",
+  "##########TTT                                                                         ",
+  "                                                                                      ",
+  "                                                                                      ",
+  "                                                                                      ",
+  "                                                                                      ",
+  "                                                                                      ",
+  "                                                                                      ",
+  "                                                                                      ",
+  "                                                                                      ",
+  "                      /###\\                                                           ",
+  "                     / ### \\                                                          ",
+  "                      ##T##                                              #            ",
+  "                     ### ###                                       ####  #            ",
+  "                     #######                                  ## ##  ##  ##           ",
+  "                     #######                                 ### ##TT########         ",
+  "         /     \\ /   #######   \\ /     \\                   #  #####  #####  #         ",
+  "         ####### ###############  ######                   #  #  ##  ##  ## #         ",
+  "         # #T# ###     # #     ### #T# #                  -  ##       #  ####-        ",
+  "         # # # ###             ### # # #                     #            #           ",
+  "         #           /#####\\           #                    #-\\          /- #         ",
+  "          \\         /       \\         /                       ###--##--## #           ",
+  "         # ######\\  ##     ##  /###### #                         --                   ",
+  "          #      #  #       #  #      #                              -- #             ",
+  "                 #  # /###\\ #  #                                \\      /#             ",
+  "         /     \\ #  # # # # #  # /#####\\                        #--##-- #             ",
+  "         ####### #  #\\## ##/#  # #######                                              ",
+  "         # #T# ###  # #   # #  ### #T# #                         --  --               ",
+  "         # # # ###   ##   ##   ### # # #                           ####               ",
+  "         #                             #                     ######  ######           ",
+  "          \\                           /                     #   ###TT##-#####         ",
+  "         # ###########\\   /########### #                   ### # ###### #T###         ",
+  "          #           #   #           #                    #     ##  ## # # #         ",
+  "                      #\\ /#                                #          #     #         ",
+  "                    / ##### \\                               \\              /#         ",
+  "                    ###   ###                               ###-\\      /-## #         ",
+  "                    ##      #                                   #--##-- #             ",
+  "                     \\     /                                                          ",
+  "                    # ##### #                                                         ",
+  "                     #     #                                                          ",
+  "                                                                                      ",
+  "                                                                                      ",
+  "                                                                                      ",
+  "                       |SS|                                                           ",
+  "                     ##|  |                                                           ",
+  "                                                                                      ",
+  "    /#                                                                                ",
+  "   -#\\                             /#                                      #          ",
+  "   ###             #  ####     ## -#\\                                                 ",
+  "      ##            ###  ###      ###----                       ###############       ",
+  "                    #      #                       /#           #   ###     # #       ",
+  "         ###       #       #                      -#\\       #   #   #T## #    #       ",
+  "        #####     #         #     ##########      ###           #   # #   #####       ",
+  "        ##########          #  ####      #T##                   #         #####       ",
+  "       ### ## #     ###  /######### # #  # # #                  #             #       ",
+  "       #            ###  ##-###              #                  # #           #       ",
+  "        \\\\               ######              #                  #             #       ",
+  "          ####----##\\\\       #               #                  ###############       ",
+  "                      ########\\   #        //                                         ",
+  "                       ####  ### //##\\  /###                                          ",
+  "                        #########     #-#\\                                            ",
+  "       /#                              ###                                            ",
+  "      -#\\      ##                     ##                                              ",
+  "      ###                             ##                                              ",
+  "                                                                                      ",
+  "                                                                                      ",
+  "                                                                                      ",
+  "                                                                                      ",
+  "                                                                         #            ",
+  "       ####                                                                           ",
+  "       #####                                                         /      \\         ",
+  "       ##T# ##                                                      /        \\        ",
+  "  ##### # ## #  #### /#  ##                                          #####  #         ",
+  "  #          ###  # # #####                 ####                    ###  #####        ",
+  "  # # #    /###     #######             ##   -##                    #    #   #        ",
+  "  #        #  #       ##  ##         ### ###   #\\#                  #        #        ",
+  "   \\       #  #  ######     #########  # # #######                  ##########        ",
+  "   ##\\      ###  #   \\             #       #######                  # #   ####        ",
+  "      #\\\\   /##   ### #\\           #            ##                  ## #   # #        ",
+  "       ###  ###     #   #############\\         /                    #        #        ",
+  "       #     ##\\   /#      #          #\\#  /###                      \\      /         ",
+  "       #     ####  ##                   ###                         # ###### #        ",
+  "        \\           #                                                #      #         ",
+  "         ##\\       /#                                                                 ",
+  "           ########                                                                   ",
+  "                                                                                      ",
+  "                                                                                      ",
+  "                                                                                      ",
+  "                                                                                      ",
+  "                                                                                      ",
+  "                                                                                      ",
+  "        ###                                                                           ",
+  "         ########              #########                        ######                ",
+  "        #  # #  ##########     #       #                        ## # #                ",
+  "        #\\      #        #     # # #   #                     ##### # #\\               ",
+  "         #               #######       #############       ### # #######              ",
+  "         ##        #       #                       #     ###     #######              ",
+  "          ############                             #######          # ##              ",
+  "                     #        #      #############\\ # ##              #               ",
+  "                     ###########     ######      ###\\ #         #######               ",
+  "                               #      #T# #       # #        ####                     ",
+  "                               #      # # #         # #   ####                        ",
+  "                               ###        #         #######                           ",
+  "                                 ##########                                           ",
+  "                                                                                      ",
+  "                                                                                      ",
+  "                                                                                      ",
+  "                                                                                      "
+ ],
+ "entities": [
+  {
+   "x": 24,
+   "y": 12,
+   "code": 17998,
+   "kind": "door_link",
+   "name": "Warp target (70,78)",
+   "difficulty": "",
+   "glyph": null,
+   "target": [
+    70,
+    78
+   ]
+  },
+  {
+   "x": 24,
+   "y": 14,
+   "code": 53260,
+   "kind": "marker",
+   "name": "removed when A13 is done",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 24,
+   "y": 15,
+   "code": 53258,
+   "kind": "marker",
+   "name": "removed when A11 is done",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 67,
+   "y": 15,
+   "code": 17182,
+   "kind": "door_link",
+   "name": "Warp target (67,30)",
+   "difficulty": "",
+   "glyph": null,
+   "target": [
+    67,
+    30
+   ]
+  },
+  {
+   "x": 68,
+   "y": 15,
+   "code": 17182,
+   "kind": "door_link",
+   "name": "Warp target (67,30)",
+   "difficulty": "",
+   "glyph": null,
+   "target": [
+    67,
+    30
+   ]
+  },
+  {
+   "x": 24,
+   "y": 16,
+   "code": 53255,
+   "kind": "marker",
+   "name": "removed when A08 is done",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 24,
+   "y": 17,
+   "code": 53252,
+   "kind": "marker",
+   "name": "removed when A05 is done",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 63,
+   "y": 17,
+   "code": 49164,
+   "kind": "level_entrance",
+   "name": "entrance to A13",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 64,
+   "y": 17,
+   "code": 49164,
+   "kind": "level_entrance",
+   "name": "entrance to A13",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 71,
+   "y": 17,
+   "code": 49164,
+   "kind": "level_entrance",
+   "name": "entrance to A13",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 72,
+   "y": 17,
+   "code": 49164,
+   "kind": "level_entrance",
+   "name": "entrance to A13",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 12,
+   "y": 18,
+   "code": 1354,
+   "kind": "door_link",
+   "name": "Warp target (5,74)",
+   "difficulty": "",
+   "glyph": null,
+   "target": [
+    5,
+    74
+   ]
+  },
+  {
+   "x": 36,
+   "y": 18,
+   "code": 15903,
+   "kind": "door_link",
+   "name": "Warp target (62,31)",
+   "difficulty": "",
+   "glyph": null,
+   "target": [
+    62,
+    31
+   ]
+  },
+  {
+   "x": 62,
+   "y": 18,
+   "code": 49164,
+   "kind": "level_entrance",
+   "name": "entrance to A13",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 63,
+   "y": 18,
+   "code": 49164,
+   "kind": "level_entrance",
+   "name": "entrance to A13",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 64,
+   "y": 18,
+   "code": 49164,
+   "kind": "level_entrance",
+   "name": "entrance to A13",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 70,
+   "y": 18,
+   "code": 61452,
+   "kind": "marker",
+   "name": "done-flag spot for A13",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 71,
+   "y": 18,
+   "code": 49164,
+   "kind": "level_entrance",
+   "name": "entrance to A13",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 72,
+   "y": 18,
+   "code": 49164,
+   "kind": "level_entrance",
+   "name": "entrance to A13",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 73,
+   "y": 18,
+   "code": 49164,
+   "kind": "level_entrance",
+   "name": "entrance to A13",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 62,
+   "y": 19,
+   "code": 49164,
+   "kind": "level_entrance",
+   "name": "entrance to A13",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 63,
+   "y": 19,
+   "code": 49164,
+   "kind": "level_entrance",
+   "name": "entrance to A13",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 72,
+   "y": 19,
+   "code": 49164,
+   "kind": "level_entrance",
+   "name": "entrance to A13",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 73,
+   "y": 19,
+   "code": 49164,
+   "kind": "level_entrance",
+   "name": "entrance to A13",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 12,
+   "y": 27,
+   "code": 9526,
+   "kind": "door_link",
+   "name": "Warp target (37,54)",
+   "difficulty": "",
+   "glyph": null,
+   "target": [
+    37,
+    54
+   ]
+  },
+  {
+   "x": 36,
+   "y": 27,
+   "code": 8798,
+   "kind": "door_link",
+   "name": "Warp target (34,94)",
+   "difficulty": "",
+   "glyph": null,
+   "target": [
+    34,
+    94
+   ]
+  },
+  {
+   "x": 67,
+   "y": 30,
+   "code": 17167,
+   "kind": "door_link",
+   "name": "Warp target (67,15)",
+   "difficulty": "",
+   "glyph": null,
+   "target": [
+    67,
+    15
+   ]
+  },
+  {
+   "x": 68,
+   "y": 30,
+   "code": 17167,
+   "kind": "door_link",
+   "name": "Warp target (67,15)",
+   "difficulty": "",
+   "glyph": null,
+   "target": [
+    67,
+    15
+   ]
+  },
+  {
+   "x": 67,
+   "y": 31,
+   "code": 53259,
+   "kind": "marker",
+   "name": "removed when A12 is done",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 68,
+   "y": 31,
+   "code": 53259,
+   "kind": "marker",
+   "name": "removed when A12 is done",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 73,
+   "y": 31,
+   "code": 6170,
+   "kind": "door_link",
+   "name": "Warp target (24,26)",
+   "difficulty": "",
+   "glyph": null,
+   "target": [
+    24,
+    26
+   ]
+  },
+  {
+   "x": 67,
+   "y": 32,
+   "code": 49163,
+   "kind": "level_entrance",
+   "name": "entrance to A12",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 68,
+   "y": 32,
+   "code": 49163,
+   "kind": "level_entrance",
+   "name": "entrance to A12",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 70,
+   "y": 33,
+   "code": 61451,
+   "kind": "marker",
+   "name": "done-flag spot for A12",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 23,
+   "y": 34,
+   "code": 49153,
+   "kind": "level_entrance",
+   "name": "entrance to A02",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 24,
+   "y": 34,
+   "code": 53249,
+   "kind": "marker",
+   "name": "removed when A02 is done",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 25,
+   "y": 34,
+   "code": 49153,
+   "kind": "level_entrance",
+   "name": "entrance to A02",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 23,
+   "y": 35,
+   "code": 49153,
+   "kind": "level_entrance",
+   "name": "entrance to A02",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 24,
+   "y": 35,
+   "code": 49153,
+   "kind": "level_entrance",
+   "name": "entrance to A02",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 25,
+   "y": 35,
+   "code": 49153,
+   "kind": "level_entrance",
+   "name": "entrance to A02",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 21,
+   "y": 36,
+   "code": 61441,
+   "kind": "marker",
+   "name": "done-flag spot for A02",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 26,
+   "y": 36,
+   "code": 3,
+   "kind": "player",
+   "name": "player start (world map)",
+   "difficulty": "",
+   "glyph": "@"
+  },
+  {
+   "x": 26,
+   "y": 42,
+   "code": 25,
+   "kind": "marker",
+   "name": "camera limit",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 19,
+   "y": 48,
+   "code": 61444,
+   "kind": "marker",
+   "name": "done-flag spot for A05",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 23,
+   "y": 49,
+   "code": 49156,
+   "kind": "level_entrance",
+   "name": "entrance to A05",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 24,
+   "y": 49,
+   "code": 49156,
+   "kind": "level_entrance",
+   "name": "entrance to A05",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 76,
+   "y": 50,
+   "code": 61459,
+   "kind": "marker",
+   "name": "done-flag spot for unlisted map 19",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 69,
+   "y": 51,
+   "code": 6170,
+   "kind": "door_link",
+   "name": "Warp target (24,26)",
+   "difficulty": "",
+   "glyph": null,
+   "target": [
+    24,
+    26
+   ]
+  },
+  {
+   "x": 72,
+   "y": 51,
+   "code": 26,
+   "kind": "player",
+   "name": "player arrival point (world map)",
+   "difficulty": "",
+   "glyph": "@"
+  },
+  {
+   "x": 42,
+   "y": 53,
+   "code": 6170,
+   "kind": "door_link",
+   "name": "Warp target (24,26)",
+   "difficulty": "",
+   "glyph": null,
+   "target": [
+    24,
+    26
+   ]
+  },
+  {
+   "x": 75,
+   "y": 53,
+   "code": 49165,
+   "kind": "level_entrance",
+   "name": "entrance to A14",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 76,
+   "y": 53,
+   "code": 49165,
+   "kind": "level_entrance",
+   "name": "entrance to A14",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 9,
+   "y": 54,
+   "code": 49155,
+   "kind": "level_entrance",
+   "name": "entrance to A04",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 10,
+   "y": 54,
+   "code": 49155,
+   "kind": "level_entrance",
+   "name": "entrance to A04",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 11,
+   "y": 54,
+   "code": 49155,
+   "kind": "level_entrance",
+   "name": "entrance to A04",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 14,
+   "y": 54,
+   "code": 61443,
+   "kind": "marker",
+   "name": "done-flag spot for A04",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 75,
+   "y": 54,
+   "code": 49165,
+   "kind": "level_entrance",
+   "name": "entrance to A14",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 76,
+   "y": 54,
+   "code": 49165,
+   "kind": "level_entrance",
+   "name": "entrance to A14",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 30,
+   "y": 56,
+   "code": 49154,
+   "kind": "level_entrance",
+   "name": "entrance to A03",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 31,
+   "y": 56,
+   "code": 49154,
+   "kind": "level_entrance",
+   "name": "entrance to A03",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 29,
+   "y": 57,
+   "code": 53250,
+   "kind": "marker",
+   "name": "removed when A03 is done",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 30,
+   "y": 57,
+   "code": 49154,
+   "kind": "level_entrance",
+   "name": "entrance to A03",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 31,
+   "y": 57,
+   "code": 49154,
+   "kind": "level_entrance",
+   "name": "entrance to A03",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 30,
+   "y": 58,
+   "code": 49154,
+   "kind": "level_entrance",
+   "name": "entrance to A03",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 31,
+   "y": 58,
+   "code": 49154,
+   "kind": "level_entrance",
+   "name": "entrance to A03",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 34,
+   "y": 58,
+   "code": 61442,
+   "kind": "marker",
+   "name": "done-flag spot for A03",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 24,
+   "y": 64,
+   "code": 25,
+   "kind": "marker",
+   "name": "camera limit",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 9,
+   "y": 71,
+   "code": 6170,
+   "kind": "door_link",
+   "name": "Warp target (24,26)",
+   "difficulty": "",
+   "glyph": null,
+   "target": [
+    24,
+    26
+   ]
+  },
+  {
+   "x": 18,
+   "y": 73,
+   "code": 61445,
+   "kind": "marker",
+   "name": "done-flag spot for A06",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 71,
+   "y": 73,
+   "code": 49167,
+   "kind": "level_entrance",
+   "name": "entrance to A16",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 72,
+   "y": 73,
+   "code": 49167,
+   "kind": "level_entrance",
+   "name": "entrance to A16",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 19,
+   "y": 74,
+   "code": 49157,
+   "kind": "level_entrance",
+   "name": "entrance to A06",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 20,
+   "y": 74,
+   "code": 49157,
+   "kind": "level_entrance",
+   "name": "entrance to A06",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 71,
+   "y": 74,
+   "code": 49167,
+   "kind": "level_entrance",
+   "name": "entrance to A16",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 72,
+   "y": 74,
+   "code": 49167,
+   "kind": "level_entrance",
+   "name": "entrance to A16",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 20,
+   "y": 75,
+   "code": 49157,
+   "kind": "level_entrance",
+   "name": "entrance to A06",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 21,
+   "y": 75,
+   "code": 49157,
+   "kind": "level_entrance",
+   "name": "entrance to A06",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 21,
+   "y": 76,
+   "code": 53253,
+   "kind": "marker",
+   "name": "removed when A06 is done",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 22,
+   "y": 76,
+   "code": 53253,
+   "kind": "marker",
+   "name": "removed when A06 is done",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 39,
+   "y": 76,
+   "code": 61447,
+   "kind": "marker",
+   "name": "done-flag spot for A08",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 41,
+   "y": 76,
+   "code": 49159,
+   "kind": "level_entrance",
+   "name": "entrance to A08",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 42,
+   "y": 76,
+   "code": 49159,
+   "kind": "level_entrance",
+   "name": "entrance to A08",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 72,
+   "y": 76,
+   "code": 53262,
+   "kind": "marker",
+   "name": "removed when A15 is done",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 73,
+   "y": 76,
+   "code": 53262,
+   "kind": "marker",
+   "name": "removed when A15 is done",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 33,
+   "y": 77,
+   "code": 49158,
+   "kind": "level_entrance",
+   "name": "entrance to A07",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 34,
+   "y": 77,
+   "code": 49158,
+   "kind": "level_entrance",
+   "name": "entrance to A07",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 35,
+   "y": 77,
+   "code": 53254,
+   "kind": "marker",
+   "name": "removed when A07 is done",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 41,
+   "y": 77,
+   "code": 49159,
+   "kind": "level_entrance",
+   "name": "entrance to A08",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 42,
+   "y": 77,
+   "code": 49159,
+   "kind": "level_entrance",
+   "name": "entrance to A08",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 72,
+   "y": 77,
+   "code": 49166,
+   "kind": "level_entrance",
+   "name": "entrance to A15",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 73,
+   "y": 77,
+   "code": 49166,
+   "kind": "level_entrance",
+   "name": "entrance to A15",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 33,
+   "y": 78,
+   "code": 49158,
+   "kind": "level_entrance",
+   "name": "entrance to A07",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 34,
+   "y": 78,
+   "code": 49158,
+   "kind": "level_entrance",
+   "name": "entrance to A07",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 35,
+   "y": 78,
+   "code": 53254,
+   "kind": "marker",
+   "name": "removed when A07 is done",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 75,
+   "y": 78,
+   "code": 61454,
+   "kind": "marker",
+   "name": "done-flag spot for A15",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 27,
+   "y": 80,
+   "code": 61446,
+   "kind": "marker",
+   "name": "done-flag spot for A07",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 26,
+   "y": 87,
+   "code": 25,
+   "kind": "marker",
+   "name": "camera limit",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 9,
+   "y": 92,
+   "code": 49160,
+   "kind": "level_entrance",
+   "name": "entrance to A09",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 10,
+   "y": 92,
+   "code": 49160,
+   "kind": "level_entrance",
+   "name": "entrance to A09",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 8,
+   "y": 93,
+   "code": 49160,
+   "kind": "level_entrance",
+   "name": "entrance to A09",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 9,
+   "y": 93,
+   "code": 49160,
+   "kind": "level_entrance",
+   "name": "entrance to A09",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 10,
+   "y": 93,
+   "code": 49160,
+   "kind": "level_entrance",
+   "name": "entrance to A09",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 13,
+   "y": 93,
+   "code": 61448,
+   "kind": "marker",
+   "name": "done-flag spot for A09",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 8,
+   "y": 94,
+   "code": 49160,
+   "kind": "level_entrance",
+   "name": "entrance to A09",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 9,
+   "y": 94,
+   "code": 49160,
+   "kind": "level_entrance",
+   "name": "entrance to A09",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 10,
+   "y": 94,
+   "code": 49160,
+   "kind": "level_entrance",
+   "name": "entrance to A09",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 63,
+   "y": 95,
+   "code": 49162,
+   "kind": "level_entrance",
+   "name": "entrance to A11",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 64,
+   "y": 95,
+   "code": 49162,
+   "kind": "level_entrance",
+   "name": "entrance to A11",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 63,
+   "y": 96,
+   "code": 49162,
+   "kind": "level_entrance",
+   "name": "entrance to A11",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 64,
+   "y": 96,
+   "code": 49162,
+   "kind": "level_entrance",
+   "name": "entrance to A11",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 49,
+   "y": 97,
+   "code": 49161,
+   "kind": "level_entrance",
+   "name": "entrance to A10",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 50,
+   "y": 97,
+   "code": 49161,
+   "kind": "level_entrance",
+   "name": "entrance to A10",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 51,
+   "y": 97,
+   "code": 49161,
+   "kind": "level_entrance",
+   "name": "entrance to A10",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 68,
+   "y": 97,
+   "code": 61450,
+   "kind": "marker",
+   "name": "done-flag spot for A11",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 49,
+   "y": 98,
+   "code": 49161,
+   "kind": "level_entrance",
+   "name": "entrance to A10",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 50,
+   "y": 98,
+   "code": 49161,
+   "kind": "level_entrance",
+   "name": "entrance to A10",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 51,
+   "y": 98,
+   "code": 49161,
+   "kind": "level_entrance",
+   "name": "entrance to A10",
+   "difficulty": "",
+   "glyph": "L"
+  },
+  {
+   "x": 52,
+   "y": 98,
+   "code": 53257,
+   "kind": "marker",
+   "name": "removed when A10 is done",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 39,
+   "y": 100,
+   "code": 6170,
+   "kind": "door_link",
+   "name": "Warp target (24,26)",
+   "difficulty": "",
+   "glyph": null,
+   "target": [
+    24,
+    26
+   ]
+  },
+  {
+   "x": 54,
+   "y": 101,
+   "code": 61449,
+   "kind": "marker",
+   "name": "done-flag spot for A10",
+   "difficulty": "",
+   "glyph": null
+  }
+ ]
+}
