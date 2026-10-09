@@ -522,6 +522,16 @@ function loadLevel(n) {
     if (lv.back[y][x] || SOLID.has(rows[y][x])) continue;
     for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) if ((lv.back[y + dy] || [])[x + dx]) lv.back[y][x] = true;
   }
+  /* Poom stands with his feet at the bottom of the start tile, but he is
+     taller than a tile: under a low ceiling that puts his head in the rock.
+     Ease him down (or up) to the nearest spot clear of solid tiles. */
+  if (lv.p && !rectClear(lv, lv.p.x, lv.p.y, lv.p.w, lv.p.h)) {
+    const y0 = lv.p.y;
+    for (let d = 1; d <= T * 2; d++) {
+      if (rectClear(lv, lv.p.x, y0 + d, lv.p.w, lv.p.h)) { lv.p.y = y0 + d; break; }
+      if (rectClear(lv, lv.p.x, y0 - d, lv.p.w, lv.p.h)) { lv.p.y = y0 - d; break; }
+    }
+  }
   return lv;
 }
 
