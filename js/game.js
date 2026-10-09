@@ -1280,6 +1280,17 @@ function startLevel(n) {
   sfx("enter");
   mapLabel("");   /* the map's place name is the map's: not over a level */
   levelTitle(levelName(n));
+  keyStrip();
+}
+/* the keys, along the bottom for the first seconds of the first level this
+ * browser plays, and never again; not on a touch screen, which has buttons */
+let keyStripTimer = null;
+function keyStrip() {
+  const el = document.getElementById("keystrip");
+  if (!document.getElementById("touch").hidden || seen("keystrip")) return;
+  el.classList.remove("fading"); el.hidden = false;
+  clearTimeout(keyStripTimer);
+  keyStripTimer = setTimeout(() => { el.classList.add("fading"); keyStripTimer = setTimeout(() => { el.hidden = true; }, 1000); }, 9000);
 }
 
 function updateLevel() {
@@ -1384,13 +1395,17 @@ function onShip(p) {
 
 function loseLife() {
   const snap = G.lv.snapshot;
+  /* the parts picked up in this level go back where they were */
+  const lost = G.run.parts.map((h, i) => h && !snap.parts[i] ? PART_NAMES[i] : null).filter(Boolean);
   G.run = snap;
   G.run.lives--;
   G.lv = null;
   if (G.run.lives < 0) { G.run.lives = 0; gameOver(); return; }
   enterMap();
   saveRun();
-  message(say("lostLife", n => n === 0 ? "Poom shakes it off.<br><br><b>This is your last life.</b>" : `Poom shakes it off.<br><br>${n} ${n === 1 ? "life" : "lives"} left.`, G.run.lives));
+  const one = lost.length === 1;
+  const dropped = lost.length ? `<br><br>Poom dropped ${lost.join(" and ")}. ${one ? "It's" : "They're"} back where he found ${one ? "it" : "them"}.` : "";
+  message(say("lostLife", n => n === 0 ? "Poom shakes it off.<br><br><b>This is your last life.</b>" : `Poom shakes it off.<br><br>${n} ${n === 1 ? "life" : "lives"} left.`, G.run.lives) + dropped);
 }
 
 /* ------------------------------------------------------------------ */
@@ -1398,6 +1413,7 @@ function loseLife() {
 
 function enterMap() {
   G.mode = "map";
+  document.getElementById("keystrip").hidden = true;
   dressFor(G.run.book);
   const m = G.map;
   if (G.run.mx === null) {
@@ -1495,9 +1511,46 @@ function teleport([tx, ty]) {
   mapCamera(true);
 }
 
+/* The places Poom can walk to now and hasn't done: a flood from where he
+ * stands over open ground (riding the map's teleporters), stopping at
+ * walls, barriers and, on an E1 map, the levels themselves. Worked out again
+ * only when what's done changes or Poom crosses a teleporter. */
+let openCache = { key: null, ids: [] };
+function openPlaces() {
+  const w = world(), p = G.map.p;
+  const sx = Math.floor((p.x + p.w / 2) / T), sy = Math.floor((p.y + p.h / 2) / T);
+  const key = G.run.book + "|" + Object.keys(G.run.done).sort().join() + "|" + !!G.run.swim;
+  if (openCache.key === key && openCache.seen && openCache.seen.has(sx + "," + sy)) return openCache.ids;
+  const seen = new Set(), q = [[sx, sy]], ids = new Set();
+  const walk = (tx, ty) => {
+    if (tx < 0 || ty < 0 || tx >= w.w || ty >= w.h || barrierOn(tx, ty)) return false;
+    const e = entranceAt(tx, ty);
+    if (e && !G.run.done[e]) { ids.add(e); if (w.e1) return false; }
+    const ch = mapTile(tx, ty);
+    return ch === "/" || ch === "\\" || !mapSolid(ch);
+  };
+  seen.add(sx + "," + sy);
+  while (q.length) {
+    const [x, y] = q.pop();
+    const next = [[x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]];
+    const tele = w.tele[x + "," + y]; if (tele) next.push(tele);
+    for (const [nx, ny] of next) { const k = nx + "," + ny; if (seen.has(k)) continue; if (walk(nx, ny)) { seen.add(k); q.push([nx, ny]); } }
+  }
+  openCache = { key, seen, ids: [...ids] };
+  return openCache.ids;
+}
+
 function mapCamera(snap) {
   const p = G.map.p, c = G.cam, mw = world().w * T, mh = world().h * T;
-  let tx = Math.max(0, Math.min(mw - W, p.x + p.w / 2 - W / 2)), ty = Math.max(0, Math.min(mh - H, p.y + p.h / 2 - H / 2));
+  /* before anything is done, lean the view toward the nearest open place,
+     so the way out of the crash site is on screen */
+  let fx = p.x + p.w / 2, fy = p.y + p.h / 2;
+  if (!Object.keys(G.run.done).some(id => MAPS[id] && MAPS[id].book === G.run.book)) {
+    let best = null;
+    for (const id of openPlaces()) { const b = world().box[id]; if (!b) continue; const bx = (b.x0 + b.x1 + 1) * T / 2, by = (b.y0 + b.y1 + 1) * T / 2, d = Math.hypot(bx - fx, by - fy); if (!best || d < best.d) best = { bx, by, d }; }
+    if (best && best.d < 260) { fx = (fx + best.bx) / 2; fy = (fy + best.by) / 2; }
+  }
+  let tx = Math.max(0, Math.min(mw - W, fx - W / 2)), ty = Math.max(0, Math.min(mh - H, fy - H / 2));
   c.x = snap ? tx : c.x + (tx - c.x) * 0.2; c.y = snap ? ty : c.y + (ty - c.y) * 0.2;
 }
 
@@ -1516,9 +1569,9 @@ function drawLevel() {
     if (ty < 0 || ty >= lv.h || tx < 0 || tx >= lv.w) continue;
     const ch = lv.tiles[ty][tx], x = tx * T - cx, y = ty * T - cy;
     if (lv.back[ty][tx] && !solidLike(ch)) ctx.drawImage(art.bgwall, x, y);
-    const v = (tx * 7 + ty * 13) % 3;
+    const v = tx * 7 + ty * 13;
     if (ch === "#" && lv.deckAt.has(tx + "," + ty)) ctx.drawImage(art.bridge, x, y);
-    else if (ch === "#" || ch === "%") ctx.drawImage(solidLike((lv.tiles[ty - 1] || [])[tx]) ? art.ground[v] : art.groundTop[v], x, y);
+    else if (ch === "#" || ch === "%") { const set = solidLike((lv.tiles[ty - 1] || [])[tx]) ? art.ground : art.groundTop; ctx.drawImage(set[v % set.length], x, y); }
     else if (ch === "=") ctx.drawImage(art.brick, x, y);
     else if (ch === "-") ctx.drawImage(art.plat, x, y);
     else if (ch === "^") ctx.drawImage(art.spikes, x, y);
@@ -1731,6 +1784,15 @@ function drawMap() {
     const mx = (b.x0 + b.x1 + 1) * T / 2 - 16 - cx, my = (b.y1 + 1) * T - 32 - cy;
     if (mx > -32 && mx < W && my > -32 && my < H) ctx.drawImage(mapArt.markerFor[kind], mx, my);
   }
+  /* a bobbing arrow over each place Poom can reach and hasn't done */
+  const bob = Math.round(Math.sin(m.t / 12) * 2);
+  for (const id of openPlaces()) {
+    const b = world().box[id]; if (!b) continue;
+    const ax = Math.round((b.x0 + b.x1 + 1) * T / 2) - cx, ay = b.y0 * T - cy - (mapArt.markerFor ? 10 : 9) + bob;
+    if (ax < -8 || ax > W + 8 || ay < -8 || ay > H + 8) continue;
+    ctx.fillStyle = "#000"; ctx.beginPath(); ctx.moveTo(ax - 7, ay - 1); ctx.lineTo(ax + 7, ay - 1); ctx.lineTo(ax, ay + 8); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = mapArt.markerFor ? "#ffd23f" : EGA[14]; ctx.beginPath(); ctx.moveTo(ax - 5, ay); ctx.lineTo(ax + 5, ay); ctx.lineTo(ax, ay + 6); ctx.closePath(); ctx.fill();
+  }
   /* the ship, on its two tiles and the two above */
   if (world().ship) { const [sx, sy] = world().ship; ctx.drawImage(mapArt.ship, sx * T - cx, (sy - 1) * T - cy); }
   /* done flags: on the map's own flag spot, or the level's first entrance tile */
@@ -1804,7 +1866,8 @@ function drawWasteTitle(t) {
   for (let i = 0; i < 6; i++) {
     const k = ((t * 0.4) + i * 17) % 100;
     ctx.fillStyle = `rgba(70, 64, 60, ${0.6 * (1 - k / 100)})`;
-    ctx.beginPath(); ctx.arc(58 + k * 0.3 + Math.sin((t + i * 40) / 25) * 2, 150 - k * 0.8, 2 + k * 0.07, 0, Math.PI * 2); ctx.fill();
+    /* drifting right on the wind, clear of the sun behind the wreck */
+    ctx.beginPath(); ctx.arc(70 + k * 0.9 + Math.sin((t + i * 40) / 25) * 2, 150 - k * 0.6, 2 + k * 0.07, 0, Math.PI * 2); ctx.fill();
   }
   const pose = (t >> 5) % 8 === 0 ? "shoot" : "stand", spr = ART.poom[pose].r;
   ctx.drawImage(spr, 76, 192 - spr.height);
@@ -1845,15 +1908,21 @@ function el(tag, cls, html) { const e = document.createElement(tag); if (cls) e.
 function imgOf(c, scale = 1) { const i = new Image(); i.src = c.toDataURL(); i.width = c.width * scale; i.height = c.height * scale; i.className = "px"; i.alt = ""; return i; }
 
 /* a Keen-style message box; any key closes it */
-function message(html, { icon = null, iconRow = null, onClose = null } = {}) {
+function message(html, { icon = null, iconRow = null, onClose = null, hint = "press a key", onSkip = null } = {}) {
   const box = el("div", "box msg");
   if (icon) box.appendChild(imgOf(icon, 2));
   if (iconRow) { const row = el("div", "iconrow"); iconRow.forEach((h, i) => { const im = imgOf(ART.parts[i], 1); if (!h) im.classList.add("missing"); row.appendChild(im); }); box.appendChild(row); }
   box.appendChild(el("p", null, html));
-  box.appendChild(el("p", "hint", "press a key"));
+  box.appendChild(el("p", "hint", hint));
   const wrap = el("div", "overlay"); wrap.appendChild(box);
   let armed = false; setTimeout(() => { armed = true; }, 250);
-  const o = { el: wrap, onClose, key(ev) { if (!armed && !ev.synthetic) return; if (ev.preventDefault) ev.preventDefault(); UI.pop(); } };
+  /* onSkip: Esc leaves a run of pages altogether, instead of turning one */
+  const o = { el: wrap, onClose, key(ev) {
+    if (!armed && !ev.synthetic) return;
+    if (ev.preventDefault) ev.preventDefault();
+    if (onSkip && ev.code === "Escape") { o.onClose = null; UI.pop(); onSkip(); return; }
+    UI.pop();
+  } };
   wrap.addEventListener("pointerdown", () => { if (armed) UI.pop(); });
   UI.push(o);
 }
@@ -1956,11 +2025,13 @@ function statusWindow() {
   row("Extra life at", String(r.nextLife));
   row("Lives", String(r.lives));
   row("Raygun", say("raygun", n => n ? `${n} charge${n === 1 ? "" : "s"}` : "empty", r.ammo));
-  const keys = el("span"); (G.lv ? G.lv.keys : [false, false, false, false]).forEach((k, i) => { const im = imgOf(ART.gems[i]); if (!k) im.classList.add("missing"); keys.appendChild(im); });
+  /* the four colours, and the fifth only once it's held */
+  const held = G.lv ? G.lv.keys : [false, false, false, false];
+  const keys = el("span"); held.forEach((k, i) => { if (i > 3 && !k) return; const im = imgOf(ART.gems[i]); if (!k) im.classList.add("missing"); keys.appendChild(im); });
   row("Keycards", keys);
   const parts = el("span"); r.parts.forEach((h, i) => { const im = imgOf(ART.parts[i]); im.title = PART_NAMES[i]; if (!h) im.classList.add("missing"); parts.appendChild(im); });
-  if (world().ship) parts.appendChild(el("span", null, ` ${(r.aboard || []).filter(Boolean).length} aboard`));
   row("Ship parts", parts);
+  if (world().ship) row("Aboard", `${(r.aboard || []).filter(Boolean).length} of 4`);
   row("Book", String(bookNumber(r.book)));
   if (r.swim) row("Swimming", "yes");
   row("Levels done", `${world().need.filter(id => r.done[id]).length} of ${world().need.length}`);
@@ -2036,8 +2107,8 @@ const BOOK_TEXT = {
 <p>Before the engines have stopped ticking, the <b>Scrappers</b>, a raider gang who strip anything that falls from the sky, have hauled off four of the ship's parts.</p>
 <p>Their boss, <b>Junk Baron Rex</b>, gave one to each of his four lieutenants, and each locked it away on their own turf: two in the old underground <b>Vaults</b>, one in <b>Fort Scrap</b>, one in the ruins of <b>Old Litterburg</b>.</p>
 <p>Cross the Glow, get past the locks, take the parts back and bolt them into the Catamaran before the Scrappers come back for the rest. And keep an ear on the radio: <b>Auntie Static</b> seems to know things.</p>`,
-    arrive: "This is the Glow. Walk up to a place and press <kbd>Ctrl</kbd>, <kbd>Z</kbd> or <kbd>Space</kbd> to go in.<br><br><kbd>Esc</kbd> pauses; <kbd>Enter</kbd> shows your status.",
-    map: `<p>On the map, walk up to a place and press jump or fire to go in. A place you haven't cleared blocks the road; a banner marks the ones you have. Jump or fire at a <b>Tube station</b> to ride to the other end. Take the ship's parts back to the <b>Catamaran</b>, where you came down.</p>`,
+    arrive: "This is the Glow. The road out of the crash valley starts at <b>The Valley Road</b>, just east of the ship.<br><br>An arrow marks each place you can reach. Walk up to one and press <kbd>Ctrl</kbd>, <kbd>Z</kbd> or <kbd>Space</kbd> to go in.",
+    map: `<p>On the map, walk up to a place and press jump or fire to go in. An arrow marks each place you can reach; a place you haven't cleared blocks the road; a banner marks the ones you have. Jump or fire at a <b>Tube station</b> to ride to the other end. Take the ship's parts back to the <b>Catamaran</b>, where you came down.</p>`,
     creatures: () => { const C = ART.creatureSets.wasteland; return [
       [C.mousel.walk0.r, "Glowmouse", "A mutant mouse: harmless, nosy and pushy. Jump on one to stun it for a while."],
       [C.barker.walk0.r, "Scrap hound", "The Scrappers' dogs. They charge the moment they see you. One shot."],
@@ -2093,7 +2164,7 @@ const BOOK_TEXT = {
       water: "Glowing water. Poom isn't going in that. Not yet.",
       blocked: "The road's shut. Clear the places nearby.",
       levelDone: name => `${name}: cleared.`,
-      raygun: n => n ? `${n} shot${n === 1 ? "" : "s"}` : "empty",
+      raygun: n => `${n} shot${n === 1 ? "" : "s"}`,
       gameOver: n => `<b>Game over.</b><br><br>The Glow wins this one. Commander Poom is out of lives. Final score: ${n}.`,
       highScore: n => `<b>A high score!</b><br><br>${n} caps' worth. Auntie Static wants your name for the broadcast.`,
     },
@@ -2207,7 +2278,7 @@ function recordScore(score, done) {
 function openTitle() {
   UI.clear();
   dressFor(themeBook());
-  G.mode = "title"; G.lv = null; mapLabel("");
+  G.mode = "title"; G.lv = null; mapLabel(""); document.getElementById("keystrip").hidden = true;
   const saved = store.get(KEYS.save, null);
   showLogo();
   const items = [
@@ -2233,7 +2304,7 @@ function showLogo(line = theme.subtitle) {
   clearTimeout(logoTimer); logoTimer = null;
   const el = logoEl();
   el.querySelector(".ep").textContent = line;
-  el.classList.remove("fading");
+  el.classList.remove("fading", "level");
   el.hidden = false;
 }
 function hideLogo() { clearTimeout(logoTimer); logoTimer = null; logoEl().hidden = true; logoEl().classList.remove("fading"); }
@@ -2244,16 +2315,18 @@ function fadeLogo(after = 0) {
     logoTimer = setTimeout(hideLogo, 1000);
   }, after);
 }
-function levelTitle(name) { showLogo(name); fadeLogo(2000); }
+function levelTitle(name) { showLogo(name); logoEl().classList.add("level"); fadeLogo(2000); }
 
 function story() {
   G.mode = "story";
   const B = textBook();
   const pages = (B ? B.story : STORY).split("</p>").map(s => s.replace("<p>", "").trim()).filter(Boolean);
   let i = 0;
+  const arrive = () => { enterMap(); saveRun(); message(B ? B.arrive : "This is Planet Hiss. Walk to a level and press <kbd>Ctrl</kbd>, <kbd>Z</kbd> or <kbd>Space</kbd> to go in.<br><br><kbd>Esc</kbd> pauses; <kbd>Enter</kbd> shows your status."); };
+  /* a page count, and Esc to skip to the map: the Help keeps the story */
   const next = () => {
-    if (i >= pages.length) { enterMap(); saveRun(); message(B ? B.arrive : "This is Planet Hiss. Walk to a level and press <kbd>Ctrl</kbd>, <kbd>Z</kbd> or <kbd>Space</kbd> to go in.<br><br><kbd>Esc</kbd> pauses; <kbd>Enter</kbd> shows your status."); return; }
-    message(pages[i++], { onClose: next });
+    if (i >= pages.length) { arrive(); return; }
+    message(pages[i++], { onClose: next, onSkip: arrive, hint: `${i} of ${pages.length} &middot; any key &middot; <kbd>Esc</kbd> skips` });
   };
   next();
 }
