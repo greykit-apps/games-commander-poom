@@ -14,8 +14,9 @@ const EGA = ["#000000", "#0000aa", "#00aa00", "#00aaaa", "#aa0000", "#aa00aa", "
   "#dba363", "#a8743c", "#f6e3bd", "#3a2412",
   /* the ranger look (Book 1): l m n a duster, dark to light; o p q a combat
    * helmet, dark to light; r s the goggles' red and their glow; t the tan
-   * strap; u boots */
-  "#2e2016", "#4e3826", "#70533a", "#26272a", "#43464a", "#6c7076", "#c8261c", "#ff8a6a", "#b88a54", "#1c130c"];
+   * strap; u boots. Lit a step brighter than the Glow's concrete and brick,
+   * so Poom reads at a glance against them */
+  "#3a2818", "#6e4c2e", "#9a7448", "#2c2e32", "#5c6168", "#a2a8b0", "#c8261c", "#ff8a6a", "#d8a860", "#1c130c"];
 /* grid letters for the extra colours, indexed from 16 */
 const EXTRA = "ghiklmnopqrstu";
 
@@ -1638,13 +1639,14 @@ const WEED = ["#4a4420", "#6e6430", "#948646"];
  * exit; a loudspeaker on a pole for the signs. Full colour. */
 function ruinTiles(tiles, th, mk, E) {
   const px = (g, c, x, y, w = 1, h = 1) => { g.fillStyle = c; g.fillRect(x, y, w, h); };
-  /* concrete: mottled, with a crack or two */
+  /* concrete: mottled, with a faint crack on some blocks; kept quiet so
+     the walls sit behind the sprites */
   const concrete = (g, r) => {
     px(g, CONCRETE[4], 0, 0, T, T);
     for (let i = 0; i < 40; i++) px(g, CONCRETE[3 + (r() * 3 | 0)], r() * T | 0, r() * T | 0, 1 + (r() * 2 | 0), 1);
-    for (let k = 0; k < 2; k++) {
+    if (r() < .5) {
       let x = r() * T | 0, y = r() * 6 | 0;
-      for (let i = 0; i < 7; i++) { px(g, CONCRETE[1], x, y); px(g, CONCRETE[6], x + 1, y); x += (r() * 3 | 0) - 1; y++; if (x < 0 || x >= T) break; }
+      for (let i = 0; i < 6; i++) { px(g, CONCRETE[2], x, y); px(g, CONCRETE[5], x + 1, y); x += (r() * 3 | 0) - 1; y++; if (x < 0 || x >= T) break; }
     }
   };
   const block = (top, kind, seed) => mk(g => {
@@ -1662,7 +1664,7 @@ function ruinTiles(tiles, th, mk, E) {
       const sx = 3 + (r() * 6 | 0), sy = 5 + (r() * 5 | 0);
       for (const [dx, dy, w] of [[1, 0, 4], [0, 1, 6], [0, 2, 7], [1, 3, 5], [2, 4, 3]]) px(g, CONCRETE[2], sx + dx, sy + dy, w, 1);
       px(g, CONCRETE[1], sx + 1, sy + 4, 4, 1); px(g, CONCRETE[6], sx + 1, sy - 1, 4, 1);
-      for (let k = 0; k < 6; k++) px(g, k ? RUST[4] : RUST[6], sx + k, sy + 2);
+      for (let k = 0; k < 6; k++) px(g, k ? RUST[3] : RUST[4], sx + k, sy + 2);
       px(g, RUST[2], sx + 1, sy + 3, 5, 1);
     }
     px(g, CONCRETE[1], 0, T - 1, T, 1); px(g, CONCRETE[2], T - 1, 0, 1, T);
@@ -1676,8 +1678,10 @@ function ruinTiles(tiles, th, mk, E) {
       if (r() < .6) { const x = 2 + (r() * 11 | 0); px(g, WEED[1], x, 0, 1, 2); px(g, WEED[2], x + 1, 0, 1, 1); px(g, WEED[0], x - 1, 1, 1, 1); }
     }
   });
-  tiles.ground = [block(false, 0, 5), block(false, 1, 17), block(false, 2, 29)];
-  tiles.groundTop = [block(true, 0, 9), block(true, 0, 21), block(true, 1, 33)];
+  /* mostly plain concrete: the spalls and the brick are the exception, so the
+     walls sit behind the sprites rather than competing with them */
+  tiles.ground = [block(false, 0, 5), block(false, 0, 41), block(false, 1, 17), block(false, 0, 53), block(false, 0, 61), block(false, 2, 29)];
+  tiles.groundTop = [block(true, 0, 9), block(true, 0, 21), block(true, 0, 45), block(true, 1, 33), block(true, 0, 57)];
 
   /* a ledge is a rusted I-beam: flanges top and bottom, a riveted web */
   tiles.plat = mk(g => {

@@ -26,7 +26,7 @@ const s = paintWasteTitle(mapArt.shipBare, 400, 210), x = s.getContext("2d");
 x.imageSmoothingEnabled = false;
 for (let i = 0; i < 90; i++) { const sy = (i * 61) % 70; x.fillStyle = i % 3 ? "#c8c0d8" : "#ffe9a8"; x.fillRect((i * 97) % 400, sy, 1, 1); }
 x.fillStyle = "#ff3b2f"; x.fillRect(14, 102, 2, 2);
-for (let i = 0; i < 3; i++) { x.fillStyle = `rgba(70, 64, 60, ${0.55 - i * 0.15})`; x.beginPath(); x.arc(58 + i * 4, 148 - i * 9, 2 + i, 0, Math.PI * 2); x.fill(); }
+for (let i = 0; i < 3; i++) { x.fillStyle = `rgba(70, 64, 60, ${0.55 - i * 0.15})`; x.beginPath(); x.arc(72 + i * 9, 148 - i * 6, 2 + i, 0, Math.PI * 2); x.fill(); }
 const foot = (spr, px) => x.drawImage(spr, px, 192 - spr.height);
 foot(ART.poom.stand.r, 76);
 foot(ART.mousel.walk0.l, 190);
