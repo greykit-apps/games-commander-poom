@@ -192,7 +192,9 @@ const levelName = id => `Book ${MAPS[id].book}, level ${+id.slice(1) - 1}`;
 const WORLDS = {};
 for (const b of BOOK_IDS) {
   const w = BOOKS[b].world, at = (x, y) => x + "," + y;
-  const W_ = { rows: w.rows, w: w.w, h: w.h, entrance: {}, barrier: {}, flag: {}, first: {}, need: [] };
+  const W_ = { rows: w.rows, w: w.w, h: w.h, entrance: {}, barrier: {}, flag: {}, first: {}, need: [], tele: {} };
+  /* teleporters: a Q tile with a link goes to the link's target */
+  for (const [x, y, tx, ty, kind] of w.links || []) if (kind === "door" && (w.rows[y] || "")[x] === "Q") W_.tele[at(x, y)] = [tx, ty];
   for (const [x, y, g, name] of w.things) {
     const m = /^entrance to ([A-I]\d\d)/.exec(name);
     if (g === "l" && m && MAPS[m[1]]) { W_.entrance[at(x, y)] = m[1]; if (!W_.first[m[1]]) W_.first[m[1]] = [x, y]; }
@@ -1146,7 +1148,23 @@ function updateMap() {
     if (G.run.done[here]) { toast(`${levelName(here)}: done.`); sfx("nope"); }
     else { saveRun(); startLevel(here); }
   }
+  const tele = world().tele[ctx_ + "," + cty];
+  if (tele && !here && (wasPressed("jump") || wasPressed("fire"))) teleport(tele);
   mapCamera(false);
+}
+
+/* a teleporter: to its target tile, or the open tile nearest it */
+function teleport([tx, ty]) {
+  const p = G.map.p, open = (x, y) => !mapSolid(mapTile(x, y));
+  let spot = null;
+  for (let r = 0; r <= 3 && !spot; r++)
+    for (let dy = -r; dy <= r && !spot; dy++) for (let dx = -r; dx <= r && !spot; dx++)
+      if (Math.max(Math.abs(dx), Math.abs(dy)) === r && open(tx + dx, ty + dy)) spot = [tx + dx, ty + dy];
+  if (!spot) { sfx("nope"); return; }
+  p.x = spot[0] * T + (T - p.w) / 2; p.y = spot[1] * T + (T - p.h) / 2;
+  G.run.mx = p.x; G.run.my = p.y;
+  sfx("enter");
+  mapCamera(true);
 }
 
 function mapCamera(snap) {
@@ -1316,6 +1334,7 @@ function drawMap() {
     if (barrierOn(tx, ty)) ctx.drawImage(mapArt.field[(m.t >> 2) % 3], x, y);
     else if (ch === "#") ctx.drawImage(mapArt.rock, x, y);
     else if (ent) ctx.drawImage(mapArt.marker[MARKER_KINDS[+ent.slice(1) % MARKER_KINDS.length]], x, y);
+    else if (ch === "Q") ctx.drawImage(mapArt.tele[(m.t >> 3) % 2], x, y);
   }
   /* done flags: on the map's own flag spot, or the level's first entrance tile */
   const w = world();
@@ -1329,7 +1348,8 @@ function drawMap() {
 
   /* the name of the place underfoot */
   const here = entranceAt(Math.floor((p.x + p.w / 2) / T), Math.floor((p.y + p.h / 2) / T));
-  const label = here ? levelName(here) + (G.run.done[here] ? " (done)" : "") : "";
+  const onTele = !here && world().tele[Math.floor((p.x + p.w / 2) / T) + "," + Math.floor((p.y + p.h / 2) / T)];
+  const label = here ? levelName(here) + (G.run.done[here] ? " (done)" : "") : onTele ? "Teleporter" : "";
   mapLabel(label);
   drawHud(null);
 }

@@ -1207,6 +1207,13 @@ function paintMapTiles() {
     if (kind === "gate") { g.fillStyle = E(2); g.fillRect(2, 4, 3, 12); g.fillRect(11, 4, 3, 12); g.fillStyle = E(10); g.beginPath(); g.arc(8, 6, 6, Math.PI, 0); g.lineWidth = 2; g.strokeStyle = E(10); g.stroke(); g.fillStyle = E(13); g.fillRect(7, 1, 2, 2); }
     if (kind === "igloo") { g.fillStyle = E(15); g.beginPath(); g.arc(8, 14, 7, Math.PI, 0); g.fill(); g.fillStyle = E(11); g.fillRect(2, 10, 12, 1); g.fillRect(4, 7, 8, 1); g.fillStyle = E(1); g.fillRect(6, 10, 4, 5); }
   });
+  /* a teleporter pad: a ring on the ground, its light pulsing */
+  const tele = [0, 1].map(f => mk(g => {
+    g.drawImage(ground, 0, 0);
+    g.fillStyle = E(8); g.beginPath(); g.ellipse(8, 10, 7, 4, 0, 0, Math.PI * 2); g.fill();
+    g.fillStyle = E(f ? 13 : 5); g.beginPath(); g.ellipse(8, 10, 5, 2.5, 0, 0, Math.PI * 2); g.fill();
+    g.fillStyle = E(f ? 15 : 13); for (const [x, y] of [[4, 3], [8, 1], [12, 4]]) g.fillRect(x, y + f, 1, 2);
+  }));
   /* the done flag, over a marker */
   const flag = mk(g => { g.fillStyle = E(15); g.fillRect(3, 1, 1, 14); g.fillStyle = E(10); g.fillRect(4, 1, 8, 5); g.fillStyle = E(2); g.fillRect(4, 4, 8, 2); g.fillStyle = E(0); g.font = "bold 5px monospace"; });
   /* the Catamaran, the ship: 32x32 */
@@ -1222,5 +1229,5 @@ function paintMapTiles() {
   const ship = makeCanvas(32, 32); { const g = ship.getContext("2d");
     for (const [x, y] of [[0, 0], [16, 0], [0, 16], [16, 16]]) g.drawImage(ground, x, y);
     g.drawImage(shipBare, 0, 0); }
-  return { shipBare, ground, path, rock, water, tree, field, flag, ship, marker: { dome: marker("dome"), cave: marker("cave"), fort: marker("fort"), castle: marker("castle"), gate: marker("gate"), igloo: marker("igloo") } };
+  return { shipBare, ground, path, rock, water, tree, field, flag, ship, tele, marker: { dome: marker("dome"), cave: marker("cave"), fort: marker("fort"), castle: marker("castle"), gate: marker("gate"), igloo: marker("igloo") } };
 }
