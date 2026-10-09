@@ -1078,7 +1078,7 @@ function startLevel(n) {
   G.mode = "level";
   centerCamera(true);
   sfx("enter");
-  card(levelName(n));
+  levelTitle(levelName(n));
 }
 
 function updateLevel() {
@@ -1753,7 +1753,7 @@ function openTitle() {
   UI.clear();
   G.mode = "title"; G.lv = null; mapLabel("");
   const saved = store.get(KEYS.save, null);
-  document.getElementById("logo").hidden = false;
+  showLogo();
   const items = [
     saved ? { label: "Continue game", key: "R", meta: `score ${saved.score}`, act: () => { UI.clear(); hideLogo(); G.run = saved; enterMap(); } } : null,
     { label: "New game", key: "N", act: () => {
@@ -1768,7 +1768,28 @@ function openTitle() {
   ].filter(Boolean);
   menu("", items, { cls: "title", footer: '<span class="gk-credit">Built by <a href="https://greykit.com/" target="_blank" rel="noopener">greykit.com</a></span>' });
 }
-function hideLogo() { document.getElementById("logo").hidden = true; }
+/* The logo: the title screen's, with its episode line, and a level's title
+ * card, with the level's name, which fades after a moment. Nothing keeps
+ * it up over play: frame() fades it if it's left showing. */
+const logoEl = () => document.getElementById("logo");
+const LOGO_LINE = "Episode One: Lost on Planet Hiss";
+let logoTimer = null;
+function showLogo(line = LOGO_LINE) {
+  clearTimeout(logoTimer); logoTimer = null;
+  const el = logoEl();
+  el.querySelector(".ep").textContent = line;
+  el.classList.remove("fading");
+  el.hidden = false;
+}
+function hideLogo() { clearTimeout(logoTimer); logoTimer = null; logoEl().hidden = true; logoEl().classList.remove("fading"); }
+function fadeLogo(after = 0) {
+  clearTimeout(logoTimer);
+  logoTimer = setTimeout(() => {
+    logoEl().classList.add("fading");
+    logoTimer = setTimeout(hideLogo, 1000);
+  }, after);
+}
+function levelTitle(name) { showLogo(name); fadeLogo(2000); }
 
 function story() {
   G.mode = "story";
@@ -1861,6 +1882,7 @@ function frame(now) {
     }
     pressed.clear();
   }
+  if ((G.mode === "level" || G.mode === "map") && !logoEl().hidden && !logoEl().classList.contains("fading") && !logoTimer) fadeLogo(0);
   if (G.mode === "level" && G.lv) drawLevel();
   else if (G.mode === "map" || (G.mode === "story" && G.map.p) || G.mode === "ending") { if (G.map.p) drawMap(); else drawTitleScene(G.t); }
   else drawTitleScene(G.t);
