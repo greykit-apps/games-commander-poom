@@ -2068,8 +2068,7 @@ function openHelp() {
   ]);
 }
 
-const aboutText = () => `<p><b>Commander Poom</b> &mdash; <i>${theme.subtitle}</i>.</p>
-<p>A love letter to the Commander Keen games of 1990 and 1991, and to sixteen colours, a PC speaker and a pogo stick. Every sprite, level and sound is new; nothing is borrowed but the feeling.</p>
+const aboutText = () => `<p>A love letter to Commander Keen and a growing list of mashups.</p>
 <p class="credit gk-credit">Built by <a href="https://greykit.com/" target="_blank" rel="noopener">greykit.com</a></p>`;
 
 function openSettings() {
