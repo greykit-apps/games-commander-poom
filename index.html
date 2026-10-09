@@ -61,6 +61,11 @@ kbd{font:inherit;color:var(--ui-head)}
 #logo[hidden]{display:none}
 #logo{transition:opacity 1s ease}
 #logo.fading{opacity:0}
+/* entering a level: no big logo over the playfield, just the place's name
+   on a plate near the top (game.js levelTitle) */
+#logo.level .cmd,#logo.level .poom{display:none}
+#logo.level .ep{display:inline-block;margin-top:26px;padding:4px 9px;font-size:8px;color:var(--ui-head);
+  background:var(--ui-chip);border:1px solid var(--ui-chip-edge);box-shadow:0 0 0 1px #000}
 /* the logo by theme (game.js dressFor): the wasteland's is amber and rust */
 #logo[data-look="wasteland"] .cmd{color:#ffb85a;text-shadow:1px 1px 0 #5a2410}
 #logo[data-look="wasteland"] .poom{color:#ffd23f;text-shadow:1px 1px 0 #d07a36,2px 2px 0 #d07a36,3px 3px 0 #7a3a1c,4px 4px 0 #7a3a1c,5px 5px 0 #000}
@@ -69,10 +74,12 @@ kbd{font:inherit;color:var(--ui-head)}
 /* ---- the UI's colours, by theme (game.js dressFor sets #ui's data-look);
    classic is the original EGA blue box ---- */
 #ui{--ui-bg:var(--ega1);--ui-text:var(--ega15);--ui-accent:var(--ega11);--ui-head:var(--ega14);--ui-sel:#aa0000;
-  --ui-tab:var(--ega9);--ui-body:#dfe8ff;--ui-dim:var(--ega7);--ui-me:var(--ega12)}
+  --ui-tab:var(--ega9);--ui-body:#dfe8ff;--ui-dim:var(--ega7);--ui-me:var(--ega12);
+  --ui-chip:#000;--ui-chip-edge:var(--ega8)}
 /* the wasteland's is a rusted steel plate, amber lettering, rust highlight */
 #ui[data-look="wasteland"]{--ui-bg:#2e1e16;--ui-text:#f0d8b0;--ui-accent:#e0a050;--ui-head:#ffd23f;--ui-sel:#8a3218;
-  --ui-tab:#7a4a2a;--ui-body:#e8d4b4;--ui-dim:#a08060;--ui-me:#ff8a50}
+  --ui-tab:#7a4a2a;--ui-body:#e8d4b4;--ui-dim:#a08060;--ui-me:#ff8a50;
+  --ui-chip:#2e1e16;--ui-chip-edge:#8a5a32}
 /* the canon scrollbar (gk-title.js) is steel blue; a themed UI repaints it */
 #ui[data-look="wasteland"] *{scrollbar-color:#8a5a32 transparent}
 #ui[data-look="wasteland"] ::-webkit-scrollbar-thumb{background:#8a5a32;background-clip:padding-box}
@@ -144,12 +151,17 @@ kbd{font:inherit;color:var(--ui-head)}
 .sgrid img{margin-right:3px}
 
 /* ---- map label, toasts, sound ---- */
-#maplabel{position:absolute;left:50%;bottom:4px;transform:translateX(-50%);background:#000;border:1px solid var(--ega8);
+#maplabel{position:absolute;left:50%;bottom:4px;transform:translateX(-50%);background:var(--ui-chip);border:1px solid var(--ui-chip-edge);
   padding:2px 6px;font-size:6px;color:var(--ui-head);white-space:nowrap;z-index:2}
+/* the keys, once, in the first level a browser plays (game.js keyStrip) */
+#keystrip{position:absolute;left:50%;bottom:5px;transform:translateX(-50%);background:var(--ui-chip);border:1px solid var(--ui-chip-edge);
+  padding:3px 7px;font-size:6px;line-height:1.8;color:var(--ui-text);text-align:center;white-space:nowrap;z-index:3;transition:opacity 1s ease}
+#keystrip kbd{color:var(--ui-head)}
+#keystrip.fading{opacity:0}
 #toast{position:absolute;left:50%;top:30px;transform:translateX(-50%);background:var(--ui-bg);border:1px solid var(--ui-accent);
   padding:3px 6px;font-size:6px;max-width:260px;text-align:center;z-index:6}
 #snd{position:absolute;right:3px;top:3px;z-index:7;font:inherit;font-size:7px;width:13px;height:13px;padding:0;line-height:1;
-  background:#000;color:var(--ui-accent);border:1px solid var(--ega8);cursor:pointer}
+  background:var(--ui-chip);color:var(--ui-accent);border:1px solid var(--ui-chip-edge);cursor:pointer}
 #snd[aria-pressed="false"]{color:var(--ega8)}
 [hidden]{display:none!important}
 
@@ -176,6 +188,7 @@ kbd{font:inherit;color:var(--ui-head)}
     <div id="logo"><div class="cmd">COMMANDER</div><div class="poom">POOM</div><div class="ep">Book One: Down in the Glow</div></div>
     <div id="maplabel" hidden></div>
     <div id="toast" hidden role="status"></div>
+    <div id="keystrip" hidden><kbd>Ctrl</kbd>/<kbd>Z</kbd> jump &middot; <kbd>Alt</kbd>/<kbd>X</kbd> pogo &middot; <kbd>Space</kbd>/<kbd>C</kbd> fire<br><kbd>&uarr;</kbd> doors and signs &middot; <kbd>Enter</kbd> status &middot; <kbd>Esc</kbd> pause</div>
     <button id="snd" aria-label="Sound" aria-pressed="true" title="Sound (M)">♪</button>
   </div>
 </div>
@@ -187,7 +200,7 @@ kbd{font:inherit;color:var(--ui-head)}
   <button data-a="pause" aria-label="Pause">II</button><button data-a="status" aria-label="Status">?</button>
 </div>
 <script src="js/gk-title.js?v=6080c669"></script>
-<script src="js/art.js?v=2f6572f6"></script>
+<script src="js/art.js?v=69e7ea33"></script>
 <script src="js/books/A.js?v=161a0844"></script>
 <script src="js/books/B.js?v=7a5b59b7"></script>
 <script src="js/books/C.js?v=6d474a92"></script>
@@ -197,6 +210,6 @@ kbd{font:inherit;color:var(--ui-head)}
 <script src="js/books/G.js?v=271fc791"></script>
 <script src="js/books/H.js?v=4ae984c1"></script>
 <script src="js/books/I.js?v=13d9ef6c"></script>
-<script src="js/game.js?v=25935002"></script>
+<script src="js/game.js?v=5a961c95"></script>
 </body>
 </html>
