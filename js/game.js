@@ -367,7 +367,9 @@ function seen(id) { const s = store.get(KEYS.seen, {}); if (s[id]) return true; 
 function addScore(n) {
   const r = G.run;
   r.score += n;
-  while (r.score >= r.nextLife) { r.nextLife += 20000; r.lives++; sfx("life"); popup(G.lv && G.lv.p, "1UP"); }
+  /* an extra life at 20,000, then each time the score doubles: 40,000,
+     80,000 and on, so a Book full of pickups doesn't hand out dozens */
+  while (r.score >= r.nextLife) { r.nextLife *= 2; r.lives++; sfx("life"); popup(G.lv && G.lv.p, "1UP"); }
 }
 
 /* ------------------------------------------------------------------ */
@@ -1350,9 +1352,11 @@ function bookDone() {
   const r = G.run, next = BOOK_IDS[BOOK_IDS.indexOf(r.book) + 1];
   if (!next) { ending(); return; }
   const was = r.book, pages = BOOK_TEXT[was] && BOOK_TEXT[was].ending;
-  /* a book with its own ending plays it before moving on */
-  if (pages) playPages(pages(r.score, bookNumber(next)), moveOn);
-  else moveOn();
+  /* a book with its own ending plays it, then the score goes on the table
+     (the run keeps its line there for later Books), then on to the next */
+  const onward = () => recordScore(r.score, k => { moveOn(); if (k >= 0) openScores(k); });
+  if (pages) playPages(pages(r.score, bookNumber(next)), onward);
+  else onward();
   function moveOn() {
     r.book = next; r.mx = r.my = null; r.swim = false;
     r.parts = [false, false, false, false]; r.aboard = [false, false, false, false];
@@ -1411,6 +1415,19 @@ function konami(code) {
   sfx(G.run.cheat ? "life" : "nope");
   saveRun();
   toast(G.run.cheat ? say("cheatOn", "Cheat mode: infinite lives and raygun charges. No high scores this game.") : say("cheatOff", "Cheat mode off."));
+}
+
+/* Walking out of a level, from the pause menu: back to the map as Poom went
+ * in, with no life lost; what he picked up in the level stays behind */
+function leaveLevel(toTitle = false) {
+  const snap = G.lv.snapshot;
+  const lost = G.run.parts.map((h, i) => h && !snap.parts[i] ? PART_NAMES[i] : null).filter(Boolean);
+  G.run = snap;
+  G.lv = null;
+  if (toTitle) { saveRun(); return; }
+  enterMap();
+  saveRun();
+  if (lost.length) { const one = lost.length === 1; message(`Poom left ${lost.join(" and ")} behind. ${one ? "It's" : "They're"} back where he found ${one ? "it" : "them"}.`); }
 }
 
 function loseLife() {
@@ -2072,11 +2089,11 @@ function openPause() {
     { label: "Game speed", key: "G", meta: SPEEDS[speed].label, act: () => { cycleSpeed(); UI.pop(); openPause(); } },
     { label: "Help", key: "?", act: () => openHelp() },
     "gap",
-    inLevel ? { label: "Leave level", key: "L", meta: "costs a life", act: () => ask("Leave this level? It costs a life.", "Leave", () => { UI.pop(); loseLife(); }) } : null,
-    { label: "Quit to title", key: "Q", meta: inLevel ? "costs a life" : "game saved", act: () => ask(inLevel ? "Quit to the title? Leaving the level costs a life." : "Quit to the title? The game is saved.", "Quit", () => {
+    inLevel ? { label: "Leave level", key: "L", act: () => ask("Leave this level? What you picked up in it stays behind.", "Leave", () => { UI.pop(); leaveLevel(); }) } : null,
+    { label: "Quit to title", key: "Q", meta: "game saved", act: () => ask(inLevel ? "Quit to the title? The game is saved, but what you picked up in this level stays behind." : "Quit to the title? The game is saved.", "Quit", () => {
       UI.clear();
-      if (inLevel) { G.run = G.lv.snapshot; if (!G.run.cheat) G.run.lives = Math.max(0, G.run.lives - 1); G.lv = null; }
-      saveRun(); openTitle();
+      if (inLevel) leaveLevel(true); else saveRun();
+      openTitle();
     }) },
   ].filter(Boolean), { onBack: () => UI.pop() });
 }
@@ -2138,7 +2155,7 @@ const BOOK_TEXT = {
       [C.turret.a.r, "Auto-turret", "Fixed in place, firing along its barrel when you come near. Can't be hurt."],
     ]; },
     items: () => { const I = ART.itemSets.wasteland; return [
-      [I.items.fish, "Caps, tuna, clean water, Sunny Snax, a medal, a trophy", "100, 200, 500, 1000, 2000 and 5000 points. An extra life every 20,000."],
+      [I.items.fish, "Caps, tuna, clean water, Sunny Snax, a medal, a trophy", "100, 200, 500, 1000, 2000 and 5000 points. An extra life at 20,000, then 40,000, 80,000 and so on."],
       [I.items.ammo, "Energy cell", "Five shots for the raygun."],
       [I.items.life, "Poom bobblehead", "An extra life. Nobody knows why the Glow is full of them."],
       [I.gems[0], "Vault keycards", "Open the door of the same colour, in this level."],
@@ -2237,7 +2254,7 @@ function openHelp() {
       [ART.vac.walk0.r, "Vacuumoid", "The thieves. Deadly to touch, and it takes three shots."],
     ])],
     ["Items", spriteRow([
-      [ART.items.fish, "Fish, milk, yarn, catnip, trophy", "100, 200, 500, 1000 and 5000 points. An extra life every 20,000."],
+      [ART.items.fish, "Fish, milk, yarn, catnip, trophy", "100, 200, 500, 1000 and 5000 points. An extra life at 20,000, then 40,000, 80,000 and so on."],
       [ART.items.ammo, "Raygun charge", "Five shots."],
       [ART.items.life, "Plush Poom", "An extra life."],
       [ART.gems[0], "Keycards", "Open the door of the same colour, for this level."],
@@ -2284,14 +2301,28 @@ function enterName(score, then) {
   } });
 }
 
+/* A score onto the table. A run is recorded at the end of each Book as well
+ * as at the end of the game, so it keeps its place: an entry carries the
+ * run's id, and the run's next score replaces it rather than adding a
+ * second line for the same game. */
 function recordScore(score, done) {
-  if (G.run && G.run.cheated) { done(-1); return; }
-  const list = scores();
+  const run = G.run;
+  if (run && run.cheated) { done(-1); return; }
+  const list = scores(), sort = () => list.sort((a, b) => b[1] - a[1]);
+  const mine = run && run.scoreId ? list.findIndex(e => e[2] === run.scoreId) : -1;
+  if (mine >= 0) {
+    list[mine][1] = Math.max(list[mine][1], score); sort();
+    store.set(KEYS.scores, list);
+    done(list.findIndex(e => e[2] === run.scoreId));
+    return;
+  }
   if (score <= list[list.length - 1][1]) { done(-1); return; }
   enterName(score, name => {
-    list.push([name, score]); list.sort((a, b) => b[1] - a[1]); list.length = 7;
+    const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    list.push([name, score, id]); sort(); list.length = 7;
     store.set(KEYS.scores, list);
-    done(list.findIndex(e => e[0] === name && e[1] === score));
+    if (run) run.scoreId = id;
+    done(list.findIndex(e => e[2] === id));
   });
 }
 
