@@ -192,6 +192,11 @@ const MAPS = {};
 for (const b of BOOK_IDS) BOOKS[b].chapters.forEach(ch => ch.levels.forEach(lv => { MAPS[lv.id] = lv; lv.book = b; }));
 const levelName = id => `Book ${bookNumber(MAPS[id].book)}, level ${+id.slice(1) - 1}`;
 
+/* Teleporter pairs the data can't link: on Book H's map, objects 38 and 41
+ * are the only way between its start region and its main one. Object 46,
+ * on the island with H15, waits for the map maker's word on where it goes. */
+const TELE_PAIRS = { H: [[38, 41]] };
+
 /* what a world map's markers mean, worked out once per book */
 const WORLDS = {};
 for (const b of BOOK_IDS) {
@@ -212,6 +217,15 @@ for (const b of BOOK_IDS) {
   const start = starts.find(t => /player start/.test(t[3])) || starts[0];
   W_.start = start ? [start[0], start[1]] : [1, 1];
   W_.need = [...new Set(Object.values(W_.entrance))].sort();
+  /* E1 maps (the older engine) number their objects instead of linking them:
+   * 1-16 are levels, the rest the map's own things. An unfinished level
+   * there is a wall: Poom walks up to it to go in. */
+  W_.e1 = w.engine === "E1";
+  for (const [a, z] of TELE_PAIRS[b] || []) {
+    const find = n => w.things.find(t => t[3] === "entrance to unlisted map " + n);
+    const ta = find(a), tz = find(z);
+    if (ta && tz) { W_.tele[at(ta[0], ta[1])] = [tz[0], tz[1]]; W_.tele[at(tz[0], tz[1])] = [ta[0], ta[1]]; }
+  }
   WORLDS[b] = W_;
 }
 const world = () => WORLDS[G.run.book];
@@ -1158,6 +1172,7 @@ function mapSolid(ch) { return ch === "#" || (ch === "~" && !G.run.swim); }
  * Walls both ways: Book A's order of play depends on it. */
 function mapPointSolid(px, py) {
   const tx = Math.floor(px / T), ty = Math.floor(py / T), ch = mapTile(tx, ty);
+  if (world().e1) { const lv = entranceAt(tx, ty); if (lv && !G.run.done[lv]) return true; }
   if (ch !== "/" && ch !== "\\") return mapSolid(ch);
   const u = (px - tx * T + 0.5) / T, v = (py - ty * T + 0.5) / T;
   return ch === "/" ? u + v > 1 : v > u;
@@ -1169,6 +1184,14 @@ function boxPoints(x, y, w, h) {
   return out;
 }
 function entranceAt(tx, ty) { return world().entrance[tx + "," + ty] || null; }
+/* the level Poom is at: the one underfoot, or on an E1 map, where levels
+ * are walls until done, one he is right up against */
+function mapHere(p) {
+  const at = entranceAt(Math.floor((p.x + p.w / 2) / T), Math.floor((p.y + p.h / 2) / T));
+  if (at || !world().e1) return at;
+  for (const [cx, cy] of boxPoints(p.x - 2, p.y - 2, p.w + 4, p.h + 4)) { const e = entranceAt(Math.floor(cx / T), Math.floor(cy / T)); if (e) return e; }
+  return null;
+}
 
 function updateMap() {
   const m = G.map, p = m.p;
@@ -1189,7 +1212,7 @@ function updateMap() {
   m.t++;
 
   const ctx_ = Math.floor((p.x + p.w / 2) / T), cty = Math.floor((p.y + p.h / 2) / T);
-  const here = entranceAt(ctx_, cty);
+  const here = mapHere(p);
   if (here && (wasPressed("jump") || wasPressed("fire"))) {
     if (G.run.done[here]) { toast(`${levelName(here)}: done.`); sfx("nope"); }
     else { saveRun(); startLevel(here); }
@@ -1383,7 +1406,7 @@ function drawMap() {
     else if (ch === "#") ctx.drawImage(mapArt.rock, x, y);
     else if (ch === "/" || ch === "\\") drawDiagonal(ch === "/" ? "LR" : "LL", x, y);
     else if (ent) ctx.drawImage(mapArt.marker[MARKER_KINDS[+ent.slice(1) % MARKER_KINDS.length]], x, y);
-    else if (ch === "Q") ctx.drawImage(mapArt.tele[(m.t >> 3) % 2], x, y);
+    else if (ch === "Q" || world().tele[tx + "," + ty]) ctx.drawImage(mapArt.tele[(m.t >> 3) % 2], x, y);
   }
   /* done flags: on the map's own flag spot, or the level's first entrance tile */
   const w = world();
@@ -1396,7 +1419,7 @@ function drawMap() {
   ctx.drawImage(spr, Math.round(p.x + p.w / 2 - spr.width / 2) - cx, Math.round(p.y + p.h) - spr.height - cy + 1);
 
   /* the name of the place underfoot */
-  const here = entranceAt(Math.floor((p.x + p.w / 2) / T), Math.floor((p.y + p.h / 2) / T));
+  const here = mapHere(p);
   const onTele = !here && world().tele[Math.floor((p.x + p.w / 2) / T) + "," + Math.floor((p.y + p.h / 2) / T)];
   const label = here ? levelName(here) + (G.run.done[here] ? " (done)" : "") : onTele ? "Teleporter" : "";
   mapLabel(label);
