@@ -300,7 +300,7 @@ function loadLevel(n) {
   const rows = def.rows.map(r => [...r]);
   const h = rows.length, w = rows[0].length;
   const lv = { n, def, w, h, tiles: rows, back: [], ents: [], items: [], shots: [], fx: [], keys: [false, false, false, false, false],
-    theme, ice: false, swim: !!def.swim, t: 0, p: null, exits: [], exitAt: {}, edge: new Set(), npcs: [], endsLeft: 0, warp: {}, warpDoors: [], sockets: [], socketAt: {}, bridges: [], switchAt: {}, deckAt: new Set(), plats: [], pmark: new Map(), pswitchAt: {}, secretAt: new Set(), signDrop: {}, over: null, slope: slopesOf(rows) };
+    theme, ice: false, swim: !!def.swim, t: 0, p: null, exits: [], exitAt: {}, edge: new Set(), npcs: [], endsLeft: 0, warp: {}, warpDoors: [], sockets: [], socketAt: {}, bridges: [], switchAt: {}, deckAt: new Set(), plats: [], pmark: new Map(), pswitchAt: {}, secretAt: new Set(), signDrop: {}, signs: [], over: null, slope: slopesOf(rows) };
   /* Under a slope the maps leave the odd non-solid tile where the ground's
    * edge was drawn. Boxed in on both sides, it is ground. */
   const isSl = (x, y) => !!(lv.slope[y] && lv.slope[y][x]);
@@ -410,6 +410,7 @@ function loadLevel(n) {
     let d = 0;
     while (d < 3 && y + d + 1 < h && !isSolid(rows[y + d + 1][x]) && rows[y + d + 1][x] !== "-") d++;
     if (d < 3) lv.signDrop[x + "," + y] = d;
+    lv.signs.push({ x: x * T, y: (y + (d < 3 ? d : 0)) * T, n: lv.signs.length });
   }
 
   /* a secret exit: the level's teleporter */
@@ -614,6 +615,12 @@ function updatePlayer(lv) {
   const door = !p.climbing && warpAt(lv, p);
   if (door && !seen("warpdoor")) toast(say("warpDoor", "A door. Press \u2191 to go through."));
   if (door && wasPressed("up")) { warpTo(lv, p, door); return; }
+
+  /* a hint sign: up, standing at it, reads it */
+  const sign = !door && !p.climbing && signAt(lv, p);
+  if (sign && lv.signNear !== sign) { lv.signNear = sign; toast(say("signNear", "A sign. Press \u2191 to read it.")); }
+  if (!sign) lv.signNear = null;
+  if (sign && wasPressed("up")) { readSign(lv, sign); return; }
 
   /* a key socket: stand at it with its keycard */
   for (const k of tilesUnder(p)) {
@@ -932,6 +939,19 @@ function drawPlats(lv, cx, cy) {
 
 /* the warp door Poom is standing in, as its target, or null. The tile
  * under his middle wins, so each half of a door goes to its own place. */
+/* the hint sign Poom is standing at, if any */
+function signAt(lv, p) {
+  return lv.signs.find(s => p.x < s.x + T && p.x + p.w > s.x && p.y < s.y + T && p.y + p.h > s.y) || null;
+}
+/* a sign's words: its book's signs[level], a string or a list (one per
+ * sign in the level, in reading order); else a placeholder */
+function readSign(lv, s) {
+  const B = BOOK_TEXT[lv.def.book], said = B && B.signs && B.signs[lv.n];
+  const text = Array.isArray(said) ? said[s.n] || said[said.length - 1] : said;
+  sfx("click");
+  message(text || say("signBlank", "The sign is too faded to read."));
+}
+
 function warpAt(lv, p) {
   const mid = Math.floor((p.x + p.w / 2) / T);
   let found = null;
@@ -1856,6 +1876,7 @@ const CONTROLS = `<table>
 <tr><td><kbd>Alt</kbd> / <kbd>X</kbd></td><td>pogo stick on and off</td></tr>
 <tr><td><kbd>Space</kbd> / <kbd>C</kbd></td><td>fire the raygun</td></tr>
 <tr><td><kbd>&uarr;</kbd> <kbd>&darr;</kbd></td><td>climb a pole</td></tr>
+<tr><td><kbd>&uarr;</kbd></td><td>read a sign; go through a door</td></tr>
 <tr><td><kbd>&darr;</kbd> + jump</td><td>drop through a ledge</td></tr>
 <tr><td><kbd>Enter</kbd></td><td>status: score, lives, keycards, ship parts</td></tr>
 <tr><td><kbd>Esc</kbd></td><td>pause</td></tr>
@@ -1899,8 +1920,21 @@ const BOOK_TEXT = {
       H10: "Vault 6", H11: "Vault 9, Cold Storage", H12: "Scrapper Turf", H13: "The Lookout",
       H14: "Vault 6, the Lab", H15: "The Nest", H16: "Litterburg Main Street", H17: "Vault 9, the Deep Freeze",
     },
+    /* the hint signs, by level: who's talking, then what they say. The
+       ruins' signs are loudspeakers, the camps' graffiti, the Vaults'
+       terminals */
+    signs: {
+      H03: `<b>Auntie Static, on the loudspeaker</b><br><br><i>"Well, look at you, sugar. Fell out of the sky and landed in the Glow. Four of your bits went north with the Scrappers. I'd get them back if I were you."</i>`,
+      H07: `<b>Auntie Static, on the loudspeaker</b><br><br><i>"The Scrappers lock their loot behind Vault doors. Doors want cards, cards come in colours. Match 'em up. And sugar? Fort Scrap sits on the last Tube station that still runs. Clear it, and the Tube'll take you north."</i>`,
+      H10: `<b>A Vault terminal</b><br><br>VAULT 6 SECURITY NOTICE: Doors open only to a keycard of matching colour. Report lost cards to your Overseer.<br><br>REMINDER: The transit pad in the Lab is EXPERIMENTAL. Do not step on the transit pad.`,
+      H11: `<b>A Vault terminal</b><br><br>VAULT 9 COLD-SLEEP STATUS: COOLANT BREACH. Floors may be slippery. Have a nice day.`,
+      H12: `<b>A loudspeaker, in a Scrapper's voice</b><br><br>"THIS IS SCRAPPER TURF. EVERYTHING HERE IS OURS. INCLUDING YOU."<br><br>Then, faintly, Auntie Static: <i>"Don't mind him, sugar."</i>`,
+      H13: `<b>Scrapper graffiti</b><br><br>LT. GRIZ HAS THE SHINY THING. DON'T TOUCH THE SHINY THING.<br><br>Under it, smaller: GRIZ'S CAMP IS SOUTH. DON'T GO THERE EITHER.`,
+      H16: `<b>Auntie Static, on the loudspeaker</b><br><br><i>"Two ways out of Litterburg, sugar. Either'll do."</i>`,
+    },
     /* the game's own talk, in the Glow's words (see say()) */
     say: {
+      signNear: "A loudspeaker, a terminal, a scrawl. Press \u2191 to read it.",
       noPogo: "No pogo stick. Not yet.",
       warpDoor: "A hatch. Press \u2191 to go through.",
       socket: c => `A ${c} card reader. A ${c} keycard goes here.`,

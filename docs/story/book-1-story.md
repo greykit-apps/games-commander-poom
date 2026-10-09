@@ -113,6 +113,13 @@ exit door, hint sign, and the four coloured doors. Plus a far background.
 
 ## The seven signs
 
+Readable in the game: stand at one and press ↑ (`BOOK_TEXT.H.signs` in
+game.js holds the full text). A sign looks like its level type's: a
+loudspeaker in the ruins, a terminal in a Vault, graffiti in a camp, so H12,
+in the ruins, is a loudspeaker the Scrappers have taken over, with Auntie
+cutting in after. H10's terminal also warns about the Lab's transit pad: the
+hint for H14's secret way to the Nest.
+
 Where they are, and a first line for each to show the voice. Auntie Static
 is warm, nosy and too well informed; the terminals are officious; the
 graffiti is Scrapper.
@@ -123,7 +130,7 @@ graffiti is Scrapper.
 | H07 | top of the second tower | Auntie Static | "The Scrappers lock their loot behind Vault doors. Doors want cards, cards come in colours. Match 'em up." |
 | H10 | a Vault, top, by the exit | Terminal | "SECURITY NOTICE: Doors open only to a keycard of matching colour. Report lost cards to your Overseer." |
 | H11 | Vault 9 | Terminal | "COLD-SLEEP STATUS: COOLANT BREACH. Floors may be slippery. Have a nice day." |
-| H12 | ruins | Graffiti | "SCRAPPER TURF. EVERYTHING HERE IS OURS. INCLUDING YOU." |
+| H12 | ruins | Scrapper on a loudspeaker | "SCRAPPER TURF. EVERYTHING HERE IS OURS. INCLUDING YOU." |
 | H13 | Scrapper camp | Graffiti | "LT. GRIZ HAS THE SHINY THING. DON'T TOUCH THE SHINY THING." |
 | H16 | ruins, the long street | Auntie Static | "Two ways out of Litterburg, sugar. Either'll do." (H16 has two exit doors.) |
 
