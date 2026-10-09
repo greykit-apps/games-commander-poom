@@ -110,10 +110,29 @@ function switchesOf(d, rows) {
   return out;
 }
 
+/* E1 maps (books C, D, H) keep their pickups and fixtures as tiles, told
+ * apart by the tile's behaviour, not as named objects. Keys 18-21 open
+ * doors 2-5, in that order; the colours are a guess (yellow, red, green,
+ * blue), the pairing is not. */
+const E1_KEY = { 18: "y", 19: "r", 20: "g", 21: "b" };
+const E1_DOOR = { 2: "2", 3: "1", 4: "3", 5: "4" };   /* Poom's doors: 1 red 2 yellow 3 green 4 blue */
+
+/* Teleporters the data can't link: E1 maps number their objects, with no
+ * targets. On H01, 38 and 41 are the only way between the start region and
+ * the main one, so they are a pair; 46, on the island with H15, is left
+ * unlinked until the map maker says where it goes. */
+const TELE_PAIRS = { H01: [[38, 41]], };
+const TELE_LONE = { H01: [46] };
+
 function convert(d) {
   const at = new Map();
   for (const e of d.entities) at.set(e.x + "," + e.y, e);
   const things = [], marks = [], rows = [];
+  let e1 = null;
+  if (d.engine === "E1") {
+    const raw = JSON.parse(fs.readFileSync(path.join(MAPS, d.set, d.map + ".raw.json"), "utf8"));
+    e1 = (x, y) => ((raw.tile_properties[raw.planes.tiles[y][x]] || {}).behavior);
+  }
   for (let y = 0; y < d.height; y++) {
     let row = "";
     for (let x = 0; x < d.width; x++) {
@@ -121,7 +140,9 @@ function convert(d) {
       let g;
       if (c === "$") g = POINTS[(e && /points (\d+)/.exec(e.name) || [])[1]] || "f";
       else if (c === "+") g = !e ? "a" : /extra life/.test(e.name) ? "L" : /swim/.test(e.name) ? "w" : "a";
+      else if (c === "k" && e1 && E1_KEY[e1(x, y)]) g = E1_KEY[e1(x, y)];
       else if (c === "k") g = !e ? "q" : KEY[(/\((\w+)\)/.exec(e.name) || [])[1]] || "q";
+      else if (c === "D" && e1 && E1_DOOR[e1(x, y)]) g = E1_DOOR[e1(x, y)];
       else if (c === "D") g = d.entities.some(t => t.kind === "door_link" && Math.abs(t.x - x) <= 1 && Math.abs(t.y - y) <= 1) ? "D" : "d";
       /* an X in the outer two columns is the map's edge: walking out there
          ends the level. Anywhere else it is an exit door */
@@ -130,6 +151,9 @@ function convert(d) {
       if (g === undefined) throw new Error(`${d.map}: no mapping for '${c}' at ${x},${y}`);
       row += g;
       if (e && "eGNMZl!P".includes(g)) things.push([x, y, g, e.name]);
+      /* E1 tile objects have no entity: name them from their behaviour */
+      else if (e1 && !e && c === "!") things.push([x, y, g, "objective type " + String(e1(x, y) - 10).padStart(2, "0")]);
+      else if (e1 && !e && c === "T") things.push([x, y, g, "teleporter (in the level)"]);
     }
     rows.push(row);
   }
@@ -140,6 +164,16 @@ function convert(d) {
     /* the grid shows one object per tile, so these come from the entities */
     if (e.ends_level) ends.push([e.x, e.y, e.kind === "npc" ? "N" : e.kind === "powerup" ? "w" : e.glyph === "L" ? "l" : "!", e.name, e.ends_level]);
   }
+  /* E1 world teleporters: paired ones get links both ways; all become Q */
+  const num = n => things.find(t => t[3] === "entrance to unlisted map " + n);
+  const asTele = t => { rows[t[1]] = rows[t[1]].slice(0, t[0]) + "Q" + rows[t[1]].slice(t[0] + 1); t[2] = "Q"; t[3] = t[3].replace("entrance to unlisted map", "teleporter"); };
+  for (const [a, z] of TELE_PAIRS[d.map] || []) {
+    const ta = num(a), tz = num(z);
+    if (!ta || !tz) throw new Error(`${d.map}: no teleporters ${a} and ${z}`);
+    links.push([ta[0], ta[1], tz[0], tz[1], "door"], [tz[0], tz[1], ta[0], ta[1], "door"]);
+    asTele(ta); asTele(tz);
+  }
+  for (const n of TELE_LONE[d.map] || []) { const t = num(n); if (t) asTele(t); }
   const { sockets, bridges, pswitches } = switchesOf(d, rows);
   /* a level whose player starts swimming is under water throughout */
   const swim = d.entities.some(e => e.kind === "player" && /swimming/.test(e.name));

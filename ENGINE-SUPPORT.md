@@ -25,12 +25,12 @@ Glyphs marked "no" are air until the engine learns them.
 | `<` | conveyor left | yes | 0 |
 | `>` | conveyor right | yes | 92 |
 | `S` | switches (bridge and platform switches) | yes | 200 |
-| `Q` | teleporters (world maps) | yes | 37 |
+| `Q` | teleporters (world maps) | yes | 40 |
 | `j` | key sockets (and the doors they open: 5 6 7 8) | yes | 186 |
 | `H` | hint triggers | no | 217 |
 | `D` | warp doors | yes | 596 |
-| `d` | locked doors (colour absent from the source) | yes | 96 |
-| `q` | keycards with no stated colour | yes | 59 |
+| `d` | locked doors (colour absent from the source) | yes | 0 |
+| `q` | keycards with no stated colour | yes | 11 |
 | `u` | 2000-point pickup (medal) | yes | 235 |
 | `w` | swim ability | yes | 2 |
 | `!` | objective items (collected, or shot) | yes | 52 |
@@ -39,7 +39,7 @@ Glyphs marked "no" are air until the engine learns them.
 | `N` | NPCs / rescue targets | no | 21 |
 | `M` | moving platforms (paths, dropping, sneaky) | yes | 656 |
 | `Z` | special objects | no | 38 |
-| `l` | world-map level entrances | yes | 757 |
+| `l` | world-map level entrances | yes | 754 |
 
 Further notes:
 - Enemies are all `e`; the per-type behaviour is in `things` (`enemy type 07`, `(bouncing)`, `(carries key)`). Types are numbered per book and the engine's six enemies don't map onto them.
@@ -113,21 +113,21 @@ Skipped (not levels): C18 cutscene, C19 title
 |---|---|---|---|
 | C01 | world | 64×80 | `l` 64 |
 | C02 | level | 64×26 | `e` 4 |
-| C03 | level | 74×30 | `d` 2, `e` 9, `M` 1, `H` 8, `q` 1 |
-| C04 | level | 64×41 | `e` 10, `d` 2, `q` 1 |
+| C03 | level | 74×30 | `e` 9, `M` 1, `H` 8 |
+| C04 | level | 64×41 | `e` 10 |
 | C05 | level | 84×41 | `S` 2, `e` 7, `!` 1 |
 | C06 | level | 44×53 | `e` 10, `S` 1 |
 | C07 | level | 84×37 | `e` 7, `!` 1, `S` 1 |
-| C08 | level | 84×29 | `q` 2, `H` 50, `e` 7, `!` 1, `S` 1, `d` 4 |
+| C08 | level | 84×29 | `H` 50, `e` 7, `!` 1, `S` 1 |
 | C09 | level | 64×57 | `e` 32, `H` 17 |
 | C10 | level | 144×29 | `e` 20, `H` 44, `!` 1, `S` 1 |
-| C11 | level | 64×60 | `e` 13, `q` 4, `H` 91, `d` 8 |
+| C11 | level | 64×60 | `e` 13, `H` 91 |
 | C12 | level | 89×29 | `e` 10, `!` 1, `S` 1, `M` 1 |
 | C13 | level | 84×53 | `M` 6, `e` 21 |
 | C14 | level | 84×29 | `M` 1, `!` 1, `e` 14, `S` 3 |
-| C15 | level | 54×41 | `e` 15, `q` 4, `d` 8 |
-| C16 | level | 84×44 | `S` 2, `q` 2, `e` 13, `!` 1, `M` 2, `d` 4 |
-| C17 | level | 84×49 | `S` 7, `d` 4, `q` 3, `e` 18, `M` 2, `!` 1 |
+| C15 | level | 54×41 | `e` 15 |
+| C16 | level | 84×44 | `S` 2, `e` 13, `!` 1, `M` 2 |
+| C17 | level | 84×49 | `S` 7, `e` 18, `M` 2, `!` 1 |
 
 ### Book D
 
@@ -138,19 +138,19 @@ Skipped (not levels): D18 cutscene, D19 title
 | D01 | world | 70×73 | `l` 42 |
 | D02 | level | 84×26 | `e` 10 |
 | D03 | level | 100×24 | `e` 15, `M` 2 |
-| D04 | level | 69×47 | `e` 17, `q` 1, `d` 2 |
-| D05 | level | 200×46 | `e` 27, `d` 4, `G` 1, `q` 1 |
+| D04 | level | 69×47 | `e` 17 |
+| D05 | level | 200×46 | `e` 27, `G` 1 |
 | D06 | level | 154×40 | `e` 42, `M` 3 |
 | D07 | level | 74×17 | `e` 11 |
 | D08 | level | 124×37 | `e` 20 |
 | D09 | level | 104×57 | `e` 12, `M` 4 |
-| D10 | level | 67×117 | `G` 11, `e` 25, `q` 3, `d` 8, `M` 7 |
-| D11 | level | 64×37 | `G` 4, `q` 2, `d` 4, `e` 11, `M` 4 |
-| D12 | level | 44×37 | `e` 7, `M` 1, `G` 4, `q` 1, `d` 2 |
-| D13 | level | 54×47 | `G` 11, `q` 2, `M` 3, `e` 14, `d` 4 |
+| D10 | level | 67×117 | `G` 11, `e` 25, `M` 7 |
+| D11 | level | 64×37 | `G` 4, `e` 11, `M` 4 |
+| D12 | level | 44×37 | `e` 7, `M` 1, `G` 4 |
+| D13 | level | 54×47 | `G` 11, `M` 3, `e` 14 |
 | D14 | level | 84×107 | `e` 26 |
-| D15 | level | 184×25 | `e` 29, `q` 1, `G` 2, `d` 2, `M` 1 |
-| D16 | level | 128×120 | `e` 41, `q` 4, `d` 8 |
+| D15 | level | 184×25 | `e` 29, `G` 2, `M` 1 |
+| D16 | level | 128×120 | `e` 41 |
 | D17 | level | 25×24 | `G` 2, `!` 7, `e` 6 |
 
 ### Book E
@@ -230,23 +230,23 @@ Skipped (not levels): H18 cutscene, H19 title
 
 | Map | Kind | Size | Glyphs beyond the original game (count) |
 |---|---|---|---|
-| H01 | world | 70×73 | `l` 45 |
+| H01 | world | 70×73 | `Q` 3, `l` 42 |
 | H02 | level | 120×21 | `e` 8 |
 | H03 | level | 24×30 | `H` 1 |
-| H04 | level | 81×53 | `q` 2, `e` 13, `d` 4, `!` 1 |
-| H05 | level | 120×24 | `d` 4, `e` 10, `!` 1, `q` 2 |
+| H04 | level | 81×53 | `e` 13, `!` 1 |
+| H05 | level | 120×24 | `e` 10, `!` 1 |
 | H06 | level | 24×37 | `e` 1 |
 | H07 | level | 24×40 | `H` 1 |
 | H08 | level | 128×64 | `e` 22 |
-| H09 | level | 80×60 | `i` 836, `e` 14, `q` 1, `d` 2, `!` 1, `G` 3 |
-| H10 | level | 44×40 | `H` 1, `e` 1, `q` 1, `d` 2 |
-| H11 | level | 54×40 | `i` 172, `H` 1, `q` 1, `e` 4, `d` 2 |
+| H09 | level | 80×60 | `i` 836, `e` 14, `!` 1, `G` 3 |
+| H10 | level | 44×40 | `H` 1, `e` 1 |
+| H11 | level | 54×40 | `i` 172, `H` 1, `e` 4 |
 | H12 | level | 44×40 | `H` 1, `e` 1 |
 | H13 | level | 44×40 | `e` 18, `H` 1 |
-| H14 | level | 128×77 | `e` 22, `q` 4, `d` 8, `G` 1, `Q` 2, `i` 4 |
+| H14 | level | 128×77 | `e` 22, `G` 1, `Q` 2, `i` 4 |
 | H15 | level | 80×80 | `e` 30 |
-| H16 | level | 142×24 | `H` 1, `e` 12, `d` 6, `q` 4, `i` 23 |
-| H17 | level | 110×72 | `i` 790, `Z` 1, `!` 1, `e` 15, `q` 1, `d` 2 |
+| H16 | level | 142×24 | `H` 1, `e` 12, `i` 23 |
+| H17 | level | 110×72 | `i` 790, `Z` 1, `!` 1, `e` 15 |
 
 ### Book I
 

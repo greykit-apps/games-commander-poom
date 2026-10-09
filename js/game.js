@@ -192,11 +192,6 @@ const MAPS = {};
 for (const b of BOOK_IDS) BOOKS[b].chapters.forEach(ch => ch.levels.forEach(lv => { MAPS[lv.id] = lv; lv.book = b; }));
 const levelName = id => `Book ${bookNumber(MAPS[id].book)}, level ${+id.slice(1) - 1}`;
 
-/* Teleporter pairs the data can't link: on Book H's map, objects 38 and 41
- * are the only way between its start region and its main one. Object 46,
- * on the island with H15, waits for the map maker's word on where it goes. */
-const TELE_PAIRS = { H: [[38, 41]] };
-
 /* what a world map's markers mean, worked out once per book */
 const WORLDS = {};
 for (const b of BOOK_IDS) {
@@ -221,11 +216,6 @@ for (const b of BOOK_IDS) {
    * 1-16 are levels, the rest the map's own things. An unfinished level
    * there is a wall: Poom walks up to it to go in. */
   W_.e1 = w.engine === "E1";
-  for (const [a, z] of TELE_PAIRS[b] || []) {
-    const find = n => w.things.find(t => t[3] === "entrance to unlisted map " + n);
-    const ta = find(a), tz = find(z);
-    if (ta && tz) { W_.tele[at(ta[0], ta[1])] = [tz[0], tz[1]]; W_.tele[at(tz[0], tz[1])] = [ta[0], ta[1]]; }
-  }
   WORLDS[b] = W_;
 }
 const world = () => WORLDS[G.run.book];
@@ -1406,7 +1396,7 @@ function drawMap() {
     else if (ch === "#") ctx.drawImage(mapArt.rock, x, y);
     else if (ch === "/" || ch === "\\") drawDiagonal(ch === "/" ? "LR" : "LL", x, y);
     else if (ent) ctx.drawImage(mapArt.marker[MARKER_KINDS[+ent.slice(1) % MARKER_KINDS.length]], x, y);
-    else if (ch === "Q" || world().tele[tx + "," + ty]) ctx.drawImage(mapArt.tele[(m.t >> 3) % 2], x, y);
+    else if (ch === "Q") ctx.drawImage(mapArt.tele[(m.t >> 3) % 2], x, y);
   }
   /* done flags: on the map's own flag spot, or the level's first entrance tile */
   const w = world();

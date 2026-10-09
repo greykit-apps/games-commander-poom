@@ -31,6 +31,9 @@ const SOLID = new Set(["#", "1", "2", "3", "4", "5", "6", "7", "8", "d", "i", "<
 const GEMS = ["red", "yellow", "green", "blue"];
 const KEYCH = { r: "red", y: "yellow", g: "green", b: "blue", q: "uncoloured" };
 const num = id => +id.slice(1) - 1;
+/* the book's number in play, from game.js's BOOK_ORDER */
+const ORDER = JSON.parse(/const BOOK_ORDER = (\[[^\]]*\])/.exec(fs.readFileSync(path.join(ROOT, "js", "game.js"), "utf8"))[1]);
+const BOOKNUM = ORDER.indexOf(book) + 1;
 const name = id => `${id} (level ${num(id)})`;
 const plural = (n, one, many = one + "s") => `${n} ${n === 1 ? one : many}`;
 
@@ -44,17 +47,21 @@ function worldOrder() {
   for (const [x, y, nm] of w.marks) { const m = /^removed when ([A-I]\d\d) is done/.exec(nm); if (m) barrier[at(x, y)] = m[1]; }
   for (const [x, y, tx, ty, kind] of w.links) if (kind === "door" && w.rows[y][x] === "Q") tele[at(x, y)] = [tx, ty];
   const start = (w.things.find(t => t[2] === "P" && /player start/.test(t[3])) || w.things.find(t => t[2] === "P")).slice(0, 2);
+  /* on an E1 map an unfinished level is a wall: reached by walking up to it */
+  const e1 = w.engine === "E1";
   const reach = done => {
     const seen = new Set([at(...start)]), q = [start], got = new Set(), usedTele = new Set();
     while (q.length) {
       const [x, y] = q.pop();
       if (entrance[at(x, y)]) got.add(entrance[at(x, y)]);
+      if (e1) for (const [nx, ny] of [[x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]]) { const e = entrance[at(nx, ny)]; if (e) got.add(e); }
       const nexts = [[x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]];
       if (tele[at(x, y)]) { nexts.push(tele[at(x, y)]); usedTele.add(at(x, y)); }
       for (const [nx, ny] of nexts) {
         const k = at(nx, ny), c = (w.rows[ny] || "")[nx];
         if (!c || seen.has(k)) continue;
         const b = barrier[k];
+        if (e1 && entrance[k] && !done.has(entrance[k])) continue;
         /* on world maps / and \\ are diagonal walls (maps2/README.md) */
         if (b ? !done.has(b) : (c === "#" || c === "~" || c === "/" || c === "\\")) continue;
         seen.add(k); q.push([nx, ny]);
@@ -83,7 +90,9 @@ function worldOrder() {
   for (const id of Object.values(barrier)) opens[id] = (opens[id] || 0) + 1;
   /* a level that can't be walked to: what's in its room */
   const arrivals = w.things.filter(t => t[2] === "P" && /arrival/.test(t[3])).map(t => t.slice(0, 2));
-  return { tiers, never, opens, needs, start, tele: Object.keys(tele).length, arrivals };
+  const lone = [];
+  w.rows.forEach((r, y) => [...r].forEach((c, x) => { if (c === "Q" && !tele[at(x, y)]) lone.push([x, y]); }));
+  return { tiers, never, opens, needs, start, tele: Object.keys(tele).length, arrivals, lone, e1 };
 }
 
 /* ------------------------------------------------------------------ */
@@ -200,9 +209,11 @@ function levelSection(l) {
   objectives.forEach(([x, y, , nm]) => add(x, y, `**Objective** (${nm}) — taking ${objectives.length > 1 ? "the last of these" : "it"} ends the level`));
   rescues.forEach(([x, y, , nm]) => add(x, y, `**Rescue** (${nm}) — touching them ends the level; the dialogue happens here`));
   for (const [x, y, g, nm] of l.things) {
-    if (g === "!" && !objectives.some(o => o[0] === x && o[1] === y)) add(x, y, `Objective item that does not end the level (${nm})`);
+    if (g === "!" && !objectives.some(o => o[0] === x && o[1] === y)) add(x, y, `**Objective item** (${nm}) — doesn't end the level; what it is and why Poom wants it is the story's`);
     if (g === "N" && !rescues.some(o => o[0] === x && o[1] === y)) add(x, y, `NPC (${nm}), not a rescue`);
     if (g === "Z") add(x, y, `Special object (${nm})`);
+    /* a teleporter is two tiles tall: list it once */
+    if (g === "Q" && !l.things.some(t => t[2] === "Q" && t[0] === x && t[1] === y - 1)) add(x, y, "**Teleporter in the level** — where it goes isn't in the data");
   }
   l.rows.forEach((r, y) => [...r].forEach((c, x) => { if (c === "H") add(x, y, "**Hint sign** — needs its text"); }));
   for (const so of l.sockets) add(so.x, so.y, `Key socket, ${GEMS[so.gem]} — opens a door ${so.door.length} tiles tall at (${so.door[0][0]}, ${so.door[0][1]})`);
@@ -243,7 +254,8 @@ function levelSection(l) {
   if (tk.length) {
     lines.push("**Creatures**: " + tk.map(k => `${k} ×${types[k].n}${types[k].variants.size ? ` (${[...types[k].variants].join(", ")})` : ""}, from the ${types[k].first.label} part`).join("; ") + ".", "");
   }
-  return { text: lines.join("\n"), ways, objectives: objectives.length, rescues: rescues.length, hints: cnt("H"), types };
+  const items = l.things.filter(t => t[2] === "!" && !objectives.some(o => o[0] === t[0] && o[1] === t[1])).length;
+  return { text: lines.join("\n"), ways, objectives: objectives.length, items, rescues: rescues.length, hints: cnt("H"), types };
 }
 
 /* ------------------------------------------------------------------ */
@@ -257,18 +269,21 @@ for (const l of LEVELS) {
 const ordered = order.tiers.flatMap(t => t.levels).concat(order.never);
 
 const out = [];
-out.push(`# Book ${book}: story map`, "");
+out.push(`# Book ${BOOKNUM} (map set ${book}): story map`, "");
 out.push(`Generated from the map data by \`tools/story-map.js ${book}\`. It says where in Book ${book} the story has to say something, so the script can lead up to it. Positions are tiles, (x, y) from the top left.`, "");
 out.push(`"Early", "middle" and "late" say how far along a level something is, by a rough path from the start (walking, pogo jumps, poles, warp doors, platforms' routes, with key doors and bridges open). Where that path doesn't get, it is a guess from the straight-line distance to the start, marked "≈": check those by playing.`, "");
 out.push(`## The book`, "");
 out.push(`- **${LEVELS.length} levels**, ${LEVELS[0].id}–${LEVELS[LEVELS.length - 1].id}. Not levels: ${B.skipped.map(s => `${s.id} (${s.kind})`).join(", ") || "none"}.`);
-out.push(`- **Chapters**: chapters are split at cutscenes, and Book ${book} has ${B.skipped.some(s => s.kind === "cutscene") ? "a cutscene" : "none"}, so it is ${B.skipped.some(s => s.kind === "cutscene") ? "more than one chapter (see the cutscene above)" : "**one chapter**"}. Its theme is still to choose.`);
+/* a cutscene splits chapters only if a level comes after it */
+const last = LEVELS[LEVELS.length - 1].id, cuts = B.skipped.filter(s => s.kind === "cutscene");
+const splits = cuts.filter(c => c.id < last), ending = cuts.filter(c => c.id > last);
+out.push(`- **Chapters**: chapters are split at cutscenes between levels. Book ${book} has ${splits.length ? `${plural(splits.length, "such cutscene")} (${splits.map(c => c.id).join(", ")}), so ${splits.length + 1} chapters` : "none, so it is **one chapter**"}${ending.length ? `; ${ending.map(c => c.id).join(", ")} comes after the last level, so it is the ending` : ""}. Its theme is still to choose.`);
 const tot = k => LEVELS.reduce((n, l) => n + sections[l.id][k], 0);
-out.push(`- **Story elements**: ${plural(tot("objectives"), "objective")} that end levels, ${plural(tot("rescues"), "rescue")}, ${plural(tot("hints"), "hint sign")}, ${plural(Object.keys(roster).filter(k => k !== "turret").length, "enemy type")}, ${roster.turret ? "turrets" : "no turrets"}.`);
+out.push(`- **Story elements**: ${plural(tot("objectives"), "objective")} that end levels, ${plural(tot("items"), "objective item")} that don't, ${plural(tot("rescues"), "rescue")}, ${plural(tot("hints"), "hint sign")}, ${plural(Object.keys(roster).filter(k => k !== "turret").length, "enemy type")}, ${roster.turret ? "turrets" : "no turrets"}.`);
 out.push("");
 
 out.push(`## The world map`, "");
-out.push(`Poom starts at (${order.start.join(", ")}). ${order.tele ? `The map has ${plural(order.tele, "linked teleporter")}. ` : ""}Some paths are shut until a level is done; this is the order the map lets levels be played, if each one is done as soon as it can be:`, "");
+out.push(`Poom starts at (${order.start.join(", ")}). ${order.tele ? `The map has ${plural(order.tele, "linked teleporter")}. ` : ""}${order.e1 ? "On this map an unfinished level is a wall: Poom can't walk past one until it is done. " : ""}Some paths are shut until a level is done; this is the order the map lets levels be played, if each one is done as soon as it can be:`, "");
 order.tiers.forEach((t, i) => {
   out.push(`${i + 1}. ${i === 0 ? "**Open from the start**" : "**Then**"}:`);
   for (const id of t.levels) {
@@ -277,15 +292,15 @@ order.tiers.forEach((t, i) => {
   }
 });
 if (order.never.length) {
-  out.push("", `**Not reachable by walking the map: ${order.never.map(name).join(", ")}.**${order.arrivals.length ? ` The map has a "player arrival point" at ${order.arrivals.map(a => `(${a.join(", ")})`).join(", ")}, in a walled-off part of the map, so something outside the map (a secret exit in a level, perhaps) must bring Poom there. The story needs to say what.` : ""}`);
+  out.push("", `**Not reachable by walking the map: ${order.never.map(name).join(", ")}.**${order.arrivals.length ? ` The map has a "player arrival point" at ${order.arrivals.map(a => `(${a.join(", ")})`).join(", ")}, in a walled-off part of the map, so something outside the map (a secret exit in a level, perhaps) must bring Poom there. The story needs to say what.` : ""}${order.lone.length ? ` The map has ${plural(order.lone.length, "teleporter")} with no link, at ${order.lone.map(a => `(${a.join(", ")})`).join(", ")}: where ${order.lone.length === 1 ? "it goes" : "they go"} isn't in the data.` : ""}`);
 }
 out.push("", "Levels in the same step can be played in any order, so the story can't assume one of them comes before another.", "");
 
 out.push(`## Summary`, "");
-out.push("| Level | Ends by | Objectives | Rescues | Hints | Creatures |", "|---|---|---|---|---|---|");
+out.push("| Level | Ends by | Objectives | Items | Rescues | Hints | Creatures |", "|---|---|---|---|---|---|---|");
 for (const id of ordered) {
   const s = sections[id];
-  out.push(`| ${name(id)} | ${s.ways.join("; ")} | ${s.objectives || "–"} | ${s.rescues || "–"} | ${s.hints || "–"} | ${Object.keys(s.types).sort().map(k => k.replace("type ", "")).join(", ") || "–"} |`);
+  out.push(`| ${name(id)} | ${s.ways.join("; ")} | ${s.objectives || "–"} | ${s.items || "–"} | ${s.rescues || "–"} | ${s.hints || "–"} | ${Object.keys(s.types).sort().map(k => k.replace("type ", "")).join(", ") || "–"} |`);
 }
 out.push("");
 
