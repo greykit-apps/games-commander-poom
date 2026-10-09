@@ -123,17 +123,18 @@ graffiti is Scrapper.
 | H13 | Scrapper camp | Graffiti | "LT. GRIZ HAS THE SHINY THING. DON'T TOUCH THE SHINY THING." |
 | H16 | ruins, the long street | Auntie Static | "Two ways out of Litterburg, sugar. Either'll do." (H16 has two exit doors.) |
 
+## Settled
+
+- **Poom and the Catamaran.** Poom is the hero, the Catamaran is his ship,
+  and its four parts are what Book 1 is about.
+- **Animals, not humans.** The Glow is a world of animals: cats, dogs, mice
+  and the rest. The original game's cat jokes and art style carry over.
+
 ## Questions to settle
 
-1. **Poom and the Catamaran, or a new hero?** This keeps Poom, his ship and
-   its four parts, because the game already has them. A wasteland native
-   (a vault-dweller cat, say) is the other road.
-2. **Earth or another planet?** "The Glow" could be Earth after the bombs,
+1. **Earth or another planet?** "The Glow" could be Earth after the bombs,
    or another world's. Earth gives the retro-atomic look more to bite on.
-3. **Cats and dogs?** The original game's jokes are cat jokes (fish, milk,
-   yarn). Keeping a world of animals (cats, dogs, mice) keeps those jokes and
-   the art style; humans would change the tone.
-4. **How dark?** Fallout is darkly funny. The original Poom is gentle. This
+2. **How dark?** Fallout is darkly funny. The original Poom is gentle. This
    draft sits closer to Poom: nobody dies on screen, raiders are bullies.
-5. **Auntie Static:** who is she? Book 1 never needs to say, which makes her
+3. **Auntie Static:** who is she? Book 1 never needs to say, which makes her
    a good thread for later books.
