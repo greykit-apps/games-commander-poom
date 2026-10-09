@@ -64,7 +64,7 @@ long open ones are streets.
 | Type | Levels | What it's like |
 |---|---|---|
 | **Vault** | H09, H10, H11, H14, H17 | Underground shelters: concrete and steel, blast doors, terminals, auto-turrets. Vault 9 (H09, H11, H17) is the frozen cold-sleep shelter; H10 and H14 are Vault 6. **Tileset made** (`vault` and `vaultCold` in js/art.js). Two of the four parts are here (H09, H17). |
-| **Raiders** | H04, H08, H13, H15 | Scrapper camps and Fort Scrap: scrap-metal walls, scaffolding (lots of ledges), spikes, barrels. One part (H04). H15, the Nest, is a raider-type level overrun by Glowmice. |
+| **Raiders** | H04, H08, H13, H15 | Scrapper camps and Fort Scrap: scrap-metal walls, scaffolding (lots of ledges), spikes, barrels. One part (H04). H15, the Nest, is a raider-type level overrun by Glowmice. **Tileset made** (`raiders` in js/art.js), in full VGA colour. |
 | **Ruins** | H02, H03, H05, H06, H07, H12, H16 | Old Litterburg and the roads round it: broken concrete, rebar, collapsed floors, billboards. One part (H05). H03 and H07 are Auntie Static's towers. |
 
 ## The creatures
@@ -84,6 +84,8 @@ map onto them neatly, which would let the engine reuse what it has.
 Junk Baron Rex himself never appears in Book 1: he's for later.
 
 ## The tilesets to make
+
+Tilesets may use the full VGA palette, not just the original game's sixteen colours: the Raiders set does.
 
 From what each type's levels actually use (counts across their levels):
 

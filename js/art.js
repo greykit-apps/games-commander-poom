@@ -974,11 +974,15 @@ const THEMES = {
   /* Book 1 (docs/story/book-1-story.md): a Vault, an underground shelter of
    * riveted steel; and Vault 9, the cold-sleep shelter whose coolant burst */
   vault: { sky: 0, far: [8, 7], ground: [8, 7, 0], crust: [7, 15], alt: [8, 7], plat: [7, 8], bg: [0, 8], liquid: [11, 15, 3], liquidName: "coolant", style: "vault", no: 6 },
+  /* Book 1's raider camps: Fort Scrap and the Scrappers' turf, rusted scrap
+   * and plank scaffolding under the Glow's dusk */
+  raiders: { sky: 0, far: [6, 4], ground: [6, 4, 8], crust: ["#d07a36", "#f0a050"], alt: [8, 6], plat: [6, 14], bg: [0, 6], liquid: [10, 2, 14], liquidName: "sludge", style: "raiders" },
   vaultCold: { sky: 1, far: [9, 3], ground: [8, 7, 0], crust: [15, 11], alt: [8, 7], plat: [7, 8], bg: [1, 0], liquid: [11, 15, 3], liquidName: "coolant", style: "vault", cold: true, no: 9 },
 };
 
 function paintTiles(themeName) {
-  const th = THEMES[themeName], E = i => EGA[i];
+  /* a colour is an EGA index or, for the VGA tilesets, any CSS colour */
+  const th = THEMES[themeName], E = i => typeof i === "string" ? i : EGA[i];
   const tiles = {};
   const mk = fn => { const c = makeCanvas(T, T); fn(c.getContext("2d")); return c; };
 
@@ -1165,10 +1169,127 @@ function paintTiles(themeName) {
   });
 
   if (th.style === "vault") vaultTiles(tiles, th, mk, E);
+  if (th.style === "raiders") raiderTiles(tiles, th, mk, E);
 
   /* fake wall: looks like ground, walks like air (secret) */
   tiles.fake = tiles.ground[0];
   return tiles;
+}
+
+/* VGA ramps for the raider camps, dark to light */
+const RUST = ["#1e0f0a", "#3b1d12", "#5c2c17", "#7a3a1c", "#9a4b22", "#b8622b", "#d07a36"];
+const STEEL = ["#121417", "#262a2f", "#3e444b", "#5c636b", "#828a93", "#aeb6be", "#dde2e6"];
+const WOOD = ["#24160c", "#432a16", "#634020", "#82552a", "#a06c36", "#c08a4c"];
+const PAINT = { red: "#e0352e", yellow: "#f2cf3e", lamp: "#ffd36a", lampHot: "#fff1b0" };
+
+/* The raiders' own tiles: rusted corrugated scrap, plates bolted over the
+ * holes, plank scaffolding, scrap spikes under barbed wire, looted security
+ * doors with padlocks, a corrugated gate for the exit, graffiti for signs.
+ * Full colour: the ramps above. */
+function raiderTiles(tiles, th, mk, E) {
+  const px = (g, c, x, y, w = 1, h = 1) => { g.fillStyle = c; g.fillRect(x, y, w, h); };
+  /* corrugated sheet: each four-pixel ridge shaded across, dark to light */
+  const ridge = [RUST[2], RUST[3], RUST[4], RUST[3]];
+  const sheet = (g, r, x0 = 0, y0 = 0, w = T, h = T) => {
+    for (let x = 0; x < w; x++) px(g, ridge[(x0 + x) % 4], x0 + x, y0, 1, h);
+    /* rust: dark blooms and bright flakes, and a run or two down the ridges */
+    for (let i = 0; i < 10; i++) px(g, r() < .6 ? RUST[1] : RUST[5], x0 + (r() * w | 0), y0 + (r() * h | 0), 1 + (r() * 2 | 0), 1);
+    for (let i = 0; i < 2; i++) { const x = x0 + (r() * w | 0); px(g, RUST[1], x, y0 + (r() * 6 | 0), 1, 3 + (r() * 6 | 0)); }
+  };
+  const plate = (g, x, y, w, h) => {
+    px(g, STEEL[2], x, y, w, h);
+    px(g, STEEL[4], x, y, w, 1); px(g, STEEL[4], x, y, 1, h);
+    px(g, STEEL[0], x, y + h, w + 1, 1); px(g, STEEL[0], x + w, y, 1, h);
+    px(g, STEEL[5], x + 1, y + 1); px(g, STEEL[5], x + w - 2, y + 1); px(g, STEEL[5], x + 1, y + h - 2); px(g, STEEL[5], x + w - 2, y + h - 2);
+    px(g, RUST[3], x + 2, y + h - 1, w - 4, 1);
+  };
+
+  /* a scrap wall: plain sheet, a plate bolted over a hole, or a sheet gone
+     to rust; three kinds so a wall looks thrown together */
+  const scrap = (top, kind, seed) => mk(g => {
+    const r = rng(seed);
+    sheet(g, r);
+    if (kind === 1) plate(g, 2 + (r() * 5 | 0), 3 + (r() * 5 | 0), 8, 6);
+    if (kind === 2) for (let i = 0; i < 14; i++) px(g, r() < .5 ? RUST[1] : RUST[2], r() * T | 0, r() * T | 0, 2, 1);
+    px(g, RUST[0], 0, T - 1, T, 1);
+    if (top) {
+      /* the torn top edge of the sheet, catching the light */
+      px(g, RUST[6], 0, 0, T, 1); px(g, RUST[5], 0, 1, T, 1);
+      for (let x = 0; x < T; x++) if (r() < .3) px(g, RUST[0], x, 0, 1, 1 + (r() * 2 | 0));
+      px(g, RUST[1], 0, 2, T, 1);
+    }
+  });
+  tiles.ground = [scrap(false, 0, 5), scrap(false, 1, 17), scrap(false, 2, 29)];
+  tiles.groundTop = [scrap(true, 0, 9), scrap(true, 2, 21), scrap(true, 1, 33)];
+
+  /* scaffolding: a nailed plank on two posts, lashed */
+  tiles.plat = mk(g => {
+    px(g, WOOD[3], 0, 0, T, 5);
+    px(g, WOOD[5], 0, 0, T, 1); px(g, WOOD[4], 0, 1, T, 1);
+    px(g, WOOD[2], 1, 2, 5, 1); px(g, WOOD[2], 9, 3, 5, 1); px(g, WOOD[2], 4, 4, 3, 1);
+    px(g, WOOD[0], 0, 5, T, 1); px(g, WOOD[1], 7, 0, 1, 5);
+    px(g, STEEL[5], 2, 1); px(g, STEEL[5], 13, 1);
+    for (const x of [2, 12]) { px(g, WOOD[2], x, 6, 2, 5); px(g, WOOD[1], x + 1, 6, 1, 5); px(g, WOOD[4], x, 6, 2, 1); }
+  });
+
+  /* the hazard: jagged scrap spikes, barbed wire strung across them */
+  tiles.spikes = mk(g => {
+    for (const [x, h, w] of [[0, 9, 4], [3, 6, 5], [7, 11, 4], [10, 7, 6]]) {
+      g.fillStyle = STEEL[2]; g.beginPath(); g.moveTo(x, 16); g.lineTo(x + w / 2, 16 - h); g.lineTo(x + w, 16); g.fill();
+      g.fillStyle = STEEL[4]; g.beginPath(); g.moveTo(x + w / 2, 16 - h); g.lineTo(x + w / 2 - 1, 16); g.lineTo(x + w / 2, 16); g.fill();
+      px(g, STEEL[6], x + (w >> 1), 16 - h); px(g, RUST[4], x + (w >> 1), 13, 1, 3);
+    }
+    px(g, STEEL[3], 0, 10, T, 1);
+    for (let x = 2; x < T; x += 5) { px(g, STEEL[5], x, 9, 1, 3); px(g, STEEL[5], x - 1, 10, 3, 1); px(g, STEEL[6], x, 10); }
+  });
+
+  /* looted security doors: rusted steel, the colour band still on, a brass
+     padlock on the top tile; the tiles below are slab with a painted X */
+  const COLOURS = [[12, 4], [14, 6], [10, 2], [9, 1], [7, 8]];
+  const door = (a, b, top) => mk(g => {
+    const r = rng(a * 7 + b);
+    px(g, STEEL[1], 0, 0, T, T);
+    px(g, STEEL[3], 2, 0, T - 4, T); px(g, STEEL[4], 2, 0, 1, T);
+    for (let i = 0; i < 6; i++) px(g, r() < .5 ? RUST[3] : RUST[2], 3 + (r() * 10 | 0), r() * T | 0, 2, 1 + (r() * 2 | 0));
+    px(g, STEEL[0], T / 2, 0, 1, T);
+    if (top) {
+      px(g, E(b), 2, 9, T - 4, 5); px(g, E(a), 2, 10, T - 4, 3);
+      px(g, STEEL[5], 6, 1, 4, 1); px(g, STEEL[5], 6, 1, 1, 3); px(g, STEEL[5], 9, 1, 1, 3);
+      px(g, "#b8902c", 5, 4, 6, 4); px(g, "#e8c050", 5, 4, 6, 1); px(g, "#5a4410", 7, 5, 2, 2);
+      px(g, STEEL[5], 0, 0, T, 1);
+    } else {
+      px(g, E(b), 2, 13, T - 4, 2);
+      for (let i = 0; i < 6; i++) { px(g, PAINT.red, 4 + i, 3 + i); px(g, PAINT.red, 9 - i, 3 + i); }
+    }
+  });
+  tiles.doors = COLOURS.map(([a, b]) => door(a, b, true));
+  tiles.doorsBelow = COLOURS.map(([a, b]) => door(a, b, false));
+
+  /* the exit: the camp's back gate, corrugated sheet on a steel frame;
+     open, the dusk beyond. The green lamp marks every way out */
+  const gate = open => { const c = makeCanvas(T, T * 2), g = c.getContext("2d");
+    px(g, STEEL[2], 0, 2, T, 30); px(g, STEEL[4], 0, 2, 2, 30); px(g, STEEL[4], 14, 2, 2, 30); px(g, STEEL[5], 0, 2, T, 1);
+    if (open) {
+      const sky = ["#2a1440", "#6a1f45", "#b03a2e", "#e0702c", "#f6b54a"];
+      sky.forEach((col, i) => px(g, col, 2, 4 + i * 4, 12, 4));
+      px(g, RUST[1], 2, 24, 12, 8);
+    } else {
+      sheet(g, rng(3), 2, 4, 12, 28);
+      g.strokeStyle = STEEL[1]; g.lineWidth = 2; g.beginPath(); g.moveTo(3, 30); g.lineTo(13, 7); g.stroke();
+      px(g, STEEL[5], 11, 17, 2, 2);
+    }
+    px(g, E(2), 5, 0, 6, 3); px(g, E(10), 6, 0, 4, 2);
+    return c; };
+  tiles.exit = [gate(false), gate(true)];
+
+  /* a hint sign is Scrapper graffiti on a board */
+  tiles.sign = mk(g => {
+    px(g, WOOD[2], 7, 9, 2, 7); px(g, WOOD[1], 8, 9, 1, 7);
+    px(g, WOOD[3], 0, 1, 16, 9); px(g, WOOD[5], 0, 1, 16, 1); px(g, WOOD[1], 0, 10, 16, 1);
+    px(g, WOOD[2], 0, 5, 16, 1);
+    px(g, PAINT.red, 2, 3, 1, 5); px(g, PAINT.red, 3, 3, 2, 1); px(g, PAINT.red, 3, 5, 2, 1); px(g, PAINT.red, 6, 3, 1, 5); px(g, PAINT.red, 6, 7, 3, 1);
+    for (const [x, y] of [[10, 3], [11, 4], [12, 5], [13, 4], [14, 3], [12, 7]]) px(g, PAINT.yellow, x, y);
+  });
 }
 
 /* The Vault's own tiles, over the shared ones. Steel panels, catwalks,
@@ -1319,6 +1440,42 @@ function paintFar(themeName) {
     for (let x = 10; x < 320; x += 60) { g.fillRect(x, 90, 26, 110); for (let k = 0; k < 26; k += 8) g.fillRect(x + k, 84, 5, 6); g.fillStyle = EGA[14]; g.fillRect(x + 10, 110, 4, 6); g.fillStyle = EGA[8]; }
   }
   if (th.style === "vault") return paintVaultFar(th);
+  if (th.style === "raiders") return paintRaiderFar();
+  return c;
+}
+
+/* The raider camp behind: the Glow's dusk in bands from night to a hot
+ * horizon, a swollen sun, mesas, and Fort Scrap low against it: shacks, a
+ * watchtower with a lit window, scaffolds and flags. Full colour. */
+function paintRaiderFar() {
+  const c = makeCanvas(320, 200), g = c.getContext("2d"), r = rng(13);
+  const px = (col, x, y, w = 1, h = 1) => { g.fillStyle = col; g.fillRect(x, y, w, h); };
+  /* the sky: eighteen bands, blended, stepped for the old look */
+  const stops = [[0, [11, 10, 30]], [70, [34, 18, 60]], [105, [106, 31, 69]], [128, [176, 58, 46]], [146, [224, 112, 44]], [160, [246, 181, 74]]];
+  const at = y => { for (let i = 1; i < stops.length; i++) if (y <= stops[i][0]) { const [y0, a] = stops[i - 1], [y1, b] = stops[i], f = (y - y0) / (y1 - y0); return a.map((v, k) => Math.round(v + (b[k] - v) * f)); } return stops[stops.length - 1][1]; };
+  for (let y = 0; y < 200; y += 6) { const [R, G, B] = at(y); px(`rgb(${R},${G},${B})`, 0, y, 320, 6); }
+  for (let i = 0; i < 50; i++) { const y = r() * 70 | 0; px(r() < .3 ? "#ffe9a8" : "#c8c0d8", r() * 320 | 0, y); }
+  /* a swollen sun on the horizon */
+  g.fillStyle = "#ffe08a"; g.beginPath(); g.arc(70, 158, 18, Math.PI, 0); g.fill();
+  g.fillStyle = "#fff4cc"; g.beginPath(); g.arc(70, 158, 12, Math.PI, 0); g.fill();
+  /* mesas, far then near */
+  const ridge = (col, pts) => { g.fillStyle = col; g.beginPath(); g.moveTo(0, 200); for (const [x, y] of pts) g.lineTo(x, y); g.lineTo(320, 200); g.fill(); };
+  ridge("#5a2a2c", [[0, 156], [30, 156], [38, 136], [90, 136], [98, 152], [160, 152], [168, 130], [230, 130], [236, 148], [320, 148]]);
+  ridge("#3a1c20", [[0, 168], [60, 168], [70, 160], [120, 160], [128, 170], [210, 170], [216, 162], [270, 162], [276, 170], [320, 170]]);
+  /* Fort Scrap, low along the bottom: shacks of mismatched heights */
+  const dark = "#1c1014";
+  let x = 0;
+  while (x < 320) {
+    const w = 12 + (r() * 20 | 0), h = 8 + (r() * 16 | 0);
+    px(dark, x, 176 - h, w, h + 24);
+    if (r() < .5) { px(PAINT.lamp, x + 4, 180 - h, 2, 2); px(PAINT.lampHot, x + 4, 180 - h); }
+    x += w + (r() < .3 ? 3 : 0);
+  }
+  /* a watchtower and its flag */
+  px(dark, 250, 120, 3, 56); px(dark, 263, 120, 3, 56); px(dark, 245, 110, 26, 12);
+  px(PAINT.lamp, 252, 114, 5, 3); px(dark, 257, 92, 2, 18); px("#a0201c", 259, 92, 10, 5);
+  /* scaffold poles and flags along the roofline */
+  for (const fx of [40, 120, 190]) { px(dark, fx, 146, 2, 30); px("#a0201c", fx + 2, 146, 7, 4); }
   return c;
 }
 
