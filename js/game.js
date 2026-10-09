@@ -213,6 +213,7 @@ const wasPressed = a => pressed.has(a);
 
 addEventListener("keydown", ev => {
   audio.unlock();
+  if (!ev.repeat) konami(ev.code);
   if (UI.top()) { UI.key(ev); return; }
   const a = BIND[ev.code];
   if (!a) return;
@@ -832,8 +833,8 @@ function updatePlayer(lv) {
     p.fireCool = KP.refire; p.shootT = KP.fireStance;
     if (p.pogo && !p.climbing) { p.pogo = false; p.y += POGO_H; p.h = PH; p.compress = 0; }
     if (p.onGround) p.vx = 0;
-    if (run.ammo > 0) {
-      run.ammo--;
+    if (run.ammo > 0 || run.cheat) {
+      if (!run.cheat) run.ammo--;
       const sy = p.y + (p.climbing ? 8 : 12);
       lv.shots.push({ kind: "zap", x: p.face > 0 ? p.x + p.w : p.x - 5, y: sy, w: 5, h: 2, vx: KP.shotSpeed * p.face, t: 0, mine: true });
       sfx("shoot");
@@ -1393,12 +1394,31 @@ function onShip(p) {
   return ty === s[1] && (tx === s[0] || tx === s[0] + 1);
 }
 
+/* The Konami code, anywhere in a game (on the map, in a level, paused):
+ * up up down down left right left right B A. It switches cheat mode, which
+ * the run keeps: no lives lost, no energy spent. A run that has cheated
+ * goes on no high-score table. */
+const KONAMI = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "KeyB", "KeyA"];
+let konamiAt = 0;
+function konami(code) {
+  konamiAt = code === KONAMI[konamiAt] ? konamiAt + 1 : code === KONAMI[0] ? 1 : 0;
+  if (konamiAt < KONAMI.length) return;
+  konamiAt = 0;
+  if (!G.run || (G.mode !== "map" && G.mode !== "level")) return;
+  G.run.cheat = !G.run.cheat;
+  if (G.run.cheat) G.run.cheated = true;
+  if (G.lv) { G.lv.snapshot.cheat = G.run.cheat; G.lv.snapshot.cheated = G.run.cheated; }
+  sfx(G.run.cheat ? "life" : "nope");
+  saveRun();
+  toast(G.run.cheat ? say("cheatOn", "Cheat mode: infinite lives and raygun charges. No high scores this game.") : say("cheatOff", "Cheat mode off."));
+}
+
 function loseLife() {
   const snap = G.lv.snapshot;
   /* the parts picked up in this level go back where they were */
   const lost = G.run.parts.map((h, i) => h && !snap.parts[i] ? PART_NAMES[i] : null).filter(Boolean);
   G.run = snap;
-  G.run.lives--;
+  if (!G.run.cheat) G.run.lives--;
   G.lv = null;
   if (G.run.lives < 0) { G.run.lives = 0; gameOver(); return; }
   enterMap();
@@ -1688,9 +1708,9 @@ function drawHud(lv) {
   ctx.fillStyle = EGA[8]; ctx.fillRect(3, 3, 59, 1); ctx.fillRect(3, 24, 59, 1); ctx.fillRect(3, 3, 1, 22); ctx.fillRect(61, 3, 1, 22);
   drawDigits(r.score, 6, 6, 9);
   ctx.drawImage(ART.items.life, 5, 14, 9, 10);
-  drawDigits(Math.min(r.lives, 99), 15, 16, 2);
+  drawDigits(r.cheat ? 99 : Math.min(r.lives, 99), 15, 16, 2);
   ctx.drawImage(ART.items.ammo, 32, 15, 6, 9);
-  drawDigits(Math.min(r.ammo, 99), 40, 16, 2);
+  drawDigits(r.cheat ? 99 : Math.min(r.ammo, 99), 40, 16, 2);
   if (lv) lv.keys.forEach((k, i) => { if (k) ctx.drawImage(ART.gems[i], 64 + i * 10, 4, 8, 7); });
 }
 
@@ -1729,9 +1749,9 @@ function drawWristHud(lv) {
   drawDigits(r.score, 10, 8, 9, "green");
   f("#1c5a2a", 10, 16, 56, 1);
   ctx.drawImage(inPhosphor(ART.items.life), 9, 18, 9, 10);
-  drawDigits(Math.min(r.lives, 99), 19, 20, 2, "green");
+  drawDigits(r.cheat ? 99 : Math.min(r.lives, 99), 19, 20, 2, "green");
   ctx.drawImage(inPhosphor(ART.items.ammo), 36, 19, 6, 9);
-  drawDigits(Math.min(r.ammo, 99), 44, 20, 2, "green");
+  drawDigits(r.cheat ? 99 : Math.min(r.ammo, 99), 44, 20, 2, "green");
   ctx.fillStyle = "rgba(0, 0, 0, 0.28)"; for (let y = 6; y < 29; y += 2) ctx.fillRect(8, y, 60, 1);
   /* the dial, and a power light that breathes */
   ctx.fillStyle = "#1e1a0e"; ctx.beginPath(); ctx.arc(79.5, 14.5, 6, 0, Math.PI * 2); ctx.fill();
@@ -2023,7 +2043,7 @@ function statusWindow() {
   const row = (k, v) => { grid.appendChild(el("span", "k", k)); const s = el("span", "v"); if (typeof v === "string") s.textContent = v; else s.appendChild(v); grid.appendChild(s); };
   row("Score", String(r.score));
   row("Extra life at", String(r.nextLife));
-  row("Lives", String(r.lives));
+  row("Lives", r.cheat ? "infinite (cheat)" : String(r.lives));
   row("Raygun", say("raygun", n => n ? `${n} charge${n === 1 ? "" : "s"}` : "empty", r.ammo));
   /* the four colours, and the fifth only once it's held */
   const held = G.lv ? G.lv.keys : [false, false, false, false];
@@ -2055,7 +2075,7 @@ function openPause() {
     inLevel ? { label: "Leave level", key: "L", meta: "costs a life", act: () => ask("Leave this level? It costs a life.", "Leave", () => { UI.pop(); loseLife(); }) } : null,
     { label: "Quit to title", key: "Q", meta: inLevel ? "costs a life" : "game saved", act: () => ask(inLevel ? "Quit to the title? Leaving the level costs a life." : "Quit to the title? The game is saved.", "Quit", () => {
       UI.clear();
-      if (inLevel) { G.run = G.lv.snapshot; G.run.lives = Math.max(0, G.run.lives - 1); G.lv = null; }
+      if (inLevel) { G.run = G.lv.snapshot; if (!G.run.cheat) G.run.lives = Math.max(0, G.run.lives - 1); G.lv = null; }
       saveRun(); openTitle();
     }) },
   ].filter(Boolean), { onBack: () => UI.pop() });
@@ -2164,6 +2184,8 @@ const BOOK_TEXT = {
       water: "Glowing water. Poom isn't going in that. Not yet.",
       blocked: "The road's shut. Clear the places nearby.",
       levelDone: name => `${name}: cleared.`,
+      cheatOn: "Auntie Static: \"I didn't see nothin', sugar.\" Infinite lives and energy. No high scores this game.",
+      cheatOff: "Auntie Static: \"Back on the level, then.\" Cheat mode off.",
       raygun: n => `${n} shot${n === 1 ? "" : "s"}`,
       gameOver: n => `<b>Game over.</b><br><br>The Glow wins this one. Commander Poom is out of lives. Final score: ${n}.`,
       highScore: n => `<b>A high score!</b><br><br>${n} caps' worth. Auntie Static wants your name for the broadcast.`,
@@ -2263,6 +2285,7 @@ function enterName(score, then) {
 }
 
 function recordScore(score, done) {
+  if (G.run && G.run.cheated) { done(-1); return; }
   const list = scores();
   if (score <= list[list.length - 1][1]) { done(-1); return; }
   enterName(score, name => {
