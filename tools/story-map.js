@@ -13,7 +13,8 @@
  * Where that rough path doesn't reach, the guess is from straight-line
  * distance to the start, marked "≈".
  * On the world map, / and \ are diagonal walls, as maps2/README.md says
- * (the game itself still lets Poom walk through them: to do).
+ * and the game has them; here a whole slope tile counts as wall, which
+ * gives Book A the same order of play as the game's half-tile walls.
  */
 const fs = require("fs");
 const path = require("path");

@@ -1132,9 +1132,10 @@ function enterMap() {
   const m = G.map;
   if (G.run.mx === null) {
     const [sx, sy] = world().start;
-    G.run.mx = sx * T + 2; G.run.my = sy * T + 2;
+    G.run.mx = sx * T + 4; G.run.my = sy * T + 5;
   }
-  m.p = { x: G.run.mx, y: G.run.my, w: 12, h: 10, dir: "down", anim: 0 };
+  /* a small box: the maps' diagonal passages are narrow */
+  m.p = { x: G.run.mx, y: G.run.my, w: 8, h: 6, dir: "down", anim: 0 };
   mapCamera(true);
 }
 
@@ -1147,6 +1148,22 @@ function mapTile(tx, ty) {
 }
 function barrierOn(tx, ty) { const need = world().barrier[tx + "," + ty]; return !!need && !G.run.done[need]; }
 function mapSolid(ch) { return ch === "#" || (ch === "~" && !G.run.swim); }
+/* Is a pixel on the world map wall? On a world map / and \\ are diagonal
+ * walls (maps2/README.md): wall below the diagonal, open above it, which is
+ * what the tiles' own collision says (a top edge only, like a floor).
+ * Walls both ways: Book A's order of play depends on it. */
+function mapPointSolid(px, py) {
+  const tx = Math.floor(px / T), ty = Math.floor(py / T), ch = mapTile(tx, ty);
+  if (ch !== "/" && ch !== "\\") return mapSolid(ch);
+  const u = (px - tx * T + 0.5) / T, v = (py - ty * T + 0.5) / T;
+  return ch === "/" ? u + v > 1 : v > u;
+}
+/* the corners and edge midpoints of a box: a diagonal can poke between corners */
+function boxPoints(x, y, w, h) {
+  const xs = [x, x + w / 2, x + w - 1], ys = [y, y + h / 2, y + h - 1], out = [];
+  for (const a of xs) for (const b of ys) if (a !== xs[1] || b !== ys[1]) out.push([a, b]);
+  return out;
+}
 function entranceAt(tx, ty) { return world().entrance[tx + "," + ty] || null; }
 
 function updateMap() {
@@ -1154,10 +1171,10 @@ function updateMap() {
   const dx = (isDown("right") ? 1 : 0) - (isDown("left") ? 1 : 0), dy = (isDown("down") ? 1 : 0) - (isDown("up") ? 1 : 0);
   const sp = 1.4;
   const blocked = (x, y) => {
-    for (const [cx, cy] of [[x, y], [x + p.w - 1, y], [x, y + p.h - 1], [x + p.w - 1, y + p.h - 1]]) {
+    for (const [cx, cy] of boxPoints(x, y, p.w, p.h)) {
       const ch = mapTile(Math.floor(cx / T), Math.floor(cy / T));
       if (ch === "~" && mapSolid(ch) && !m.waterWarned) { m.waterWarned = true; toast("Water. Poom can't swim. Not yet."); }
-      if (mapSolid(ch)) { if (barrierOn(Math.floor(cx / T), Math.floor(cy / T)) && !m.fieldWarned) { m.fieldWarned = true; toast("Something blocks the way. Finish the levels nearby."); } return true; }
+      if (mapPointSolid(cx, cy)) { if (barrierOn(Math.floor(cx / T), Math.floor(cy / T)) && !m.fieldWarned) { m.fieldWarned = true; toast("Something blocks the way. Finish the levels nearby."); } return true; }
     }
     return false;
   };
@@ -1360,6 +1377,7 @@ function drawMap() {
     const ent = entranceAt(tx, ty);
     if (barrierOn(tx, ty)) ctx.drawImage(mapArt.field[(m.t >> 2) % 3], x, y);
     else if (ch === "#") ctx.drawImage(mapArt.rock, x, y);
+    else if (ch === "/" || ch === "\\") drawDiagonal(ch === "/" ? "LR" : "LL", x, y);
     else if (ent) ctx.drawImage(mapArt.marker[MARKER_KINDS[+ent.slice(1) % MARKER_KINDS.length]], x, y);
     else if (ch === "Q") ctx.drawImage(mapArt.tele[(m.t >> 3) % 2], x, y);
   }
@@ -1379,6 +1397,14 @@ function drawMap() {
   const label = here ? levelName(here) + (G.run.done[here] ? " (done)" : "") : onTele ? "Teleporter" : "";
   mapLabel(label);
   drawHud(null);
+}
+
+/* a diagonal wall: rock in its half of the tile */
+function drawDiagonal(half, x, y) {
+  const c = { UL: [[0, 0], [T, 0], [0, T]], LR: [[T, 0], [T, T], [0, T]], UR: [[0, 0], [T, 0], [T, T]], LL: [[0, 0], [T, T], [0, T]] }[half];
+  ctx.save(); ctx.beginPath(); ctx.moveTo(x + c[0][0], y + c[0][1]); ctx.lineTo(x + c[1][0], y + c[1][1]); ctx.lineTo(x + c[2][0], y + c[2][1]); ctx.closePath(); ctx.clip();
+  ctx.fillStyle = EGA[8]; ctx.fillRect(x, y, T, T); ctx.drawImage(mapArt.rock, x, y);
+  ctx.restore();
 }
 
 let lastLabel = null;
