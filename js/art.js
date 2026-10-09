@@ -361,7 +361,7 @@ const LOOKS = {
       const b = rows.findIndex(r => r.includes("9"));
       return rows.map((r, y) => {
         /* the head from above: helmet, and the mask over the face */
-        if (y < b) return /[C4]/.test(r) ? recolour([r], { C: "p", F: "q", 4: "o" })[0] : recolour([r.replace(/F0/g, "sr")], { F: "s", i: "p", D: "q" })[0];
+        if (y < b) return /[C4]/.test(r) ? recolour([r], { C: "p", F: "q", 4: "o" })[0] : y < 2 ? r : recolour([r.replace(/F0/g, "sr")], { F: "s", i: "p", D: "q", g: "o" })[0];
         if (r.includes("9")) { const first = r.indexOf("9"); return [...r].map((c, x) => c !== "9" ? c : x === first ? "l" : x === first + (y - b) + 3 ? "t" : "m").join(""); }
         return recolour([r], { 5: y === b + 2 ? "m" : "p", C: "u" })[0];
       });
@@ -378,10 +378,10 @@ const RANGER_HEAD = [
   ".oppppqqpppp..",
   "opppppppppppo.",
   "oooooooooooooo",
-  ".gggpppppppp..",
-  ".gggpsrppsrp..",
-  ".gggppppppqqo.",
-  "..ggppppppoqqo",
+  ".ooopppppppp..",
+  ".ooopsrppsrp..",
+  ".oooppppppqqo.",
+  "..ooppppppoqqo",
 ];
 const RANGER_HEAD_BACK = [
   "..g.....g.....",
@@ -390,10 +390,10 @@ const RANGER_HEAD_BACK = [
   "oppppqpppppp..",
   "oppppppppppp..",
   "oooooooooooo..",
-  ".gggggggggg...",
-  ".ggoooooogg...",
-  ".gggggggggg...",
-  "..gggggggg....",
+  ".opppppppppo..",
+  ".opppqpppppo..",
+  ".opppppppppo..",
+  "..oooooooooo..",
 ];
 const RANGER_HEAD_OUT = [
   "..g.....g.....",
@@ -402,10 +402,10 @@ const RANGER_HEAD_OUT = [
   ".oppppqqpppp..",
   "opppppppppppo.",
   "oooooooooooooo",
-  ".gggpppppppp..",
-  ".gggpoopppoop.",
-  ".gggppppppqqo.",
-  "..ggppppppoqqo",
+  ".ooopppppppp..",
+  ".ooopoopppoop.",
+  ".oooppppppqqo.",
+  "..ooppppppoqqo",
 ];
 
 /* dress Poom: the sprites the game draws come from the look in use */
