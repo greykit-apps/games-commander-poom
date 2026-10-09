@@ -8,7 +8,7 @@
 
 const W = 320, H = 200;
 const NS = "commanderpoom";
-const KEYS = { save: NS + "_save_v1", scores: NS + "_scores_v1", muted: NS + "_muted_v1", seen: NS + "_seen_v1", speed: NS + "_speed_v1" };
+const KEYS = { save: NS + "_save_v2", scores: NS + "_scores_v1", muted: NS + "_muted_v1", seen: NS + "_seen_v1", speed: NS + "_speed_v1" };
 
 const canvas = document.getElementById("screen");
 const ctx = canvas.getContext("2d");
@@ -175,8 +175,40 @@ const G = {
 
 function newRun() {
   return { score: 0, nextLife: 20000, lives: 4, ammo: 0, pogo: false, parts: [false, false, false, false],
-    done: {}, mx: null, my: null };
+    book: BOOK_IDS[0], done: {}, mx: null, my: null };
 }
+
+/* ------------------------------------------------------------------ */
+/* the books: js/books/<A-I>.js, each a world map and its levels.         */
+/* Levels are addressed by map id (A02), never by number.                */
+
+const BOOK_IDS = Object.keys(BOOKS).sort();
+const THEME_OF = { A: "hiss", B: "garden", C: "fort", D: "ice", E: "hiss", F: "garden", G: "fort", H: "ice", I: "hiss" };
+const MAPS = {};
+for (const b of BOOK_IDS) BOOKS[b].chapters.forEach(ch => ch.levels.forEach(lv => { MAPS[lv.id] = lv; lv.book = b; }));
+const levelName = id => `Book ${MAPS[id].book}, level ${+id.slice(1) - 1}`;
+
+/* what a world map's markers mean, worked out once per book */
+const WORLDS = {};
+for (const b of BOOK_IDS) {
+  const w = BOOKS[b].world, at = (x, y) => x + "," + y;
+  const W_ = { rows: w.rows, w: w.w, h: w.h, entrance: {}, barrier: {}, flag: {}, first: {}, need: [] };
+  for (const [x, y, g, name] of w.things) {
+    const m = /^entrance to ([A-I]\d\d)/.exec(name);
+    if (g === "l" && m && MAPS[m[1]]) { W_.entrance[at(x, y)] = m[1]; if (!W_.first[m[1]]) W_.first[m[1]] = [x, y]; }
+  }
+  for (const [x, y, name] of w.marks) {
+    let m;
+    if ((m = /^removed when ([A-I]\d\d) is done/.exec(name))) W_.barrier[at(x, y)] = m[1];
+    else if ((m = /^done-flag spot for ([A-I]\d\d)/.exec(name))) W_.flag[m[1]] = [x, y];
+  }
+  const starts = w.things.filter(t => t[2] === "P");
+  const start = starts.find(t => /player start/.test(t[3])) || starts[0];
+  W_.start = start ? [start[0], start[1]] : [1, 1];
+  W_.need = [...new Set(Object.values(W_.entrance))].sort();
+  WORLDS[b] = W_;
+}
+const world = () => WORLDS[G.run.book];
 
 function saveRun() { if (G.run) store.set(KEYS.save, G.run); }
 function seen(id) { const s = store.get(KEYS.seen, {}); if (s[id]) return true; s[id] = 1; store.set(KEYS.seen, s); return false; }
@@ -190,21 +222,30 @@ function addScore(n) {
 /* ------------------------------------------------------------------ */
 /* the level                                                             */
 
-const SOLID = new Set(["#", "=", "1", "2", "3", "4"]);
-const ITEM_CH = { f: "fish", m: "milk", n: "yarn", c: "catnip", t: "trophy", a: "ammo", L: "life", O: "pogo" };
-const POINTS = { fish: 100, milk: 200, yarn: 500, catnip: 1000, trophy: 5000 };
-const GEM_CH = { r: 0, y: 1, g: 2, b: 3 };
-const DOOR_CH = { 1: 0, 2: 1, 3: 2, 4: 3 };
-const GEM_NAMES = ["red", "yellow", "green", "blue"];
+const SOLID = new Set(["#", "=", "1", "2", "3", "4", "d", "i", "<", ">"]);
+const ITEM_CH = { f: "fish", m: "milk", n: "yarn", c: "catnip", u: "medal", t: "trophy", a: "ammo", L: "life", O: "pogo" };
+const POINTS = { fish: 100, milk: 200, yarn: 500, catnip: 1000, medal: 2000, trophy: 5000 };
+/* q is a keycard whose colour the map doesn't give; d is a locked door
+ * whose colour it doesn't give, and any keycard opens one */
+const GEM_CH = { r: 0, y: 1, g: 2, b: 3, q: 4 };
+const DOOR_CH = { 1: 0, 2: 1, 3: 2, 4: 3, d: 4 };
+const GEM_NAMES = ["red", "yellow", "green", "blue", "silver"];
+const BELT = { "<": -1, ">": 1 };
 
 function loadLevel(n) {
-  const def = LEVELS[n];
+  const def = MAPS[n], theme = THEME_OF[def.book];
   const rows = def.rows.map(r => [...r]);
   const h = rows.length, w = rows[0].length;
-  const lv = { n, def, w, h, tiles: rows, back: [], ents: [], items: [], shots: [], fx: [], keys: [false, false, false, false],
-    theme: def.theme, ice: !!def.ice, t: 0, p: null, exit: null, over: null };
-  lv.art = paintTiles(def.theme);
-  lv.far = paintFar(def.theme);
+  const lv = { n, def, w, h, tiles: rows, back: [], ents: [], items: [], shots: [], fx: [], keys: [false, false, false, false, false],
+    theme, ice: false, t: 0, p: null, exit: null, over: null, slope: slopesOf(rows) };
+  /* Under a slope the maps leave the odd non-solid tile where the ground's
+   * edge was drawn. Boxed in on both sides, it is ground. */
+  const isSl = (x, y) => !!(lv.slope[y] && lv.slope[y][x]);
+  const firm = (x, y) => SOLID.has((rows[y] || [])[x]) || isSl(x, y);
+  for (let y = 1; y < h; y++) for (let x = 1; x < w - 1; x++)
+    if (rows[y][x] === "." && firm(x - 1, y) && firm(x + 1, y) && (isSl(x - 1, y - 1) || isSl(x, y - 1) || isSl(x + 1, y - 1))) rows[y][x] = "#";
+  lv.art = paintTiles(theme);
+  lv.far = paintFar(theme);
   /* a tile that held a thing becomes the air around it */
   const airOf = (x, y) => [[1, 0], [-1, 0], [0, -1], [0, 1]].some(([dx, dy]) => (rows[y + dy] || [])[x + dx] === "+") ? "+" : ".";
   for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
@@ -225,6 +266,32 @@ function loadLevel(n) {
   return lv;
 }
 
+/* Slopes. A row's run of n like slope tiles climbs one tile height, so a
+ * lone / is 45 degrees and a pair is half that. Each slope tile gets its
+ * surface heights at its left and right edges, in pixels from its bottom. */
+function slopesOf(rows) {
+  const out = [];
+  rows.forEach((r, y) => {
+    out[y] = {};
+    for (let x = 0; x < r.length;) {
+      const c = r[x];
+      if (c !== "/" && c !== "\\") { x++; continue; }
+      let n = 0; while (r[x + n] === c) n++;
+      for (let k = 0; k < n; k++) out[y][x + k] = c === "/" ? [Math.round(T * k / n), Math.round(T * (k + 1) / n)] : [Math.round(T * (n - k) / n), Math.round(T * (n - k - 1) / n)];
+      x += n;
+    }
+  });
+  return out;
+}
+
+/* the y of a slope's surface at pixel column px, or null if tx,ty is no slope */
+function slopeTop(lv, tx, ty, px) {
+  const s = lv.slope[ty] && lv.slope[ty][tx];
+  if (!s) return null;
+  const f = Math.max(0, Math.min(1, (px - tx * T) / T));
+  return ty * T + T - (s[0] + (s[1] - s[0]) * f);
+}
+
 const tileAt = (lv, tx, ty) => (tx < 0 || tx >= lv.w) ? "#" : (ty < 0 || ty >= lv.h) ? "." : lv.tiles[ty][tx];
 const isSolid = c => SOLID.has(c);
 
@@ -235,21 +302,27 @@ function hazardRect(c) {
   return null;
 }
 
+/* move a body sideways through the tiles. On a slope, a body walking into
+ * the ground at its top steps up onto it. */
+function moveX(lv, b, dx, hit) {
+  if (!dx) return;
+  let nx = b.x + dx;
+  const ty0 = Math.floor(b.y / T), ty1 = Math.floor((b.y + b.h - 1) / T);
+  const tx = dx > 0 ? Math.floor((nx + b.w - 1) / T) : Math.floor(nx / T);
+  for (let ty = ty0; ty <= ty1; ty++) if (isSolid(tileAt(lv, tx, ty))) {
+    if (b.onSlope) for (let up = 1; up <= 10; up++) if (rectClear(lv, nx, b.y - up, b.w, b.h)) { b.y -= up; b.x = nx; return; }
+    nx = dx > 0 ? tx * T - b.w : (tx + 1) * T;
+    if (dx > 0) hit.right = true; else hit.left = true;
+    break;
+  }
+  b.x = nx;
+}
+
 /* move a body through the tiles: x, then y. Returns what it hit. */
 function moveBody(lv, b, oneway = true) {
   const hit = { left: false, right: false, top: false, bottom: false };
-  if (b.vx) {
-    let nx = b.x + b.vx;
-    const ty0 = Math.floor(b.y / T), ty1 = Math.floor((b.y + b.h - 1) / T);
-    if (b.vx > 0) {
-      const tx = Math.floor((nx + b.w - 1) / T);
-      for (let ty = ty0; ty <= ty1; ty++) if (isSolid(tileAt(lv, tx, ty))) { nx = tx * T - b.w; hit.right = true; break; }
-    } else {
-      const tx = Math.floor(nx / T);
-      for (let ty = ty0; ty <= ty1; ty++) if (isSolid(tileAt(lv, tx, ty))) { nx = (tx + 1) * T; hit.left = true; break; }
-    }
-    b.x = nx;
-  }
+  moveX(lv, b, b.vx, hit);
+  const wasGround = b.onGround, falling = b.vy >= 0;
   b.onGround = false;
   let ny = b.y + b.vy;
   const tx0 = Math.floor(b.x / T), tx1 = Math.floor((b.x + b.w - 1) / T);
@@ -267,6 +340,17 @@ function moveBody(lv, b, oneway = true) {
     for (let tx = tx0; tx <= tx1; tx++) if (isSolid(tileAt(lv, tx, ty))) { ny = (ty + 1) * T; hit.top = true; break; }
   }
   b.y = ny;
+  /* slopes: stand on the surface; walking down one, stay on it */
+  b.onSlope = false;
+  if (falling) {
+    const fx = b.x + b.w / 2, ftx = Math.floor(fx / T), fty = Math.floor((b.y + b.h - 1) / T);
+    for (const ty of [fty, fty + 1]) {
+      const top = slopeTop(lv, ftx, ty, fx);
+      if (top === null) continue;
+      if (b.y + b.h >= top || (wasGround && top - (b.y + b.h) <= 8)) { b.y = top - b.h; hit.bottom = true; b.onGround = true; b.onSlope = true; }
+      break;
+    }
+  }
   if (hit.bottom || hit.top) b.vy = 0;
   return hit;
 }
@@ -274,8 +358,8 @@ function moveBody(lv, b, oneway = true) {
 /* is there floor just ahead of a walker's leading foot? */
 function floorAhead(lv, b) {
   const fx = b.vx > 0 ? b.x + b.w + 1 : b.x - 2, fy = b.y + b.h + 2;
-  const c = tileAt(lv, Math.floor(fx / T), Math.floor(fy / T));
-  return isSolid(c) || c === "-";
+  const tx = Math.floor(fx / T), ty = Math.floor(fy / T), c = tileAt(lv, tx, ty);
+  return isSolid(c) || c === "-" || slopeTop(lv, tx, ty, fx) !== null || slopeTop(lv, tx, ty - 1, fx) !== null;
 }
 
 /* is a rectangle clear of solid tiles? */
@@ -335,6 +419,8 @@ function updatePlayer(lv) {
   if (p.poleCool > 0) p.poleCool--;
   if (p.land > 0) p.land--;
   if (ax) p.face = ax;
+  const underfoot = tileAt(lv, Math.floor((p.x + p.w / 2) / T), Math.floor((p.y + p.h + 1) / T));
+  const ice = lv.ice || (p.onGround && underfoot === "i");
 
   /* pogo on and off */
   if (wasPressed("pogo") && !p.climbing) {
@@ -393,8 +479,8 @@ function updatePlayer(lv) {
     else if (p.onGround && !p.pogo) {
       if (ax) {
         if (Math.sign(p.vx) === -ax) p.vx = 0;
-        p.vx += ax * (lv.ice ? KP.walkAccel / 3 : KP.walkAccel);
-      } else p.vx -= Math.sign(p.vx) * Math.min(Math.abs(p.vx), lv.ice ? KP.airFriction : KP.groundFriction);
+        p.vx += ax * (ice ? KP.walkAccel / 3 : KP.walkAccel);
+      } else p.vx -= Math.sign(p.vx) * Math.min(Math.abs(p.vx), ice ? KP.airFriction : KP.groundFriction);
     } else {
       if (ax) p.vx += ax * (p.pogo ? KP.pogoAirAccel : KP.airAccel);
       else if (!p.pogo) p.vx -= Math.sign(p.vx) * Math.min(Math.abs(p.vx), KP.airFriction);
@@ -408,7 +494,7 @@ function updatePlayer(lv) {
     if (!p.pogo && !busy && p.buffer > 0 && p.coyote > 0) {
       const under = tileAt(lv, Math.floor(cx / T), Math.floor((p.y + p.h + 1) / T));
       if (D && under === "-") { p.dropT = 10; p.y += 2; }
-      else { p.crouch = KP.jumpCrouch; p.crouchHeld = 0; p.vx = lv.ice ? p.vx : 0; }
+      else { p.crouch = KP.jumpCrouch; p.crouchHeld = 0; p.vx = ice ? p.vx : 0; }
       p.buffer = 0; p.coyote = 0;
     }
     if (p.crouch > 0) {
@@ -441,6 +527,8 @@ function updatePlayer(lv) {
       if (p.onGround && !wasGround) p.land = 6;
       if (p.pogo && p.onGround) { p.compress = KP.pogoCompress; p.pogoBigAsk = isDown("jump"); p.vx = vx; }
     }
+    /* a conveyor carries whatever stands on it */
+    if (p.onGround && BELT[underfoot]) moveX(lv, p, BELT[underfoot], {});
   }
 
   /* fire: one shot per press, at most one every seven ticks. On the ground
@@ -476,8 +564,9 @@ function updatePlayer(lv) {
     const tx = Math.floor((p.x + dx) / T);
     for (let ty = hy0; ty <= hy1; ty++) {
       const d = DOOR_CH[tileAt(lv, tx, ty)];
-      if (d !== undefined && lv.keys[d]) openDoor(lv, tx, ty);
-      else if (d !== undefined && !lv.warned) { lv.warned = true; toast(`A ${GEM_NAMES[d]} door. It needs a ${GEM_NAMES[d]} keycard.`); }
+      /* a silver door's colour isn't in the maps: any keycard opens it */
+      if (d !== undefined && (lv.keys[d] || d === 4 && lv.keys.some(Boolean))) openDoor(lv, tx, ty);
+      else if (d !== undefined && !lv.warned) { lv.warned = true; toast(d === 4 ? "A locked door. It needs a keycard." : `A ${GEM_NAMES[d]} door. It needs a ${GEM_NAMES[d]} keycard.`); }
     }
   }
 
@@ -668,8 +757,7 @@ function startLevel(n) {
   G.mode = "level";
   centerCamera(true);
   sfx("enter");
-  const def = LEVELS[n];
-  card(def.name, () => { if (def.hint && !seen("hint" + n)) message(def.hint); });
+  card(levelName(n));
 }
 
 function updateLevel() {
@@ -702,13 +790,23 @@ function centerCamera(snap) {
 }
 
 function finishLevel() {
-  const n = G.lv.n;
-  G.run.done[n] = true;
+  const n = G.lv.n, r = G.run;
+  r.done[n] = true;
   G.lv = null;
+  /* the whole book done: on to the next, or the end */
+  if (world().need.every(id => r.done[id])) {
+    const next = BOOK_IDS[BOOK_IDS.indexOf(r.book) + 1];
+    if (!next) { ending(); return; }
+    const was = r.book;
+    r.book = next; r.mx = r.my = null;
+    enterMap();
+    saveRun();
+    message(`<b>Book ${was} is done!</b><br><br>On to Book ${next}.`);
+    return;
+  }
   enterMap();
   saveRun();
-  const fields = Object.entries(WORLD.barriers).filter(([, need]) => need.includes(+n) && need.every(k => G.run.done[k]));
-  if (fields.length) setTimeout(() => toast("Somewhere on the map, a force field flickers out."), 300);
+  if (Object.values(world().barrier).includes(n)) setTimeout(() => toast("Somewhere on the map, the way opens."), 300);
 }
 
 function loseLife() {
@@ -729,16 +827,23 @@ function enterMap() {
   G.mode = "map";
   const m = G.map;
   if (G.run.mx === null) {
-    const y = WORLD.rows.findIndex(r => r.includes("P"));
-    G.run.mx = WORLD.rows[y].indexOf("P") * T + 2; G.run.my = y * T + 2;
+    const [sx, sy] = world().start;
+    G.run.mx = sx * T + 2; G.run.my = sy * T + 2;
   }
   m.p = { x: G.run.mx, y: G.run.my, w: 12, h: 10, dir: "down", anim: 0 };
   mapCamera(true);
 }
 
-function mapTile(tx, ty) { return (WORLD.rows[ty] || "")[tx] || "~"; }
-function fieldOn(ch) { return WORLD.barriers[ch] && !WORLD.barriers[ch].every(n => G.run.done[n]); }
-function mapSolid(ch) { return ch === "#" || ch === "~" || ch === "T" || (/[ABC]/.test(ch) && fieldOn(ch)); }
+/* A world map's tile. A barrier is whatever the map has there until its
+ * level is done, and open ground after. */
+function mapTile(tx, ty) {
+  const w = world(), need = w.barrier[tx + "," + ty];
+  if (need && G.run.done[need]) return ".";
+  return (w.rows[ty] || "")[tx] || "#";
+}
+function barrierOn(tx, ty) { const need = world().barrier[tx + "," + ty]; return !!need && !G.run.done[need]; }
+function mapSolid(ch) { return ch === "#" || ch === "~"; }
+function entranceAt(tx, ty) { return world().entrance[tx + "," + ty] || null; }
 
 function updateMap() {
   const m = G.map, p = m.p;
@@ -747,7 +852,7 @@ function updateMap() {
   const blocked = (x, y) => {
     for (const [cx, cy] of [[x, y], [x + p.w - 1, y], [x, y + p.h - 1], [x + p.w - 1, y + p.h - 1]]) {
       const ch = mapTile(Math.floor(cx / T), Math.floor(cy / T));
-      if (mapSolid(ch)) { if (/[ABC]/.test(ch) && !m.fieldWarned) { m.fieldWarned = true; toast("A force field. Finish the levels nearby to shut it down."); } return true; }
+      if (mapSolid(ch)) { if (barrierOn(Math.floor(cx / T), Math.floor(cy / T)) && !m.fieldWarned) { m.fieldWarned = true; toast("Something blocks the way. Finish the levels nearby."); } return true; }
     }
     return false;
   };
@@ -758,30 +863,18 @@ function updateMap() {
   m.t++;
 
   const ctx_ = Math.floor((p.x + p.w / 2) / T), cty = Math.floor((p.y + p.h / 2) / T);
-  const here = mapTile(ctx_, cty);
-  if (wasPressed("jump") || wasPressed("fire")) {
-    if (/[1-8]/.test(here)) {
-      if (G.run.done[here]) { toast(`${LEVELS[here].name}: done.`); sfx("nope"); }
-      else { saveRun(); startLevel(+here); }
-    } else if (here === "S") boardShip();
+  const here = entranceAt(ctx_, cty);
+  if (here && (wasPressed("jump") || wasPressed("fire"))) {
+    if (G.run.done[here]) { toast(`${levelName(here)}: done.`); sfx("nope"); }
+    else { saveRun(); startLevel(here); }
   }
   mapCamera(false);
 }
 
 function mapCamera(snap) {
-  const p = G.map.p, c = G.cam, mw = WORLD.rows[0].length * T, mh = WORLD.rows.length * T;
+  const p = G.map.p, c = G.cam, mw = world().w * T, mh = world().h * T;
   let tx = Math.max(0, Math.min(mw - W, p.x + p.w / 2 - W / 2)), ty = Math.max(0, Math.min(mh - H, p.y + p.h / 2 - H / 2));
   c.x = snap ? tx : c.x + (tx - c.x) * 0.2; c.y = snap ? ty : c.y + (ty - c.y) * 0.2;
-}
-
-function boardShip() {
-  const r = G.run, missing = r.parts.map((h, i) => h ? null : PART_NAMES[i]).filter(Boolean);
-  if (missing.length) {
-    sfx("nope");
-    message(`<b>The Catamaran</b><br><br>It won't fly without ${missing.length === 4 ? "its four stolen parts" : missing.join(", ").replace(/, ([^,]*)$/, " and $1")}.`, { iconRow: r.parts });
-    return;
-  }
-  ending();
 }
 
 /* ------------------------------------------------------------------ */
@@ -794,7 +887,7 @@ function drawLevel() {
   const fx = -Math.round(cx * 0.25) % W;
   ctx.drawImage(lv.far, fx, 0); ctx.drawImage(lv.far, fx + W, 0);
   const tx0 = Math.floor(cx / T), ty0 = Math.floor(cy / T);
-  const solidLike = ch => ch === "#" || ch === "=" || ch === "%";
+  const solidLike = ch => ch === "#" || ch === "=" || ch === "%" || ch === "i" || ch === "<" || ch === ">" || ch === "/" || ch === "\\";
   for (let ty = ty0; ty <= ty0 + Math.ceil(H / T); ty++) for (let tx = tx0; tx <= tx0 + Math.ceil(W / T); tx++) {
     if (ty < 0 || ty >= lv.h || tx < 0 || tx >= lv.w) continue;
     const ch = lv.tiles[ty][tx], x = tx * T - cx, y = ty * T - cy;
@@ -807,6 +900,9 @@ function drawLevel() {
     else if (ch === "~") ctx.drawImage(art.liquid[(lv.t >> 3) % 4], x, y);
     else if (ch === "|") ctx.drawImage(art.pole, x, y);
     else if (DOOR_CH[ch] !== undefined) ctx.drawImage(art.doors[DOOR_CH[ch]], x, y);
+    else if (ch === "i") ctx.drawImage(art.ice, x, y);
+    else if (BELT[ch]) ctx.drawImage(art.conveyor[ch === ">" ? 1 : 0][(lv.t >> 2) % 4], x, y);
+    else if (ch === "/" || ch === "\\") { const sl = lv.slope[ty][tx]; ctx.drawImage(art.slope(sl[0], sl[1]), x, y); }
   }
   if (lv.exit) ctx.drawImage(art.exit[lv.p.state === "exit" ? 1 : 0], lv.exit.x - cx, lv.exit.y - cy);
 
@@ -919,6 +1015,7 @@ function drawSmallText(text, x, y, col, center) {
 }
 
 let mapArt = null;
+const MARKER_KINDS = ["dome", "cave", "igloo", "gate", "fort", "castle"];
 function drawMap() {
   const m = G.map, c = G.cam, cx = Math.round(c.x), cy = Math.round(c.y);
   ctx.fillStyle = "#000"; ctx.fillRect(0, 0, W, H);
@@ -926,25 +1023,25 @@ function drawMap() {
   for (let ty = ty0; ty <= ty0 + Math.ceil(H / T); ty++) for (let tx = tx0; tx <= tx0 + Math.ceil(W / T); tx++) {
     const ch = mapTile(tx, ty), x = tx * T - cx, y = ty * T - cy;
     if (ch === "~") { ctx.drawImage(mapArt.water[((m.t >> 5) + tx + ty) % 2], x, y); continue; }
-    if (ch === ",") ctx.drawImage(mapArt.path, x, y); else ctx.drawImage(mapArt.ground, x, y);
-    if (ch === "#") ctx.drawImage(mapArt.rock, x, y);
-    else if (ch === "T") ctx.drawImage(mapArt.tree, x, y);
-    else if (/[ABC]/.test(ch) && fieldOn(ch)) ctx.drawImage(mapArt.field[(m.t >> 2) % 3], x, y);
-    else if (/[1-8]/.test(ch)) {
-      ctx.drawImage(mapArt.marker[WORLD.markers[ch]], x, y);
-      if (G.run.done[ch]) ctx.drawImage(mapArt.flag, x, y - 4);
-    }
+    ctx.drawImage(mapArt.ground, x, y);
+    const ent = entranceAt(tx, ty);
+    if (barrierOn(tx, ty)) ctx.drawImage(mapArt.field[(m.t >> 2) % 3], x, y);
+    else if (ch === "#") ctx.drawImage(mapArt.rock, x, y);
+    else if (ent) ctx.drawImage(mapArt.marker[MARKER_KINDS[+ent.slice(1) % MARKER_KINDS.length]], x, y);
   }
-  /* the ship sits on its 2x2 */
-  const sy = WORLD.rows.findIndex(r => r.includes("S")), sx = WORLD.rows[sy].indexOf("S");
-  ctx.drawImage(mapArt.ship, sx * T - cx, sy * T - cy);
+  /* done flags: on the map's own flag spot, or the level's first entrance tile */
+  const w = world();
+  for (const id of w.need) if (G.run.done[id]) {
+    const [fx, fy] = w.flag[id] || w.first[id];
+    ctx.drawImage(mapArt.flag, fx * T - cx, fy * T - cy - 4);
+  }
   const p = m.p, f = Math.floor(p.anim) % 2;
   const set = ART.map, spr = p.dir === "up" ? set["up" + f].r : p.dir === "down" ? set["down" + f].r : set["side" + f][p.dir === "left" ? "l" : "r"];
   ctx.drawImage(spr, Math.round(p.x + p.w / 2 - spr.width / 2) - cx, Math.round(p.y + p.h) - spr.height - cy + 1);
 
   /* the name of the place underfoot */
-  const here = mapTile(Math.floor((p.x + p.w / 2) / T), Math.floor((p.y + p.h / 2) / T));
-  const label = /[1-8]/.test(here) ? LEVELS[here].name + (G.run.done[here] ? " (done)" : "") : here === "S" ? "The Catamaran" : "";
+  const here = entranceAt(Math.floor((p.x + p.w / 2) / T), Math.floor((p.y + p.h / 2) / T));
+  const label = here ? levelName(here) + (G.run.done[here] ? " (done)" : "") : "";
   mapLabel(label);
   drawHud(null);
 }
@@ -1128,7 +1225,8 @@ function statusWindow() {
   row("Keycards", keys);
   const parts = el("span"); r.parts.forEach((h, i) => { const im = imgOf(ART.parts[i]); im.title = PART_NAMES[i]; if (!h) im.classList.add("missing"); parts.appendChild(im); });
   row("Ship parts", parts);
-  row("Levels done", `${Object.keys(r.done).length} of 8`);
+  row("Book", r.book);
+  row("Levels done", `${world().need.filter(id => r.done[id]).length} of ${world().need.length}`);
   box.appendChild(grid);
   box.appendChild(el("p", "hint", "press a key"));
   wrap.appendChild(box);
@@ -1392,15 +1490,18 @@ function boot() {
   syncSoundButton();
   document.getElementById("snd").addEventListener("click", () => { audio.unlock(); toggleMute(); });
 
-  /* debug: ?level=N drops straight into a level with everything */
+  /* debug: ?level=A02 drops straight into a level with everything; ?book=B
+   * onto that book's map */
   const q = new URLSearchParams(location.search);
-  if (q.has("level")) {
+  const lvq = (q.get("level") || "").toUpperCase(), bq = (q.get("book") || "").toUpperCase();
+  if (MAPS[lvq] || WORLDS[bq]) {
     run.cancel();
     hideLogo();
     G.run = newRun(); G.run.pogo = true; G.run.ammo = 50;
+    G.run.book = MAPS[lvq] ? MAPS[lvq].book : bq;
     G.map.p = null;
     enterMap();
-    startLevel(+q.get("level"));
+    if (MAPS[lvq]) startLevel(lvq);
   } else {
     openTitle();
     const saved = store.get(KEYS.save, null);

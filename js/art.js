@@ -753,6 +753,17 @@ const ITEMS = {
     "...EEEE...",
     "..666666..",
   ],
+  medal: [
+    ".44..44.",
+    "..4..4..",
+    "...44...",
+    "..EEEE..",
+    ".EE66EE.",
+    ".E6EE6E.",
+    ".E6EE6E.",
+    ".EE66EE.",
+    "..EEEE..",
+  ],
   ammo: [
     "..88..",
     ".EEEE.",
@@ -905,6 +916,8 @@ function buildArt() {
   for (const [k, g] of Object.entries(CLAWTANK)) ART.tank[k] = both(sprite(g));
   for (const [k, g] of Object.entries(ITEMS)) ART.items[k] = sprite(g);
   ART.gems = GEM_SWAPS.map(s => sprite(GEM, { swap: s }));
+  /* the keycard whose colour the map doesn't say: silver */
+  ART.gems.push(sprite(GEM, { swap: { 15: 15, 12: 7, 4: 8 } }));
   ART.parts = PARTS.map(g => sprite(g));
   ART.zap = ZAP.map(g => sprite(g, { outline: false }));
   ART.hairball = HAIRBALL.map(g => sprite(g));
@@ -1039,7 +1052,7 @@ function paintTiles(themeName) {
 
   /* locked doors: red, yellow, green, blue */
   /* a door tile: a coloured slab in a dark frame, rivets and a key slot */
-  tiles.doors = [[12, 4], [14, 6], [10, 2], [9, 1]].map(([a, b]) => mk(g => {
+  tiles.doors = [[12, 4], [14, 6], [10, 2], [9, 1], [7, 8]].map(([a, b]) => mk(g => {
     g.fillStyle = E(b); g.fillRect(0, 0, T, T);
     g.fillStyle = E(a); g.fillRect(2, 0, T - 4, T);
     g.fillStyle = E(15); g.fillRect(3, 0, 1, T);
@@ -1062,6 +1075,35 @@ function paintTiles(themeName) {
     g.fillStyle = E(2); g.fillRect(5, 0, 6, 3); g.fillStyle = E(10); g.fillRect(6, 0, 4, 2);
     return c; };
   tiles.exit = [exitDoor(false), exitDoor(true)];
+
+  /* ice: ground under a pale, glassy crust */
+  tiles.ice = mk(g => {
+    g.drawImage(tiles.ground[0], 0, 0);
+    g.fillStyle = E(11); g.fillRect(0, 0, T, 4);
+    g.fillStyle = E(15); g.fillRect(0, 0, T, 1); g.fillRect(2, 1, 3, 1); g.fillRect(10, 2, 2, 1);
+    g.fillStyle = E(3); g.fillRect(0, 4, T, 1);
+  });
+
+  /* conveyors, four frames each way: a belt over rollers */
+  tiles.conveyor = [-1, 1].map(dir => [0, 1, 2, 3].map(f => mk(g => {
+    g.fillStyle = E(8); g.fillRect(0, 0, T, T);
+    g.fillStyle = E(0); g.fillRect(0, 5, T, 1);
+    g.fillStyle = E(7); g.fillRect(0, 0, T, 5);
+    g.fillStyle = E(14);
+    for (let x = 0; x < T + 4; x += 4) g.fillRect(((x + dir * f) % T + T) % T, 1, 2, 3);
+    g.fillStyle = E(7); for (const x of [3, 11]) { g.beginPath(); g.arc(x, 10, 3, 0, Math.PI * 2); g.fill(); }
+    g.fillStyle = E(15); for (const x of [3, 11]) g.fillRect(x - 1, 8, 1, 1);
+  })));
+
+  /* slopes: the ground tile cut along its surface. Painted on demand, one
+   * per pair of heights (left edge, right edge, in pixels from the bottom) */
+  const slopeCache = {};
+  tiles.slope = (hl, hr) => slopeCache[hl + "," + hr] || (slopeCache[hl + "," + hr] = mk(g => {
+    g.beginPath(); g.moveTo(0, T); g.lineTo(0, T - hl); g.lineTo(T, T - hr); g.lineTo(T, T); g.closePath();
+    g.save(); g.clip(); g.drawImage(tiles.ground[1], 0, 0); g.restore();
+    g.strokeStyle = E(th.crust[0]); g.lineWidth = 3; g.beginPath(); g.moveTo(0, T - hl + 1); g.lineTo(T, T - hr + 1); g.stroke();
+    g.strokeStyle = E(th.crust[1]); g.lineWidth = 1; g.beginPath(); g.moveTo(0, T - hl + 0.5); g.lineTo(T, T - hr + 0.5); g.stroke();
+  }));
 
   /* fake wall: looks like ground, walks like air (secret) */
   tiles.fake = tiles.ground[0];
