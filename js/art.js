@@ -973,11 +973,11 @@ const THEMES = {
   garden: { sky: 1, far: [2, 3], ground: [6, 2, 10], crust: [10, 2], alt: [2, 6], plat: [6, 14], bg: [0, 2], bgRock: true, liquid: [9, 3, 15], liquidName: "deep water" },
   /* Book 1 (docs/story/book-1-story.md): a Vault, an underground shelter of
    * riveted steel; and Vault 9, the cold-sleep shelter whose coolant burst */
-  vault: { sky: 0, far: [8, 7], ground: [8, 7, 0], crust: [7, 15], alt: [8, 7], plat: [7, 8], bg: [0, 8], liquid: [11, 15, 3], liquidName: "coolant", style: "vault", no: 6 },
+  vault: { sky: 0, far: [8, 7], ground: [8, 7, 0], alt: [8, 7], plat: [7, 8], bg: [0, 8], liquid: [11, 15, 3], liquidName: "coolant", style: "vault", no: 6, crust: ["#97a3b0", "#c3ccd6"] },
   /* Book 1's raider camps: Fort Scrap and the Scrappers' turf, rusted scrap
    * and plank scaffolding under the Glow's dusk */
   raiders: { sky: 0, far: [6, 4], ground: [6, 4, 8], crust: ["#d07a36", "#f0a050"], alt: [8, 6], plat: [6, 14], bg: [0, 6], liquid: [10, 2, 14], liquidName: "sludge", style: "raiders" },
-  vaultCold: { sky: 1, far: [9, 3], ground: [8, 7, 0], crust: [15, 11], alt: [8, 7], plat: [7, 8], bg: [1, 0], liquid: [11, 15, 3], liquidName: "coolant", style: "vault", cold: true, no: 9 },
+  vaultCold: { sky: 1, far: [9, 3], ground: [8, 7, 0], crust: ["#b4e6f6", "#e8fbff"], alt: [8, 7], plat: [7, 8], bg: [1, 0], liquid: [11, 15, 3], liquidName: "coolant", style: "vault", cold: true, no: 9 },
 };
 
 function paintTiles(themeName) {
@@ -1292,126 +1292,150 @@ function raiderTiles(tiles, th, mk, E) {
   });
 }
 
+/* VGA ramps for the Vaults, dark to light: a cool steel, and frost */
+const VSTEEL = ["#0f1217", "#1c222a", "#2b333d", "#3d4752", "#535f6c", "#6f7c8a", "#95a1ae", "#c4ccd5"];
+const FROST = ["#173450", "#2a5f8a", "#4a92c0", "#78c2e4", "#b2e4f6", "#e9fbff"];
+const VLIGHT = { green: "#52e06a", greenHot: "#c8ffd2", greenDim: "#1f7a33", spark: "#fff3a0", sparkHot: "#ffffff", sparkGlow: "rgba(127, 216, 255, 0.35)", screen: "#05200e", text: "#3cff7a", textDim: "#1d9a46", lamp: "#ff3b2f", lampHot: "#ffc0b8", gold: "#ffd23f" };
+
 /* The Vault's own tiles, over the shared ones. Steel panels, catwalks,
  * security doors, a lift for the exit, terminals for the signs; cold, it is
- * all frosted, and the hazards are ice instead of live wires. */
+ * all frosted, and the hazards are ice instead of live wires. Full colour:
+ * the ramps above. */
 function vaultTiles(tiles, th, mk, E) {
   const cold = !!th.cold;
-  const rivet = (g, x, y) => { g.fillStyle = E(7); g.fillRect(x, y, 2, 2); g.fillStyle = E(15); g.fillRect(x, y, 1, 1); g.fillStyle = E(0); g.fillRect(x + 1, y + 1, 1, 1); };
-  const frost = (g, r, n) => { for (let i = 0; i < n; i++) { g.fillStyle = E(r() < .5 ? 11 : 15); g.fillRect(r() * T | 0, r() * T | 0, 1, 1); } };
+  const px = (g, c, x, y, w = 1, h = 1) => { g.fillStyle = c; g.fillRect(x, y, w, h); };
+  const rivet = (g, x, y) => { px(g, VSTEEL[6], x, y, 2, 2); px(g, VSTEEL[7], x, y); px(g, VSTEEL[1], x + 1, y + 1); px(g, VSTEEL[2], x + 2, y + 1, 1, 2); };
+  /* frost creeps in from the edges: specks, thickest near them */
+  const frost = (g, r, n) => {
+    for (let i = 0; i < n; i++) {
+      const edge = r() < .6, x = edge ? (r() < .5 ? r() * 4 : T - 1 - r() * 4) | 0 : r() * T | 0, y = edge ? r() * T | 0 : (r() < .5 ? r() * 4 : T - 1 - r() * 4) | 0;
+      px(g, FROST[3 + (r() * 3 | 0)], x, y);
+    }
+    g.fillStyle = "rgba(120, 190, 235, 0.10)"; g.fillRect(0, 0, T, T);
+  };
+  const icicles = (g, r, y, every = 3) => {
+    for (let x = 1; x < T; x += every) if (r() < .75) {
+      const len = 2 + (r() * 4 | 0);
+      for (let k = 0; k < len; k++) px(g, FROST[Math.max(2, 5 - k)], x, y + k);
+      px(g, FROST[5], x - 1 >= 0 ? x : x, y);
+    }
+  };
 
-  /* a steel panel: bevelled, riveted; three kinds so a wall isn't one
-     panel repeated: plain, a vent, a seam */
+  /* a steel panel: bevelled, shaded top to bottom, riveted; three kinds so
+     a wall isn't one panel repeated: plain, a vent, a seam */
   const panel = (top, kind, seed) => mk(g => {
     const r = rng(seed);
-    g.fillStyle = E(8); g.fillRect(0, 0, T, T);
-    g.fillStyle = E(7); g.fillRect(0, 0, T, 1); g.fillRect(0, 0, 1, T);
-    g.fillStyle = E(0); g.fillRect(0, T - 1, T, 1); g.fillRect(T - 1, 0, 1, T);
-    rivet(g, 2, 2); rivet(g, 12, 2); rivet(g, 2, 12); rivet(g, 12, 12);
-    if (kind === 1) { g.fillStyle = E(0); for (const y of [6, 8, 10]) g.fillRect(5, y, 6, 1); g.fillStyle = E(7); for (const y of [7, 9, 11]) g.fillRect(5, y, 6, 1); }
-    if (kind === 2) { g.fillStyle = E(0); g.fillRect(1, 7, T - 2, 1); g.fillStyle = E(7); g.fillRect(1, 8, T - 2, 1); }
-    if (cold) frost(g, r, 10);
+    for (let y = 0; y < T; y++) px(g, y < 5 ? VSTEEL[4] : y < 11 ? VSTEEL[3] : VSTEEL[3], 0, y, T, 1);
+    for (let y = 1; y < 5; y++) for (let x = 1; x < T - 1; x++) if (((x + y) & 3) === 0) px(g, VSTEEL[3], x, y);
+    /* brushed streaks */
+    for (let i = 0; i < 4; i++) px(g, VSTEEL[5], 2 + (r() * 10 | 0), 2 + (r() * 12 | 0), 3 + (r() * 4 | 0), 1);
+    px(g, VSTEEL[6], 0, 0, T, 1); px(g, VSTEEL[5], 0, 0, 1, T); px(g, VSTEEL[7], 0, 0);
+    px(g, VSTEEL[1], 0, T - 1, T, 1); px(g, VSTEEL[1], T - 1, 0, 1, T); px(g, VSTEEL[2], 1, T - 2, T - 2, 1);
+    rivet(g, 2, 2); rivet(g, 11, 2); rivet(g, 2, 11); rivet(g, 11, 11);
+    if (kind === 1) for (const y of [5, 7, 9]) { px(g, VSTEEL[0], 5, y, 6, 1); px(g, VSTEEL[5], 5, y + 1, 6, 1); }
+    if (kind === 2) { px(g, VSTEEL[1], 1, 7, T - 2, 1); px(g, VSTEEL[5], 1, 8, T - 2, 1); }
+    if (cold) frost(g, r, 16);
     if (top) {
       /* a floor plate on top; cold, a lip of frost with icicles under it */
-      g.fillStyle = E(7); g.fillRect(0, 0, T, 3);
-      g.fillStyle = E(15); g.fillRect(0, 0, T, 1);
-      g.fillStyle = E(0); g.fillRect(0, 3, T, 1);
-      if (cold) {
-        g.fillStyle = E(15); g.fillRect(0, 0, T, 2); g.fillStyle = E(11); g.fillRect(0, 2, T, 1);
-        for (let x = 1; x < T; x += 3) if (r() < .7) { const len = 1 + (r() * 4 | 0); g.fillStyle = E(11); g.fillRect(x, 3, 1, len); g.fillStyle = E(15); g.fillRect(x, 3, 1, 1); }
-      }
+      px(g, VSTEEL[7], 0, 0, T, 1); px(g, VSTEEL[6], 0, 1, T, 1); px(g, VSTEEL[5], 0, 2, T, 1); px(g, VSTEEL[0], 0, 3, T, 1);
+      for (let x = 1; x < T; x += 4) px(g, VSTEEL[4], x, 1, 2, 1);
+      if (cold) { px(g, FROST[5], 0, 0, T, 1); px(g, FROST[4], 0, 1, T, 1); px(g, FROST[3], 0, 2, T, 1); icicles(g, r, 3); }
     }
   });
   tiles.ground = [panel(false, 0, 7), panel(false, 1, 19), panel(false, 2, 31)];
   tiles.groundTop = [panel(true, 0, 11), panel(true, 0, 23), panel(true, 1, 37)];
 
-  /* a catwalk: grating on a frame */
+  /* a catwalk: grating in a frame, on brackets */
   tiles.plat = mk(g => {
-    g.fillStyle = E(7); g.fillRect(0, 0, T, 5);
-    g.fillStyle = E(15); g.fillRect(0, 0, T, 1);
-    g.fillStyle = E(0); for (let x = 1; x < T; x += 3) g.fillRect(x, 2, 2, 2);
-    g.fillStyle = E(8); g.fillRect(0, 4, T, 1); g.fillRect(2, 5, 2, 3); g.fillRect(12, 5, 2, 3);
-    if (cold) { g.fillStyle = E(15); g.fillRect(0, 0, T, 1); g.fillStyle = E(11); g.fillRect(4, 5, 1, 2); g.fillRect(9, 5, 1, 3); }
+    px(g, VSTEEL[5], 0, 0, T, 5); px(g, VSTEEL[7], 0, 0, T, 1); px(g, VSTEEL[6], 0, 1, T, 1);
+    for (let x = 1; x < T; x += 3) { px(g, VSTEEL[0], x, 2, 2, 2); px(g, VSTEEL[2], x, 2, 2, 1); }
+    px(g, VSTEEL[1], 0, 4, T, 1);
+    for (const x of [2, 12]) { px(g, VSTEEL[3], x, 5, 2, 3); px(g, VSTEEL[5], x, 5, 1, 3); px(g, VSTEEL[1], x + 1, 7, 1, 1); }
+    if (cold) { px(g, FROST[5], 0, 0, T, 1); px(g, FROST[4], 3, 1, 4, 1); px(g, FROST[4], 10, 1, 3, 1); icicles(g, rng(5), 5, 4); }
   });
 
-  /* the hazard: a sparking cable on a floor grate, or, cold, ice shards */
+  /* the hazard: a sparking cable on a floor grate, a blue glow round the
+     arcs; or, cold, shards of ice shaded light to dark */
   tiles.spikes = mk(g => {
     if (cold) {
-      for (let i = 0; i < 4; i++) {
-        const x = i * 4;
-        g.fillStyle = E(11); g.beginPath(); g.moveTo(x, 16); g.lineTo(x + 2, 6 + (i % 2) * 2); g.lineTo(x + 4, 16); g.fill();
-        g.fillStyle = E(15); g.fillRect(x + 2, 7 + (i % 2) * 2, 1, 4);
-        g.fillStyle = E(9); g.fillRect(x + 3, 12, 1, 4);
+      for (const [x, h, w] of [[0, 9, 4], [3, 12, 5], [7, 8, 4], [10, 11, 6]]) {
+        const tip = x + w / 2;
+        g.fillStyle = FROST[2]; g.beginPath(); g.moveTo(x, 16); g.lineTo(tip, 16 - h); g.lineTo(x + w, 16); g.fill();
+        g.fillStyle = FROST[4]; g.beginPath(); g.moveTo(x, 16); g.lineTo(tip, 16 - h); g.lineTo(tip, 16); g.fill();
+        px(g, FROST[5], Math.floor(tip), 16 - h, 1, 3); px(g, FROST[1], x + w - 1, 14, 1, 2);
       }
       return;
     }
-    g.fillStyle = E(8); g.fillRect(0, 12, T, 4);
-    g.fillStyle = E(0); for (let x = 1; x < T; x += 3) g.fillRect(x, 13, 2, 2);
-    g.strokeStyle = E(14); g.lineWidth = 1;
-    g.beginPath(); g.moveTo(1, 12); g.lineTo(4, 7); g.lineTo(6, 10); g.lineTo(9, 5); g.lineTo(11, 9); g.lineTo(14, 6); g.stroke();
-    g.fillStyle = E(15); for (const [x, y] of [[4, 7], [9, 5], [14, 6]]) g.fillRect(x, y, 1, 1);
-    g.fillStyle = E(11); g.fillRect(6, 9, 1, 1); g.fillRect(11, 8, 1, 1);
+    px(g, VSTEEL[2], 0, 12, T, 4); px(g, VSTEEL[4], 0, 12, T, 1);
+    for (let x = 1; x < T; x += 3) px(g, VSTEEL[0], x, 13, 2, 2);
+    const arc = [[1, 12], [4, 7], [6, 10], [9, 5], [11, 9], [14, 6]];
+    g.strokeStyle = VLIGHT.sparkGlow; g.lineWidth = 3; g.beginPath(); arc.forEach(([x, y], i) => i ? g.lineTo(x + .5, y + .5) : g.moveTo(x + .5, y + .5)); g.stroke();
+    g.strokeStyle = VLIGHT.spark; g.lineWidth = 1; g.beginPath(); arc.forEach(([x, y], i) => i ? g.lineTo(x + .5, y + .5) : g.moveTo(x + .5, y + .5)); g.stroke();
+    for (const [x, y] of [[4, 7], [9, 5], [14, 6]]) px(g, VLIGHT.sparkHot, x, y);
   });
 
-  /* security doors: a steel slab with a band in the door's colour and a
-     card reader on its top tile; the tiles below are the slab. Red,
-     yellow, green, blue, and silver */
-  const door = (a, b, top) => mk(g => {
-    g.fillStyle = E(7); g.fillRect(0, 0, T, T);
-    g.fillStyle = E(8); g.fillRect(2, 0, T - 4, T);
-    g.fillStyle = E(0); g.fillRect(T / 2, 0, 1, T);
-    if (top) {
-      g.fillStyle = E(b); g.fillRect(2, 8, T - 4, 6);
-      g.fillStyle = E(a); g.fillRect(2, 9, T - 4, 4);
-      g.fillStyle = E(0); g.fillRect(T / 2, 8, 1, 6);
-      g.fillStyle = E(0); g.fillRect(10, 2, 4, 4); g.fillStyle = E(a); g.fillRect(11, 3, 2, 2);
-      g.fillStyle = E(15); g.fillRect(0, 0, T, 1);
-    } else {
-      g.fillStyle = E(b); g.fillRect(2, 13, T - 4, 2);
-      g.fillStyle = E(7); for (const y of [4, 9]) { g.fillRect(3, y, 4, 1); g.fillRect(9, y, 4, 1); }
-    }
-    if (cold) { g.fillStyle = E(top ? 15 : 11); g.fillRect(2, 0, T - 4, 1); g.fillStyle = E(11); g.fillRect(3, 12, 1, 2); g.fillRect(12, 13, 1, 2); }
-  });
+  /* security doors: a steel slab with the door's colour in a band and a
+     card reader on the top tile; the tiles below are slab. Red, yellow,
+     green, blue, and silver */
   const COLOURS = [[12, 4], [14, 6], [10, 2], [9, 1], [7, 8]];
+  const door = (a, b, top) => mk(g => {
+    px(g, VSTEEL[5], 0, 0, T, T); px(g, VSTEEL[6], 0, 0, 1, T); px(g, VSTEEL[2], T - 1, 0, 1, T);
+    for (let x = 2; x < T - 2; x++) px(g, x < 6 ? VSTEEL[4] : x < 10 ? VSTEEL[3] : VSTEEL[3], x, 0, 1, T);
+    px(g, VSTEEL[0], T / 2, 0, 1, T); px(g, VSTEEL[5], T / 2 + 1, 0, 1, T);
+    if (top) {
+      px(g, E(b), 2, 8, T - 4, 6); px(g, E(a), 2, 9, T - 4, 4);
+      g.fillStyle = "rgba(255, 255, 255, 0.35)"; g.fillRect(2, 9, T - 4, 1);
+      px(g, VSTEEL[0], T / 2, 8, 1, 6);
+      px(g, VSTEEL[0], 10, 1, 4, 5); px(g, VSTEEL[2], 10, 1, 4, 1);
+      g.fillStyle = E(a); g.globalAlpha = 0.35; g.fillRect(10, 2, 4, 3); g.globalAlpha = 1; px(g, E(a), 11, 3, 2, 1);
+      px(g, VSTEEL[7], 0, 0, T, 1);
+    } else {
+      px(g, E(b), 2, 13, T - 4, 2);
+      for (const y of [4, 9]) { px(g, VSTEEL[6], 3, y, 4, 1); px(g, VSTEEL[6], 9, y, 4, 1); px(g, VSTEEL[2], 3, y + 1, 4, 1); px(g, VSTEEL[2], 9, y + 1, 4, 1); }
+    }
+    if (cold) { const r = rng(a * 3 + b + (top ? 1 : 0)); if (top) { px(g, FROST[5], 2, 0, T - 4, 1); px(g, FROST[4], 2, 1, T - 4, 1); } frost(g, r, 8); }
+  });
   tiles.doors = COLOURS.map(([a, b]) => door(a, b, true));
   tiles.doorsBelow = COLOURS.map(([a, b]) => door(a, b, false));
 
-  /* the exit: a lift, 16x32. Shut, two steel leaves and a green lamp; open,
-     a lit car */
+  /* the exit: a lift, 16x32. Shut, two shaded steel leaves with green up
+     arrows and a green lamp, glowing; open, a warm lit car */
   const lift = open => { const c = makeCanvas(T, T * 2), g = c.getContext("2d");
-    g.fillStyle = E(7); g.fillRect(0, 2, T, 30);
-    g.fillStyle = E(15); g.fillRect(0, 2, T, 1);
-    if (open) { g.fillStyle = E(0); g.fillRect(2, 5, 12, 27); g.fillStyle = E(14); g.fillRect(3, 6, 10, 1); g.fillStyle = E(8); g.fillRect(2, 30, 12, 2); }
-    else {
-      g.fillStyle = E(8); g.fillRect(2, 5, 12, 27);
-      g.fillStyle = E(0); g.fillRect(7, 5, 2, 27);
-      g.fillStyle = E(7); for (let y = 9; y < 30; y += 6) { g.fillRect(3, y, 3, 1); g.fillRect(10, y, 3, 1); }
-      /* up arrows: the way out */
-      g.fillStyle = E(10); g.fillRect(4, 14, 1, 1); g.fillRect(3, 15, 3, 1); g.fillRect(11, 14, 1, 1); g.fillRect(10, 15, 3, 1);
+    px(g, VSTEEL[5], 0, 2, T, 30); px(g, VSTEEL[7], 0, 2, T, 1); px(g, VSTEEL[6], 0, 2, 1, 30); px(g, VSTEEL[2], T - 1, 2, 1, 30);
+    if (open) {
+      for (let y = 5; y < 32; y++) px(g, y < 8 ? "#ffe3a0" : y < 12 ? "#7a6440" : "#14110c", 2, y, 12, 1);
+      px(g, VSTEEL[3], 2, 29, 12, 3); px(g, VSTEEL[5], 2, 29, 12, 1);
+    } else {
+      for (let x = 2; x < 14; x++) px(g, x < 5 || (x > 8 && x < 11) ? VSTEEL[4] : VSTEEL[3], x, 5, 1, 27);
+      px(g, VSTEEL[0], 7, 5, 2, 27); px(g, VSTEEL[6], 9, 5, 1, 27);
+      for (let y = 9; y < 30; y += 6) { px(g, VSTEEL[6], 3, y, 3, 1); px(g, VSTEEL[6], 10, y, 3, 1); }
+      for (const ax of [4, 11]) { px(g, VLIGHT.green, ax, 14, 1, 1); px(g, VLIGHT.green, ax - 1, 15, 3, 1); px(g, VLIGHT.greenDim, ax - 1, 16, 3, 1); }
     }
-    g.fillStyle = E(2); g.fillRect(5, 0, 6, 3); g.fillStyle = E(10); g.fillRect(6, 0, 4, 2);
-    if (cold) { g.fillStyle = E(15); g.fillRect(0, 2, T, 2); g.fillStyle = E(11); g.fillRect(1, 4, 1, 3); g.fillRect(14, 4, 1, 2); }
+    g.fillStyle = "rgba(82, 224, 106, 0.30)"; g.fillRect(3, 0, 10, 5);
+    px(g, VLIGHT.greenDim, 5, 0, 6, 3); px(g, VLIGHT.green, 6, 0, 4, 2); px(g, VLIGHT.greenHot, 7, 0, 2, 1);
+    if (cold) { const r = rng(open ? 2 : 3); px(g, FROST[5], 0, 2, T, 1); px(g, FROST[4], 0, 3, T, 1); for (let x = 1; x < T; x += 4) for (let k = 0; k < 2 + (r() * 3 | 0); k++) px(g, FROST[Math.max(2, 4 - k)], x, 4 + k); }
     return c; };
   tiles.exit = [lift(false), lift(true)];
 
-  /* ice: a steel floor under thick frost */
+  /* ice: a steel floor under thick frost, glassy on top */
   tiles.ice = mk(g => {
     const r = rng(41);
     g.drawImage(tiles.ground[0], 0, 0);
-    g.fillStyle = E(11); g.fillRect(0, 0, T, 5);
-    g.fillStyle = E(15); g.fillRect(0, 0, T, 1); g.fillRect(2, 1, 4, 1); g.fillRect(10, 2, 3, 1);
-    g.fillStyle = E(3); g.fillRect(0, 5, T, 1);
-    frost(g, r, 14);
+    for (let y = 0; y < 6; y++) px(g, FROST[Math.max(1, 5 - y)], 0, y, T, 1);
+    px(g, "#ffffff", 2, 1, 4, 1); px(g, "#ffffff", 10, 2, 2, 1);
+    for (let i = 0; i < 12; i++) px(g, FROST[3 + (r() * 3 | 0)], r() * T | 0, 6 + (r() * 10 | 0));
+    px(g, FROST[0], 0, 6, T, 1);
   });
 
-  /* a hint sign is a terminal: a screen of green text on a stand */
+  /* a hint sign is a terminal: a glowing green screen in a steel bezel */
   tiles.sign = mk(g => {
-    g.fillStyle = E(8); g.fillRect(6, 11, 4, 3); g.fillRect(3, 14, 10, 2);
-    g.fillStyle = E(7); g.fillRect(1, 1, 14, 10);
-    g.fillStyle = E(0); g.fillRect(2, 2, 12, 8);
-    g.fillStyle = E(10); for (const [y, w] of [[3, 8], [5, 10], [7, 6]]) g.fillRect(3, y, w, 1);
-    g.fillStyle = E(2); g.fillRect(3, 4, 5, 1); g.fillRect(3, 6, 7, 1);
-    g.fillStyle = E(15); g.fillRect(1, 1, 14, 1);
+    px(g, VSTEEL[3], 6, 11, 4, 3); px(g, VSTEEL[5], 6, 11, 1, 3); px(g, VSTEEL[2], 3, 14, 10, 2); px(g, VSTEEL[5], 3, 14, 10, 1);
+    px(g, VSTEEL[5], 1, 1, 14, 10); px(g, VSTEEL[7], 1, 1, 14, 1); px(g, VSTEEL[2], 1, 10, 14, 1);
+    px(g, VLIGHT.screen, 2, 2, 12, 8);
+    g.fillStyle = "rgba(60, 255, 122, 0.12)"; g.fillRect(2, 2, 12, 8);
+    for (const [y, w] of [[3, 8], [5, 10], [7, 6]]) px(g, VLIGHT.text, 3, y, w, 1);
+    for (const [y, w] of [[4, 5], [6, 7], [8, 3]]) px(g, VLIGHT.textDim, 3, y, w, 1);
+    px(g, VLIGHT.text, 10, 7, 1, 1);
   });
 }
 
@@ -1481,42 +1505,47 @@ function paintRaiderFar() {
 
 /* The Vault behind: no sky, no hills; a wall of panels, pipes and conduits,
  * warning lamps, and the great round door the shelter was sealed with.
- * Cold, it is blue and hung with icicles. */
+ * Cold, it is blue and hung with icicles. Full colour. */
 function paintVaultFar(th) {
-  const c = makeCanvas(320, 200), g = c.getContext("2d"), r = rng(7), E = i => EGA[i], cold = !!th.cold;
-  const base = cold ? 1 : 0, line = cold ? 9 : 8, hi = cold ? 11 : 7;
-  g.fillStyle = E(base); g.fillRect(0, 0, 320, 200);
-  /* the panel grid */
-  g.fillStyle = E(line);
-  for (let x = 0; x < 320; x += 40) g.fillRect(x, 0, 1, 200);
-  for (let y = 0; y < 200; y += 32) g.fillRect(0, y, 320, 1);
-  for (let x = 0; x < 320; x += 40) for (let y = 0; y < 200; y += 32) { g.fillRect(x + 3, y + 3, 1, 1); g.fillRect(x + 36, y + 3, 1, 1); }
-  /* the sealed door: a ring of cog teeth round a dark wheel */
+  const c = makeCanvas(320, 200), g = c.getContext("2d"), r = rng(7), cold = !!th.cold;
+  const px = (col, x, y, w = 1, h = 1) => { g.fillStyle = col; g.fillRect(x, y, w, h); };
+  const base = cold ? "#0b1d30" : "#0c0f13", grid = cold ? "#173451" : "#1a2028", gridHi = cold ? "#244c70" : "#262e38";
+  const pipe = cold ? ["#173450", "#2c5c86", "#4a8ab8", "#86c4e6"] : [VSTEEL[1], VSTEEL[3], VSTEEL[4], VSTEEL[6]];
+  px(base, 0, 0, 320, 200);
+  /* the panel grid, with a lit edge and corner bolts */
+  for (let x = 0; x < 320; x += 40) { px(grid, x, 0, 1, 200); px(gridHi, x + 1, 0, 1, 200); }
+  for (let y = 0; y < 200; y += 32) { px(grid, 0, y, 320, 1); px(gridHi, 0, y + 1, 320, 1); }
+  for (let x = 0; x < 320; x += 40) for (let y = 0; y < 200; y += 32) { px(gridHi, x + 4, y + 4, 2, 2); px(gridHi, x + 34, y + 4, 2, 2); }
+  /* the sealed door: a toothed ring, a shaded wheel, bolts, its number */
   const dx = 236, dy = 92;
-  g.fillStyle = E(line);
+  const ring = g.createRadialGradient(dx - 12, dy - 14, 6, dx, dy, 50);
+  ring.addColorStop(0, pipe[3]); ring.addColorStop(0.6, pipe[2]); ring.addColorStop(1, pipe[0]);
+  g.fillStyle = ring;
   for (let i = 0; i < 12; i++) { const a = i * Math.PI / 6; g.save(); g.translate(dx + Math.cos(a) * 44, dy + Math.sin(a) * 44); g.rotate(a); g.fillRect(-5, -6, 10, 12); g.restore(); }
   g.beginPath(); g.arc(dx, dy, 44, 0, Math.PI * 2); g.fill();
-  g.fillStyle = E(base); g.beginPath(); g.arc(dx, dy, 34, 0, Math.PI * 2); g.fill();
-  g.fillStyle = E(line); g.beginPath(); g.arc(dx, dy, 30, 0, Math.PI * 2); g.fill();
-  g.strokeStyle = E(hi); g.lineWidth = 1; g.beginPath(); g.arc(dx, dy, 30, Math.PI * 1.1, Math.PI * 1.6); g.stroke();
-  g.fillStyle = E(base); for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4; g.fillRect(dx + Math.cos(a) * 22 - 2, dy + Math.sin(a) * 22 - 2, 4, 4); }
-  g.font = "bold 18px monospace"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillStyle = E(0); g.fillText(String(th.no), dx + 1, dy + 2); g.fillStyle = E(14); g.fillText(String(th.no), dx, dy + 1);
-  /* pipes: vertical runs with collars, and a conduit along the top */
+  g.fillStyle = base; g.beginPath(); g.arc(dx, dy, 34, 0, Math.PI * 2); g.fill();
+  const wheel = g.createRadialGradient(dx - 10, dy - 10, 4, dx, dy, 32);
+  wheel.addColorStop(0, pipe[2]); wheel.addColorStop(1, pipe[0]);
+  g.fillStyle = wheel; g.beginPath(); g.arc(dx, dy, 30, 0, Math.PI * 2); g.fill();
+  g.strokeStyle = pipe[3]; g.lineWidth = 1; g.beginPath(); g.arc(dx, dy, 30, Math.PI * 1.1, Math.PI * 1.6); g.stroke();
+  for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4, bx = dx + Math.cos(a) * 22 - 2, by = dy + Math.sin(a) * 22 - 2; px(base, bx, by, 4, 4); px(pipe[2], bx, by, 3, 3); px(pipe[3], bx, by); }
+  g.font = "bold 18px monospace"; g.textAlign = "center"; g.textBaseline = "middle";
+  g.fillStyle = "#000"; g.fillText(String(th.no), dx + 1, dy + 2); g.fillStyle = VLIGHT.gold; g.fillText(String(th.no), dx, dy + 1);
+  /* pipes, shaded round, with collars; and a conduit along the top */
   for (const x of [22, 66, 150]) {
-    g.fillStyle = E(line); g.fillRect(x, 0, 6, 200);
-    g.fillStyle = E(hi); g.fillRect(x + 1, 0, 1, 200);
-    for (let y = 18 + (x % 30); y < 200; y += 46) { g.fillStyle = E(line); g.fillRect(x - 2, y, 10, 4); g.fillStyle = E(hi); g.fillRect(x - 2, y, 10, 1); }
+    [pipe[1], pipe[2], pipe[3], pipe[2], pipe[1], pipe[0]].forEach((col, k) => px(col, x + k, 0, 1, 200));
+    for (let y = 18 + (x % 30); y < 200; y += 46) { px(pipe[1], x - 2, y, 10, 4); px(pipe[3], x - 2, y, 10, 1); px(pipe[0], x - 2, y + 3, 10, 1); }
   }
-  g.fillStyle = E(line); g.fillRect(0, 14, 320, 5); g.fillStyle = E(hi); g.fillRect(0, 15, 320, 1);
-  /* warning lamps, on the pipes */
+  [pipe[1], pipe[3], pipe[2], pipe[1], pipe[0]].forEach((col, k) => px(col, 0, 14 + k, 320, 1));
+  /* warning lamps, on the pipes, glowing */
   for (const [x, y] of [[22, 60], [66, 130], [150, 44], [150, 170]]) {
-    g.fillStyle = E(0); g.fillRect(x - 2, y - 1, 10, 6);
-    g.fillStyle = E(4); g.fillRect(x - 1, y, 8, 4); g.fillStyle = E(12); g.fillRect(x, y, 6, 1);
+    g.fillStyle = "rgba(255, 59, 47, 0.18)"; g.beginPath(); g.arc(x + 3, y + 2, 9, 0, Math.PI * 2); g.fill();
+    px("#000", x - 2, y - 1, 10, 6); px(VLIGHT.lamp, x - 1, y, 8, 4); px(VLIGHT.lampHot, x, y, 6, 1);
   }
-  /* cold: frost, and icicles off the conduit */
+  /* cold: frost in the air, and icicles off the conduit */
   if (cold) {
-    for (let i = 0; i < 120; i++) { g.fillStyle = E(r() < .5 ? 9 : 11); g.fillRect(r() * 320 | 0, r() * 200 | 0, 1, 1); }
-    for (let x = 2; x < 320; x += 5) { const len = 2 + (r() * 8 | 0); g.fillStyle = E(11); g.fillRect(x, 19, 1, len); g.fillStyle = E(15); g.fillRect(x, 19, 1, 1); }
+    for (let i = 0; i < 140; i++) px(FROST[2 + (r() * 3 | 0)], r() * 320 | 0, r() * 200 | 0);
+    for (let x = 2; x < 320; x += 5) { const len = 2 + (r() * 8 | 0); for (let k = 0; k < len; k++) px(FROST[Math.max(2, 5 - (k >> 1))], x, 19 + k); }
   }
   return c;
 }
