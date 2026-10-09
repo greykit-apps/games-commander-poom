@@ -79,6 +79,23 @@ function convert(d) {
   return { id: d.map, kind: d.kind, w: d.width, h: d.height, notes: d.notes, rows, things, marks };
 }
 
+/* ------------------------------------------------------------------ */
+/* Exits. A level whose X tiles make a door (the same test as loadLevel in
+ * game.js) ends there. One without ends the way the source engine ends it:
+ * by leaving the map, so it is marked edgeExit. */
+
+const SOLID_G = new Set(["#", "d", "j", "i", "<", ">"]);
+const isSol = c => SOLID_G.has(c);
+
+function hasRealExit(m) {
+  const R = m.rows;
+  for (let y = 0; y < m.h; y++) for (let x = 0; x < m.w; x++) {
+    if (R[y][x] !== "E" || isSol((R[y - 1] || "")[x])) continue;
+    for (let fy = y + 1; fy <= y + 2 && fy < m.h; fy++) { const c = R[fy][x]; if (isSol(c) || c === "-") return true; if (c !== "." && c !== "E") break; }
+  }
+  return false;
+}
+
 /* the ones game.js handles; keep in step with it */
 const DONE = new Set(["/", "\\", "i", "<", ">", "d", "q", "u", "l"]);
 
@@ -92,7 +109,11 @@ for (const book of "ABCDEFGHI".split("")) {
   for (const f of files) {
     const d = JSON.parse(fs.readFileSync(path.join(MAPS, book, f), "utf8"));
     if (d.kind === "world") B.world = convert(d);
-    else if (d.kind === "level") B.chapters[0].levels.push(convert(d));
+    else if (d.kind === "level") {
+      const m = convert(d);
+      if (!hasRealExit(m)) m.edgeExit = true;
+      B.chapters[0].levels.push(m);
+    }
     else B.skipped.push({ id: d.map, kind: d.kind });
   }
   for (const m of [B.world, ...B.chapters[0].levels]) {
@@ -138,7 +159,7 @@ Further notes:
 - Slopes: a row's run of n like slope tiles climbs one tile height, so a lone \`/\` is 45 degrees and a pair is half that. A body standing on a slope steps up onto the ground at its top. Non-solid tiles boxed in under a slope's edge are filled as ground at load.
 - Ice (\`i\`) is solid with the original game's ice handling while standing on it; conveyors (\`< >\`) are solid and carry the player 1 px a tick. Enemies ignore both.
 - \`~\` in world maps is shoreline; in levels it is fire/water, as before.
-- Exits: \`X\` in the source becomes \`E\`, but not every \`X\` is an exit. The engine keeps an \`X\` as a door only if it has open space above and a floor within two tiles below (the door drops to that floor); an \`X\` with ground above is the foot of a wall by a key socket and stays wall, and one with no floor stays air. That leaves exits in 61 of 143 levels: all of C and H, 15 of D, 8 of G, 5 of A, 1 of I, none of B, E or F. The source's own "exit door (completes level)" marker agrees for A05, A08, A11, A13 and the 8 in G; A10 and I06 rest on the X alone. The other 82 levels' exits are not in the export: neither \`X\` nor the exit door's tiles appear in them.
+- Exits: \`X\` in the source becomes \`E\`, but not every \`X\` is an exit. The engine keeps an \`X\` as a door only if it has open space above and a floor within two tiles below (the door drops to that floor); an \`X\` with ground above is the foot of a wall by a key socket and stays wall, and one with no floor stays air. That gives door exits in 61 of 143 levels: all of C and H, 15 of D, 8 of G, 5 of A, 1 of I. The other 82 (\`edgeExit\` in the data: all of B, E and F, most of A and I, 5 of G, D17) end as the source engine ends them, by leaving the map: walking into the two-tile border at the left, right or top edge finishes the level. Falling out of the bottom still kills.
 - The ledge (\`-\`), pole (\`|\`) and spikes (\`^\`) are used as the engine already has them.
 
 ## Per book

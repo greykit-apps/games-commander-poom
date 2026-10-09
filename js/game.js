@@ -598,6 +598,14 @@ function updatePlayer(lv) {
   }
 
   /* the exit */
+  /* a level with no exit door ends when Poom leaves the map: into the
+     two-tile border at either side or the top */
+  if (lv.def.edgeExit && p.state === "play" && (p.x < T * 2 - 4 || p.x + p.w > (lv.w - 2) * T + 4 || p.y + p.h < T * 2)) {
+    if (p.pogo) { p.pogo = false; p.y += POGO_H; p.h = PH; }
+    p.state = "exit"; p.t = 0; p.vx = 0; lv.exitUsed = "edge";
+    sfx("done");
+    return;
+  }
   const exit = p.onGround && lv.exits.find(e => Math.abs((p.x + p.w / 2) - (e.x + T / 2)) < 6 + (e.tx1 - e.tx0) * T / 2 && Math.abs(p.y + p.h - (e.y + e.h)) <= 2);
   if (exit) {
     if (p.pogo) { p.pogo = false; p.y += POGO_H; p.h = PH; }
