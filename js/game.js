@@ -237,7 +237,7 @@ function loadLevel(n) {
   const rows = def.rows.map(r => [...r]);
   const h = rows.length, w = rows[0].length;
   const lv = { n, def, w, h, tiles: rows, back: [], ents: [], items: [], shots: [], fx: [], keys: [false, false, false, false, false],
-    theme, ice: false, t: 0, p: null, exits: [], over: null, slope: slopesOf(rows) };
+    theme, ice: false, t: 0, p: null, exits: [], exitAt: {}, edge: new Set(), npcs: [], endsLeft: 0, over: null, slope: slopesOf(rows) };
   /* Under a slope the maps leave the odd non-solid tile where the ground's
    * edge was drawn. Boxed in on both sides, it is ground. */
   const isSl = (x, y) => !!(lv.slope[y] && lv.slope[y][x]);
@@ -251,31 +251,43 @@ function loadLevel(n) {
   for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
     const c = rows[y][x], px = x * T, py = y * T;
     if (c === "P") { lv.p = makePlayer(px + 2, py + T - 22); rows[y][x] = airOf(x, y); }
-    else if (c === "E") {
-      /* a level can have several exits; a run of E tiles is one wide door */
-      const prev = lv.exits.find(e => e.ty === y && e.tx1 === x - 1);
-      if (prev) { prev.tx1 = x; prev.x = (prev.tx0 + prev.tx1) * T / 2; }
-      else lv.exits.push({ tx0: x, tx1: x, ty: y, x: px, y: py - T, w: T, h: T * 2 });
-    }
+    else if (c === "E") { lv.exitAt[x + "," + y] = true; rows[y][x] = "."; }
+    else if (c === "X") { lv.edge.add(x + "," + y); rows[y][x] = "."; }
+    else if (c === "!" || c === "w") { lv.items.push({ kind: c === "!" ? "objective" : "swim", part: lv.items.length % 4, x: px, y: py, t: 0 }); rows[y][x] = airOf(x, y); }
     else if (ITEM_CH[c]) { lv.items.push({ kind: ITEM_CH[c], x: px, y: py, t: Math.random() * 60 | 0 }); rows[y][x] = airOf(x, y); }
     else if (GEM_CH[c] !== undefined) { lv.items.push({ kind: "gem", gem: GEM_CH[c], x: px, y: py, t: 0 }); rows[y][x] = airOf(x, y); }
     else if (c === "*") { lv.items.push({ kind: "part", part: def.part, x: px, y: py, t: 0 }); rows[y][x] = airOf(x, y); }
     else if ("xBVTKW".includes(c)) { lv.ents.push(makeEnemy(c, px, py + T)); rows[y][x] = airOf(x, y); }
   }
-  /* An exit is a door standing on a floor. The maps put the door's lower
-   * tile at X, sometimes a tile above the floor Poom walks on, so it drops
-   * to the floor below. The maps also use X for things that are no door:
-   * the foot of a wall by a key socket (ground right above it: it stays
-   * wall), and blocks with no floor under them (they stay air). */
-  lv.exits = lv.exits.filter(e => {
-    if (isSolid((rows[e.ty - 1] || [])[e.tx0])) { for (let x = e.tx0; x <= e.tx1; x++) rows[e.ty][x] = "#"; return false; }
-    let fy = e.ty + 1;
-    while (fy <= e.ty + 2 && fy < h && !isSolid(rows[fy][e.tx0]) && rows[fy][e.tx0] !== "-") fy++;
-    if (fy > e.ty + 2 || fy >= h) return false;
-    e.y = fy * T - T * 2;
-    return true;
-  });
-  for (const e of lv.exits) for (let x = e.tx0; x <= e.tx1; x++) if (rows[e.ty][x] === "E") rows[e.ty][x] = ".";
+  /* Exit doors: each connected group of exit tiles is one door. Walking
+   * into any of its tiles finishes the level; it is drawn standing on the
+   * floor up to three tiles below the group, or at the group's foot. */
+  for (const k of Object.keys(lv.exitAt)) {
+    if (lv.exitAt[k] !== true) continue;
+    const g = { tx0: Infinity, tx1: -1, ty0: Infinity, ty1: -1 }, todo = [k];
+    while (todo.length) {
+      const c = todo.pop();
+      if (lv.exitAt[c] !== true) continue;
+      lv.exitAt[c] = g;
+      const [x, y] = c.split(",").map(Number);
+      g.tx0 = Math.min(g.tx0, x); g.tx1 = Math.max(g.tx1, x); g.ty0 = Math.min(g.ty0, y); g.ty1 = Math.max(g.ty1, y);
+      todo.push((x + 1) + "," + y, (x - 1) + "," + y, x + "," + (y + 1), x + "," + (y - 1));
+    }
+    const cx = Math.floor((g.tx0 + g.tx1) / 2);
+    let fy = g.ty1 + 1;
+    while (fy <= g.ty1 + 3 && fy < h && !isSolid(rows[fy][cx]) && rows[fy][cx] !== "-") fy++;
+    const foot = fy <= g.ty1 + 3 && fy < h ? fy : g.ty1 + 1;
+    g.x = (g.tx0 + g.tx1) * T / 2; g.y = foot * T - T * 2;
+    lv.exits.push(g);
+  }
+
+  /* what else finishes the level: the source's rescue NPCs and objectives */
+  for (const [x, y, g, , how] of def.ends || []) {
+    if (how === "rescue") { lv.npcs.push({ x: x * T, y: y * T + T - 16, w: 14, h: 16, t: 0 }); continue; }
+    let it = lv.items.find(i => (i.kind === "objective" || i.kind === "swim") && i.x === x * T && i.y === y * T);
+    if (!it) lv.items.push(it = { kind: g === "w" ? "swim" : "objective", part: lv.items.length % 4, x: x * T, y: y * T, t: 0 });
+    if (!it.ends) { it.ends = true; lv.endsLeft++; }
+  }
 
   /* back wall behind anything that stands in a walled room */
   for (let y = 0; y < h; y++) { lv.back[y] = []; for (let x = 0; x < w; x++) lv.back[y][x] = rows[y][x] === "+"; }
@@ -597,21 +609,27 @@ function updatePlayer(lv) {
     collect(lv, it);
   }
 
-  /* the exit */
-  /* a level with no exit door ends when Poom leaves the map: into the
-     two-tile border at either side or the top */
-  if (lv.def.edgeExit && p.state === "play" && (p.x < T * 2 - 4 || p.x + p.w > (lv.w - 2) * T + 4 || p.y + p.h < T * 2)) {
-    if (p.pogo) { p.pogo = false; p.y += POGO_H; p.h = PH; }
-    p.state = "exit"; p.t = 0; p.vx = 0; lv.exitUsed = "edge";
-    sfx("done");
-    return;
+  if (p.state !== "play") return;
+
+  /* the ways out: an exit door, or the map's edge where the map says so */
+  for (let ty = hy0; ty <= hy1; ty++) for (let tx = Math.floor(p.x / T); tx <= Math.floor((p.x + p.w - 1) / T); tx++) {
+    const k = tx + "," + ty;
+    if (lv.edge.has(k)) return finishBy(lv, "edge");
+    const door = lv.exitAt[k];
+    if (door) { p.x = door.x + T / 2 - p.w / 2; return finishBy(lv, door); }
   }
-  const exit = p.onGround && lv.exits.find(e => Math.abs((p.x + p.w / 2) - (e.x + T / 2)) < 6 + (e.tx1 - e.tx0) * T / 2 && Math.abs(p.y + p.h - (e.y + e.h)) <= 2);
-  if (exit) {
-    if (p.pogo) { p.pogo = false; p.y += POGO_H; p.h = PH; }
-    p.state = "exit"; p.t = 0; p.vx = 0; p.x = exit.x + T / 2 - p.w / 2; lv.exitUsed = exit;
-    sfx("done");
-  }
+
+  /* someone to rescue */
+  for (const n of lv.npcs) if (!n.saved && overlap(pb, n)) { n.saved = true; popup(n, "SAVED"); return finishBy(lv, n); }
+}
+
+/* the level is over: Poom heads out, then finishLevel */
+function finishBy(lv, how) {
+  const p = lv.p;
+  if (p.state !== "play") return;
+  if (p.pogo) { p.pogo = false; p.y += POGO_H; p.h = PH; }
+  p.state = "exit"; p.t = 0; p.vx = 0; lv.exitUsed = how;
+  sfx("done");
 }
 
 function openDoor(lv, tx, ty) {
@@ -633,6 +651,10 @@ function collect(lv, it) {
   else if (it.kind === "pogo") {
     r.pogo = true; sfx("bigitem");
     message("<b>You found a pogo stick!</b><br><br>Press <kbd>Alt</kbd> or <kbd>X</kbd> to hop on and off. Hold <kbd>Ctrl</kbd> or <kbd>Z</kbd> as you land for a big bounce.");
+  }
+  else if (it.kind === "objective" || it.kind === "swim") {
+    addScore(1000); popup(it, "1000"); sfx("bigitem");
+    if (it.ends && --lv.endsLeft === 0) finishBy(lv, "objective");
   }
   else if (it.kind === "part") {
     r.parts[it.part] = true; sfx("bigitem"); addScore(1000);
@@ -772,6 +794,8 @@ function updateShots(lv) {
     if (isSolid(c) || s.t > 120) { s.gone = true; lv.fx.push({ kind: "poof", x: s.x - 2, y: s.y - 2, t: 0 }); continue; }
     if (s.mine) {
       for (const e of lv.ents) if (e.alive && overlap(s, e)) { s.gone = true; lv.fx.push({ kind: "poof", x: s.x - 2, y: s.y - 2, t: 0 }); hurtEnemy(lv, e, s); break; }
+      /* an objective can be shot as well as picked up: the maps' boss weak points */
+      if (!s.gone) for (const it of lv.items) if (!it.gone && it.kind === "objective" && overlap(s, { x: it.x + 2, y: it.y + 2, w: 12, h: 12 })) { s.gone = true; lv.fx.push({ kind: "poof", x: it.x + 3, y: it.y + 3, t: 0 }); collect(lv, it); break; }
     } else if (lv.p.state === "play" && overlap(s, { x: lv.p.x + 2, y: lv.p.y + 2, w: lv.p.w - 4, h: lv.p.h - 4 })) { s.gone = true; die(lv); }
   }
   lv.shots = lv.shots.filter(s => !s.gone);
@@ -938,12 +962,15 @@ function drawLevel() {
   for (const it of lv.items) {
     if (it.gone) continue;
     it.t++;
-    const s = it.kind === "gem" ? ART.gems[it.gem] : it.kind === "part" ? ART.parts[it.part] : ART.items[it.kind];
-    const bob = it.kind === "part" || it.kind === "gem" ? Math.round(Math.sin(it.t / 10) * 1.5) : 0;
+    const big = it.kind === "part" || it.kind === "objective" || it.kind === "swim";
+    const s = it.kind === "gem" ? ART.gems[it.gem] : big ? ART.parts[it.part] : ART.items[it.kind];
+    const bob = big || it.kind === "gem" ? Math.round(Math.sin(it.t / 10) * 1.5) : 0;
     ctx.drawImage(s, it.x + ((T - s.width) >> 1) - cx, it.y + T - s.height - cy + bob);
-    if (it.kind === "part" && (it.t >> 3) % 4 === 0) ctx.drawImage(ART.star, it.x + 2 - cx, it.y - 2 - cy);
+    if (big && (it.t >> 3) % 4 === 0) ctx.drawImage(ART.star, it.x + 2 - cx, it.y - 2 - cy);
   }
 
+  /* rescue targets: a plush Poom for now, waving */
+  for (const n of lv.npcs) if (!n.saved) { n.t++; ctx.drawImage(ART.items.life, Math.round(n.x + 2) - cx, Math.round(n.y + 6) - cy - ((n.t >> 4) % 2)); }
   for (const e of lv.ents) drawEnemy(e, cx, cy);
   drawPlayer(lv.p, cx, cy);
 

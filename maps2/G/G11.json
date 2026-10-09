@@ -1,0 +1,1278 @@
+{
+ "format": "tile-ascii-map/1",
+ "map": "G11",
+ "set": "G",
+ "engine": "E2",
+ "kind": "level",
+ "completion": [
+  "objective"
+ ],
+ "exit_tiles": 0,
+ "edge_exit_cells": 0,
+ "notes": [
+  "warp doors: 7"
+ ],
+ "width": 70,
+ "height": 74,
+ "legend": {
+  " ": "empty / passable",
+  "#": "solid block",
+  "-": "one-way platform (solid from above only)",
+  "/": "slope rising to the right",
+  "\\": "slope falling to the right",
+  "^": "hazard: touching or landing on it kills",
+  "|": "climbable pole",
+  "D": "door (locked door, keycard door, or warp door)",
+  "O": "key socket / holder",
+  "S": "switch",
+  "$": "points pickup (incl. collect-100-for-a-life pickups)",
+  "+": "power-up / resource (ammo, extra life, weapon, movement ability, shield)",
+  "k": "key / keycard",
+  "!": "objective item (quest items, boss weak points)",
+  "@": "player start",
+  "e": "enemy / hostile creature",
+  "g": "stationary turret / projectile emitter",
+  "p": "moving platform"
+ },
+ "glyph_counts": {
+  " ": 1911,
+  "#": 2815,
+  "-": 30,
+  "/": 20,
+  "\\": 22,
+  "^": 39,
+  "|": 73,
+  "D": 14,
+  "O": 2,
+  "S": 10,
+  "$": 183,
+  "+": 12,
+  "k": 2,
+  "!": 4,
+  "@": 1,
+  "e": 33,
+  "g": 5,
+  "p": 4
+ },
+ "grid": [
+  " !!!!#################################################################",
+  " #####################################################################",
+  "######################################################################",
+  "######################################################################",
+  "#####                  ###           ##       $    ## $$$$$$$$$$$$ ###",
+  "#####               $$ ###           ## $$   $$$   ## e          e ###",
+  "#####                  ###  $$       ## $$    $    ##---         #####",
+  "#####  DD          k   ### $$$$      ## $$         ##            #####",
+  "#####                  ###  $$       ## $$    ^    ## e        e #####",
+  "###########            ###           ##            ##----      #######",
+  "###########        e   ###           ##            ##          #######",
+  "#####                  ###           ##            ##          #######",
+  "#####  p               ###      DD   ##   DD       ##      DD  #######",
+  "#####  ^^^^^^^^^^^^^^^ ### #  # e e  ## e   e #  # ## #  #     #######",
+  "#####                 $#####--#################--######--#############",
+  "#####  ####################    ###############    ####    ############",
+  "#####  ####################    ###############    ####    ############",
+  "#####  #################                                     ## $$ ###",
+  "#####  #######    $## $$$                                    ## $$ ###",
+  "#####  #          $## $$$                     e        e  $$ ##    ###",
+  "#####  #      ####$## $$$   ############################# $$     g-###",
+  "##### +++     ####$##       ############## ###+  $$$  ### $$       ###",
+  "##### +++ DD  ####$####-----##################   $$$  ### $$       ###",
+  "#####         ####$####     ################## #####  ### $$ ###   ###",
+  "##################$####              ######### #####  ### $$ ### e ###",
+  "##################$#### S  |           ####### #####  ###    ###   ###",
+  "##################$#### S #|#e               # #####  ################",
+  "##################$########|###\\\\            # #####           #######",
+  "##################$####### | ### \\\\          # #####           #######",
+  "#################          |  #### \\\\     |  # ################$$#####",
+  "############### $          |  ###### \\\\ e#|# # ################$$#####",
+  "############# $       S    |  ######## ###|### ################  #####",
+  "########### $         S  e |  ########### | ## ################  #####",
+  "######### $       //################      |         $  $  $       ####",
+  "###     $       //##################  $$  |         $  $  $       ####",
+  "###           //######### + $$ + $   $$$$ |         $  $  $    -- ####",
+  "###    |    //###########       $$$   $$  |                 $$$   ####",
+  "###   #|# //##$$$########   e    $        |                 $$$   ####",
+  "###  ##|######$$$#############            |               p $$$   ####",
+  "###  # | ##### | #############  e         |                 $$$   ####",
+  "###    |       |      ###############     |            p         +  ##",
+  "###    |       |   $$$$ #############  S  |  |                      ##",
+  "###    |       |     $$$$ ###########  S e| #|#     p             @ ##",
+  "###    |    e  | e     $$$$ #################|##              ########",
+  "##################\\\\     $$$$ ############## | #  ^^^^^^^^    ########",
+  "################### \\\\     $$$$ ########## $$| ^^^        ^^^^ $+$ ###",
+  "##################### \\\\     $$$$  ####### $$|                 $ $ ###",
+  "##### ################# \\\\      S  ####### $$|      /##\\\\       S  ###",
+  "######################### \\\\e e S  #######   |     /#### \\\\  e eS  ###",
+  "########################### ############################## ###########",
+  "######################################################################",
+  "######################################################################",
+  "##                                                                  ##",
+  "######################################################################",
+  "#########################      ##########                          ###",
+  "#########################      ##########                      |   ###",
+  "####      g      ##               ####### e$$$$e$           e e|#  ###",
+  "####        $$   ##  g          g ###############         /####|######",
+  "####       $$$$  ##    e       e  ####### #######        /#### | #####",
+  "####       $$$$  ##    ####   ##    #############       /### | |  ####",
+  "####  DD    $$   ##    ####-#-##  $ #####              /#### | |  ####",
+  "####             ##    ####   ##    #####             /##### | |  ####",
+  "##########       ##    ####-#-##  e #####            /### |  | |  ####",
+  "##########      ####   ####   ##  #######     DD    /#### |  | |  ####",
+  "##########      ####   ####-#-##  #######          /###   |  |+|  ####",
+  "##########  OOe ####   ####   ##  #####################   |  | |  ####",
+  "####################   ####-#-##  ###################     |  | |  ####",
+  "####################   ####   ## $################### k   |  | |  ####",
+  "#################### e ####   ##  ###################     |  |  g-####",
+  "#####################################################    ^^^^^^^^$####",
+  "################################################ #####################",
+  "###### ###############################################################",
+  "######################################################################",
+  "######################################################################"
+ ],
+ "terrain": [
+  " #####################################################################",
+  " #####################################################################",
+  "######################################################################",
+  "######################################################################",
+  "#####                  ###           ##       $    ## $$$$$$$$$$$$ ###",
+  "#####               $$ ###           ## $$   $$$   ##              ###",
+  "#####                  ###  $$       ## $$    $    ##---         #####",
+  "#####  DD              ### $$$$      ## $$         ##            #####",
+  "#####                  ###  $$       ## $$    ^    ##            #####",
+  "###########            ###           ##            ##----      #######",
+  "###########            ###           ##            ##          #######",
+  "#####                  ###           ##            ##          #######",
+  "#####                  ###      DD   ##   DD       ##      DD  #######",
+  "#####  ^^^^^^^^^^^^^^^ ### #  #      ##       #  # ## #  #     #######",
+  "#####                  #####--#################--######--#############",
+  "#####  ####################    ###############    ####    ############",
+  "#####  ####################    ###############    ####    ############",
+  "#####  #################                                     ## $$ ###",
+  "#####  #######     ## $$$                                    ## $$ ###",
+  "#####  #           ## $$$                                 $$ ##    ###",
+  "#####  #      #### ## $$$   ############################# $$      -###",
+  "##### +++     #### ##       ############## ###        ### $$       ###",
+  "##### +++ DD  #### ####-----##################        ### $$       ###",
+  "#####         #### ####     ################## #####  ### $$ ###   ###",
+  "################## ####              ######### #####  ### $$ ###   ###",
+  "################## #### S  |           ####### #####  ###    ###   ###",
+  "################## #### S #|#                # #####  ################",
+  "################## ########|###\\\\            # #####           #######",
+  "################## ####### | ### \\\\          # #####           #######",
+  "#################          |  #### \\\\     |  # ################  #####",
+  "############### $          |  ###### \\\\  #|# # ################  #####",
+  "############# $       S    |  ######## ###|### ################  #####",
+  "########### $         S    |  ########### | ## ################  #####",
+  "######### $       //################      |         $  $  $       ####",
+  "###     $       //##################  $$  |         $  $  $       ####",
+  "###           //######### + $$ + $   $$$$ |         $  $  $    -- ####",
+  "###    |    //###########       $$$   $$  |                 $$$   ####",
+  "###   #|# //## | ########        $        |                 $$$   ####",
+  "###  ##|###### | #############            |                 $$$   ####",
+  "###  # | ##### | #############            |                 $$$   ####",
+  "###    |       |      ###############     |                         ##",
+  "###    |       |   $$$$ #############  S  |  |                      ##",
+  "###    |       |     $$$$ ###########  S  | #|#                     ##",
+  "###    |       |       $$$$ #################|##              ########",
+  "##################\\\\     $$$$ ############## | #  ^^^^^^^^    ########",
+  "################### \\\\     $$$$ ########## $$| ^^^        ^^^^ $+$ ###",
+  "##################### \\\\     $$$$  ####### $$|                 $ $ ###",
+  "##### ################# \\\\      S  ####### $$|      /##\\\\       S  ###",
+  "######################### \\\\    S  #######   |     /#### \\\\     S  ###",
+  "########################### ############################## ###########",
+  "######################################################################",
+  "######################################################################",
+  "##                                                                  ##",
+  "######################################################################",
+  "#########################      ##########                          ###",
+  "#########################      ##########                      |   ###",
+  "####             ##               ####### $$$$$$$             #|#  ###",
+  "####        $$   ##               ###############         /####|######",
+  "####       $$$$  ##               ####### #######        /#### | #####",
+  "####       $$$$  ##    ####   ##    #############       /### | |  ####",
+  "####  DD    $$   ##    ####-#-##  $ #####              /#### | |  ####",
+  "####             ##    ####   ##    #####             /##### | |  ####",
+  "##########       ##    ####-#-##    #####            /### |  | |  ####",
+  "##########      ####   ####   ##  #######     DD    /#### |  | |  ####",
+  "##########      ####   ####-#-##  #######          /###   |  |+|  ####",
+  "##########  OO  ####   ####   ##  #####################   |  | |  ####",
+  "####################   ####-#-##  ###################     |  | |  ####",
+  "####################   ####   ##  ###################     |  | |  ####",
+  "####################   ####   ##  ###################     |  |   -####",
+  "#####################################################    ^^^^^^^^ ####",
+  "################################################ #####################",
+  "###### ###############################################################",
+  "######################################################################",
+  "######################################################################"
+ ],
+ "entities": [
+  {
+   "x": 1,
+   "y": 0,
+   "code": 41,
+   "kind": "objective",
+   "name": "objective type 01",
+   "difficulty": "",
+   "glyph": "!",
+   "ends_level": "objective"
+  },
+  {
+   "x": 2,
+   "y": 0,
+   "code": 41,
+   "kind": "objective",
+   "name": "objective type 01",
+   "difficulty": "",
+   "glyph": "!",
+   "ends_level": "objective"
+  },
+  {
+   "x": 3,
+   "y": 0,
+   "code": 41,
+   "kind": "objective",
+   "name": "objective type 01",
+   "difficulty": "",
+   "glyph": "!",
+   "ends_level": "objective"
+  },
+  {
+   "x": 4,
+   "y": 0,
+   "code": 41,
+   "kind": "objective",
+   "name": "objective type 01",
+   "difficulty": "",
+   "glyph": "!",
+   "ends_level": "objective"
+  },
+  {
+   "x": 54,
+   "y": 5,
+   "code": 76,
+   "kind": "enemy",
+   "name": "enemy type 11",
+   "difficulty": "hard",
+   "glyph": "e"
+  },
+  {
+   "x": 65,
+   "y": 5,
+   "code": 75,
+   "kind": "enemy",
+   "name": "enemy type 11",
+   "difficulty": "normal+",
+   "glyph": "e"
+  },
+  {
+   "x": 7,
+   "y": 7,
+   "code": 10765,
+   "kind": "door_link",
+   "name": "Warp target (42,13)",
+   "difficulty": "",
+   "glyph": null,
+   "target": [
+    42,
+    13
+   ]
+  },
+  {
+   "x": 8,
+   "y": 7,
+   "code": 10765,
+   "kind": "door_link",
+   "name": "Warp target (42,13)",
+   "difficulty": "",
+   "glyph": null,
+   "target": [
+    42,
+    13
+   ]
+  },
+  {
+   "x": 19,
+   "y": 7,
+   "code": 58,
+   "kind": "key",
+   "name": "key (yellow)",
+   "difficulty": "",
+   "glyph": "k"
+  },
+  {
+   "x": 54,
+   "y": 8,
+   "code": 76,
+   "kind": "enemy",
+   "name": "enemy type 11",
+   "difficulty": "hard",
+   "glyph": "e"
+  },
+  {
+   "x": 63,
+   "y": 8,
+   "code": 74,
+   "kind": "enemy",
+   "name": "enemy type 11",
+   "difficulty": "",
+   "glyph": "e"
+  },
+  {
+   "x": 19,
+   "y": 10,
+   "code": 21,
+   "kind": "enemy",
+   "name": "enemy type 04 (bouncing)",
+   "difficulty": "hard",
+   "glyph": "e"
+  },
+  {
+   "x": 5,
+   "y": 12,
+   "code": 31,
+   "kind": "marker",
+   "name": "Platform blocker",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 7,
+   "y": 12,
+   "code": 85,
+   "kind": "platform",
+   "name": "Platform (moving right)",
+   "difficulty": "",
+   "glyph": "p"
+  },
+  {
+   "x": 22,
+   "y": 12,
+   "code": 31,
+   "kind": "marker",
+   "name": "Platform blocker",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 32,
+   "y": 12,
+   "code": 11840,
+   "kind": "door_link",
+   "name": "Warp target (46,64)",
+   "difficulty": "",
+   "glyph": null,
+   "target": [
+    46,
+    64
+   ]
+  },
+  {
+   "x": 33,
+   "y": 12,
+   "code": 11840,
+   "kind": "door_link",
+   "name": "Warp target (46,64)",
+   "difficulty": "",
+   "glyph": null,
+   "target": [
+    46,
+    64
+   ]
+  },
+  {
+   "x": 42,
+   "y": 12,
+   "code": 1800,
+   "kind": "door_link",
+   "name": "Warp target (7,8)",
+   "difficulty": "",
+   "glyph": null,
+   "target": [
+    7,
+    8
+   ]
+  },
+  {
+   "x": 43,
+   "y": 12,
+   "code": 1800,
+   "kind": "door_link",
+   "name": "Warp target (7,8)",
+   "difficulty": "",
+   "glyph": null,
+   "target": [
+    7,
+    8
+   ]
+  },
+  {
+   "x": 59,
+   "y": 12,
+   "code": 1597,
+   "kind": "door_link",
+   "name": "Warp target (6,61)",
+   "difficulty": "",
+   "glyph": null,
+   "target": [
+    6,
+    61
+   ]
+  },
+  {
+   "x": 60,
+   "y": 12,
+   "code": 1597,
+   "kind": "door_link",
+   "name": "Warp target (6,61)",
+   "difficulty": "",
+   "glyph": null,
+   "target": [
+    6,
+    61
+   ]
+  },
+  {
+   "x": 32,
+   "y": 13,
+   "code": 76,
+   "kind": "enemy",
+   "name": "enemy type 11",
+   "difficulty": "hard",
+   "glyph": "e"
+  },
+  {
+   "x": 34,
+   "y": 13,
+   "code": 5,
+   "kind": "enemy",
+   "name": "enemy type 01",
+   "difficulty": "normal+",
+   "glyph": "e"
+  },
+  {
+   "x": 40,
+   "y": 13,
+   "code": 76,
+   "kind": "enemy",
+   "name": "enemy type 11",
+   "difficulty": "hard",
+   "glyph": "e"
+  },
+  {
+   "x": 44,
+   "y": 13,
+   "code": 5,
+   "kind": "enemy",
+   "name": "enemy type 01",
+   "difficulty": "normal+",
+   "glyph": "e"
+  },
+  {
+   "x": 22,
+   "y": 14,
+   "code": 63,
+   "kind": "points",
+   "name": "points 500",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 18,
+   "y": 18,
+   "code": 64,
+   "kind": "points",
+   "name": "points 1000",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 18,
+   "y": 19,
+   "code": 64,
+   "kind": "points",
+   "name": "points 1000",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 46,
+   "y": 19,
+   "code": 6,
+   "kind": "enemy",
+   "name": "enemy type 01",
+   "difficulty": "hard",
+   "glyph": "e"
+  },
+  {
+   "x": 55,
+   "y": 19,
+   "code": 4,
+   "kind": "enemy",
+   "name": "enemy type 01",
+   "difficulty": "",
+   "glyph": "e"
+  },
+  {
+   "x": 18,
+   "y": 20,
+   "code": 64,
+   "kind": "points",
+   "name": "points 1000",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 65,
+   "y": 20,
+   "code": 56,
+   "kind": "turret",
+   "name": "turret (left)",
+   "difficulty": "hard",
+   "glyph": "g"
+  },
+  {
+   "x": 18,
+   "y": 21,
+   "code": 64,
+   "kind": "points",
+   "name": "points 1000",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 46,
+   "y": 21,
+   "code": 67,
+   "kind": "powerup",
+   "name": "extra life",
+   "difficulty": "",
+   "glyph": "+"
+  },
+  {
+   "x": 49,
+   "y": 21,
+   "code": 64,
+   "kind": "points",
+   "name": "points 1000",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 50,
+   "y": 21,
+   "code": 64,
+   "kind": "points",
+   "name": "points 1000",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 51,
+   "y": 21,
+   "code": 64,
+   "kind": "points",
+   "name": "points 1000",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 10,
+   "y": 22,
+   "code": 8198,
+   "kind": "door_link",
+   "name": "Warp target (32,6)",
+   "difficulty": "",
+   "glyph": null,
+   "target": [
+    32,
+    6
+   ]
+  },
+  {
+   "x": 11,
+   "y": 22,
+   "code": 8198,
+   "kind": "door_link",
+   "name": "Warp target (32,6)",
+   "difficulty": "",
+   "glyph": null,
+   "target": [
+    32,
+    6
+   ]
+  },
+  {
+   "x": 18,
+   "y": 22,
+   "code": 64,
+   "kind": "points",
+   "name": "points 1000",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 49,
+   "y": 22,
+   "code": 64,
+   "kind": "points",
+   "name": "points 1000",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 50,
+   "y": 22,
+   "code": 64,
+   "kind": "points",
+   "name": "points 1000",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 51,
+   "y": 22,
+   "code": 64,
+   "kind": "points",
+   "name": "points 1000",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 18,
+   "y": 23,
+   "code": 64,
+   "kind": "points",
+   "name": "points 1000",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 64,
+   "y": 23,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 65,
+   "y": 23,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 66,
+   "y": 23,
+   "code": 93,
+   "kind": "marker",
+   "name": "Platform path arrow S",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 18,
+   "y": 24,
+   "code": 64,
+   "kind": "points",
+   "name": "points 1000",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 64,
+   "y": 24,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 65,
+   "y": 24,
+   "code": 72,
+   "kind": "enemy",
+   "name": "enemy type 10",
+   "difficulty": "normal+",
+   "glyph": "e"
+  },
+  {
+   "x": 66,
+   "y": 24,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 18,
+   "y": 25,
+   "code": 64,
+   "kind": "points",
+   "name": "points 1000",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 18,
+   "y": 26,
+   "code": 64,
+   "kind": "points",
+   "name": "points 1000",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 29,
+   "y": 26,
+   "code": 4,
+   "kind": "enemy",
+   "name": "enemy type 01",
+   "difficulty": "",
+   "glyph": "e"
+  },
+  {
+   "x": 18,
+   "y": 27,
+   "code": 64,
+   "kind": "points",
+   "name": "points 1000",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 18,
+   "y": 28,
+   "code": 64,
+   "kind": "points",
+   "name": "points 1000",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 63,
+   "y": 29,
+   "code": 66,
+   "kind": "points",
+   "name": "points 5000",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 64,
+   "y": 29,
+   "code": 66,
+   "kind": "points",
+   "name": "points 5000",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 40,
+   "y": 30,
+   "code": 42,
+   "kind": "enemy",
+   "name": "enemy type 03",
+   "difficulty": "",
+   "glyph": "e"
+  },
+  {
+   "x": 63,
+   "y": 30,
+   "code": 66,
+   "kind": "points",
+   "name": "points 5000",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 64,
+   "y": 30,
+   "code": 66,
+   "kind": "points",
+   "name": "points 5000",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 25,
+   "y": 32,
+   "code": 6,
+   "kind": "enemy",
+   "name": "enemy type 01",
+   "difficulty": "hard",
+   "glyph": "e"
+  },
+  {
+   "x": 14,
+   "y": 37,
+   "code": 64,
+   "kind": "points",
+   "name": "points 1000",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 15,
+   "y": 37,
+   "code": 64,
+   "kind": "points",
+   "name": "points 1000",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 16,
+   "y": 37,
+   "code": 64,
+   "kind": "points",
+   "name": "points 1000",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 28,
+   "y": 37,
+   "code": 4,
+   "kind": "enemy",
+   "name": "enemy type 01",
+   "difficulty": "",
+   "glyph": "e"
+  },
+  {
+   "x": 52,
+   "y": 37,
+   "code": 31,
+   "kind": "marker",
+   "name": "Platform blocker",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 55,
+   "y": 37,
+   "code": 31,
+   "kind": "marker",
+   "name": "Platform blocker",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 58,
+   "y": 37,
+   "code": 31,
+   "kind": "marker",
+   "name": "Platform blocker",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 14,
+   "y": 38,
+   "code": 64,
+   "kind": "points",
+   "name": "points 1000",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 15,
+   "y": 38,
+   "code": 64,
+   "kind": "points",
+   "name": "points 1000",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 16,
+   "y": 38,
+   "code": 64,
+   "kind": "points",
+   "name": "points 1000",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 58,
+   "y": 38,
+   "code": 86,
+   "kind": "platform",
+   "name": "Platform (moving down)",
+   "difficulty": "",
+   "glyph": "p"
+  },
+  {
+   "x": 32,
+   "y": 39,
+   "code": 4,
+   "kind": "enemy",
+   "name": "enemy type 01",
+   "difficulty": "",
+   "glyph": "e"
+  },
+  {
+   "x": 55,
+   "y": 40,
+   "code": 84,
+   "kind": "platform",
+   "name": "Platform (moving up)",
+   "difficulty": "",
+   "glyph": "p"
+  },
+  {
+   "x": 65,
+   "y": 40,
+   "code": 69,
+   "kind": "powerup",
+   "name": "ammo or bonus (depends on ammo count)",
+   "difficulty": "",
+   "glyph": "+"
+  },
+  {
+   "x": 41,
+   "y": 42,
+   "code": 6,
+   "kind": "enemy",
+   "name": "enemy type 01",
+   "difficulty": "hard",
+   "glyph": "e"
+  },
+  {
+   "x": 52,
+   "y": 42,
+   "code": 84,
+   "kind": "platform",
+   "name": "Platform (moving up)",
+   "difficulty": "",
+   "glyph": "p"
+  },
+  {
+   "x": 66,
+   "y": 42,
+   "code": 2,
+   "kind": "player",
+   "name": "player start (facing left)",
+   "difficulty": "",
+   "glyph": "@"
+  },
+  {
+   "x": 12,
+   "y": 43,
+   "code": 42,
+   "kind": "enemy",
+   "name": "enemy type 03",
+   "difficulty": "",
+   "glyph": "e"
+  },
+  {
+   "x": 17,
+   "y": 43,
+   "code": 5,
+   "kind": "enemy",
+   "name": "enemy type 01",
+   "difficulty": "normal+",
+   "glyph": "e"
+  },
+  {
+   "x": 52,
+   "y": 43,
+   "code": 31,
+   "kind": "marker",
+   "name": "Platform blocker",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 55,
+   "y": 43,
+   "code": 31,
+   "kind": "marker",
+   "name": "Platform blocker",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 58,
+   "y": 43,
+   "code": 31,
+   "kind": "marker",
+   "name": "Platform blocker",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 28,
+   "y": 48,
+   "code": 104,
+   "kind": "enemy",
+   "name": "enemy type 08",
+   "difficulty": "hard",
+   "glyph": "e"
+  },
+  {
+   "x": 30,
+   "y": 48,
+   "code": 4,
+   "kind": "enemy",
+   "name": "enemy type 01",
+   "difficulty": "",
+   "glyph": "e"
+  },
+  {
+   "x": 61,
+   "y": 48,
+   "code": 42,
+   "kind": "enemy",
+   "name": "enemy type 03",
+   "difficulty": "",
+   "glyph": "e"
+  },
+  {
+   "x": 63,
+   "y": 48,
+   "code": 6,
+   "kind": "enemy",
+   "name": "enemy type 01",
+   "difficulty": "hard",
+   "glyph": "e"
+  },
+  {
+   "x": 38,
+   "y": 52,
+   "code": 25,
+   "kind": "marker",
+   "name": "camera limit",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 10,
+   "y": 56,
+   "code": 51,
+   "kind": "turret",
+   "name": "turret (down)",
+   "difficulty": "normal+",
+   "glyph": "g"
+  },
+  {
+   "x": 42,
+   "y": 56,
+   "code": 104,
+   "kind": "enemy",
+   "name": "enemy type 08",
+   "difficulty": "hard",
+   "glyph": "e"
+  },
+  {
+   "x": 47,
+   "y": 56,
+   "code": 4,
+   "kind": "enemy",
+   "name": "enemy type 01",
+   "difficulty": "",
+   "glyph": "e"
+  },
+  {
+   "x": 60,
+   "y": 56,
+   "code": 104,
+   "kind": "enemy",
+   "name": "enemy type 08",
+   "difficulty": "hard",
+   "glyph": "e"
+  },
+  {
+   "x": 62,
+   "y": 56,
+   "code": 4,
+   "kind": "enemy",
+   "name": "enemy type 01",
+   "difficulty": "",
+   "glyph": "e"
+  },
+  {
+   "x": 21,
+   "y": 57,
+   "code": 51,
+   "kind": "turret",
+   "name": "turret (down)",
+   "difficulty": "normal+",
+   "glyph": "g"
+  },
+  {
+   "x": 32,
+   "y": 57,
+   "code": 55,
+   "kind": "turret",
+   "name": "turret (down)",
+   "difficulty": "hard",
+   "glyph": "g"
+  },
+  {
+   "x": 23,
+   "y": 58,
+   "code": 76,
+   "kind": "enemy",
+   "name": "enemy type 11",
+   "difficulty": "hard",
+   "glyph": "e"
+  },
+  {
+   "x": 31,
+   "y": 58,
+   "code": 76,
+   "kind": "enemy",
+   "name": "enemy type 11",
+   "difficulty": "hard",
+   "glyph": "e"
+  },
+  {
+   "x": 6,
+   "y": 60,
+   "code": 15117,
+   "kind": "door_link",
+   "name": "Warp target (59,13)",
+   "difficulty": "",
+   "glyph": null,
+   "target": [
+    59,
+    13
+   ]
+  },
+  {
+   "x": 7,
+   "y": 60,
+   "code": 15117,
+   "kind": "door_link",
+   "name": "Warp target (59,13)",
+   "difficulty": "",
+   "glyph": null,
+   "target": [
+    59,
+    13
+   ]
+  },
+  {
+   "x": 34,
+   "y": 62,
+   "code": 76,
+   "kind": "enemy",
+   "name": "enemy type 11",
+   "difficulty": "hard",
+   "glyph": "e"
+  },
+  {
+   "x": 46,
+   "y": 63,
+   "code": 8205,
+   "kind": "door_link",
+   "name": "Warp target (32,13)",
+   "difficulty": "",
+   "glyph": null,
+   "target": [
+    32,
+    13
+   ]
+  },
+  {
+   "x": 47,
+   "y": 63,
+   "code": 8205,
+   "kind": "door_link",
+   "name": "Warp target (32,13)",
+   "difficulty": "",
+   "glyph": null,
+   "target": [
+    32,
+    13
+   ]
+  },
+  {
+   "x": 12,
+   "y": 65,
+   "code": 4408,
+   "kind": "switch_link",
+   "name": "switch target (17,56)",
+   "difficulty": "",
+   "glyph": null,
+   "target": [
+    17,
+    56
+   ]
+  },
+  {
+   "x": 13,
+   "y": 65,
+   "code": 4664,
+   "kind": "switch_link",
+   "name": "switch target (18,56)",
+   "difficulty": "",
+   "glyph": null,
+   "target": [
+    18,
+    56
+   ]
+  },
+  {
+   "x": 14,
+   "y": 65,
+   "code": 6,
+   "kind": "enemy",
+   "name": "enemy type 01",
+   "difficulty": "hard",
+   "glyph": "e"
+  },
+  {
+   "x": 33,
+   "y": 67,
+   "code": 65,
+   "kind": "points",
+   "name": "points 2000",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 54,
+   "y": 67,
+   "code": 59,
+   "kind": "key",
+   "name": "key (blue)",
+   "difficulty": "",
+   "glyph": "k"
+  },
+  {
+   "x": 21,
+   "y": 68,
+   "code": 76,
+   "kind": "enemy",
+   "name": "enemy type 11",
+   "difficulty": "hard",
+   "glyph": "e"
+  },
+  {
+   "x": 64,
+   "y": 68,
+   "code": 56,
+   "kind": "turret",
+   "name": "turret (left)",
+   "difficulty": "hard",
+   "glyph": "g"
+  },
+  {
+   "x": 65,
+   "y": 69,
+   "code": 65,
+   "kind": "points",
+   "name": "points 2000",
+   "difficulty": "",
+   "glyph": "$"
+  }
+ ]
+}

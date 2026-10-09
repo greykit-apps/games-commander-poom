@@ -1,0 +1,24 @@
+; tile-ascii-map/1
+; map:    B19  set: B  engine: E2  kind: highscores
+; size:   24 x 17  (width x height; 1 char = one tile; origin top-left)
+; legend: ' ' empty / passable  '#' solid block  '$' points pickup (incl. collect-100-for-a-life pickups)  '@' player start  'e' enemy / hostile creature  'p' moving platform
+; entities: enemy=3, marker=35, platform=1, player=1  (full list in B19.json)
+; completion: n/a
+;===============================================================================
+########################
+########################
+##                    ##
+##   $$          $$   ##
+##                    ##
+##                    ##
+##                    ##
+##                    ##
+##                p   ##
+##                    ##
+##                    ##
+##                    ##
+##                    ##
+##   e    @       e e ##
+########################
+########################
+########################

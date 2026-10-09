@@ -28,12 +28,12 @@ Glyphs marked "no" are air until the engine learns them.
 | `Q` | teleporters / elevators | no | 37 |
 | `j` | key sockets | no | 186 |
 | `H` | hint triggers | no | 217 |
-| `D` | warp doors | no | 597 |
+| `D` | warp doors | no | 596 |
 | `d` | locked doors (colour absent from the source) | yes | 96 |
 | `q` | keycards with no stated colour | yes | 59 |
 | `u` | 2000-point pickup (medal) | yes | 235 |
 | `w` | swim ability (and swimming starts) | no | 2 |
-| `!` | objective items | no | 52 |
+| `!` | objective items (collected, or shot) | yes | 52 |
 | `e` | enemies (per-type behaviour) | no | 2943 |
 | `G` | turrets / emitters | no | 279 |
 | `N` | NPCs / rescue targets | no | 21 |
@@ -48,7 +48,7 @@ Further notes:
 - Slopes: a row's run of n like slope tiles climbs one tile height, so a lone `/` is 45 degrees and a pair is half that. A body standing on a slope steps up onto the ground at its top. Non-solid tiles boxed in under a slope's edge are filled as ground at load.
 - Ice (`i`) is solid with the original game's ice handling while standing on it; conveyors (`< >`) are solid and carry the player 1 px a tick. Enemies ignore both.
 - `~` in world maps is shoreline; in levels it is fire/water, as before.
-- Exits: `X` in the source becomes `E`, but not every `X` is an exit. The engine keeps an `X` as a door only if it has open space above and a floor within two tiles below (the door drops to that floor); an `X` with ground above is the foot of a wall by a key socket and stays wall, and one with no floor stays air. That gives door exits in 61 of 143 levels: all of C and H, 15 of D, 8 of G, 5 of A, 1 of I. The other 82 (`edgeExit` in the data: all of B, E and F, most of A and I, 5 of G, D17) end as the source engine ends them, by leaving the map: walking into the two-tile border at the left, right or top edge finishes the level. Falling out of the bottom still kills.
+- How a level ends comes from the source's `completion` list (maps2/README.md, *Level completion*). `exit_tile`: an `X` away from the map edge becomes `E`, an exit door; walking into any `E` tile finishes the level, and each group of them is drawn as one door standing on the floor below it. `map_edge`: an `X` in the outer two columns stays `X`, unseen; walking into one finishes the level. `objective`: the level's `ends` objectives (`!`, and the two swim-ability pickups flagged as ending E and I levels) are picked up by touch or destroyed by a shot, and the last one finishes the level. `rescue`: touching an `ends` NPC finishes the level. Falling out of the bottom still kills.
 - The ledge (`-`), pole (`|`) and spikes (`^`) are used as the engine already has them.
 
 ## Per book
@@ -72,7 +72,7 @@ Skipped (not levels): A17 highscores, A18 test
 | A11 | level | 130×67 | `e` 26, `/` 43, `\` 32, `M` 14, `u` 3, `S` 3, `j` 3, `q` 1, `G` 2, `!` 1 |
 | A12 | level | 66×93 | `e` 10, `/` 75, `M` 23, `\` 13, `u` 7, `j` 4, `G` 5, `S` 5, `!` 1 |
 | A13 | level | 90×86 | `e` 11, `M` 31, `S` 3, `/` 61, `\` 55, `j` 1, `G` 2, `q` 1, `!` 1 |
-| A14 | level | 68×90 | `S` 4, `G` 23, `\` 18, `j` 2, `e` 16, `D` 7, `M` 12, `/` 15, `u` 4 |
+| A14 | level | 68×90 | `S` 4, `G` 23, `\` 18, `j` 2, `e` 16, `D` 6, `M` 12, `/` 15, `u` 4 |
 | A15 | level | 202×31 | `u` 1, `j` 3, `D` 6, `\` 20, `e` 17, `M` 14, `/` 33, `G` 3, `!` 1 |
 | A16 | level | 160×65 | `/` 55, `\` 45, `S` 4, `e` 2, `G` 10, `u` 2, `M` 1, `j` 3, `!` 4 |
 

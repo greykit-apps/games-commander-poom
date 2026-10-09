@@ -1,0 +1,2959 @@
+{
+ "format": "tile-ascii-map/1",
+ "map": "B17",
+ "set": "B",
+ "engine": "E2",
+ "kind": "level",
+ "completion": [
+  "map_edge"
+ ],
+ "exit_tiles": 0,
+ "edge_exit_cells": 45,
+ "notes": [],
+ "width": 73,
+ "height": 64,
+ "legend": {
+  " ": "empty / passable",
+  "#": "solid block",
+  "/": "slope rising to the right",
+  "\\": "slope falling to the right",
+  "^": "hazard: touching or landing on it kills",
+  "|": "climbable pole",
+  "O": "key socket / holder",
+  "X": "level exit",
+  "$": "points pickup (incl. collect-100-for-a-life pickups)",
+  "+": "power-up / resource (ammo, extra life, weapon, movement ability, shield)",
+  "k": "key / keycard",
+  "@": "player start",
+  "e": "enemy / hostile creature",
+  "p": "moving platform"
+ },
+ "glyph_counts": {
+  " ": 2479,
+  "#": 1875,
+  "/": 22,
+  "\\": 15,
+  "^": 31,
+  "|": 28,
+  "O": 3,
+  "X": 45,
+  "$": 137,
+  "+": 7,
+  "k": 2,
+  "@": 1,
+  "e": 21,
+  "p": 6
+ },
+ "grid": [
+  "###################################################################### XX",
+  "###################################################################### XX",
+  "##         //####       ######                        ###\\\\         ## XX",
+  "##       //#####        ######                      p #####\\\\       ## XX",
+  "##     //###            ######                        #######\\\\     ## XX",
+  "##   //###          #   ######   ##################   #########\\\\   ## XX",
+  "## //#####          #            ##                    # ########\\\\ ## XX",
+  "##/####             # $ $$$$$$ $ ##                    #   ########\\## XX",
+  "#######     #########            ##     $     $        #     ######### XX",
+  "#####           ##### ^^^^^^^^^^ ##    $ $   $ $       #       ####### XX",
+  "#####           ###################   $   $ $ e $      #         ##### XX",
+  "#####  $ $ $    ###################                    #   $       ### XX",
+  "#####  $ $ $    ## +     $                             #  $ $      ### XX",
+  "#####    $      ##     $ $ $               |           #        #  ### XX",
+  "#####    $      ##       $                #|# e$$$$e O #           ### XX",
+  "#####           ##                   /#####|###############        ### XX",
+  "#####       |   ##  \\               /##### | ############## $    $ ### XX",
+  "##### ee $ #|#  ##  #\\             / #  ## | #### $$ ######        ### XX",
+  "############|#####  ##\\           /##   ## | ####    ######        ### XX",
+  "########### | ####   ##\\         / #    ## | ####         #    ee$ ### XX",
+  "#X    $  $ $| $ ## $  ##        /##     ## | #### k  $$$$ ############ XX",
+  "#X          |   ##     #       / # $ $  ## | ####       $ ###############",
+  "#X   e    $     ##            /##          |   ##    ## $              ##",
+  "##################           / # $         |   ##p   ## $$$$$$$$       ##",
+  "##################          /##           #|#  ##    ##                ##",
+  "## +  $   $  ####     $$$e / #  $     #####|#####    ######### $ ####  ##",
+  "##     $$$           ########         #### | ####    #########   ####  ##",
+  "##    $ $ $       $  #######   $ e    #$$  | ####                 ###  ##",
+  "##                     $##            #$$  | ####       $         ###  ##",
+  "##                      ##            #$$  | ####      $$$      $ ###  ##",
+  "## @              e  #####  e         #### | ####     $$$$$       ###  ##",
+  "########################################## | ####       e       $ ###  ##",
+  "########################################## | ####                 ###  ##",
+  "###########      +$$+                      | #                  $ ###  ##",
+  "##  #######                                | #                    ###  ##",
+  "##    #####  p                          $O   #     $$e  e  e $$   ###  ##",
+  "##      ###                          ################################  ##",
+  "##      ###          e         $     ################################  ##",
+  "##      ###        $                 ####     $$      ##k  $  ###   #  ##",
+  "##      ###                  $   $   ####   $      #  ##  $$$ ###   #  ##",
+  "##      ###p     $ ^ $               ####  ######     ##   $  ###   #  ##",
+  "##      ###        ^                 ####  ######     ##      ###   #  ##",
+  "##      ###        p                 ####  #############   $  ###   #  ##",
+  "##      ###                   ###      #$  #############      ###   #  ##",
+  "##      ###                   ###      #                      ###   #  ##",
+  "##      ###                 ^ ###   O  #    $   $   $ e       ###   #  ##",
+  "##      ####^^^^^^^^^^^^^^^^^####################################   #  ##",
+  "##      #######################################################     #  ##",
+  "##        ###################################################       #  ##",
+  "##          ###############################################         #  ##",
+  "##            ###########################################    e      #  ##",
+  "##              #######################################             #  ##",
+  "##                ###################################     e     e   #  ##",
+  "##                  ###########p      $ $ $ $  ####                 #  ##",
+  "##                    #########        $+$+$   #                    #  ##",
+  "##                      #######    #    $+$  ^ ######################  ##",
+  "##                        #####          $     ######################  ##",
+  "##                          ###                                        ##",
+  "##                          ###                                        ##",
+  "##                          ###                                        ##",
+  "##                          ###                                        ##",
+  "##                          #############################################",
+  "#########################################################################",
+  "#########################################################################"
+ ],
+ "terrain": [
+  "###################################################################### XX",
+  "###################################################################### XX",
+  "##         //####       ######                        ###\\\\         ## XX",
+  "##       //#####        ######                        #####\\\\       ## XX",
+  "##     //###            ######                        #######\\\\     ## XX",
+  "##   //###          #   ######   ##################   #########\\\\   ## XX",
+  "## //#####          #            ##                    # ########\\\\ ## XX",
+  "##/####             # $ $$$$$$ $ ##                    #   ########\\## XX",
+  "#######     #########            ##     $     $        #     ######### XX",
+  "#####           ##### ^^^^^^^^^^ ##    $ $   $ $       #       ####### XX",
+  "#####           ###################   $   $ $   $      #         ##### XX",
+  "#####  $ $ $    ###################                    #   $       ### XX",
+  "#####  $ $ $    ##       $                             #  $ $      ### XX",
+  "#####    $      ##     $ $ $               |           #        #  ### XX",
+  "#####    $      ##       $                #|#  $$$$  O #           ### XX",
+  "#####           ##                   /#####|###############        ### XX",
+  "#####       |   ##  \\               /##### | ############## $    $ ### XX",
+  "#####    $ #|#  ##  #\\             / #  ## | #### $  ######        ### XX",
+  "############|#####  ##\\           /##   ## | ####    ######        ### XX",
+  "########### | ####   ##\\         / #    ## | ####         #      $ ### XX",
+  "#X    $  $ $| $ ## $  ##        /##     ## | ####         ############ XX",
+  "#X          |   ##     #       / # $ $  ## | ####         ###############",
+  "#X        $     ##            /##          |   ##    ##                ##",
+  "##################           / # $         |   ##    ##                ##",
+  "##################          /##           #|#  ##    ##                ##",
+  "##    $   $  ####     $$$  / #  $     #####|#####    #########   ####  ##",
+  "##     $$$           ########         #### | ####    #########   ####  ##",
+  "##    $ $ $       $  #######   $      #    | ####                 ###  ##",
+  "##                      ##            #    | ####       $         ###  ##",
+  "##                      ##            #    | ####      $$$      $ ###  ##",
+  "##                   #####            #### | ####     $$$$$       ###  ##",
+  "########################################## | ####               $ ###  ##",
+  "########################################## | ####                 ###  ##",
+  "###########       $$+                      | #                  $ ###  ##",
+  "##  #######                                | #                    ###  ##",
+  "##    #####                             $O   #     $$        $$   ###  ##",
+  "##      ###                          ################################  ##",
+  "##      ###                    $     ################################  ##",
+  "##      ###        $                 ####     $$      ##   $  ###   #  ##",
+  "##      ###                  $   $   ####   $      #  ##  $$$ ###   #  ##",
+  "##      ###      $ ^ $               ####  ######     ##   $  ###   #  ##",
+  "##      ###        ^                 ####  ######     ##      ###   #  ##",
+  "##      ###                          ####  #############   $  ###   #  ##",
+  "##      ###                   ###      #$  #############      ###   #  ##",
+  "##      ###                   ###      #                      ###   #  ##",
+  "##      ###                 ^ ###   O  #    $   $   $         ###   #  ##",
+  "##      ####^^^^^^^^^^^^^^^^^####################################   #  ##",
+  "##      #######################################################     #  ##",
+  "##        ###################################################       #  ##",
+  "##          ###############################################         #  ##",
+  "##            ###########################################           #  ##",
+  "##              #######################################             #  ##",
+  "##                ###################################               #  ##",
+  "##                  ###########       $ $ $ $  ####                 #  ##",
+  "##                    #########        $+$+$   #                    #  ##",
+  "##                      #######    #    $+$  ^ ######################  ##",
+  "##                        #####          $     ######################  ##",
+  "##                          ###                                        ##",
+  "##                          ###                                        ##",
+  "##                          ###                                        ##",
+  "##                          ###                                        ##",
+  "##                          #############################################",
+  "#########################################################################",
+  "#########################################################################"
+ ],
+ "entities": [
+  {
+   "x": 52,
+   "y": 3,
+   "code": 38,
+   "kind": "platform",
+   "name": "Arrow-guided platform (start down)",
+   "difficulty": "",
+   "glyph": "p"
+  },
+  {
+   "x": 16,
+   "y": 4,
+   "code": 93,
+   "kind": "marker",
+   "name": "Platform path arrow S",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 17,
+   "y": 4,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 18,
+   "y": 4,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 19,
+   "y": 4,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 20,
+   "y": 4,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 21,
+   "y": 4,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 30,
+   "y": 4,
+   "code": 93,
+   "kind": "marker",
+   "name": "Platform path arrow S",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 31,
+   "y": 4,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 32,
+   "y": 4,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 33,
+   "y": 4,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 34,
+   "y": 4,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 35,
+   "y": 4,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 36,
+   "y": 4,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 37,
+   "y": 4,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 38,
+   "y": 4,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 39,
+   "y": 4,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 40,
+   "y": 4,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 41,
+   "y": 4,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 42,
+   "y": 4,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 43,
+   "y": 4,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 44,
+   "y": 4,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 45,
+   "y": 4,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 46,
+   "y": 4,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 47,
+   "y": 4,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 48,
+   "y": 4,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 49,
+   "y": 4,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 50,
+   "y": 4,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 51,
+   "y": 4,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 52,
+   "y": 4,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 16,
+   "y": 5,
+   "code": 93,
+   "kind": "marker",
+   "name": "Platform path arrow S",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 21,
+   "y": 5,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 30,
+   "y": 5,
+   "code": 93,
+   "kind": "marker",
+   "name": "Platform path arrow S",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 51,
+   "y": 5,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 52,
+   "y": 5,
+   "code": 93,
+   "kind": "marker",
+   "name": "Platform path arrow S",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 10,
+   "y": 6,
+   "code": 93,
+   "kind": "marker",
+   "name": "Platform path arrow S",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 11,
+   "y": 6,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 12,
+   "y": 6,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 13,
+   "y": 6,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 14,
+   "y": 6,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 15,
+   "y": 6,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 16,
+   "y": 6,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 21,
+   "y": 6,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 30,
+   "y": 6,
+   "code": 93,
+   "kind": "marker",
+   "name": "Platform path arrow S",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 51,
+   "y": 6,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 52,
+   "y": 6,
+   "code": 93,
+   "kind": "marker",
+   "name": "Platform path arrow S",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 7,
+   "y": 7,
+   "code": 93,
+   "kind": "marker",
+   "name": "Platform path arrow S",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 8,
+   "y": 7,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 9,
+   "y": 7,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 10,
+   "y": 7,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 11,
+   "y": 7,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 12,
+   "y": 7,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 13,
+   "y": 7,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 14,
+   "y": 7,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 15,
+   "y": 7,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 16,
+   "y": 7,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 21,
+   "y": 7,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 30,
+   "y": 7,
+   "code": 93,
+   "kind": "marker",
+   "name": "Platform path arrow S",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 51,
+   "y": 7,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 52,
+   "y": 7,
+   "code": 93,
+   "kind": "marker",
+   "name": "Platform path arrow S",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 7,
+   "y": 8,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 8,
+   "y": 8,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 9,
+   "y": 8,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 10,
+   "y": 8,
+   "code": 95,
+   "kind": "marker",
+   "name": "Platform path arrow NE",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 21,
+   "y": 8,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 22,
+   "y": 8,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 23,
+   "y": 8,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 24,
+   "y": 8,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 25,
+   "y": 8,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 26,
+   "y": 8,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 27,
+   "y": 8,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 28,
+   "y": 8,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 29,
+   "y": 8,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 30,
+   "y": 8,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 51,
+   "y": 8,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 52,
+   "y": 8,
+   "code": 93,
+   "kind": "marker",
+   "name": "Platform path arrow S",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 51,
+   "y": 9,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 52,
+   "y": 9,
+   "code": 93,
+   "kind": "marker",
+   "name": "Platform path arrow S",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 46,
+   "y": 10,
+   "code": 80,
+   "kind": "enemy",
+   "name": "enemy type 12",
+   "difficulty": "normal+",
+   "glyph": "e"
+  },
+  {
+   "x": 51,
+   "y": 10,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 52,
+   "y": 10,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 53,
+   "y": 10,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 54,
+   "y": 10,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 55,
+   "y": 10,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 56,
+   "y": 10,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 57,
+   "y": 10,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 58,
+   "y": 10,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 59,
+   "y": 10,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 60,
+   "y": 10,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 61,
+   "y": 10,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 62,
+   "y": 10,
+   "code": 93,
+   "kind": "marker",
+   "name": "Platform path arrow S",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 51,
+   "y": 11,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 62,
+   "y": 11,
+   "code": 93,
+   "kind": "marker",
+   "name": "Platform path arrow S",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 19,
+   "y": 12,
+   "code": 68,
+   "kind": "powerup",
+   "name": "ammo",
+   "difficulty": "",
+   "glyph": "+"
+  },
+  {
+   "x": 52,
+   "y": 12,
+   "code": 98,
+   "kind": "marker",
+   "name": "Platform path arrow NW",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 62,
+   "y": 12,
+   "code": 93,
+   "kind": "marker",
+   "name": "Platform path arrow S",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 53,
+   "y": 13,
+   "code": 98,
+   "kind": "marker",
+   "name": "Platform path arrow NW",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 54,
+   "y": 13,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 55,
+   "y": 13,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 56,
+   "y": 13,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 57,
+   "y": 13,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 58,
+   "y": 13,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 59,
+   "y": 13,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 62,
+   "y": 13,
+   "code": 93,
+   "kind": "marker",
+   "name": "Platform path arrow S",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 64,
+   "y": 13,
+   "code": 13316,
+   "kind": "door_link",
+   "name": "Warp target (52,4)",
+   "difficulty": "",
+   "glyph": null,
+   "target": [
+    52,
+    4
+   ]
+  },
+  {
+   "x": 46,
+   "y": 14,
+   "code": 77,
+   "kind": "enemy",
+   "name": "enemy type 06",
+   "difficulty": "normal+",
+   "glyph": "e"
+  },
+  {
+   "x": 51,
+   "y": 14,
+   "code": 72,
+   "kind": "enemy",
+   "name": "enemy type 11",
+   "difficulty": "hard",
+   "glyph": "e"
+  },
+  {
+   "x": 53,
+   "y": 14,
+   "code": 14086,
+   "kind": "switch_link",
+   "name": "switch target (55,6)",
+   "difficulty": "",
+   "glyph": null,
+   "target": [
+    55,
+    6
+   ]
+  },
+  {
+   "x": 59,
+   "y": 14,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 62,
+   "y": 14,
+   "code": 93,
+   "kind": "marker",
+   "name": "Platform path arrow S",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 59,
+   "y": 15,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 62,
+   "y": 15,
+   "code": 93,
+   "kind": "marker",
+   "name": "Platform path arrow S",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 59,
+   "y": 16,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 62,
+   "y": 16,
+   "code": 93,
+   "kind": "marker",
+   "name": "Platform path arrow S",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 6,
+   "y": 17,
+   "code": 8,
+   "kind": "enemy",
+   "name": "enemy type 01",
+   "difficulty": "",
+   "glyph": "e"
+  },
+  {
+   "x": 7,
+   "y": 17,
+   "code": 72,
+   "kind": "enemy",
+   "name": "enemy type 11",
+   "difficulty": "hard",
+   "glyph": "e"
+  },
+  {
+   "x": 51,
+   "y": 17,
+   "code": 65,
+   "kind": "points",
+   "name": "points 2000",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 59,
+   "y": 17,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 60,
+   "y": 17,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 61,
+   "y": 17,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 62,
+   "y": 17,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 63,
+   "y": 19,
+   "code": 8,
+   "kind": "enemy",
+   "name": "enemy type 01",
+   "difficulty": "",
+   "glyph": "e"
+  },
+  {
+   "x": 64,
+   "y": 19,
+   "code": 8,
+   "kind": "enemy",
+   "name": "enemy type 01",
+   "difficulty": "",
+   "glyph": "e"
+  },
+  {
+   "x": 68,
+   "y": 19,
+   "code": 26,
+   "kind": "marker",
+   "name": "camera limit (vertical)",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 50,
+   "y": 20,
+   "code": 60,
+   "kind": "key",
+   "name": "key (green)",
+   "difficulty": "",
+   "glyph": "k"
+  },
+  {
+   "x": 53,
+   "y": 20,
+   "code": 62,
+   "kind": "points",
+   "name": "points 200",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 54,
+   "y": 20,
+   "code": 62,
+   "kind": "points",
+   "name": "points 200",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 55,
+   "y": 20,
+   "code": 62,
+   "kind": "points",
+   "name": "points 200",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 56,
+   "y": 20,
+   "code": 62,
+   "kind": "points",
+   "name": "points 200",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 49,
+   "y": 21,
+   "code": 93,
+   "kind": "marker",
+   "name": "Platform path arrow S",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 50,
+   "y": 21,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 51,
+   "y": 21,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 52,
+   "y": 21,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 53,
+   "y": 21,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 54,
+   "y": 21,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 55,
+   "y": 21,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 56,
+   "y": 21,
+   "code": 62,
+   "kind": "points",
+   "name": "points 200",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 5,
+   "y": 22,
+   "code": 8,
+   "kind": "enemy",
+   "name": "enemy type 01",
+   "difficulty": "",
+   "glyph": "e"
+  },
+  {
+   "x": 49,
+   "y": 22,
+   "code": 93,
+   "kind": "marker",
+   "name": "Platform path arrow S",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 55,
+   "y": 22,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 56,
+   "y": 22,
+   "code": 62,
+   "kind": "points",
+   "name": "points 200",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 49,
+   "y": 23,
+   "code": 38,
+   "kind": "platform",
+   "name": "Arrow-guided platform (start down)",
+   "difficulty": "",
+   "glyph": "p"
+  },
+  {
+   "x": 55,
+   "y": 23,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 56,
+   "y": 23,
+   "code": 62,
+   "kind": "points",
+   "name": "points 200",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 57,
+   "y": 23,
+   "code": 62,
+   "kind": "points",
+   "name": "points 200",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 58,
+   "y": 23,
+   "code": 62,
+   "kind": "points",
+   "name": "points 200",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 59,
+   "y": 23,
+   "code": 62,
+   "kind": "points",
+   "name": "points 200",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 60,
+   "y": 23,
+   "code": 62,
+   "kind": "points",
+   "name": "points 200",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 61,
+   "y": 23,
+   "code": 62,
+   "kind": "points",
+   "name": "points 200",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 62,
+   "y": 23,
+   "code": 62,
+   "kind": "points",
+   "name": "points 200",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 63,
+   "y": 23,
+   "code": 62,
+   "kind": "points",
+   "name": "points 200",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 49,
+   "y": 24,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 55,
+   "y": 24,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 56,
+   "y": 24,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 57,
+   "y": 24,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 58,
+   "y": 24,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 59,
+   "y": 24,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 60,
+   "y": 24,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 61,
+   "y": 24,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 62,
+   "y": 24,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 63,
+   "y": 24,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 64,
+   "y": 24,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 65,
+   "y": 24,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 66,
+   "y": 24,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 67,
+   "y": 24,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 68,
+   "y": 24,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 69,
+   "y": 24,
+   "code": 94,
+   "kind": "marker",
+   "name": "Platform path arrow W",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 3,
+   "y": 25,
+   "code": 69,
+   "kind": "powerup",
+   "name": "ammo or bonus (depends on ammo count)",
+   "difficulty": "",
+   "glyph": "+"
+  },
+  {
+   "x": 25,
+   "y": 25,
+   "code": 8,
+   "kind": "enemy",
+   "name": "enemy type 01",
+   "difficulty": "",
+   "glyph": "e"
+  },
+  {
+   "x": 49,
+   "y": 25,
+   "code": 93,
+   "kind": "marker",
+   "name": "Platform path arrow S",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 62,
+   "y": 25,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 63,
+   "y": 25,
+   "code": 62,
+   "kind": "points",
+   "name": "points 200",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 69,
+   "y": 25,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 49,
+   "y": 26,
+   "code": 93,
+   "kind": "marker",
+   "name": "Platform path arrow S",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 62,
+   "y": 26,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 69,
+   "y": 26,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 33,
+   "y": 27,
+   "code": 80,
+   "kind": "enemy",
+   "name": "enemy type 12",
+   "difficulty": "normal+",
+   "glyph": "e"
+  },
+  {
+   "x": 39,
+   "y": 27,
+   "code": 64,
+   "kind": "points",
+   "name": "points 1000",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 40,
+   "y": 27,
+   "code": 64,
+   "kind": "points",
+   "name": "points 1000",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 49,
+   "y": 27,
+   "code": 93,
+   "kind": "marker",
+   "name": "Platform path arrow S",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 62,
+   "y": 27,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 69,
+   "y": 27,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 23,
+   "y": 28,
+   "code": 64,
+   "kind": "points",
+   "name": "points 1000",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 39,
+   "y": 28,
+   "code": 64,
+   "kind": "points",
+   "name": "points 1000",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 40,
+   "y": 28,
+   "code": 64,
+   "kind": "points",
+   "name": "points 1000",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 49,
+   "y": 28,
+   "code": 93,
+   "kind": "marker",
+   "name": "Platform path arrow S",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 62,
+   "y": 28,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 69,
+   "y": 28,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 39,
+   "y": 29,
+   "code": 64,
+   "kind": "points",
+   "name": "points 1000",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 40,
+   "y": 29,
+   "code": 64,
+   "kind": "points",
+   "name": "points 1000",
+   "difficulty": "",
+   "glyph": "$"
+  },
+  {
+   "x": 49,
+   "y": 29,
+   "code": 93,
+   "kind": "marker",
+   "name": "Platform path arrow S",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 62,
+   "y": 29,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 69,
+   "y": 29,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 3,
+   "y": 30,
+   "code": 1,
+   "kind": "player",
+   "name": "player start (facing right)",
+   "difficulty": "",
+   "glyph": "@"
+  },
+  {
+   "x": 18,
+   "y": 30,
+   "code": 8,
+   "kind": "enemy",
+   "name": "enemy type 01",
+   "difficulty": "",
+   "glyph": "e"
+  },
+  {
+   "x": 28,
+   "y": 30,
+   "code": 12,
+   "kind": "enemy",
+   "name": "enemy type 01 (carries key)",
+   "difficulty": "",
+   "glyph": "e"
+  },
+  {
+   "x": 49,
+   "y": 30,
+   "code": 96,
+   "kind": "marker",
+   "name": "Platform path arrow SE",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 62,
+   "y": 30,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 69,
+   "y": 30,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 50,
+   "y": 31,
+   "code": 96,
+   "kind": "marker",
+   "name": "Platform path arrow SE",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 56,
+   "y": 31,
+   "code": 80,
+   "kind": "enemy",
+   "name": "enemy type 12",
+   "difficulty": "normal+",
+   "glyph": "e"
+  },
+  {
+   "x": 61,
+   "y": 31,
+   "code": 95,
+   "kind": "marker",
+   "name": "Platform path arrow NE",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 69,
+   "y": 31,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 51,
+   "y": 32,
+   "code": 96,
+   "kind": "marker",
+   "name": "Platform path arrow SE",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 60,
+   "y": 32,
+   "code": 95,
+   "kind": "marker",
+   "name": "Platform path arrow NE",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 69,
+   "y": 32,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 17,
+   "y": 33,
+   "code": 68,
+   "kind": "powerup",
+   "name": "ammo",
+   "difficulty": "",
+   "glyph": "+"
+  },
+  {
+   "x": 52,
+   "y": 33,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 53,
+   "y": 33,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 54,
+   "y": 33,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 55,
+   "y": 33,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 56,
+   "y": 33,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 57,
+   "y": 33,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 58,
+   "y": 33,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 59,
+   "y": 33,
+   "code": 95,
+   "kind": "marker",
+   "name": "Platform path arrow NE",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 69,
+   "y": 33,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 69,
+   "y": 34,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 11,
+   "y": 35,
+   "code": 31,
+   "kind": "marker",
+   "name": "Platform blocker",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 13,
+   "y": 35,
+   "code": 28,
+   "kind": "platform",
+   "name": "Platform (moving right)",
+   "difficulty": "",
+   "glyph": "p"
+  },
+  {
+   "x": 25,
+   "y": 35,
+   "code": 31,
+   "kind": "marker",
+   "name": "Platform blocker",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 41,
+   "y": 35,
+   "code": 11553,
+   "kind": "switch_link",
+   "name": "switch target (45,33)",
+   "difficulty": "",
+   "glyph": null,
+   "target": [
+    45,
+    33
+   ]
+  },
+  {
+   "x": 53,
+   "y": 35,
+   "code": 77,
+   "kind": "enemy",
+   "name": "enemy type 06",
+   "difficulty": "normal+",
+   "glyph": "e"
+  },
+  {
+   "x": 56,
+   "y": 35,
+   "code": 72,
+   "kind": "enemy",
+   "name": "enemy type 11",
+   "difficulty": "hard",
+   "glyph": "e"
+  },
+  {
+   "x": 59,
+   "y": 35,
+   "code": 8,
+   "kind": "enemy",
+   "name": "enemy type 01",
+   "difficulty": "",
+   "glyph": "e"
+  },
+  {
+   "x": 69,
+   "y": 35,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 69,
+   "y": 36,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 21,
+   "y": 37,
+   "code": 80,
+   "kind": "enemy",
+   "name": "enemy type 12",
+   "difficulty": "normal+",
+   "glyph": "e"
+  },
+  {
+   "x": 69,
+   "y": 37,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 56,
+   "y": 38,
+   "code": 59,
+   "kind": "key",
+   "name": "key (blue)",
+   "difficulty": "",
+   "glyph": "k"
+  },
+  {
+   "x": 69,
+   "y": 38,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 51,
+   "y": 39,
+   "code": 12568,
+   "kind": "door_link",
+   "name": "Warp target (49,24)",
+   "difficulty": "",
+   "glyph": null,
+   "target": [
+    49,
+    24
+   ]
+  },
+  {
+   "x": 69,
+   "y": 39,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 11,
+   "y": 40,
+   "code": 29,
+   "kind": "platform",
+   "name": "Platform (moving down)",
+   "difficulty": "",
+   "glyph": "p"
+  },
+  {
+   "x": 69,
+   "y": 40,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 69,
+   "y": 41,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 11,
+   "y": 42,
+   "code": 31,
+   "kind": "marker",
+   "name": "Platform blocker",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 19,
+   "y": 42,
+   "code": 28,
+   "kind": "platform",
+   "name": "Platform (moving right)",
+   "difficulty": "",
+   "glyph": "p"
+  },
+  {
+   "x": 29,
+   "y": 42,
+   "code": 31,
+   "kind": "marker",
+   "name": "Platform blocker",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 69,
+   "y": 42,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 69,
+   "y": 43,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 69,
+   "y": 44,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 36,
+   "y": 45,
+   "code": 10027,
+   "kind": "switch_link",
+   "name": "switch target (39,43)",
+   "difficulty": "",
+   "glyph": null,
+   "target": [
+    39,
+    43
+   ]
+  },
+  {
+   "x": 54,
+   "y": 45,
+   "code": 8,
+   "kind": "enemy",
+   "name": "enemy type 01",
+   "difficulty": "",
+   "glyph": "e"
+  },
+  {
+   "x": 69,
+   "y": 45,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 69,
+   "y": 46,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 69,
+   "y": 47,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 69,
+   "y": 48,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 69,
+   "y": 49,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 61,
+   "y": 50,
+   "code": 79,
+   "kind": "enemy",
+   "name": "enemy type 12",
+   "difficulty": "",
+   "glyph": "e"
+  },
+  {
+   "x": 69,
+   "y": 50,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 69,
+   "y": 51,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 58,
+   "y": 52,
+   "code": 79,
+   "kind": "enemy",
+   "name": "enemy type 12",
+   "difficulty": "",
+   "glyph": "e"
+  },
+  {
+   "x": 64,
+   "y": 52,
+   "code": 79,
+   "kind": "enemy",
+   "name": "enemy type 12",
+   "difficulty": "",
+   "glyph": "e"
+  },
+  {
+   "x": 69,
+   "y": 52,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 31,
+   "y": 53,
+   "code": 38,
+   "kind": "platform",
+   "name": "Arrow-guided platform (start down)",
+   "difficulty": "",
+   "glyph": "p"
+  },
+  {
+   "x": 69,
+   "y": 53,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 31,
+   "y": 54,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 69,
+   "y": 54,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 31,
+   "y": 55,
+   "code": 93,
+   "kind": "marker",
+   "name": "Platform path arrow S",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 35,
+   "y": 55,
+   "code": 7990,
+   "kind": "door_link",
+   "name": "Warp target (31,54)",
+   "difficulty": "",
+   "glyph": null,
+   "target": [
+    31,
+    54
+   ]
+  },
+  {
+   "x": 69,
+   "y": 55,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 31,
+   "y": 56,
+   "code": 93,
+   "kind": "marker",
+   "name": "Platform path arrow S",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 69,
+   "y": 56,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 31,
+   "y": 57,
+   "code": 93,
+   "kind": "marker",
+   "name": "Platform path arrow S",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 69,
+   "y": 57,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 31,
+   "y": 58,
+   "code": 93,
+   "kind": "marker",
+   "name": "Platform path arrow S",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 69,
+   "y": 58,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 31,
+   "y": 59,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 32,
+   "y": 59,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 33,
+   "y": 59,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 34,
+   "y": 59,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 35,
+   "y": 59,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 36,
+   "y": 59,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 37,
+   "y": 59,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 38,
+   "y": 59,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 39,
+   "y": 59,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 40,
+   "y": 59,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 41,
+   "y": 59,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 42,
+   "y": 59,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 43,
+   "y": 59,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 44,
+   "y": 59,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 45,
+   "y": 59,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 46,
+   "y": 59,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 47,
+   "y": 59,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 48,
+   "y": 59,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 49,
+   "y": 59,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 50,
+   "y": 59,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 51,
+   "y": 59,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 52,
+   "y": 59,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 53,
+   "y": 59,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 54,
+   "y": 59,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 55,
+   "y": 59,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 56,
+   "y": 59,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 57,
+   "y": 59,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 58,
+   "y": 59,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 59,
+   "y": 59,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 60,
+   "y": 59,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 61,
+   "y": 59,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 62,
+   "y": 59,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 63,
+   "y": 59,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 64,
+   "y": 59,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 65,
+   "y": 59,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 66,
+   "y": 59,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 67,
+   "y": 59,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 68,
+   "y": 59,
+   "code": 92,
+   "kind": "marker",
+   "name": "Platform path arrow E",
+   "difficulty": "",
+   "glyph": null
+  },
+  {
+   "x": 69,
+   "y": 59,
+   "code": 91,
+   "kind": "marker",
+   "name": "Platform path arrow N",
+   "difficulty": "",
+   "glyph": null
+  }
+ ]
+}
