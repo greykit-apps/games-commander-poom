@@ -237,7 +237,7 @@ function loadLevel(n) {
   const rows = def.rows.map(r => [...r]);
   const h = rows.length, w = rows[0].length;
   const lv = { n, def, w, h, tiles: rows, back: [], ents: [], items: [], shots: [], fx: [], keys: [false, false, false, false, false],
-    theme, ice: false, t: 0, p: null, exit: null, over: null, slope: slopesOf(rows) };
+    theme, ice: false, t: 0, p: null, exits: [], over: null, slope: slopesOf(rows) };
   /* Under a slope the maps leave the odd non-solid tile where the ground's
    * edge was drawn. Boxed in on both sides, it is ground. */
   const isSl = (x, y) => !!(lv.slope[y] && lv.slope[y][x]);
@@ -251,12 +251,32 @@ function loadLevel(n) {
   for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
     const c = rows[y][x], px = x * T, py = y * T;
     if (c === "P") { lv.p = makePlayer(px + 2, py + T - 22); rows[y][x] = airOf(x, y); }
-    else if (c === "E") { lv.exit = { x: px, y: py - T, w: T, h: T * 2 }; }
+    else if (c === "E") {
+      /* a level can have several exits; a run of E tiles is one wide door */
+      const prev = lv.exits.find(e => e.ty === y && e.tx1 === x - 1);
+      if (prev) { prev.tx1 = x; prev.x = (prev.tx0 + prev.tx1) * T / 2; }
+      else lv.exits.push({ tx0: x, tx1: x, ty: y, x: px, y: py - T, w: T, h: T * 2 });
+    }
     else if (ITEM_CH[c]) { lv.items.push({ kind: ITEM_CH[c], x: px, y: py, t: Math.random() * 60 | 0 }); rows[y][x] = airOf(x, y); }
     else if (GEM_CH[c] !== undefined) { lv.items.push({ kind: "gem", gem: GEM_CH[c], x: px, y: py, t: 0 }); rows[y][x] = airOf(x, y); }
     else if (c === "*") { lv.items.push({ kind: "part", part: def.part, x: px, y: py, t: 0 }); rows[y][x] = airOf(x, y); }
     else if ("xBVTKW".includes(c)) { lv.ents.push(makeEnemy(c, px, py + T)); rows[y][x] = airOf(x, y); }
   }
+  /* An exit is a door standing on a floor. The maps put the door's lower
+   * tile at X, sometimes a tile above the floor Poom walks on, so it drops
+   * to the floor below. The maps also use X for things that are no door:
+   * the foot of a wall by a key socket (ground right above it: it stays
+   * wall), and blocks with no floor under them (they stay air). */
+  lv.exits = lv.exits.filter(e => {
+    if (isSolid((rows[e.ty - 1] || [])[e.tx0])) { for (let x = e.tx0; x <= e.tx1; x++) rows[e.ty][x] = "#"; return false; }
+    let fy = e.ty + 1;
+    while (fy <= e.ty + 2 && fy < h && !isSolid(rows[fy][e.tx0]) && rows[fy][e.tx0] !== "-") fy++;
+    if (fy > e.ty + 2 || fy >= h) return false;
+    e.y = fy * T - T * 2;
+    return true;
+  });
+  for (const e of lv.exits) for (let x = e.tx0; x <= e.tx1; x++) if (rows[e.ty][x] === "E") rows[e.ty][x] = ".";
+
   /* back wall behind anything that stands in a walled room */
   for (let y = 0; y < h; y++) { lv.back[y] = []; for (let x = 0; x < w; x++) lv.back[y][x] = rows[y][x] === "+"; }
   for (let pass = 0; pass < 2; pass++) for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
@@ -578,9 +598,10 @@ function updatePlayer(lv) {
   }
 
   /* the exit */
-  if (lv.exit && p.onGround && Math.abs((p.x + p.w / 2) - (lv.exit.x + T / 2)) < 6 && p.y + p.h <= lv.exit.y + lv.exit.h + 1 && p.y + p.h > lv.exit.y + T) {
+  const exit = p.onGround && lv.exits.find(e => Math.abs((p.x + p.w / 2) - (e.x + T / 2)) < 6 + (e.tx1 - e.tx0) * T / 2 && Math.abs(p.y + p.h - (e.y + e.h)) <= 2);
+  if (exit) {
     if (p.pogo) { p.pogo = false; p.y += POGO_H; p.h = PH; }
-    p.state = "exit"; p.t = 0; p.vx = 0; p.x = lv.exit.x + T / 2 - p.w / 2;
+    p.state = "exit"; p.t = 0; p.vx = 0; p.x = exit.x + T / 2 - p.w / 2; lv.exitUsed = exit;
     sfx("done");
   }
 }
@@ -904,7 +925,7 @@ function drawLevel() {
     else if (BELT[ch]) ctx.drawImage(art.conveyor[ch === ">" ? 1 : 0][(lv.t >> 2) % 4], x, y);
     else if (ch === "/" || ch === "\\") { const sl = lv.slope[ty][tx]; ctx.drawImage(art.slope(sl[0], sl[1]), x, y); }
   }
-  if (lv.exit) ctx.drawImage(art.exit[lv.p.state === "exit" ? 1 : 0], lv.exit.x - cx, lv.exit.y - cy);
+  for (const e of lv.exits) ctx.drawImage(art.exit[lv.exitUsed === e ? 1 : 0], e.x - cx, e.y - cy);
 
   for (const it of lv.items) {
     if (it.gone) continue;

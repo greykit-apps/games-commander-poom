@@ -138,7 +138,7 @@ Further notes:
 - Slopes: a row's run of n like slope tiles climbs one tile height, so a lone \`/\` is 45 degrees and a pair is half that. A body standing on a slope steps up onto the ground at its top. Non-solid tiles boxed in under a slope's edge are filled as ground at load.
 - Ice (\`i\`) is solid with the original game's ice handling while standing on it; conveyors (\`< >\`) are solid and carry the player 1 px a tick. Enemies ignore both.
 - \`~\` in world maps is shoreline; in levels it is fire/water, as before.
-- 69 of the 143 levels have no \`E\`: only books A and G mark an exit door in the source. The rest end some other way (a specific tile, an objective, a boss), which needs working out per book.
+- Exits: \`X\` in the source becomes \`E\`, but not every \`X\` is an exit. The engine keeps an \`X\` as a door only if it has open space above and a floor within two tiles below (the door drops to that floor); an \`X\` with ground above is the foot of a wall by a key socket and stays wall, and one with no floor stays air. That leaves exits in 61 of 143 levels: all of C and H, 15 of D, 8 of G, 5 of A, 1 of I, none of B, E or F. The source's own "exit door (completes level)" marker agrees for A05, A08, A11, A13 and the 8 in G; A10 and I06 rest on the X alone. The other 82 levels' exits are not in the export: neither \`X\` nor the exit door's tiles appear in them.
 - The ledge (\`-\`), pole (\`|\`) and spikes (\`^\`) are used as the engine already has them.
 
 ## Per book
