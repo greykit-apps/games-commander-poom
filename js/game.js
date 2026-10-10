@@ -411,6 +411,21 @@ for (const b of BOOK_IDS) {
     b.x0 = Math.min(b.x0, x); b.y0 = Math.min(b.y0, y); b.x1 = Math.max(b.x1, x); b.y1 = Math.max(b.y1, y);
   }
   W_.ship = w.ship || null;
+  /* a Book whose map has no ship but whose story lands one (Book 2): park
+     the Catamaran, as scenery, on the nearest open 2x2 of ground beside the
+     start, keeping a tile clear round the start itself */
+  if (!W_.ship && BOOK_GOAL[b] === "hearts") {
+    const open = (x, y) => (w.rows[y] || "")[x] === "." && !W_.entrance[x + "," + y] && !W_.barrier[x + "," + y];
+    const [sx, sy] = W_.start;
+    let best = null;
+    for (let y = sy - 4; y <= sy + 4; y++) for (let x = sx - 5; x <= sx + 5; x++) {
+      if (![[x, y], [x + 1, y], [x, y - 1], [x + 1, y - 1]].every(([a, c]) => open(a, c))) continue;
+      if (Math.abs(x - sx) <= 1 && Math.abs(y - sy) <= 2 || Math.abs(x + 1 - sx) <= 1 && Math.abs(y - sy) <= 2) continue;
+      const d = Math.hypot(x + 0.5 - sx, y - 0.5 - sy);
+      if (!best || d < best.d) best = { x, y, d };
+    }
+    if (best) W_.parked = [best.x, best.y];
+  }
   WORLDS[b] = W_;
 }
 const world = () => WORLDS[G.run.book];
@@ -1560,6 +1575,13 @@ function boardShip() {
   else sfx("nope");
   message(say("shipMissing", (fits, still) => `<b>The Catamaran</b><br><br>${fits ? `Poom fits ${fits}. ` : ""}It still won't fly without ${still}.`, brought.map(i => PART_NAMES[i]).join(" and "), list), { iconRow: r.aboard });
 }
+/* standing on the parked Catamaran's two lower tiles */
+function onParked(p) {
+  const s = world().parked;
+  if (!s) return false;
+  const tx = Math.floor((p.x + p.w / 2) / T), ty = Math.floor((p.y + p.h / 2) / T);
+  return (ty === s[1] || ty === s[1] - 1) && (tx === s[0] || tx === s[0] + 1);
+}
 function onShip(p) {
   const s = world().ship;
   if (!s) return false;
@@ -1695,6 +1717,7 @@ function updateMap() {
     else { saveRun(); startLevel(here); return; }
   }
   if (!here && onShip(p) && (wasPressed("jump") || wasPressed("fire"))) boardShip();
+  if (!here && onParked(p) && (wasPressed("jump") || wasPressed("fire"))) { sfx("nope"); message(say("parked", "<b>The Catamaran</b><br><br>It won't fly.")); }
   const tele = world().tele[ctx_ + "," + cty];
   if (tele && !here && (wasPressed("jump") || wasPressed("fire"))) teleport(tele);
   mapCamera(false);
@@ -2032,6 +2055,8 @@ function drawMap() {
     ctx.fillStyle = "#000"; ctx.beginPath(); ctx.moveTo(ax - 7, ay - 1); ctx.lineTo(ax + 7, ay - 1); ctx.lineTo(ax, ay + 8); ctx.closePath(); ctx.fill();
     ctx.fillStyle = mapArt.markerFor ? "#ffd23f" : EGA[14]; ctx.beginPath(); ctx.moveTo(ax - 5, ay); ctx.lineTo(ax + 5, ay); ctx.lineTo(ax, ay + 6); ctx.closePath(); ctx.fill();
   }
+  /* a parked Catamaran (scenery), drawn like the ship */
+  if (world().parked) { const [sx, sy] = world().parked; ctx.drawImage(mapArt.ship, sx * T - cx, (sy - 1) * T - cy); }
   /* the ship, on its two tiles and the two above */
   if (world().ship) { const [sx, sy] = world().ship; ctx.drawImage(mapArt.ship, sx * T - cx, (sy - 1) * T - cy); }
   /* done flags: on the map's own flag spot, or the level's first entrance tile */
@@ -2047,7 +2072,7 @@ function drawMap() {
   /* the name of the place underfoot */
   const here = mapHere(p);
   const onTele = !here && world().tele[Math.floor((p.x + p.w / 2) / T) + "," + Math.floor((p.y + p.h / 2) / T)];
-  const label = here ? levelName(here) + (G.run.done[here] ? " (done)" : "") : onShip(p) ? "The Catamaran" : onTele ? mapArt.teleName || "Teleporter" : "";
+  const label = here ? levelName(here) + (G.run.done[here] ? " (done)" : "") : onShip(p) || onParked(p) ? "The Catamaran" : onTele ? mapArt.teleName || "Teleporter" : "";
   mapLabel(label);
   drawHud(null);
 }
@@ -2493,6 +2518,7 @@ const BOOK_TEXT = {
       ammo: "<b>Power cell!</b> The station's: five shots for the raygun. Fire with <kbd>Space</kbd> or <kbd>C</kbd>.",
       pogo: "<b>You found a pogo stick!</b><br><br>Press <kbd>Alt</kbd> or <kbd>X</kbd> to hop on and off. Hold <kbd>Ctrl</kbd> or <kbd>Z</kbd> as you land for a big bounce.",
       swim: "<b>You can swim!</b><br><br>On the map, Poom can wade in where the shore meets the water.",
+      parked: "<b>The Catamaran</b><br><br>Poom fires the engines. Nothing happens: every bit of power drains down into the moon. The Hum has hold of her until its heartstones are broken.",
       heart: (n, of) => `<b>The heartstone shatters!</b><br><br>${n === of ? "That's the last one. The whole moon shudders. Get back to the lift!" : `${n} of ${of} broken. Somewhere below, the Hum stutters.`}`,
       wayOpens: "Somewhere on Thrum, a way opens.",
       lostLife: n => n === 0 ? "Poom's suit reboots.<br><br><b>This is your last life.</b>" : `Poom's suit reboots.<br><br>${n} ${n === 1 ? "life" : "lives"} left.`,
