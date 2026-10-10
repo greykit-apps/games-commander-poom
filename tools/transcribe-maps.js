@@ -318,6 +318,9 @@ function convert(d) {
          hazard the level never had (C17's shaft) */
       const tg = c === "e" && (e1glyph || e2glyph) ? (e1glyph || e2glyph)(x, y) : null;
       if (!under && tg && "#-|".includes(tg)) under = tg;
+      /* and door tiles: E15's warp door at (6-7, 59-60) lost a corner to a
+         creature and drew as two doors */
+      if (!under && tg === "D" && !e1) under = d.entities.some(t => t.kind === "door_link" && Math.abs(t.x - x) <= 1 && Math.abs(t.y - y) <= 1) ? "D" : "d";
       row += under || g;
       if (e && "eGNMZl!P".includes(g)) things.push([x, y, g, e.name]);
       /* E1 tile objects have no entity: name them from their behaviour */
