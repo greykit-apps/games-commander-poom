@@ -3218,6 +3218,7 @@ const BOOK_TEXT = {
     },
     signs: {
       E06: `<b>An audio diary</b><br><br><i>"Augustus Fathom. They told me a city at the bottom of the sea was impossible. I said: no landlords, no lifeguards, no limits. Now the glass weeps, the SPARK has gone to everyone's heads, and somebody has painted a moustache on my statue. Lock the gates."</i>`,
+      E07: `<b>An audio diary</b><br><br><i>"Maintenance, shaft nine. No ladder, no lift, and you can't see the bottom from up here. Doesn't matter. Step off the edge and trust it: the drop's long, but it lands."</i>`,
       E08: `<b>An audio diary</b><br><br><i>"This is Raptura Radio, signing off. The pressure's getting to the transmitter, and to me. I'm taking my dial somewhere higher up, where a signal carries. Keep listening, sugar."</i><br><br>The voice sounds awfully familiar.`,
       E15: `<b>An audio diary, in a gold case</b><br><br><i>"Fathom again. A gentleman came today, grey and black and terribly polite, and bought every drop of SPARK in the vault. Paid in gold. Asked after a puma. I did not care for his smile."</i>`,
     },

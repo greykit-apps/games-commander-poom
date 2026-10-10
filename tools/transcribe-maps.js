@@ -82,6 +82,12 @@ const OPEN_TILES = {
   D16: [[38, 86], [39, 86], [32, 113], [33, 113]],
 };
 
+/* signs added by hand, per map: [x, y], the text in the Book's signs */
+const ADD_SIGNS = {
+  /* E07: the drop to the first keycard is a leap of faith */
+  E07: [[37, 38]],
+};
+
 /* hazards taken out by hand, per map: [x, y] */
 const CLEAR_HAZARDS = {
   /* the spikes either side of C17's heartstone */
@@ -316,6 +322,7 @@ function convert(d) {
      safe floor instead, so it can be walked up to and read */
   for (let y = 0; y + 1 < rows.length; y++) for (let x = 0; x < rows[y].length; x++)
     if (rows[y][x] === "H" && rows[y + 1][x] === "^") rows[y + 1] = rows[y + 1].slice(0, x) + "#" + rows[y + 1].slice(x + 1);
+  for (const [x, y] of ADD_SIGNS[d.map] || []) if (rows[y][x] === ".") rows[y] = rows[y].slice(0, x) + "H" + rows[y].slice(x + 1);
   for (const [x, y] of OPEN_TILES[d.map] || []) if (rows[y][x] === "#") rows[y] = rows[y].slice(0, x) + "." + rows[y].slice(x + 1);
   for (const [x, y] of CLEAR_HAZARDS[d.map] || []) if ("^z".includes(rows[y][x])) rows[y] = rows[y].slice(0, x) + "." + rows[y].slice(x + 1);
   const links = [], ends = [];

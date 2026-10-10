@@ -8,7 +8,7 @@ Generated from the map data by `tools/story-map.js E`. It says where in Book E t
 
 - **17 levels**, E02–E18. Not levels: E19 (cutscene), E20 (highscores).
 - **Chapters**: chapters are split at cutscenes between levels. Book E has none, so it is **one chapter**; E19 comes after the last level, so it is the ending. Its theme is still to choose.
-- **Story elements**: 1 objective that end levels, 0 objective items that don't, 8 rescues, 0 hint signs, 17 enemy types, turrets.
+- **Story elements**: 1 objective that end levels, 0 objective items that don't, 8 rescues, 1 hint sign, 17 enemy types, turrets.
 
 ## The world map
 
@@ -45,7 +45,7 @@ Levels in the same step can be played in any order, so the story can't assume on
 | E04 (level 3) | by reaching the one to rescue | – | – | 1 | – | 01, 02, 03, 04, 06 |
 | E05 (level 4) | through an exit door; by reaching the one to rescue | – | – | 1 | – | 01, 02, 04, 06, 07 |
 | E06 (level 5) | through 2 exit doors; by walking off the right edge of the map | – | – | – | – | 01, 02, 06, 07, 08, 09, 10 |
-| E07 (level 6) | by reaching the one to rescue | – | – | 1 | – | 01, 02, 04, 06, 09, 10 |
+| E07 (level 6) | by reaching the one to rescue | – | – | 1 | 1 | 01, 02, 04, 06, 09, 10 |
 | E08 (level 7) | by walking off the right edge of the map | – | – | – | – | 01, 03, 04, 06, 07 |
 | E09 (level 8) | by walking off the right edge of the map | – | – | – | – | 01, 04, 05, 06, 07, 11 |
 | E10 (level 9) | by taking the objective | 1 | – | – | – | 01, 04, 05, 06 |
@@ -174,6 +174,7 @@ Terrain: 2 warp doors, 13 moving platforms, slopes, poles.
 - Platform switch — changes a moving platform's path at (33, 75) — (34, 77), centre, ≈early
 - Key socket, blue — opens a door 5 tiles tall at (67, 102) — (65, 105), bottom right, middle
 - Keycard, green — (39, 45), centre, ≈middle
+- **Hint sign** — needs its text — (37, 38), top centre, ≈middle
 - Keycard, yellow — (46, 42), centre, ≈middle
 - Key socket, yellow — opens a door 5 tiles tall at (6, 24) — (7, 27), top left, ≈middle
 - Keycard, red — (4, 25), top left, ≈middle
