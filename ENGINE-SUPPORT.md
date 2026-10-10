@@ -27,7 +27,7 @@ Glyphs marked "no" are air until the engine learns them.
 | `S` | switches (bridge and platform switches) | yes | 200 |
 | `Q` | teleporters (world maps) | yes | 40 |
 | `j` | key sockets (and the doors they open: 5 6 7 8) | yes | 186 |
-| `H` | hint triggers | no | 217 |
+| `H` | hint triggers | no | 9 |
 | `D` | warp doors | yes | 596 |
 | `d` | locked doors (colour absent from the source) | yes | 0 |
 | `q` | keycards with no stated colour | yes | 11 |
@@ -115,15 +115,15 @@ Skipped (not levels): C18 cutscene, C19 title
 |---|---|---|---|
 | C01 | world | 64×80 | `l` 64 |
 | C02 | level | 64×26 | `e` 4 |
-| C03 | level | 74×30 | `e` 9, `M` 1, `H` 8 |
+| C03 | level | 74×30 | `e` 9, `M` 1 |
 | C04 | level | 64×41 | `e` 10 |
 | C05 | level | 84×41 | `S` 2, `e` 7, `!` 1 |
 | C06 | level | 44×53 | `e` 10, `S` 1 |
 | C07 | level | 84×37 | `e` 7, `!` 1, `S` 1 |
-| C08 | level | 84×29 | `H` 50, `e` 7, `!` 1, `S` 1 |
-| C09 | level | 64×57 | `e` 32, `H` 17 |
-| C10 | level | 144×29 | `e` 20, `H` 44, `!` 1, `S` 1 |
-| C11 | level | 64×60 | `e` 13, `H` 91 |
+| C08 | level | 84×29 | `e` 7, `!` 1, `S` 1 |
+| C09 | level | 64×57 | `e` 32, `H` 1 |
+| C10 | level | 144×29 | `e` 20, `!` 1, `S` 1 |
+| C11 | level | 64×60 | `e` 13, `H` 1 |
 | C12 | level | 89×29 | `e` 10, `!` 1, `S` 1, `M` 1 |
 | C13 | level | 84×53 | `M` 6, `e` 21 |
 | C14 | level | 84×29 | `M` 1, `!` 1, `e` 14, `S` 3 |

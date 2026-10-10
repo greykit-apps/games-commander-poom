@@ -318,7 +318,9 @@ const THEME_OF = { A: "hiss", B: "garden", C: "fort", D: "ice", E: "hiss", F: "g
  * Levels not listed use their book's. */
 const LEVEL_THEME = { H09: "vaultCold", H11: "vaultCold", H17: "vaultCold", H10: "vault", H14: "vault",
   H04: "raiders", H08: "raiders", H13: "raiders", H15: "raiders",
-  H02: "ruins", H03: "ruins", H05: "ruins", H06: "ruins", H07: "ruins", H12: "ruins", H16: "ruins" };
+  H02: "ruins", H03: "ruins", H05: "ruins", H06: "ruins", H07: "ruins", H12: "ruins", H16: "ruins",
+  /* Book 2 (set C), docs/story/book-2-story.md: the Crags first */
+  C02: "crags", C03: "crags", C04: "crags", C05: "crags", C06: "crags", C07: "crags" };
 const MAPS = {};
 for (const b of BOOK_IDS) BOOKS[b].chapters.forEach(ch => ch.levels.forEach(lv => { MAPS[lv.id] = lv; lv.book = b; }));
 /* a level's name: its place in a book that names its places, or its number */

@@ -1307,6 +1307,9 @@ const THEMES = {
    * and rusted girders under the Glow's sickly daylight */
   ruins: { sky: 0, far: [8, 7], ground: [8, 7, 0], crust: ["#c0b8ac", "#ddd6ca"], alt: [8, 7], plat: [7, 8], bg: [0, 8], liquid: [10, 2, 14], liquidName: "sludge", style: "ruins" },
   vaultCold: { sky: 1, far: [9, 3], ground: [8, 7, 0], crust: ["#b4e6f6", "#e8fbff"], alt: [8, 7], plat: [7, 8], bg: [1, 0], liquid: [11, 15, 3], liquidName: "coolant", style: "vault", cold: true, no: 9 },
+  /* Book 2's crags: Thrum's outer caves, violet rock, glowing fungus,
+     crystal spines and acid. Full colour. */
+  crags: { sky: 0, far: [5, 1], ground: [5, 1, 0], crust: ["#45c9b4", "#a8f2e0"], alt: [5, 1], plat: [3, 11], bg: [0, 5], liquid: [10, 2, 14], liquidName: "acid", style: "crags" },
 };
 
 function paintTiles(themeName) {
@@ -1500,6 +1503,7 @@ function paintTiles(themeName) {
   if (th.style === "vault") vaultTiles(tiles, th, mk, E);
   if (th.style === "raiders") raiderTiles(tiles, th, mk, E);
   if (th.style === "ruins") ruinTiles(tiles, th, mk, E);
+  if (th.style === "crags") cragTiles(tiles, th, mk, E);
 
   /* fake wall: looks like ground, walks like air (secret) */
   tiles.fake = tiles.ground[0];
@@ -1756,6 +1760,164 @@ function ruinTiles(tiles, th, mk, E) {
   });
 }
 
+/* VGA ramps for Thrum (Book 2), dark to light: the crags' violet rock, the
+ * Hum's teal glow in the fungus, its magenta crystal, and acid */
+const CRAG = ["#0e0816", "#1a1029", "#28183c", "#382252", "#4b2e6a", "#613d86", "#7c52a6", "#a37ccc"];
+const GLOW = ["#0a2e30", "#10504e", "#187e76", "#2fb3a0", "#6fe0c8", "#c4fff0"];
+const SPINE = ["#3a0b2e", "#681750", "#9c2878", "#d24aa6", "#f48cd0", "#ffd2f0"];
+const ACID = ["#26400a", "#416a10", "#6f9e1a", "#a8d82e", "#e0fa78"];
+
+/* The crags: rough violet rock in strata, now and then a vein of crystal or
+ * a cluster of glowing fungus; the top edge mossed with the Hum's teal. A
+ * ledge is a shelf fungus, the hazard crystal spines, the doors steel
+ * hatches the mole crew set into the rock, the exit a mine-lift cage. */
+function cragTiles(tiles, th, mk, E) {
+  const px = (g, c, x, y, w = 1, h = 1) => { g.fillStyle = c; g.fillRect(x, y, w, h); };
+  const rock = (g, r) => {
+    px(g, CRAG[3], 0, 0, T, T);
+    /* strata: soft bands, each a little different */
+    for (let y = 0; y < T; y += 4) { px(g, CRAG[(y >> 2) % 2 ? 2 : 4], 0, y + 2, T, 1); }
+    for (let i = 0; i < 26; i++) px(g, CRAG[1 + (r() * 5 | 0)], r() * T | 0, r() * T | 0, 1 + (r() * 2 | 0), 1);
+    /* a pebble or two, lit from above */
+    for (let k = 0; k < 2; k++) { const x = r() * 12 | 0, y = 3 + (r() * 10 | 0); px(g, CRAG[5], x, y, 3, 2); px(g, CRAG[6], x, y, 2, 1); px(g, CRAG[1], x, y + 2, 3, 1); }
+  };
+  const block = (top, kind, seed) => mk(g => {
+    const r = rng(seed);
+    rock(g, r);
+    if (kind === 1) {
+      /* a small crystal seam, wandering, a glint at one end */
+      let x = 3 + (r() * 6 | 0), y = 11 + (r() * 3 | 0);
+      for (let i = 0; i < 6; i++) { px(g, SPINE[1], x, y + 1); px(g, SPINE[3], x, y); x += r() < .6 ? 1 : 0; y -= r() < .7 ? 1 : 0; }
+      px(g, SPINE[5], x, y + 1);
+    }
+    if (kind === 2) {
+      /* glowing fungus nubs in a crack */
+      for (const [x, y] of [[4, 9], [7, 11], [10, 8]]) { px(g, GLOW[1], x, y + 1, 2, 2); px(g, GLOW[3], x, y, 2, 1); px(g, GLOW[5], x, y, 1, 1); }
+    }
+    /* no edge lines: rock runs on into the next block, it isn't bricks */
+    if (top) {
+      /* the lip: a rim of teal moss, ragged, a stalk or a cap here and there */
+      px(g, CRAG[5], 0, 1, T, 2); px(g, CRAG[6], 0, 1, T, 1);
+      for (let x = 0; x < T; x++) { const h = r() < .7 ? 1 : 2; px(g, GLOW[r() < .5 ? 2 : 3], x, 0, 1, h); }
+      if (r() < .6) { const x = 1 + (r() * 12 | 0); px(g, GLOW[4], x - 1, 0, 3, 1); }
+      if (r() < .5) { const x = 2 + (r() * 11 | 0); px(g, GLOW[5], x, 0, 1, 1); }
+    }
+  });
+  tiles.ground = [block(false, 0, 3), block(false, 0, 41), block(false, 1, 17), block(false, 0, 53), block(false, 2, 29), block(false, 0, 67)];
+  tiles.groundTop = [block(true, 0, 9), block(true, 0, 21), block(true, 2, 45), block(true, 0, 33), block(true, 1, 57)];
+
+  /* a ledge: a shelf fungus off the rock, its cap teal, gills beneath */
+  tiles.plat = mk(g => {
+    px(g, GLOW[3], 0, 0, T, 2); px(g, GLOW[4], 0, 0, T, 1); px(g, GLOW[5], 3, 0, 2, 1); px(g, GLOW[5], 11, 0, 1, 1);
+    px(g, GLOW[1], 1, 2, T - 2, 2);
+    for (let x = 2; x < T - 2; x += 2) px(g, GLOW[0], x, 3, 1, 2);
+    px(g, GLOW[2], 0, 2, 1, 1); px(g, GLOW[2], T - 1, 2, 1, 1);
+  });
+
+  /* the hazard: magenta crystal spines out of a rubble bed */
+  tiles.spikes = mk(g => {
+    px(g, CRAG[2], 0, 13, T, 3); px(g, CRAG[4], 0, 13, T, 1);
+    for (const [x, h, w] of [[1, 8, 3], [5, 12, 3], [9, 9, 3], [12, 11, 3]]) {
+      g.fillStyle = SPINE[2]; g.beginPath(); g.moveTo(x, 13); g.lineTo(x + w / 2, 13 - h); g.lineTo(x + w, 13); g.closePath(); g.fill();
+      g.fillStyle = SPINE[4]; g.beginPath(); g.moveTo(x, 13); g.lineTo(x + w / 2, 13 - h); g.lineTo(x + w / 2, 13); g.closePath(); g.fill();
+      px(g, SPINE[5], Math.round(x + w / 2) - 1, 13 - h + 1, 1, 2);
+    }
+    g.fillStyle = "rgba(244, 140, 208, 0.25)"; g.fillRect(0, 9, T, 4);
+  });
+
+  /* doors: the crew's steel hatches, sunk into rock: a riveted frame, a
+     light in the door's colour on the top tile, ribs below */
+  const COLOURS = [[12, 4], [14, 6], [10, 2], [9, 1], [7, 8]];
+  const door = (a, b, top) => mk(g => {
+    px(g, CRAG[2], 0, 0, T, T);
+    px(g, VSTEEL[4], 1, 0, T - 2, T); px(g, VSTEEL[6], 1, 0, 1, T); px(g, VSTEEL[2], T - 2, 0, 1, T);
+    for (let y = top ? 6 : 1; y < T; y += 4) { px(g, VSTEEL[3], 3, y, T - 6, 2); px(g, VSTEEL[5], 3, y, T - 6, 1); }
+    for (const y of [2, 13]) { px(g, VSTEEL[7], 2, y); px(g, VSTEEL[7], T - 3, y); }
+    if (top) {
+      px(g, VSTEEL[1], 4, 1, 8, 4); px(g, E(b), 5, 2, 6, 2); px(g, E(a), 6, 2, 4, 1);
+      g.fillStyle = "rgba(255, 255, 255, 0.35)"; g.fillRect(6, 2, 2, 1);
+    } else px(g, E(b), 4, 14, 8, 1);
+  });
+  tiles.doors = COLOURS.map(([a, b]) => door(a, b, true));
+  tiles.doorsBelow = COLOURS.map(([a, b]) => door(a, b, false));
+
+  /* the exit: the cage of a mine lift, a lamp over it; open, the cage
+     lit and the shaft above it */
+  const lift = open => { const c = makeCanvas(T, T * 2), g = c.getContext("2d");
+    px(g, CRAG[2], 0, 2, T, 30); px(g, VSTEEL[3], 0, 2, T, 2); px(g, VSTEEL[5], 0, 2, T, 1);
+    px(g, VSTEEL[3], 0, 4, 2, 28); px(g, VSTEEL[3], T - 2, 4, 2, 28); px(g, VSTEEL[5], 0, 4, 1, 28);
+    if (open) {
+      px(g, "#0a0612", 2, 4, 12, 28);
+      g.fillStyle = "rgba(111, 224, 200, 0.35)"; g.fillRect(2, 4, 12, 28);
+      px(g, VSTEEL[5], 2, 28, 12, 2); px(g, VSTEEL[6], 2, 28, 12, 1);
+    } else {
+      px(g, CRAG[1], 2, 4, 12, 28);
+      for (let x = 3; x < 14; x += 3) px(g, VSTEEL[4], x, 4, 1, 28);
+      for (const y of [12, 22]) px(g, VSTEEL[4], 2, y, 12, 1);
+    }
+    g.fillStyle = "rgba(111, 224, 200, 0.4)"; g.fillRect(4, 0, 8, 3);
+    px(g, GLOW[2], 6, 0, 4, 2); px(g, GLOW[5], 7, 0, 2, 1);
+    return c; };
+  tiles.exit = [lift(false), lift(true)];
+
+  /* ice (no set C level has any): frost on the rock */
+  tiles.ice = mk(g => {
+    const r = rng(43);
+    g.drawImage(tiles.ground[0], 0, 0);
+    for (let y = 0; y < 4; y++) px(g, ["#e9fbff", "#b2e4f6", "#78c2e4", "#4a92c0"][y], 0, y, T, 1);
+    for (let i = 0; i < 10; i++) px(g, r() < .5 ? "#b2e4f6" : "#e9fbff", r() * T | 0, 4 + (r() * 12 | 0));
+  });
+
+  /* a hint sign is a crew log terminal on a stand, its screen teal */
+  tiles.sign = mk(g => {
+    px(g, VSTEEL[3], 7, 9, 2, 7); px(g, VSTEEL[5], 7, 9, 1, 7); px(g, VSTEEL[2], 4, 15, 8, 1);
+    px(g, VSTEEL[2], 2, 1, 12, 9); px(g, VSTEEL[5], 2, 1, 12, 1);
+    px(g, GLOW[1], 3, 2, 10, 6);
+    for (const y of [3, 5]) px(g, GLOW[4], 4, y, 6 + (y & 2), 1);
+    px(g, GLOW[5], 4, 7, 2, 1);
+  });
+
+  /* moving platforms: a steel ore sled with running lights */
+  tiles.platform = [[GLOW[3], GLOW[5]], [ACID[2], ACID[4]], [SPINE[3], SPINE[5]]].map(([lamp0, lamp1]) => [0, 1].map(f => {
+    const c = makeCanvas(T * 2, 8), g = c.getContext("2d");
+    px(g, VSTEEL[4], 0, 0, 32, 6); px(g, VSTEEL[6], 0, 0, 32, 1); px(g, VSTEEL[2], 0, 5, 32, 1);
+    px(g, "#000", 1, 6, 30, 2);
+    for (let x = 3; x < 32; x += 8) px(g, (x >> 3) % 2 === f ? lamp1 : lamp0, x, 2, 3, 2);
+    return c;
+  }));
+}
+
+/* The crags' far wall: a deep cavern, darker at the top; hanging spires of
+ * rock in two layers, the nearer with fungus lights on it; crystal glints
+ * and a faint teal haze where the Hum is, low down. Full colour. */
+function paintCragFar() {
+  const c = makeCanvas(320, 200), g = c.getContext("2d"), r = rng(31);
+  const px = (col, x, y, w = 1, h = 1) => { g.fillStyle = col; g.fillRect(x, y, w, h); };
+  for (let y = 0; y < 200; y += 4) { const k = y / 200; px(`rgb(${Math.round(10 + 18 * k)},${Math.round(6 + 10 * k)},${Math.round(18 + 30 * k)})`, 0, y, 320, 4); }
+  /* the Hum's haze, low */
+  const haze = g.createLinearGradient(0, 120, 0, 200); haze.addColorStop(0, "rgba(47, 179, 160, 0)"); haze.addColorStop(1, "rgba(47, 179, 160, 0.22)");
+  g.fillStyle = haze; g.fillRect(0, 120, 320, 80);
+  /* far spires, up from the floor and down from the roof */
+  const spires = (col, n, base, up, maxH, seed) => {
+    const rr = rng(seed); g.fillStyle = col;
+    for (let i = 0; i < n; i++) {
+      const x = rr() * 320, w = 10 + rr() * 22, h = maxH * (0.4 + rr() * 0.6);
+      g.beginPath();
+      if (up) { g.moveTo(x - w / 2, base); g.lineTo(x - w / 6, base - h); g.lineTo(x + w / 5, base - h * 0.9); g.lineTo(x + w / 2, base); }
+      else { g.moveTo(x - w / 2, base); g.lineTo(x - w / 8, base + h); g.lineTo(x + w / 2, base); }
+      g.closePath(); g.fill();
+    }
+  };
+  spires("#1e1430", 9, 0, false, 70, 5);
+  spires("#1e1430", 9, 200, true, 90, 7);
+  spires("#2a1c42", 7, 0, false, 46, 11);
+  spires("#2a1c42", 8, 200, true, 64, 13);
+  /* fungus lights on the near layer, crystal glints in the far one */
+  for (let i = 0; i < 40; i++) { const x = r() * 320 | 0, y = 120 + (r() * 76 | 0); px(r() < .7 ? "#2fb3a0" : "#6fe0c8", x, y, 1, 1); }
+  for (let i = 0; i < 18; i++) { const x = r() * 320 | 0, y = r() * 60 | 0; px("#d24aa6", x, y, 1, 1); if (r() < .4) px("#ffd2f0", x, y, 1, 1); }
+  return c;
+}
+
 /* VGA ramps for the Vaults, dark to light: a cool steel, and frost */
 const VSTEEL = ["#0f1217", "#1c222a", "#2b333d", "#3d4752", "#535f6c", "#6f7c8a", "#95a1ae", "#c4ccd5"];
 const FROST = ["#173450", "#2a5f8a", "#4a92c0", "#78c2e4", "#b2e4f6", "#e9fbff"];
@@ -1930,6 +2092,7 @@ function paintFar(themeName) {
   if (th.style === "vault") return paintVaultFar(th);
   if (th.style === "raiders") return paintRaiderFar();
   if (th.style === "ruins") return paintRuinFar();
+  if (th.style === "crags") return paintCragFar();
   return c;
 }
 
