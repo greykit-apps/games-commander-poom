@@ -2782,8 +2782,13 @@ function statusWindow() {
   const keys = el("span"); held.forEach((k, i) => { if (i > 3 && !k) return; const im = imgOf(ART.gems[i]); if (!k) im.classList.add("missing"); keys.appendChild(im); });
   row("Keycards", keys);
   const parts = el("span"); r.parts.forEach((h, i) => { const im = imgOf(ART.parts[i]); im.title = PART_NAMES[i]; if (!h) im.classList.add("missing"); parts.appendChild(im); });
-  if (BOOK_GOAL[r.book] === "hearts") row("Heartstones", `${heartsBroken(r, r.book)} of ${heartsIn(r.book)} broken`);
-  else row("Ship parts", parts);
+  /* what the Book is after: Book 1's ship parts, Book 2's heartstones,
+     Book 4's Little Ones; Books 3 and 5 end at a last level, named here */
+  const goal = BOOK_GOAL[r.book];
+  if (goal === "hearts") row("Heartstones", `${heartsBroken(r, r.book)} of ${heartsIn(r.book)} broken`);
+  else if (goal === "rescues") row(say("rescueName", "Rescued"), `${rescuedIn(r, r.book)} of ${rescueLevels(r.book).length}`);
+  else if (goal && goal.last) row("Last of all", levelName(goal.last).replace(/^Level \d+: /, "") + (r.done[goal.last] ? " (done)" : ""));
+  else if (world().ship) row("Ship parts", parts);
   if (world().ship) row("Aboard", `${(r.aboard || []).filter(Boolean).length} of 4`);
   row("Book", String(bookNumber(r.book)));
   if (r.swim) row("Swimming", "yes");
@@ -3117,6 +3122,7 @@ const BOOK_TEXT = {
       pogo: "<b>You found a pogo stick!</b><br><br>Press <kbd>Alt</kbd> or <kbd>X</kbd> to hop on and off. Hold <kbd>Ctrl</kbd> or <kbd>Z</kbd> as you land for a big bounce.",
       swim: "<b>A diving suit!</b><br><br>Brass, watertight, and only a little bit haunted. On the map, Poom can swim the deep water now.",
       bossDown: null,
+      rescueName: "Little Ones",
       rescued: (k, of) => k === of ? "<b>That's the last of the Little Ones!</b><br><br>She climbs into the bathysphere with the other seven, clutching her jar." : `<b>A Little One, safe!</b><br><br>She climbs into the bathysphere with her jar and waves. ${k} of ${of} rescued.`,
       wayOpens: "Somewhere in Raptura, a bulkhead grinds open.",
       lostLife: n => n === 0 ? "Poom comes to in a Revival Booth, coughing up seawater.<br><br><b>This is your last life.</b>" : `Poom comes to in a Revival Booth, coughing up seawater.<br><br>${n} ${n === 1 ? "life" : "lives"} left.`,
