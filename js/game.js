@@ -329,6 +329,13 @@ const levelName = id => {
   return place ? `Level ${+id.slice(1) - 1}: ${place}` : `Book ${bookNumber(MAPS[id].book)}, level ${+id.slice(1) - 1}`;
 };
 
+/* What finishes a book, beyond its levels: Book 2 (set C) ends when its
+ * heartstones are all broken (docs/story/book-2-story.md); a book with a
+ * ship ends at the ship; any other when its levels are done. */
+const BOOK_GOAL = { C: "hearts" };
+const heartsIn = b => Object.values(MAPS).filter(lv => lv.book === b).reduce((n, lv) => n + lv.rows.join("").split("!").length - 1, 0);
+const heartsBroken = (r, b) => Object.keys(r.hearts || {}).filter(id => MAPS[id] && MAPS[id].book === b).length;
+
 /* what a world map's markers mean, worked out once per book */
 const WORLDS = {};
 for (const b of BOOK_IDS) {
@@ -418,6 +425,8 @@ function loadLevel(n) {
       /* in a book with a ship, objective types 01-04 are its four parts */
       const th = (def.things || []).find(t => t[0] === x && t[1] === y && t[2] === "!"), type = th && +(/objective type (\d+)/.exec(th[3]) || [])[1];
       if (c === "!" && WORLDS[def.book].ship && type >= 1 && type <= 4) lv.items.push({ kind: "part", part: type - 1, x: px, y: py, t: 0 });
+      /* a heartstone, unless this run has already broken it */
+      else if (c === "!" && BOOK_GOAL[def.book] === "hearts") { if (!(G.run && G.run.hearts && G.run.hearts[n])) lv.items.push({ kind: "heart", x: px, y: py, t: 0 }); }
       else lv.items.push({ kind: c === "!" ? "objective" : "swim", part: lv.items.length % 4, x: px, y: py, t: 0 });
       rows[y][x] = airOf(x, y);
     }
@@ -1146,6 +1155,14 @@ function collect(lv, it) {
     message(say("swim", "<b>You can swim!</b><br><br>On the map, Poom can wade in where the shore meets the water."));
     if (it.ends && --lv.endsLeft === 0) finishBy(lv, "objective");
   }
+  else if (it.kind === "heart") {
+    /* broken, not carried: the Hum loses one of its eight */
+    r.hearts = r.hearts || {}; r.hearts[lv.n] = true;
+    addScore(5000); popup(it, "5000"); sfx("kill"); sfx("done");
+    for (let i = 0; i < 8; i++) lv.fx.push({ kind: "poof", x: it.x + 3 + (Math.random() - .5) * 18, y: it.y + 3 + (Math.random() - .5) * 18, t: -i * 3 });
+    const book = lv.def.book, n = heartsBroken(r, book), of = heartsIn(book);
+    message(say("heart", (n, of) => `<b>The heartstone shatters!</b><br><br>${n === of ? "That's the last one. The Hum lets go." : `${n} of ${of} broken.`}`, n, of));
+  }
   else if (it.kind === "objective") {
     addScore(1000); popup(it, "1000"); sfx("bigitem");
     if (it.ends && --lv.endsLeft === 0) finishBy(lv, "objective");
@@ -1355,7 +1372,7 @@ function updateShots(lv) {
     if (s.mine) {
       for (const e of lv.ents) if (e.alive && overlap(s, e.h >= 12 ? e : { x: e.x, y: e.y + e.h - 12, w: e.w, h: 12 })) { s.gone = true; lv.fx.push({ kind: "poof", x: s.x - 2, y: s.y - 2, t: 0 }); hurtEnemy(lv, e, s); break; }
       /* an objective can be shot as well as picked up: the maps' boss weak points */
-      if (!s.gone) for (const it of lv.items) if (!it.gone && it.kind === "objective" && overlap(s, { x: it.x + 2, y: it.y + 2, w: 12, h: 12 })) { s.gone = true; lv.fx.push({ kind: "poof", x: it.x + 3, y: it.y + 3, t: 0 }); collect(lv, it); break; }
+      if (!s.gone) for (const it of lv.items) if (!it.gone && (it.kind === "objective" || it.kind === "heart") && overlap(s, { x: it.x + 2, y: it.y + 2, w: 12, h: 12 })) { s.gone = true; lv.fx.push({ kind: "poof", x: it.x + 3, y: it.y + 3, t: 0 }); collect(lv, it); break; }
     } else if (lv.p.state === "play" && overlap(s, { x: lv.p.x + 2, y: lv.p.y + 2, w: lv.p.w - 4, h: lv.p.h - 4 })) { s.gone = true; die(lv); }
   }
   lv.shots = lv.shots.filter(s => !s.gone);
@@ -1432,7 +1449,8 @@ function finishLevel() {
   }
   /* the whole book done: on to the next, or the end. A book with a ship
      ends at the ship instead */
-  if (!world().ship && world().need.every(id => r.done[id])) { bookDone(); return; }
+  const goal = BOOK_GOAL[r.book];
+  if (goal === "hearts" ? heartsBroken(r, r.book) >= heartsIn(r.book) : !world().ship && world().need.every(id => r.done[id])) { bookDone(); return; }
   enterMap();
   saveRun();
   if (Object.values(world().barrier).includes(n)) setTimeout(() => toast(say("wayOpens", "Somewhere on the map, the way opens.")), 300);
@@ -1728,7 +1746,7 @@ function drawLevel() {
     if (it.gone) continue;
     it.t++;
     const big = it.kind === "part" || it.kind === "objective" || it.kind === "swim";
-    const s = it.kind === "gem" ? ART.gems[it.gem] : big ? ART.parts[it.part] : ART.items[it.kind];
+    const s = it.kind === "heart" ? ART.heartstone[(it.t >> 4) % 2] : it.kind === "gem" ? ART.gems[it.gem] : big ? ART.parts[it.part] : ART.items[it.kind];
     const bob = big || it.kind === "gem" ? Math.round(Math.sin(it.t / 10) * 1.5) : 0;
     ctx.drawImage(s, it.x + ((T - s.width) >> 1) - cx, it.y + T - s.height - cy + bob);
     if (big && (it.t >> 3) % 4 === 0) ctx.drawImage(ART.star, it.x + 2 - cx, it.y - 2 - cy);
@@ -2174,7 +2192,8 @@ function statusWindow() {
   const keys = el("span"); held.forEach((k, i) => { if (i > 3 && !k) return; const im = imgOf(ART.gems[i]); if (!k) im.classList.add("missing"); keys.appendChild(im); });
   row("Keycards", keys);
   const parts = el("span"); r.parts.forEach((h, i) => { const im = imgOf(ART.parts[i]); im.title = PART_NAMES[i]; if (!h) im.classList.add("missing"); parts.appendChild(im); });
-  row("Ship parts", parts);
+  if (BOOK_GOAL[r.book] === "hearts") row("Heartstones", `${heartsBroken(r, r.book)} of ${heartsIn(r.book)} broken`);
+  else row("Ship parts", parts);
   if (world().ship) row("Aboard", `${(r.aboard || []).filter(Boolean).length} of 4`);
   row("Book", String(bookNumber(r.book)));
   if (r.swim) row("Swimming", "yes");

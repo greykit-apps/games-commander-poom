@@ -1243,6 +1243,7 @@ function buildArt() {
   ART.itemSets = { classic, wasteland: waste };
   useItems("classic");
   ART.parts = PARTS.map(g => sprite(g));
+  ART.heartstone = paintHeartstone();
   ART.zap = ZAP.map(g => sprite(g, { outline: false }));
   ART.hairball = HAIRBALL.map(g => sprite(g));
   ART.poof = POOF.map(g => sprite(g, { outline: false }));
@@ -1916,6 +1917,22 @@ function paintCragFar() {
   for (let i = 0; i < 40; i++) { const x = r() * 320 | 0, y = 120 + (r() * 76 | 0); px(r() < .7 ? "#2fb3a0" : "#6fe0c8", x, y, 1, 1); }
   for (let i = 0; i < 18; i++) { const x = r() * 320 | 0, y = r() * 60 | 0; px("#d24aa6", x, y, 1, 1); if (r() < .4) px("#ffd2f0", x, y, 1, 1); }
   return c;
+}
+
+/* a heartstone (Book 2): a faceted magenta stone in a teal halo, the Hum's
+ * glow pulsing in it; two frames, dim and bright */
+function paintHeartstone() {
+  return [0, 1].map(f => {
+    const c = makeCanvas(14, 16), g = c.getContext("2d");
+    const px = (col, x, y, w = 1, h = 1) => { g.fillStyle = col; g.fillRect(x, y, w, h); };
+    g.fillStyle = f ? "rgba(111, 224, 200, 0.35)" : "rgba(47, 179, 160, 0.22)"; g.beginPath(); g.arc(7, 8, 7, 0, Math.PI * 2); g.fill();
+    /* the stone: a rough heart of facets, dark edge, lit top left */
+    const rows = ["...aa..aa...", "..abba.abba..", ".abccbbbccba.", ".abcddcccdcba", ".abccddccccba", "..abccccccba.", "...abccccba..", "....abccba...", ".....abba....", "......aa....."];
+    const col = { a: SPINE[0], b: SPINE[2], c: f ? SPINE[3] : SPINE[2], d: f ? SPINE[5] : SPINE[4] };
+    rows.forEach((r, y) => [...r].forEach((ch, x) => { if (col[ch]) px(col[ch], x, y + 3); }));
+    px(GLOW[f ? 5 : 4], 4, 5); px("#ffffff", 4, 5, 1, 1);
+    return c;
+  });
 }
 
 /* VGA ramps for the Vaults, dark to light: a cool steel, and frost */
