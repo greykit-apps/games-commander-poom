@@ -996,7 +996,9 @@ function updatePlayer(lv) {
   }
   if (p.safeT > 0) p.safeT--;
   /* arcade: where he has lately stood on firm ground, to come back to */
-  if (run.arcade && p.onGround && !p.riding && !p.climbing && !p.pogo) {
+  /* never a spot in a hazard tile (E16's floor spikes: standing on the
+     rock under them looks like firm ground) */
+  if (run.arcade && p.onGround && !p.riding && !p.climbing && !p.pogo && !p.safeT && !tilesUnder(p).some(k => { const [x, y] = k.split(",").map(Number), c = tileAt(lv, x, y); return c === "^" || c === "z"; })) {
     const ring = lv.safeRing || (lv.safeRing = []);
     ring.push([lv.t, p.x, p.y]); if (ring.length > 300) ring.shift();
   }
@@ -1521,8 +1523,12 @@ function die(lv) {
  * and a moment's grace */
 function respawn(lv) {
   const p = lv.p, ring = lv.safeRing || [];
+  /* dying again soon after getting up goes further back each time, so no
+     spot can catch him in a loop */
+  lv.streak = lv.t - (lv.lastRespawn || -1e9) < 300 ? (lv.streak || 0) + 1 : 0;
+  lv.lastRespawn = lv.t;
   let s = null;
-  for (let i = ring.length - 1; i >= 0; i--) if (lv.t - ring[i][0] >= 60) { s = ring[i]; break; }
+  for (let i = ring.length - 1; i >= 0; i--) if (lv.t - ring[i][0] >= 60 * (1 + lv.streak * 2)) { s = ring[i]; break; }
   s = s || ring[0] || [0, lv.p0[0], lv.p0[1]];
   lv.safeRing = ring.filter(e => e[0] <= s[0]);
   Object.assign(p, { x: s[1], y: s[2], vx: 0, vy: 0, h: PH, state: "play", t: 0, pogo: false, climbing: false, crouch: 0, compress: 0, riding: null, onGround: false, safeT: 90 });
