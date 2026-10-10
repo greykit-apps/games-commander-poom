@@ -39,20 +39,42 @@ Set E is on the newer engine (E2), in the shape of Commander Keen 4.
 - Turrets cluster in E12 (30), E13 (16), E14 and E15.
 - Warp doors, key sockets, bridge and platform switches, slopes and poles
   throughout.
-- **Steam, not spikes.** One three-tile column (source tiles 1838, 1856,
-  1874; 72 tiles over E06, E13, E14 and E15) stands floor to ceiling
-  across corridors Poom has to cross. The source marks it deadly and keeps
-  no animation, so it comes and goes (glyph `z`): on for one second, off
-  for one, then a half-second flicker before it's back. While it's on it
-  **shoves him back out**; it never hurts. The Works' ordinary hazards are
-  steam vents too, and they **blow him away from the nozzle** (up from a
-  floor, down from a ceiling) rather than kill: they are navigational, and
-  without that E15 is a death pit. Auntie warns about the steam the first
-  time Poom gets close.
+- **Steam, not spikes.** The Works' hazards are steam, and steam is
+  navigational: it pushes Poom about and never hurts. Without that, E15 is a
+  death pit.
+  - **Vents** blow him away from the nozzle, up from a floor or down from a
+    ceiling, for two tiles. They blow in bursts, all together: on for 70
+    ticks, off for 60 (long enough to walk or drop past), with a wisp for
+    the last 20 before the next burst. A platform between him and a vent,
+    or under him, takes the blast.
+  - **Columns.** One three-tile column (source tiles 1838, 1856, 1874; 72
+    tiles over E06, E13, E14 and E15) stands floor to ceiling across
+    corridors Poom has to cross. The source marks it deadly and keeps no
+    animation, so it comes and goes (glyph `z`): on for one second, off for
+    one, then a half-second flicker. While it's on it shoves him back out
+    the way he came.
+  - Auntie warns about the steam the first time Poom gets close.
+  - The Promenade's broken glass and the Gardens' urchins still hurt.
 - **Platform decks sit half a tile down** their cell on this engine: E15
   drops Poom down a chute onto a platform that runs under a two-tile
   ceiling, and G11 sends one along spikes under another. Standing at the top
   of the cell, he was scraped off into the spikes.
+- **Changed by hand after the play-through** (2026-10-10):
+  - **E07:** the drop to the first keycard is blind, so a sign at the lip,
+    (37, 38), says *"A leap of faith..."* (`ADD_SIGNS`).
+  - **E15:** its warp door at (6-7, 59-60) had a creature on one corner and
+    drew as two doors; the transcriber now puts door tiles back under
+    creatures.
+  - **E16:** with the game's one pogo, its top's two ten-tile gaps could be
+    bounced across straight to the exit, skipping every keycard. A wall
+    down column 100 (rows 2-14, `CLOSE_TILES`) seals the exit corner, which
+    is now reached through the blue door and up the right-hand shaft.
+- **Worth knowing, not changed:**
+  - **E04's** lift up to the rescue room only runs the full shaft once the
+    platform switch at (8, 52) is thrown.
+  - **E12 and E13** can be finished without their keycards: the cards open
+    side rooms, not the way out. That's the original design (true under
+    the old pogo and deadly steam too), and it's kept.
 
 ## The plot, in a paragraph
 
@@ -157,8 +179,14 @@ cable-knit sweater, brown trousers. Tail still his.
 4. Auntie: "He's got power to burn now, sugar. Best keep up."
 5. The End of Book Four: Descent into Raptura.
 
+While Book 5 is held back, Book 4 is the last Book in the game, so its
+ending is the game's: the final score, and "Commander Poom will return."
+
 ## Settled
 
 - The Book ends when all eight Little Ones are rescued. A level left by
   its exit door with its Little One still inside can be gone back into.
 - E15 is a secret level.
+- **Every level is winnable** (2026-10-10). E04, E05, E07, E09, E11, E15
+  and E16 were played through by hand.
+- **Steam is navigational**: it pushes, it never hurts (above).

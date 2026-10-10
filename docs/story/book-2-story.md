@@ -121,6 +121,12 @@ yet.
   - 05 is steady, one to seven a level (33).
   - 03 is rare, one to three a level (16).
 - **Exits are all doors.** C16 and C17 have two each.
+- **C17, the Hum's Core**, changed by hand after it was played through:
+  - The spikes either side of its heartstone, at (64, 14) and (68, 14),
+    are gone (`CLEAR_HAZARDS`).
+  - Two spikes once restored up its shaft, at (14, 21) and (15, 15), were
+    taken back out: in the source each sits under a creature, so no player
+    ever met them.
 - **Score items** come in five tiers (745 tiles), plus 61 energy cells and
   extra lives.
 
@@ -225,6 +231,8 @@ All in `BOOK_TEXT.C` in `js/game.js`.
 
 ## Settled
 
+- **Every level is winnable**, and every heartstone reachable (2026-10-10).
+  C13 and C17 were played through by hand.
 - **Heartstones are destroyed.** Touching one, or shooting it, breaks it. It
   stays broken, unless Poom dies before leaving the level, in which case it
   is whole again.

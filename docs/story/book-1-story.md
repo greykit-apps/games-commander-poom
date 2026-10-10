@@ -174,6 +174,10 @@ end the game, with the final score.
 
 ## Settled
 
+- **Every level is winnable.** All sixteen and all four ship parts, checked
+  2026-10-10. H04, the longest climb (the red keycard at the bottom, the
+  part behind the red door at the top), was played through by hand; its
+  map needed no change.
 - **Poom and the Catamaran.** Poom is the hero, the Catamaran is his ship,
   and its four parts are what Book 1 is about.
 - **Animals, not humans.** The Glow is a world of animals: cats, dogs, mice
