@@ -102,8 +102,10 @@ A proposal for how the arc could build:
 - **Book 2 (done).** His trap: the fake mayday from Thrum. His salvage barge
   arrives too late, and through its window, for the first time, the player
   glimpses a grey-black silhouette.
-- **Book 3 (done).** Cal hires Dr Claw to copy the Catamaran; one copy gets
-  finished, **the black Catamaran**, and Cal flies off in it.
+- **Book 3 (done).** Cal's first appearance in person, as **Dr Cal** (after
+  Dr Claw, after Dr No, with a bit of Dr Moreau): his island lair copies the
+  Catamaran, and he escapes in the one copy finished, **the black
+  Catamaran**.
 - **Book 4 (done).** Cal buys every drop of SPARK in Raptura to power it.
   An audio diary from Raptura Radio's operator ("Keep listening, sugar")
   hints at who Auntie Static is, without saying.
@@ -127,7 +129,7 @@ is the author's to choose.
 ## Open questions
 
 - After Book 5, which order for sets B, F, G and I?
-- Which Book does Cal first appear in person, and when does he become Shadow
-  Poom?
+- When does Cal become Shadow Poom? (He first appears in person in Book 3,
+  as Dr Cal.)
 - Does Poom's ship take damage in each Book (more parts to find), or does each
   Book find him a different reason to land?

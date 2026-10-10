@@ -1,4 +1,4 @@
-# Book 3: The Island of Dr Claw
+# Book 3: The Island of Dr Cal
 
 Book 3 is map set D, an island lair in the spirit of *Metal Gear Solid* and
 *Evil Genius*: a sneaking mission into a villain's volcano. It leans toward
@@ -8,6 +8,10 @@ when they see you, and a giant walking machine in a hangar. Like the other
 Books, it keeps the feeling and invents its own names: no Snake, Shadow
 Moses, Metal Gear, FOXHOUND, codec or Otacon. Animals, not humans; Poom and
 the Catamaran carry on.
+
+The villain is **Dr Cal**: Junk Baron Cal himself, in his island persona.
+He is built on Dr Claw, who is in turn built on Dr No, with a bit of Dr
+Moreau stuck in. This is the first Book where Cal appears in person.
 
 The level-by-level detail is in [book-D.md](book-D.md), which
 `node tools/story-map.js D` regenerates.
@@ -20,7 +24,7 @@ Set D is on the older engine (E1), like Books 1 and 2.
 - **The world map is an archipelago.** The source map draws a round
   lagoon, with land only in pockets: islets. Walking alone reaches D02 and
   D03 and nothing else. What joins the islets is wiring in the map's
-  sprite plane, in the Keen engine's codes (now read by
+  sprite plane, in the Keen engine's codes (read by
   `tools/transcribe-maps.js`):
   - **16 teleporters** (code `0x0Fab`: teleporter *a* sends you to
     teleporter *b*). They link every islet to the next.
@@ -36,32 +40,51 @@ Set D is on the older engine (E1), like Books 1 and 2.
   objective items round it (type 01, which don't end the level) and one in
   its sealed heart (type 02, which does). Nothing can reach the heart, so
   the six must be what gets to it: **breaking all six blows the heart by
-  itself**, which ends the level. They can be shot or touched.
+  itself**, which ends the level. They can be shot through the spikes, or
+  touched.
 - **Eleven creature types and turrets.** Types 09, 10 and 11 only appear in
   D17. Turrets fire along a line, both ways in turn (22 horizontal, 13
   vertical), and cluster in D10 and D13 (11 each).
 - **Keycards** in D04, D05, D10, D11, D12, D13, D15 and D16 (all four
-  colours in D10 and D16). Two levels have a door whose keycard isn't in
-  the level: D05's yellow door and D10's red one. The engine lets such a
-  door take any keycard the level has (as a door of no stated colour), so
-  neither level can be stuck; the map maker can say whether they were
-  meant to be optional.
+  colours in D10 and D16). On this engine a pickup is a tile, so a
+  creature standing on one hides it in the source grid. That hid one key
+  in D05 and one in D10; the transcriber now puts such pickups back, and
+  every door has its key.
 - **25 moving platforms**, horizontal and vertical.
 - **No signs, no rescues, no ship.**
 
 ## The plot, in a paragraph
 
 Out past Thrum the Catamaran flies over a warm sea at night, and something
-on an island below reaches up and **grabs it**: a magnet crane the size of a
-church, which pulls the ship down into a volcano. This is **Isla Garra**,
-the private island of **Dr Claw**, a white Persian of enormous fluff and no
-conscience, who builds doomsday machines for anyone who can pay. His latest
-client is a grey-black panther who'd very much like a Catamaran of his own.
-Dr Claw's **Copycat**, a copying machine deep in the volcano, is taking the
-Catamaran apart to make a black copy of it, plank by plank. Poom bails out
-over the lagoon, washes up on the beach with a radio and nothing else, and
-goes in quietly. Auntie Static talks him through it, on a frequency she
-shouldn't know.
+on an island below reaches up and **grabs it**: a magnet crane the size of
+a church, which pulls the ship down into a volcano. This is **Isla Garra**,
+home of **Dr Cal**: a grey-black panther in a white lab coat and a
+monocle, with a doctorate nobody has ever seen. He builds doomsday
+machines, and in the labs under the volcano he breeds his own staff. He has
+always wanted a Catamaran of his own, and deep in the volcano his
+**Copycat** is taking Poom's apart to build a black copy, plank by plank.
+Poom bails out over the lagoon, washes up on the beach with a radio and not
+much else, and goes in quietly. Auntie Static talks him through it, on a
+frequency she shouldn't know.
+
+## Dr Cal
+
+- **Who he is.** Junk Baron Cal, the grey-black panther who has been
+  offstage since Book 1, now on his own island and calling himself a
+  doctor. The players who know Cal know it's him; the game never makes a
+  fuss of it.
+- **Dr No and Dr Claw.** The volcano lair, the magnet crane, the monocle,
+  the doomsday machine, an evil genius with a pet (a white mouse, Mr
+  Squeaks, rather than a cat on his lap) and a robot shark in the lagoon.
+- **Dr Moreau.** He breeds his own staff in the labs: the stoat guards, the
+  Heavies, the guard dogs and the ninjas ("bred in Dr Cal's labs, and
+  nobody wants to know how").
+- **Tone.** Affectionate, as always with Cal: a schemer and a show-off, never
+  cruel. He keeps a Poom bobblehead in a glass case with the eyes
+  scratched out, and his name is top of the high-score table, above Junk
+  Baron Cal's.
+- **The arc.** Book 3 is where Cal gets his own ship: the black Catamaran,
+  the one copy the Copycat finished. Shadow Poom is still to come.
 
 ## Why the game works the way it does
 
@@ -69,23 +92,23 @@ shouldn't know.
 |---|---|
 | **The world map** | Isla Garra by night: islets in the volcano's flooded crater. |
 | **Teleporters** | The base's **transit tubes**: pneumatic pods under the lagoon between islets. |
-| **The ferry** | **Bruce**, Dr Claw's robot shark, which patrols the lagoon on a fixed route. Ride it from the Hangar islet to the Box Depot. |
+| **The ferry** | **Bruce**, Dr Cal's robot shark, which patrols the lagoon on a fixed route. Ride it from the Hangar islet to the Box Depot. |
 | **Levels are walls on the map** | Locked compounds: you get through them or you don't get past. |
-| **D17** | The **Copycat**'s chamber. Its six power cores are the type 01 objectives; break all six and it overloads. |
+| **D17** | The **Copycat**'s chamber. Its six power cores are the type 01 objectives; break all six and it overloads. Dr Cal is at its console. |
 | **The Book ends at D17** | When the Copycat blows, the Catamaran is free and Poom flies it out. Levels not yet done are skipped. |
 | **Keycards and doors** | Security cards for the base's blast doors, in four colours. |
 | **Turrets** | **Gun cameras**: security cameras with a gun under them, sweeping both ways. |
 | **Moving platforms** | Cargo lifts and catwalk trolleys. |
-| **Hazards** | Barbed wire and tripwire mines outside; electrified floor plates inside; lava in the crater. |
+| **Hazards** | Barbed wire outside; electrified floor plates inside; vents of fire in the crater. |
 | **Exits** | Blast doors with a green light. |
 
 ## Three biomes
 
 | Biome | Levels | What it's like |
 |---|---|---|
-| **The Shore** | D02, D03, D04, D05, D06, D07 | Outdoors at night: sand, jungle, sandbags, chain-link fence, watchtowers, searchlights sweeping a navy sky. |
-| **The Base** | D08, D10, D11, D12, D13, D14, D15 | Inside: grey-green concrete bunkers, steel plate, hazard stripes, crates, vents, red alert lamps. |
-| **The Crater** | D09, D16, D17 | Dr Claw's lair inside the volcano: black rock lit by lava, polished villain chrome and red, monitor walls. |
+| **The Shore** | D02, D03, D04, D05, D06, D07 | Outdoors at night: sand, jungle, sandbags, watchtowers, searchlights sweeping a navy sky. |
+| **The Base** | D08, D10, D11, D12, D13, D14, D15 | Inside: grey-green concrete bunkers, steel plate, hazard stripes, vents, red alert lamps. |
+| **The Crater** | D09, D16, D17 | Dr Cal's lair inside the volcano: black rock lit by lava, villain chrome and red, monitor walls. |
 
 Place names:
 
@@ -103,56 +126,63 @@ different.
 
 | Type | Count | Engine kind | In the story |
 |---|---|---|---|
-| 04 | 115 | charger (B) | **Claw guards**: stoats in olive fatigues and caps. They patrol; when one sees Poom, a red **!** pops over its head and it runs at him. One shot. |
+| 04 | 115 | charger (B) | **Claw guards**: stoats in olive fatigues and caps, bred in the labs. They patrol; when one sees Poom, a red **!** pops over its head and it runs at him. One shot. |
 | 02 | 46 | walker (V) | **Heavies**: stoats in body armour and helmets. Deadly to touch, four shots. |
 | 01 | 42 | pusher (x) | **Boxers**: guards hiding under cardboard boxes, shuffling about. Harmless; they bump you. Jump on one to flatten its box for a while. |
-| 06 | 43 | shover (T) | **Clawbots**: Dr Claw's robot crabs. Armoured, can't be hurt; they shove. |
+| 06 | 43 | shover (T) | **Clawbots**: Dr Cal's robot crabs. Armoured, can't be hurt; they shove. |
 | 05 | 25 | shooter (K) | **Gunners**: a guard behind sandbags with a machine gun, firing along the floor. Can't be hurt. |
 | 03 | 22 | charger (B) | **Guard dogs**: Dobermans. Fast, one shot. |
-| 08 | 12 | lieutenant (L) | **Ocelots**: Dr Claw's elite, an ocelot in a beret and long coat who twirls his pistols. Five shots. |
-| 07 | 4 | charger (B), faster, three shots | **Ninjas**: a stealth-suited stoat with a glowing visor. |
+| 08 | 12 | lieutenant (L) | **Ocelots**: Dr Cal's elite, an ocelot in a beret and long coat who twirls his pistol. Five shots. |
+| 07 | 4 | charger (B), faster, three shots | **Ninjas**: stealth-suited, a glowing red eye. |
 | 09 | 2 | shover (T) | Clawbots, guarding the Copycat. |
-| 10 | 1 | shooter (K) | **Dr Claw himself**, at the Copycat's console, firing its laser along the floor. |
-| 11 | 1 | pusher (x) | **Mr Squeaks**, Dr Claw's white mouse. |
+| 10 | 1 | shooter (K) | **Dr Cal himself**, at the Copycat's console: grey-black, yellow-eyed, lab coat and monocle, firing a laser pistol along the floor. |
+| 11 | 1 | pusher (x) | **Mr Squeaks**, Dr Cal's white mouse. |
 
 ## Items
 
 | Book 1 | Book 3 |
 |---|---|
-| score items | dog tags 100, a ration pack 200, a floppy disk 500, a cassette tape 1000, a gold bar 2000, Dr Claw's diamond 5000 |
+| score items | dog tags 100, a ration pack 200, a floppy disk 500, a cassette tape 1000, a gold bar 2000, Dr Cal's diamond 5000 |
 | energy cell | a battery pack |
-| Poom bobblehead (extra life) | still the bobblehead. Dr Claw keeps one in a glass case. |
+| Poom bobblehead (extra life) | still the bobblehead. Dr Cal keeps one in a glass case, with the eyes scratched out. |
 | keycards | security cards |
+| objectives (D17) | the Copycat's six power cores, and its red heart |
 
 ## Poom's look: the sneaking suit
 
-A dark slate bodysuit with lighter armour panels, a red bandana (like his old helmet) tied over
-his ears with its tails flying, and a radio earpiece. Paws and tail still
-his.
+A dark slate bodysuit with lighter armour on the chest, an olive belt,
+black boots, and a red bandana (like his old helmet) tied over his ears,
+its knot and tails behind. Paws and tail still his.
 
 ## The nods
 
 - **"!"**: a guard who spots Poom shouts it, with the alert sting.
-- **The radio**: Auntie Static's lines are radio calls, and the game over is
-  her shouting his name: "Poom? Poom! POOOOM!"
+- **The radio**: Auntie Static's lines are radio calls, and losing a life
+  is her shouting his name: "Poom? Poom! POOOOM!"
 - **Cardboard boxes**: the Boxers, and the Box Depot full of them.
 - **The walking machine**: the Hangar's backdrop is **Metal Claw**, a
   two-legged tank with a claw for a hand.
-- **Ocelots** who twirl pistols; a **ninja** with a glowing eye.
+- **Ocelots** who twirl pistols; **ninjas** with a glowing eye.
+- **Bond**: the magnet crane, the volcano, the monocle, the robot shark, the
+  pet in the villain's lab.
 
 ## The ending
 
-1. The Copycat overloads and the volcano rumbles.
-2. Dr Claw escapes in a pod shaped like a fish, shaking a paw: "This isn't
-   over, puma!"
-3. The Catamaran blasts out of the crater.
-4. Over the sea, something keeps pace with it: **a black Catamaran**, the
-   one copy the Copycat finished. At its helm is a grey-black panther. It
-   peels off into the dark.
+1. The Copycat goes up with a bang that rattles the whole volcano: red
+   lights, klaxons, guards running every way at once.
+2. Out of the Hangar roars the one copy the Copycat finished, **a black
+   Catamaran**. At its helm, monocle glinting, lab coat flapping, Dr Cal:
+   "This isn't over, puma!"
+3. Poom finds his own Catamaran in the Hangar, nearly whole, and blasts it
+   out of the crater into the night.
+4. Over the sea, the black Catamaran keeps pace with him in the dark for a
+   while. Its pilot gives Poom a little salute, and peels away.
 5. Auntie: "Well, sugar. Now there are two of you."
-6. The End of Book Three: The Island of Dr Claw.
+6. The End of Book Three: The Island of Dr Cal.
 
 ## Settled
 
+- The villain is Dr Cal, Cal's island persona (Dr Claw, Dr No, a bit of Dr
+  Moreau), and this is Cal's first appearance in person.
 - The Book ends when D17 is done.
 - The ferry and the teleporters come from the map's own data, not guesses.
