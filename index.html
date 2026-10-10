@@ -70,6 +70,10 @@ kbd{font:inherit;color:var(--ui-head)}
 #logo[data-look="wasteland"] .cmd{color:#ffb85a;text-shadow:1px 1px 0 #5a2410}
 #logo[data-look="wasteland"] .poom{color:#ffd23f;text-shadow:1px 1px 0 #d07a36,2px 2px 0 #d07a36,3px 3px 0 #7a3a1c,4px 4px 0 #7a3a1c,5px 5px 0 #000}
 #logo[data-look="wasteland"] .ep{color:#f0d0a0}
+/* Thrum's (Book 2): pale teal and ice over the Hum's violet */
+#logo[data-look="thrum"] .cmd{color:#6fe0c8;text-shadow:1px 1px 0 #10504e}
+#logo[data-look="thrum"] .poom{color:#e6fff8;text-shadow:1px 1px 0 #6fe0c8,2px 2px 0 #2fb3a0,3px 3px 0 #613d86,4px 4px 0 #382252,5px 5px 0 #000}
+#logo[data-look="thrum"] .ep{color:#c8b0e8}
 
 /* ---- the UI's colours, by theme (game.js dressFor sets #ui's data-look);
    classic is the original EGA blue box ---- */
@@ -80,6 +84,14 @@ kbd{font:inherit;color:var(--ui-head)}
 #ui[data-look="wasteland"]{--ui-bg:#2e1e16;--ui-text:#f0d8b0;--ui-accent:#e0a050;--ui-head:#ffd23f;--ui-sel:#8a3218;
   --ui-tab:#7a4a2a;--ui-body:#e8d4b4;--ui-dim:#a08060;--ui-me:#ff8a50;
   --ui-chip:#2e1e16;--ui-chip-edge:#8a5a32}
+/* Thrum's: violet-black glass, teal edges, the visor's amber in the heads,
+   a violet bar for the selection */
+#ui[data-look="thrum"]{--ui-bg:#130c1f;--ui-text:#dce8ec;--ui-accent:#6fe0c8;--ui-head:#ffb02e;--ui-sel:#4b2e6a;
+  --ui-tab:#2f6e6a;--ui-body:#c8dce0;--ui-dim:#8a97a0;--ui-me:#f48cd0;
+  --ui-chip:#130c1f;--ui-chip-edge:#2fb3a0}
+#ui[data-look="thrum"] *{scrollbar-color:#2f6e6a transparent}
+#ui[data-look="thrum"] ::-webkit-scrollbar-thumb{background:#2f6e6a;background-clip:padding-box}
+#ui[data-look="thrum"] ::-webkit-scrollbar-thumb:hover{background:#2fb3a0;background-clip:padding-box}
 /* the canon scrollbar (gk-title.js) is steel blue; a themed UI repaints it */
 #ui[data-look="wasteland"] *{scrollbar-color:#8a5a32 transparent}
 #ui[data-look="wasteland"] ::-webkit-scrollbar-thumb{background:#8a5a32;background-clip:padding-box}
@@ -202,7 +214,7 @@ kbd{font:inherit;color:var(--ui-head)}
   <button data-a="pause" aria-label="Pause">II</button><button data-a="status" aria-label="Status">?</button>
 </div>
 <script src="js/gk-title.js?v=6080c669"></script>
-<script src="js/art.js?v=5cf5b379"></script>
+<script src="js/art.js?v=4947e24c"></script>
 <script src="js/books/A.js?v=161a0844"></script>
 <script src="js/books/B.js?v=7a5b59b7"></script>
 <script src="js/books/C.js?v=6fc355aa"></script>
@@ -212,6 +224,6 @@ kbd{font:inherit;color:var(--ui-head)}
 <script src="js/books/G.js?v=271fc791"></script>
 <script src="js/books/H.js?v=4ae984c1"></script>
 <script src="js/books/I.js?v=13d9ef6c"></script>
-<script src="js/game.js?v=bcf48b42"></script>
+<script src="js/game.js?v=9a09ee70"></script>
 </body>
 </html>

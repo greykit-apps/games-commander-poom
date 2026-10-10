@@ -290,7 +290,7 @@ const BOOK_THEMES = {
   wasteland: { name: "wasteland", look: "ranger", items: "wasteland", creatures: "wasteland", map: "wasteland", title: "wasteland", subtitle: "Book One: Down in the Glow", hud: "wrist", sound: "wasteland" },
   /* Book 2, set C: Thrum, the hollow moon (docs/story/book-2-story.md).
      Pieces not yet its own borrow Book 1's for now */
-  thrum: { name: "thrum", look: "hunter", items: "thrum", creatures: "hum", map: "thrum", title: "wasteland", subtitle: "Book Two: The Hollow Moon", hud: "wrist", sound: "wasteland" },
+  thrum: { name: "thrum", look: "hunter", items: "thrum", creatures: "hum", map: "thrum", title: "thrum", subtitle: "Book Two: The Hollow Moon", hud: "visor", sound: "wasteland" },
 };
 const THEME_OF_BOOK = { H: "wasteland", C: "thrum" };
 /* a book with no theme of its own wears Book 1's */
@@ -1847,6 +1847,7 @@ function drawDigits(n, x, y, len, set = "red") {
  * may have its own (theme.hud) */
 function drawHud(lv) {
   if (theme.hud === "wrist") return drawWristHud(lv);
+  if (theme.hud === "visor") return drawVisorHud(lv);
   const r = G.run;
   ctx.fillStyle = "#000"; ctx.fillRect(3, 3, 59, 22);
   ctx.fillStyle = EGA[8]; ctx.fillRect(3, 3, 59, 1); ctx.fillRect(3, 24, 59, 1); ctx.fillRect(3, 3, 1, 22); ctx.fillRect(61, 3, 1, 22);
@@ -1905,6 +1906,28 @@ function drawWristHud(lv) {
   const glow = 0.55 + 0.45 * Math.sin(G.t / 30);
   f("#1e1a0e", 76, 24, 7, 4); ctx.fillStyle = `rgba(120, 255, 140, ${glow})`; ctx.fillRect(77, 25, 5, 2);
   if (lv) lv.keys.forEach((k, i) => { if (k) ctx.drawImage(ART.gems[i], 93 + i * 10, 4, 8, 7); });
+}
+
+/* Book 2's scorebox: the hunter's visor readout, dark violet glass in a
+ * teal frame with bracket corners, the numbers in the visor's amber, a
+ * scan line drifting down it */
+function drawVisorHud(lv) {
+  const r = G.run, f = (c, x, y, w, h) => { ctx.fillStyle = c; ctx.fillRect(x, y, w, h); };
+  f("rgba(10, 6, 18, 0.82)", 3, 3, 66, 26);
+  f("#1e5c58", 3, 3, 66, 1); f("#1e5c58", 3, 28, 66, 1); f("#1e5c58", 3, 3, 1, 26); f("#1e5c58", 68, 3, 1, 26);
+  /* bracket corners */
+  f("#6fe0c8", 2, 2, 5, 1); f("#6fe0c8", 2, 2, 1, 5); f("#6fe0c8", 65, 2, 5, 1); f("#6fe0c8", 69, 2, 1, 5);
+  f("#6fe0c8", 2, 29, 5, 1); f("#6fe0c8", 2, 25, 1, 5); f("#6fe0c8", 65, 29, 5, 1); f("#6fe0c8", 69, 25, 1, 5);
+  drawDigits(r.score, 9, 7, 9, "amber");
+  f("#2f6e6a", 8, 16, 56, 1);
+  ctx.drawImage(ART.items.life, 7, 18, 9, 10);
+  drawDigits(r.cheat ? 99 : Math.min(r.lives, 99), 17, 20, 2, "amber");
+  ctx.drawImage(ART.items.ammo, 38, 19, 4, 8);
+  drawDigits(r.cheat ? 99 : Math.min(r.ammo, 99), 45, 20, 2, "amber");
+  /* the scan line */
+  const sy = 4 + ((G.t >> 1) % 24);
+  ctx.fillStyle = "rgba(111, 224, 200, 0.10)"; ctx.fillRect(4, sy, 64, 1);
+  if (lv) lv.keys.forEach((k, i) => { if (k) ctx.drawImage(ART.gems[i], 73 + i * 10, 4, 8, 7); });
 }
 
 /* a tiny pixel font for floating score text: digits from the LED set,
@@ -2000,6 +2023,7 @@ const titleStars = Array.from({ length: 90 }, (_, i) => ({ x: (i * 97) % 320, y:
 let wasteTitleBg = null;
 function drawTitleScene(t) {
   if (theme.title === "wasteland") return drawWasteTitle(t);
+  if (theme.title === "thrum") return drawThrumTitle(t);
   ctx.fillStyle = "#000"; ctx.fillRect(0, 0, W, H);
   for (const s of titleStars) if ((t >> 4) % 7 !== s.s) { ctx.fillStyle = EGA[s.c]; ctx.fillRect(s.x, s.y, 1, 1); }
   /* the planet */
@@ -2014,6 +2038,25 @@ function drawTitleScene(t) {
   ctx.drawImage(mapArt.shipBare, 0, 0, 32, 32, 30, 140, 64, 64);
   const pose = (t >> 5) % 8 === 0 ? "shoot" : "stand";
   ctx.drawImage(ART.poom[pose].r, 96, 179);
+}
+
+/* Thrum's title (Book 2): the hollow moon at night under its gas giant,
+ * the Hum pulsing in the cracks, the Catamaran landed with its lights
+ * blinking, Poom beside it in his hardsuit, the station's mast lamp. */
+let thrumTitleBg = null;
+function drawThrumTitle(t) {
+  if (!thrumTitleBg) thrumTitleBg = paintThrumTitle(mapArtSets.classic.shipBare);
+  ctx.drawImage(thrumTitleBg, 0, 0);
+  for (const s of titleStars) if (s.y < 120 && (t >> 4) % 7 !== s.s && (s.x > 160 || s.y < 66)) { ctx.fillStyle = s.c === 14 ? "#ffe9c8" : "#c8c0e8"; ctx.fillRect(s.x, s.y, 1, 1); }
+  /* the Hum breathing in the cracks */
+  const a = 0.10 + 0.08 * Math.sin(t / 40);
+  ctx.fillStyle = `rgba(111, 224, 200, ${a})`; ctx.fillRect(0, 172, W, 28);
+  /* the mast lamp, and the ship's landing lights in turn */
+  if ((t >> 5) % 2) { ctx.fillStyle = "rgba(255, 176, 46, 0.35)"; ctx.beginPath(); ctx.arc(291, 106, 4, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = "#ffb02e"; ctx.fillRect(290, 105, 2, 2); }
+  const on = (t >> 4) % 3;
+  for (const [i, x] of [[0, 21], [1, 48], [2, 75]]) { ctx.fillStyle = i === on ? "#6fe0c8" : "#10504e"; ctx.fillRect(x - 1, 178, 3, 2); }
+  const pose = (t >> 5) % 8 === 0 ? "shoot" : "stand", spr = ART.poom[pose].r;
+  ctx.drawImage(spr, 84, 182 - spr.height);
 }
 
 /* The wasteland's title: the Glow at dusk over a ruined skyline, the

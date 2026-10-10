@@ -1627,7 +1627,9 @@ function buildDigits() {
   });
   return { red: make(EGA[12]), dim: make("#3a0000"), white: make(EGA[15]), yellow: make(EGA[14]),
     /* the wasteland's wrist computer: green phosphor, and its unlit segments */
-    green: make("#8aff9a"), greenDim: make("#0f3a1c") };
+    green: make("#8aff9a"), greenDim: make("#0f3a1c"),
+    /* the hunter's visor readout (Book 2): amber, and its unlit segments */
+    amber: make("#ffb02e"), amberDim: make("#3a2408") };
 }
 
 /* ------------------------------------------------------------------ */
@@ -3075,6 +3077,51 @@ function paintThrumMap(classic) {
     }, 32, 32),
   };
   return { ...classic, ground, rockAt, rock: rockAt(0), water, field, flag, tele, ship, markerFor: marker, teleName: "Lift pad" };
+}
+
+/* Thrum's title backdrop (Book 2), 320x200 unless asked for bigger: deep
+ * space, a banded gas giant rising behind the crags (Thrum is its moon),
+ * the violet crust split by cracks the Hum glows through, the station's
+ * mast far off, and the Catamaran standing on its legs on a landing pad.
+ * The animated parts (stars, the cracks' pulse, the lights, Poom) are drawn
+ * over it by game.js. */
+function paintThrumTitle(shipBare, W_ = 320, H_ = 200) {
+  const c = makeCanvas(W_, H_), g = c.getContext("2d"), r = rng(41);
+  const px = (col, x, y, w = 1, h = 1) => { g.fillStyle = col; g.fillRect(x, y, w, h); };
+  for (let y = 0; y < H_; y += 4) { const k = Math.min(1, y / 170); px(`rgb(${Math.round(6 + 22 * k)},${Math.round(4 + 10 * k)},${Math.round(14 + 34 * k)})`, 0, y, W_, 4); }
+  /* the gas giant: banded, its lit limb to the left, rising behind the crags */
+  g.save(); g.beginPath(); g.arc(70, 150, 78, 0, Math.PI * 2); g.clip();
+  /* bands of uneven width and colour, waved and tilted, a storm in one */
+  const bands = ["#4a3a5a", "#7a6070", "#5a6e78", "#8a7466", "#3e3450", "#9a8278", "#566070", "#6e5468"];
+  const rr = rng(77), edges = [72]; while (edges[edges.length - 1] < 240) edges.push(edges[edges.length - 1] + 5 + (rr() * 12 | 0));
+  for (let x = -8; x < 160; x++) for (let i = 0; i < edges.length - 1; i++) {
+    const wave = Math.sin(x / 9 + i * 1.7) * 1.6 + (x - 70) * 0.12;
+    px(bands[i % bands.length], x, Math.round(edges[i] + wave), 1, edges[i + 1] - edges[i] + 1);
+  }
+  g.fillStyle = "#b88a74"; g.beginPath(); g.ellipse(96, 118, 9, 5, 0.12, 0, Math.PI * 2); g.fill();
+  g.fillStyle = "#8a5a50"; g.beginPath(); g.ellipse(97, 118, 5, 3, 0.12, 0, Math.PI * 2); g.fill();
+  const shade = g.createRadialGradient(40, 120, 10, 70, 150, 80); shade.addColorStop(0, "rgba(255, 230, 255, 0.10)"); shade.addColorStop(0.7, "rgba(0, 0, 0, 0)"); shade.addColorStop(1, "rgba(0, 0, 10, 0.55)");
+  g.fillStyle = shade; g.fillRect(0, 60, 160, 180); g.restore();
+  g.strokeStyle = "rgba(200, 176, 232, 0.35)"; g.lineWidth = 1; g.beginPath(); g.ellipse(70, 150, 112, 14, -0.18, Math.PI * 1.05, Math.PI * 1.95); g.stroke();
+  /* the crags along the horizon, two layers */
+  for (const [col, base, amp, seed] of [["#2a1c42", 150, 26, 5], ["#382252", 162, 18, 9]]) {
+    const rr = rng(seed); g.fillStyle = col; g.beginPath(); g.moveTo(0, H_);
+    for (let x = 0; x <= W_; x += 8) g.lineTo(x, base - rr() * amp - (x % 48 < 8 ? amp * 0.6 : 0));
+    g.lineTo(W_, H_); g.fill();
+  }
+  /* the station's mast, far off on the right */
+  px("#1a1029", 290, 108, 2, 52); for (let y = 112; y < 158; y += 6) px("#1a1029", 287, y, 8, 1);
+  /* the crust: grey-violet, cracked, the Hum's teal down in the cracks */
+  for (let y = 168; y < H_; y++) px(y < 171 ? "#6e6680" : y < 182 ? "#4a4458" : "#3a3546", 0, y, W_, 1);
+  for (let i = 0; i < 50; i++) px(r() < .5 ? "#2c2836" : "#5b5468", r() * W_ | 0, 171 + (r() * (H_ - 171) | 0), 1 + (r() * 3 | 0), 1);
+  for (const [x0, len] of [[10, 30], [120, 44], [180, 28], [230, 40]]) { let x = x0, y = 174; for (let i = 0; i < len && y < H_; i++) { px("#10504e", x, y, 2, 1); px("#2fb3a0", x, y); x += (r() * 3 | 0) - 1 + (i % 2); y += r() < .45 ? 1 : 0; } }
+  /* the landing pad, and the Catamaran standing on its legs */
+  g.fillStyle = "rgba(10, 8, 16, 0.6)"; g.beginPath(); g.ellipse(48, 184, 34, 6, 0, 0, Math.PI * 2); g.fill();
+  px("#42484a", 18, 180, 60, 3); px("#737b7c", 18, 180, 60, 1);
+  for (let x = 20; x < 76; x += 8) { px("#e0b21c", x, 181, 4, 1); }
+  for (const x of [26, 68]) { px("#575e60", x, 166, 2, 14); px("#9ba3a3", x, 166, 1, 14); px("#575e60", x - 3, 179, 8, 1); }
+  g.imageSmoothingEnabled = false; g.drawImage(shipBare, 0, 0, 32, 32, 16, 112, 64, 64);
+  return c;
 }
 
 /* The wasteland's title backdrop, 320x200 unless asked for bigger (the
