@@ -135,6 +135,47 @@ const SECRET_EXITS = { H14: "H15" };
  * are the E1 objective items, types 01-04. */
 const SHIP = { H01: 20 };
 
+/* Set D's world map (E1) carries its own wiring in the sprite plane, in the
+ * Keen engine's codes. 0x0Fab is a teleporter: a is its own number, b the
+ * number of the one it sends you to. 0x2000 is a ferry's route over the
+ * water, 0x2100 a stop on it, 0x2200 a landing where it can be boarded.
+ * Read out as teleporters (Q, with links) and a `ferry`: { path, landings }.
+ * Where a map has a ferry, its water is all the open sea: the clear margin
+ * round the drawn circle of it is filled in too. */
+function e1Wiring(d, rows) {
+  if (d.engine !== "E1" || d.kind !== "world") return null;
+  const raw = JSON.parse(fs.readFileSync(path.join(MAPS, d.set, d.map + ".raw.json"), "utf8")), spr = raw.planes.sprites;
+  const teles = {}, path_ = [], landings = [];
+  spr.forEach((row, y) => row.forEach((v, x) => {
+    if ((v & 0xff00) === 0x0f00) teles[(v >> 4) & 15] = { x, y, to: v & 15 };
+    else if (v === 0x2000 || v === 0x2100) path_.push([x, y]);
+    else if (v === 0x2200) landings.push([x, y]);
+  }));
+  const put = (x, y, g) => { rows[y] = rows[y].slice(0, x) + g + rows[y].slice(x + 1); };
+  const links = [];
+  for (const t of Object.values(teles)) {
+    const to = teles[t.to];
+    if (!to) throw new Error(`${d.map}: teleporter at ${t.x},${t.y} goes to ${t.to}, which isn't there`);
+    put(t.x, t.y, "Q"); links.push([t.x, t.y, to.x, to.y, "door"]);
+  }
+  let ferry = null;
+  if (path_.length && landings.length) {
+    ferry = { path: path_, landings };
+    /* the margin: clear ground joined to the map's edge is sea as well */
+    const seen = new Set(), q = [];
+    const at = (x, y) => x >= 0 && y >= 0 && x < d.width && y < d.height;
+    for (let x = 0; x < d.width; x++) q.push([x, 0], [x, d.height - 1]);
+    for (let y = 0; y < d.height; y++) q.push([0, y], [d.width - 1, y]);
+    while (q.length) {
+      const [x, y] = q.pop(), k = x + "," + y;
+      if (!at(x, y) || seen.has(k) || rows[y][x] !== ".") continue;
+      seen.add(k); put(x, y, "#");
+      q.push([x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]);
+    }
+  }
+  return { links, ferry };
+}
+
 function convert(d) {
   const at = new Map();
   for (const e of d.entities) at.set(e.x + "," + e.y, e);
@@ -210,11 +251,13 @@ function convert(d) {
     ship = [Math.min(...tiles.map(t => t[0])), Math.min(...tiles.map(t => t[1]))];
   }
   const { sockets, bridges, pswitches } = switchesOf(d, rows);
+  const wiring = e1Wiring(d, rows), ferry = wiring && wiring.ferry;
+  if (wiring) links.push(...wiring.links);
   /* a level whose player starts swimming is under water throughout */
   const swim = d.entities.some(e => e.kind === "player" && /swimming/.test(e.name));
   const secret = SECRET_EXITS[d.map];
   if (secret && !rows.some(r => r.includes("Q"))) throw new Error(`${d.map}: a secret exit to ${secret} but no teleporter`);
-  return { id: d.map, kind: d.kind, engine: d.engine, w: d.width, h: d.height, completion: d.completion, notes: d.notes, rows, things, marks, links, ends, sockets, bridges, pswitches, ...(swim ? { swim } : {}), ...(secret ? { secret } : {}), ...(ship ? { ship } : {}) };
+  return { id: d.map, kind: d.kind, engine: d.engine, w: d.width, h: d.height, completion: d.completion, notes: d.notes, rows, things, marks, links, ends, sockets, bridges, pswitches, ...(swim ? { swim } : {}), ...(secret ? { secret } : {}), ...(ship ? { ship } : {}), ...(ferry ? { ferry } : {}) };
 }
 
 /* the ones game.js handles; keep in step with it */

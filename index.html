@@ -74,6 +74,10 @@ kbd{font:inherit;color:var(--ui-head)}
 #logo[data-look="thrum"] .cmd{color:#6fe0c8;text-shadow:1px 1px 0 #10504e}
 #logo[data-look="thrum"] .poom{color:#e6fff8;text-shadow:1px 1px 0 #6fe0c8,2px 2px 0 #2fb3a0,3px 3px 0 #613d86,4px 4px 0 #382252,5px 5px 0 #000}
 #logo[data-look="thrum"] .ep{color:#c8b0e8}
+/* Isla Garra's (Book 3): the radio's green over slate, a red alert edge */
+#logo[data-look="claw"] .cmd{color:#5aff8a;text-shadow:1px 1px 0 #0a3a18}
+#logo[data-look="claw"] .poom{color:#e8f0f4;text-shadow:1px 1px 0 #7a8898,2px 2px 0 #4a5664,3px 3px 0 #b01828,4px 4px 0 #4a0810,5px 5px 0 #000}
+#logo[data-look="claw"] .ep{color:#a8c8b0}
 
 /* ---- the UI's colours, by theme (game.js dressFor sets #ui's data-look);
    classic is the original EGA blue box ---- */
@@ -92,6 +96,14 @@ kbd{font:inherit;color:var(--ui-head)}
 #ui[data-look="thrum"] *{scrollbar-color:#2f6e6a transparent}
 #ui[data-look="thrum"] ::-webkit-scrollbar-thumb{background:#2f6e6a;background-clip:padding-box}
 #ui[data-look="thrum"] ::-webkit-scrollbar-thumb:hover{background:#2fb3a0;background-clip:padding-box}
+/* Isla Garra's: the radio, green phosphor on black glass in slate, the
+   alert's red for the selection */
+#ui[data-look="claw"]{--ui-bg:#0c1014;--ui-text:#d8e8dc;--ui-accent:#5aff8a;--ui-head:#5aff8a;--ui-sel:#7a1020;
+  --ui-tab:#2c343e;--ui-body:#c0d4c4;--ui-dim:#7a8a80;--ui-me:#ff7080;
+  --ui-chip:#0c1014;--ui-chip-edge:#4a5664}
+#ui[data-look="claw"] *{scrollbar-color:#4a5664 transparent}
+#ui[data-look="claw"] ::-webkit-scrollbar-thumb{background:#4a5664;background-clip:padding-box}
+#ui[data-look="claw"] ::-webkit-scrollbar-thumb:hover{background:#5aff8a;background-clip:padding-box}
 /* the canon scrollbar (gk-title.js) is steel blue; a themed UI repaints it */
 #ui[data-look="wasteland"] *{scrollbar-color:#8a5a32 transparent}
 #ui[data-look="wasteland"] ::-webkit-scrollbar-thumb{background:#8a5a32;background-clip:padding-box}
@@ -215,16 +227,17 @@ kbd{font:inherit;color:var(--ui-head)}
   <button data-a="pause" aria-label="Pause">II</button><button data-a="status" aria-label="Status">?</button>
 </div>
 <script src="js/gk-title.js?v=6080c669"></script>
-<script src="js/art.js?v=3f82fd08"></script>
+<script src="js/art.js?v=00c248c6"></script>
+<script src="js/art-book3.js?v=e03d11b1"></script>
 <script src="js/books/A.js?v=161a0844"></script>
 <script src="js/books/B.js?v=7a5b59b7"></script>
 <script src="js/books/C.js?v=6656f683"></script>
-<script src="js/books/D.js?v=bc4f1308"></script>
+<script src="js/books/D.js?v=87521d1e"></script>
 <script src="js/books/E.js?v=7b71a1d1"></script>
 <script src="js/books/F.js?v=7b5eb3ea"></script>
 <script src="js/books/G.js?v=271fc791"></script>
 <script src="js/books/H.js?v=4ae984c1"></script>
 <script src="js/books/I.js?v=13d9ef6c"></script>
-<script src="js/game.js?v=a8467c6d"></script>
+<script src="js/game.js?v=4c34b663"></script>
 </body>
 </html>

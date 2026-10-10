@@ -143,7 +143,40 @@ const THRUM_SFX = {
   /* the Hum: a low throb, slowly wavering */
   hum: { wave: "sine", steps: [[55, 52, 500], [52, 55, 500]], vib: [3, 40], g: 0.07, noise: { ms: 700, f: 120, q: 3, g: 0.025 } },
 };
-const SOUND_SETS = { classic: SFX, wasteland: WASTE_SFX, thrum: THRUM_SFX };
+/* Isla Garra's sounds (Book 3): a suppressed raygun's thup, clipped square
+ * beeps for the base's gear, heavy blast doors, a radio squelch, and the
+ * alert, the sting a guard gives when it sees Poom. For ambience, the surf:
+ * a wash of waves now and then. */
+const CLAW_SFX = {
+  jump: { wave: "triangle", steps: [[300, 520, 70]], g: 0.06 },
+  pogo: { wave: "triangle", steps: [[220, 480, 60], [480, 700, 60]], g: 0.06 },
+  bigpogo: { wave: "triangle", steps: [[200, 480, 60], [480, 960, 100]], g: 0.06 },
+  shoot: { wave: "sine", steps: [[520, 140, 70]], g: 0.07, noise: { ms: 60, f: 1800, q: 0.9, g: 0.12 } },
+  click: { noise: { ms: 14, f: 3000, q: 6, g: 0.1 } },
+  bump: { wave: "square", steps: [[140, 90, 40]], g: 0.035 },
+  item: { wave: "square", steps: [[1568, 1568, 30], [2093, 2093, 50]], g: 0.03 },
+  bigitem: { wave: "square", steps: [[784, 784, 70], [988, 988, 70], [1175, 1175, 70], [1568, 1568, 160]], g: 0.03 },
+  gem: { wave: "square", steps: [[1320, 1320, 50], [1760, 1760, 50], [1320, 1320, 80]], g: 0.03 },
+  door: { wave: "sawtooth", steps: [[90, 60, 260]], g: 0.035, noise: { ms: 320, f: 900, q: 0.5, g: 0.1 } },
+  push: { wave: "square", steps: [[200, 140, 60]], g: 0.03 },
+  stun: { wave: "square", steps: [[900, 300, 140]], g: 0.03 },
+  hit: { wave: "square", steps: [[420, 200, 60]], g: 0.035, noise: { ms: 50, f: 1400, q: 1, g: 0.06 } },
+  kill: { wave: "sawtooth", steps: [[500, 70, 200]], g: 0.04, noise: { ms: 200, f: 700, q: 0.8, g: 0.1 } },
+  ricochet: { wave: "triangle", steps: [[2800, 2000, 60]], noise: { ms: 40, f: 4000, q: 2, g: 0.05 } },
+  tank: { wave: "square", steps: [[180, 120, 50], [180, 120, 50]], g: 0.035, noise: { ms: 110, f: 1200, q: 1, g: 0.09 } },
+  die: { wave: "square", steps: [[660, 440, 160], [440, 330, 160], [330, 220, 200], [220, 110, 420]], g: 0.035 },
+  done: { wave: "square", steps: [[523, 523, 90], [659, 659, 90], [784, 784, 90], [1047, 1047, 260]], g: 0.03 },
+  life: { wave: "square", steps: [[784, 784, 70], [1047, 1047, 70], [1568, 1568, 200]], g: 0.03 },
+  enter: { wave: "sawtooth", steps: [[160, 420, 160]], g: 0.03, noise: { ms: 180, f: 600, q: 0.8, g: 0.08 } },
+  nope: { wave: "square", steps: [[200, 200, 60], [150, 150, 100]], g: 0.035 },
+  menu: { wave: "square", steps: [[1400, 1400, 14]], g: 0.025 },
+  pick: { wave: "square", steps: [[1760, 1760, 25], [2349, 2349, 35]], g: 0.025 },
+  /* the alert: a sharp rising sting, two notes, the second held */
+  alert: { wave: "square", steps: [[1047, 1047, 70], [2093, 2093, 260]], vib: [7, 20], g: 0.045, noise: { ms: 60, f: 5000, q: 1, g: 0.06 } },
+  /* the surf, washing in */
+  surf: { noise: { ms: 1400, f: 500, q: 0.4, g: 0.035 } },
+};
+const SOUND_SETS = { classic: SFX, wasteland: WASTE_SFX, thrum: THRUM_SFX, claw: CLAW_SFX };
 
 const audio = {
   ctx: null, muted: store.get(KEYS.muted, "0") === "1", set: SFX, noiseBuf: null,
@@ -222,12 +255,14 @@ function useSound(name) { audio.set = SOUND_SETS[name] || SFX; }
  * one, while Poom is out in the Glow (the map or a level) */
 let geigerNext = 0;
 function geigerTick() {
-  if ((!audio.set.geiger && !audio.set.hum) || (G.mode !== "map" && G.mode !== "level") || UI.top()) return;
+  if ((!audio.set.geiger && !audio.set.hum && !audio.set.surf) || (G.mode !== "map" && G.mode !== "level") || UI.top()) return;
   if (G.t < geigerNext) return;
   /* the wasteland's geiger counter clicks in bursts; Thrum's Hum throbs,
      slow and low, every few seconds */
   if (audio.set.geiger) { sfx("geiger"); geigerNext = G.t + (Math.random() < 0.3 ? 3 + Math.random() * 6 : 40 + Math.random() * 160); }
-  else { sfx("hum"); geigerNext = G.t + 180 + Math.random() * 240; }
+  else if (audio.set.hum) { sfx("hum"); geigerNext = G.t + 180 + Math.random() * 240; }
+  /* Isla Garra's surf, out on the map and the shore */
+  else if (G.mode === "map" || (G.lv && G.lv.theme === "shore")) { sfx("surf"); geigerNext = G.t + 240 + Math.random() * 300; }
 }
 const sfx = n => audio.play(n);
 
@@ -328,8 +363,11 @@ const BOOK_THEMES = {
   /* Book 2, set C: Thrum, the hollow moon (docs/story/book-2-story.md).
      Pieces not yet its own borrow Book 1's for now */
   thrum: { name: "thrum", look: "hunter", items: "thrum", creatures: "hum", map: "thrum", title: "thrum", subtitle: "Book Two: Heavens to Mergatroid", hud: "visor", sound: "thrum" },
+  /* Book 3, set D: Isla Garra, Dr Claw's island (docs/story/book-3-story.md);
+     its art is in js/art-book3.js */
+  claw: { name: "claw", look: "sneak", items: "claw", creatures: "claw", map: "claw", title: "claw", subtitle: "Book Three: The Island of Dr Claw", hud: "codec", sound: "claw" },
 };
-const THEME_OF_BOOK = { H: "wasteland", C: "thrum" };
+const THEME_OF_BOOK = { H: "wasteland", C: "thrum", D: "claw" };
 /* a book with no theme of its own wears Book 1's */
 const themeOf = book => BOOK_THEMES[THEME_OF_BOOK[book] || THEME_OF_BOOK[BOOK_IDS[0]]] || BOOK_THEMES.classic;
 /* the book a theme's words come from: the first that has that theme and words */
@@ -362,7 +400,11 @@ const LEVEL_THEME = { H09: "vaultCold", H11: "vaultCold", H17: "vaultCold", H10:
   /* Book 2 (set C), docs/story/book-2-story.md: the Crags first */
   C02: "crags", C03: "crags", C04: "crags", C05: "crags", C06: "crags", C07: "crags",
   C08: "delve", C10: "delve", C11: "delve", C12: "delve", C14: "delve", C15: "delve",
-  C09: "hive", C13: "hive", C16: "hive", C17: "hive" };
+  C09: "hive", C13: "hive", C16: "hive", C17: "hive",
+  /* Book 3 (set D), docs/story/book-3-story.md: the Shore, the Base and the Crater */
+  D02: "shore", D03: "shore", D04: "shore", D05: "shore", D06: "shore", D07: "shore",
+  D08: "base", D10: "base", D11: "base", D12: "base", D13: "base", D14: "base", D15: "base",
+  D09: "crater", D16: "crater", D17: "crater" };
 const MAPS = {};
 for (const b of BOOK_IDS) BOOKS[b].chapters.forEach(ch => ch.levels.forEach(lv => { MAPS[lv.id] = lv; lv.book = b; }));
 /* a level's name: its place in a book that names its places, or its number */
@@ -374,12 +416,14 @@ const levelName = id => {
 /* Each Book's name (the player sees "Book Two: Heavens to Mergatroid"),
  * and which can be played yet; the rest show greyed out on New game. */
 const BOOK_NAMES = { H: "Wastelandia", C: "Heavens to Mergatroid", D: "The Island of Dr Claw", E: "Descent into Rapture", A: "Termination Day" };
-const BOOK_PLAYABLE = new Set(["H", "C"]);
+const BOOK_PLAYABLE = new Set(["H", "C", "D"]);
 
 /* What finishes a book, beyond its levels: Book 2 (set C) ends when its
- * heartstones are all broken (docs/story/book-2-story.md); a book with a
- * ship ends at the ship; any other when its levels are done. */
-const BOOK_GOAL = { C: "hearts" };
+ * heartstones are all broken (docs/story/book-2-story.md); Book 3 (set D)
+ * when its last level, Dr Claw's own, is done, whatever is left
+ * (docs/story/book-3-story.md); a book with a ship ends at the ship; any
+ * other when its levels are done. */
+const BOOK_GOAL = { C: "hearts", D: { last: "D17" } };
 const heartsIn = b => Object.values(MAPS).filter(lv => lv.book === b).reduce((n, lv) => n + lv.rows.join("").split("!").length - 1, 0);
 const heartsBroken = (r, b) => Object.keys(r.hearts || {}).filter(id => MAPS[id] && MAPS[id].book === b).length;
 
@@ -430,6 +474,18 @@ for (const b of BOOK_IDS) {
       if (!best || d < best.d) best = { x, y, d };
     }
     if (best) W_.parked = [best.x, best.y];
+  }
+  /* a ferry (set D's map): a route over the water and its landings, in
+     groups of touching tiles; standing on a landing, jump or fire rides it
+     to the other one (rideFerry) */
+  if (w.ferry) {
+    const groups = [];
+    for (const [x, y] of w.ferry.landings) {
+      const g = groups.find(g => g.some(([a, c]) => Math.abs(a - x) + Math.abs(c - y) === 1));
+      if (g) g.push([x, y]); else groups.push([[x, y]]);
+    }
+    W_.ferry = { path: new Set(w.ferry.path.map(([x, y]) => x + "," + y)), docks: groups, at: {} };
+    groups.forEach((g, i) => g.forEach(([x, y]) => { W_.ferry.at[x + "," + y] = i; }));
   }
   WORLDS[b] = W_;
 }
@@ -503,9 +559,10 @@ function loadLevel(n) {
   const kinds = ENEMY_OF[def.book] || {}, carriers = [];
   for (const [x, y, g, name] of def.things || []) {
     if (g === "e") {
-      const t = kinds[(/enemy type (\d+)/.exec(name) || [])[1]];
-      if (!t) continue;
-      const e = makeEnemy(t, x * T, y * T + T), axis = /sliding, axis (\d)/.exec(name);
+      const spec = kinds[(/enemy type (\d+)/.exec(name) || [])[1]];
+      if (!spec) continue;
+      const t = typeof spec === "string" ? spec : spec.kind;
+      const e = makeEnemy(t, x * T, y * T + T, typeof spec === "string" ? null : (({ kind, ...rest }) => rest)(spec)), axis = /sliding, axis (\d)/.exec(name);
       if (axis) { e.slide = +axis[1]; if (e.slide === 1) { e.vx = 0; e.vy = e.speed; } }
       if (/bouncing/.test(name)) e.bounce = true;
       if (/carries key/.test(name)) carriers.push(e);
@@ -1260,6 +1317,19 @@ function collect(lv, it) {
   else if (it.kind === "objective") {
     addScore(1000); popup(it, "1000"); sfx("bigitem");
     if (it.ends && --lv.endsLeft === 0) finishBy(lv, "objective");
+    /* objectives that don't end the level, beside one that does (set D's
+       last level, D17): they power it. Each one broken says how many are
+       left; with the last, the one they powered blows by itself */
+    const core = !it.ends && lv.items.find(i => i.kind === "objective" && i.ends && !i.gone);
+    if (core) {
+      const left = lv.items.filter(i => i.kind === "objective" && !i.ends && !i.gone).length;
+      if (left) toast(say("cell", n => `${n} to go.`, left));
+      else {
+        for (let i = 0; i < 12; i++) lv.fx.push({ kind: "poof", x: core.x + 3 + (Math.random() - .5) * 40, y: core.y + 3 + (Math.random() - .5) * 40, t: -i * 4 });
+        sfx("kill");
+        message(say("core", "<b>The last one goes!</b><br><br>The machine overloads."), { onClose: () => collect(lv, core) });
+      }
+    }
   }
   else if (it.kind === "part") {
     r.parts[it.part] = true; sfx("bigitem"); addScore(1000);
@@ -1306,7 +1376,18 @@ const ENEMY_OF = { H: { "01": "x", "02": "B", "03": "L", "04": "V", "05": "T" },
      roombots, Spitters (03) shoot like clawtanks. Type 01 crowds the early
      levels (four in C02, the first) and 02 the deep ones (17 in the Nursery),
      so the gentle one is 01 and the deadly one 02 */
-  C: { "01": "x", "02": "V", "05": "B", "04": "T", "03": "K" } };
+  C: { "01": "x", "02": "V", "05": "B", "04": "T", "03": "K" },
+  /* Book 3 (docs/story/book-3-story.md): each type its own art. Claw guards
+     (04) charge like barkers, at a stoat's height, and shout "!" first;
+     Heavies (02) walk like vacuumoids; Boxers (01) push like mousels;
+     Clawbots (06, and 09 by the Copycat) shove; Gunners (05) and Dr Claw
+     (10) shoot along the floor; guard dogs (03) charge; Ocelots (08) are
+     the lieutenants; ninjas (07) charge harder and take three shots; Mr
+     Squeaks (11) is a pusher */
+  D: { "04": { kind: "B", art: "guard", w: 12, h: 20, alert: true }, "02": { kind: "V", art: "heavy" }, "01": { kind: "x", art: "boxer" },
+    "06": { kind: "T", art: "clawbot" }, "09": { kind: "T", art: "clawbot" }, "05": { kind: "K", art: "gunner" }, "03": { kind: "B", art: "dog" },
+    "08": { kind: "L", art: "ocelot", points: 1000 }, "07": { kind: "B", art: "ninja", w: 12, h: 20, hp: 3, rush: 1.4, alert: true, points: 500 },
+    "10": { kind: "K", art: "drclaw", w: 14, h: 20 }, "11": { kind: "x", art: "whitemouse" } } };
 /* A Book without a hand-made list gets one from its own maps (type numbers
  * mean something different in every set, maps2/README.md): a rare type
  * that only ever stands near the level's objectives guards them (L); the
@@ -1337,8 +1418,10 @@ for (const b of BOOK_IDS) {
 /* a turret's barrel; "horizontal" and "vertical" ones fire both ways, in turn */
 const TURRET_DIR = { "up-left": [-1, -1], "up-right": [1, -1], up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0], horizontal: [1, 0], vertical: [0, -1] };
 
-function makeEnemy(c, x, bottom) {
-  const d = ENEMY[c];
+/* a creature of engine kind c; a Book's own type may change its art, size,
+ * hit points, speed, charge (rush) or give it an alert (ENEMY_OF) */
+function makeEnemy(c, x, bottom, over = null) {
+  const d = over ? { ...ENEMY[c], ...over } : ENEMY[c];
   return { type: c, ...d, x: x + (T - d.w) / 2, y: bottom - d.h, vx: d.speed * (Math.random() < 0.5 ? -1 : 1), vy: 0, face: 1,
     onGround: false, state: "walk", t: (Math.random() * 120) | 0, flash: 0, alive: true };
 }
@@ -1362,10 +1445,10 @@ function updateEnemy(lv, e) {
     case "B": {
       if (e.state === "walk") {
         if (e.onGround && !floorAhead(lv, e)) e.vx = -e.vx;
-        if (sees && Math.sign(dxp) === Math.sign(e.vx) && Math.abs(dxp) < 130) { e.state = "growl"; e.t = 0; }
+        if (sees && Math.sign(dxp) === Math.sign(e.vx) && Math.abs(dxp) < 130) { e.state = "growl"; e.t = 0; if (e.alert) sfx("alert"); }
       } else if (e.state === "growl") {
         e.vx = 0; e.face = dxp > 0 ? 1 : -1;
-        if (e.t > 22) { e.state = "charge"; e.t = 0; e.vx = 68 / 32 * e.face; sfx("push"); }
+        if (e.t > 22) { e.state = "charge"; e.t = 0; e.vx = 68 / 32 * e.face * (e.rush || 1); sfx("push"); }
       } else if (e.state === "charge") {
         if (e.onGround && !floorAhead(lv, e) || e.t > 140) { e.state = "walk"; e.t = 0; e.vx = -e.speed * Math.sign(e.vx || 1); }
       }
@@ -1459,7 +1542,9 @@ function hurtEnemy(lv, e, shot) {
     const big = e.type === "W";
     for (let i = 0; i < (big ? 6 : 1); i++) lv.fx.push({ kind: "poof", x: e.x + e.w / 2 - 5 + (big ? (Math.random() - .5) * 30 : 0), y: e.y + e.h / 2 - 3 + (big ? (Math.random() - .5) * 40 : 0), t: -i * 5 });
     if (e.points) { addScore(e.points); popup({ x: e.x + e.w / 2 - 8, y: e.y }, String(e.points)); }
-    if (big || e.type === "L") message(say("bossDown", "<b>The Grand Vacuumoid has been unplugged!</b><br><br>Grab the Laser Pointer and get out of here."));
+    /* a Book whose bossDown is null has no word for it: its L kind is a rank, not a boss */
+    const down = (big || e.type === "L") && say("bossDown", "<b>The Grand Vacuumoid has been unplugged!</b><br><br>Grab the Laser Pointer and get out of here.");
+    if (down) message(down);
   } else sfx("hit");
 }
 
@@ -1550,7 +1635,7 @@ function finishLevel() {
   /* the whole book done: on to the next, or the end. A book with a ship
      ends at the ship instead */
   const goal = BOOK_GOAL[r.book];
-  if (goal === "hearts" ? heartsBroken(r, r.book) >= heartsIn(r.book) : !world().ship && world().need.every(id => r.done[id])) { bookDone(); return; }
+  if (goal === "hearts" ? heartsBroken(r, r.book) >= heartsIn(r.book) : goal && goal.last ? r.done[goal.last] : !world().ship && world().need.every(id => r.done[id])) { bookDone(); return; }
   enterMap();
   saveRun();
   if (Object.values(world().barrier).includes(n)) setTimeout(() => toast(say("wayOpens", "Somewhere on the map, the way opens.")), 300);
@@ -1729,6 +1814,7 @@ function mapHere(p) {
 
 function updateMap() {
   const m = G.map, p = m.p;
+  if (m.ride) { rideFerry(m); mapCamera(false); m.t++; return; }
   const dx = (isDown("right") ? 1 : 0) - (isDown("left") ? 1 : 0), dy = (isDown("down") ? 1 : 0) - (isDown("up") ? 1 : 0);
   const sp = 1.4;
   const blocked = (x, y) => {
@@ -1755,7 +1841,42 @@ function updateMap() {
   if (!here && onParked(p) && (wasPressed("jump") || wasPressed("fire"))) { sfx("nope"); message(say("parked", "<b>The Catamaran</b><br><br>It won't fly.")); }
   const tele = world().tele[ctx_ + "," + cty];
   if (tele && !here && (wasPressed("jump") || wasPressed("fire"))) teleport(tele);
+  const dock = !here && world().ferry && world().ferry.at[ctx_ + "," + cty];
+  if (dock !== undefined && dock !== false && (wasPressed("jump") || wasPressed("fire"))) boardFerry(dock);
   mapCamera(false);
+}
+
+/* The ferry: from the dock Poom stands at to the other, along its route
+ * over the water, the shortest way (a route tile touches the next, corners
+ * too). Poom rides it; nothing else moves him till it lands. */
+function boardFerry(from) {
+  const f = world().ferry, to = f.docks.findIndex((g, i) => i !== from);
+  if (to < 0) return;
+  const near = dock => {
+    let best = null;
+    for (const k of f.path) { const [x, y] = k.split(",").map(Number); for (const [a, c] of f.docks[dock]) { const d = Math.abs(a - x) + Math.abs(c - y); if (!best || d < best.d) best = { k, d }; } }
+    return best && best.k;
+  };
+  const start = near(from), goal = near(to), back = { [start]: null }, q = [start];
+  while (q.length && !(goal in back)) {
+    const k = q.shift(), [x, y] = k.split(",").map(Number);
+    for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const n = (x + dx) + "," + (y + dy); if (f.path.has(n) && !(n in back)) { back[n] = k; q.push(n); } }
+  }
+  if (!(goal in back)) { sfx("nope"); return; }
+  const route = [];
+  for (let k = goal; k; k = back[k]) route.unshift(k.split(",").map(Number));
+  const p = G.map.p, here = [Math.floor((p.x + p.w / 2) / T), Math.floor((p.y + p.h / 2) / T)];
+  const land = f.docks[to].reduce((a, c) => Math.hypot(c[0] - route[route.length - 1][0], c[1] - route[route.length - 1][1]) < Math.hypot(a[0] - route[route.length - 1][0], a[1] - route[route.length - 1][1]) ? c : a);
+  G.map.ride = { route: [here, ...route, land], i: 0, to };
+  sfx("enter");
+  toast(say("ferry", "All aboard."));
+}
+function rideFerry(m) {
+  const r = m.ride, p = m.p, [tx, ty] = r.route[r.i + 1];
+  const gx = tx * T + (T - p.w) / 2, gy = ty * T + (T - p.h) / 2, dx = gx - p.x, dy = gy - p.y, d = Math.hypot(dx, dy), sp = 4;
+  if (d <= sp) { p.x = gx; p.y = gy; r.i++; } else { p.x += dx / d * sp; p.y += dy / d * sp; }
+  if (Math.abs(dx) > Math.abs(dy)) p.dir = dx < 0 ? "left" : "right"; else p.dir = dy < 0 ? "up" : "down";
+  if (r.i >= r.route.length - 1) { G.run.ferry = r.to; m.ride = null; G.run.mx = p.x; G.run.my = p.y; sfx("bump"); }
 }
 
 /* the open map tile nearest a tile, within three: open for Poom's box */
@@ -1800,6 +1921,8 @@ function openPlaces() {
     const [x, y] = q.pop();
     const next = [[x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]];
     const tele = w.tele[x + "," + y]; if (tele) next.push(tele);
+    const dock = w.ferry && w.ferry.at[x + "," + y];
+    if (dock !== undefined) w.ferry.docks.forEach((g, i) => { if (i !== dock) next.push(...g); });
     for (const [nx, ny] of next) { const k = nx + "," + ny; if (seen.has(k)) continue; if (walk(nx, ny)) { seen.add(k); q.push([nx, ny]); } }
   }
   openCache = { key, seen, ids: [...ids] };
@@ -1866,7 +1989,7 @@ function drawLevel() {
     if (it.gone) continue;
     it.t++;
     const big = it.kind === "part" || it.kind === "objective" || it.kind === "swim";
-    const s = it.kind === "heart" ? ART.heartstone[(it.t >> 4) % 2] : it.kind === "gem" ? ART.gems[it.gem] : big ? ART.parts[it.part] : ART.items[it.kind];
+    const s = it.kind === "heart" ? ART.heartstone[(it.t >> 4) % 2] : it.kind === "gem" ? ART.gems[it.gem] : it.kind === "objective" && ART.objectives ? ART.objectives[it.ends ? 1 : 0][(it.t >> 3) % 2] : big ? ART.parts[it.part] : ART.items[it.kind];
     const bob = big || it.kind === "gem" ? Math.round(Math.sin(it.t / 10) * 1.5) : 0;
     ctx.drawImage(s, it.x + ((T - s.width) >> 1) - cx, it.y + T - s.height - cy + bob);
     if (big && (it.t >> 3) % 4 === 0) ctx.drawImage(ART.star, it.x + 2 - cx, it.y - 2 - cy);
@@ -1924,7 +2047,7 @@ function drawPlayer(p, cx, cy) {
 function drawEnemy(e, cx, cy) {
   /* mousels and vacuumoids are drawn facing left, the rest facing right */
   const drawnLeft = e.type === "x" || e.type === "V" || e.type === "W" || e.type === "L";
-  const set = ART[ENEMY[e.type].art], dir = (e.face > 0) !== drawnLeft ? "r" : "l", f = (e.t >> 3) % 2;
+  const set = ART[e.art || ENEMY[e.type].art], dir = (e.face > 0) !== drawnLeft ? "r" : "l", f = (e.t >> 3) % 2;
   let k;
   switch (e.type) {
     case "x": k = e.state === "stunned" ? "stunned" : e.state === "look" ? "look" : f ? "walk1" : "walk0"; break;
@@ -1944,6 +2067,8 @@ function drawEnemy(e, cx, cy) {
   } else ctx.drawImage(spr, x, y, spr.width * sc, spr.height * sc);
   ctx.globalAlpha = 1;
   if (e.type === "x" && e.state === "stunned" && (e.t >> 3) % 2) ctx.drawImage(ART.star, x + 6, y - 2);
+  /* a guard that has seen Poom: a red ! over its head */
+  if (e.alert && (e.state === "growl" || (e.state === "charge" && e.t < 30)) && ART.alert) ctx.drawImage(ART.alert, Math.round(e.x + e.w / 2) - 3 - cx, y - 12);
 }
 
 function drawDigits(n, x, y, len, set = "red") {
@@ -1959,6 +2084,7 @@ function drawDigits(n, x, y, len, set = "red") {
 function drawHud(lv) {
   if (theme.hud === "wrist") return drawWristHud(lv);
   if (theme.hud === "visor") return drawVisorHud(lv);
+  if (theme.hud === "codec") return drawCodecHud(lv);
   const r = G.run;
   ctx.fillStyle = "#000"; ctx.fillRect(3, 3, 59, 22);
   ctx.fillStyle = EGA[8]; ctx.fillRect(3, 3, 59, 1); ctx.fillRect(3, 24, 59, 1); ctx.fillRect(3, 3, 1, 22); ctx.fillRect(61, 3, 1, 22);
@@ -2041,6 +2167,25 @@ function drawVisorHud(lv) {
   if (lv) lv.keys.forEach((k, i) => { if (k) ctx.drawImage(ART.gems[i], 73 + i * 10, 4, 8, 7); });
 }
 
+/* Book 3's scorebox: the radio's screen, green on black glass in a slate
+ * frame, a signal bar that flickers, the frequency for a label */
+function drawCodecHud(lv) {
+  const r = G.run, f = (c, x, y, w, h) => { ctx.fillStyle = c; ctx.fillRect(x, y, w, h); };
+  f("#000", 2, 2, 72, 28); f("#2c343e", 3, 3, 70, 26); f("#4a5664", 3, 3, 70, 1); f("#16181e", 3, 28, 70, 1);
+  f("#04170b", 6, 5, 64, 22);
+  ctx.fillStyle = "rgba(90, 255, 138, 0.06)"; ctx.fillRect(6, 5, 64, 11);
+  drawDigits(r.score, 9, 7, 9, "green");
+  f("#1c5a2a", 8, 15, 60, 1);
+  ctx.drawImage(inPhosphor(ART.items.life), 8, 17, 9, 10);
+  drawDigits(r.cheat ? 99 : Math.min(r.lives, 99), 18, 19, 2, "green");
+  ctx.drawImage(inPhosphor(ART.items.ammo), 34, 18, 6, 9);
+  drawDigits(r.cheat ? 99 : Math.min(r.ammo, 99), 42, 19, 2, "green");
+  /* the signal bar */
+  for (let i = 0; i < 4; i++) f(i < 3 + ((G.t >> 4) % 2) ? "#5aff8a" : "#1c5a2a", 58 + i * 3, 25 - i * 2, 2, 2 + i * 2);
+  ctx.fillStyle = "rgba(0, 0, 0, 0.25)"; for (let y = 5; y < 27; y += 2) ctx.fillRect(6, y, 64, 1);
+  if (lv) lv.keys.forEach((k, i) => { if (k) ctx.drawImage(ART.gems[i], 77 + i * 10, 4, 8, 7); });
+}
+
 /* a tiny pixel font for floating score text: digits from the LED set,
  * and the few letters we need drawn plainly */
 function drawSmallText(text, x, y, col, center) {
@@ -2078,7 +2223,7 @@ function drawMap() {
   }
   /* a set with its own markers draws one per entrance, by the level's type */
   if (mapArt.markerFor) for (const [id, b] of Object.entries(world().box)) {
-    const kind = { vault: "vault", vaultCold: "vault", raiders: "camp", ruins: "ruin", crags: "cave", delve: "station", hive: "pod" }[LEVEL_THEME[id]] || Object.keys(mapArt.markerFor)[0];
+    const kind = { vault: "vault", vaultCold: "vault", raiders: "camp", ruins: "ruin", crags: "cave", delve: "station", hive: "pod", shore: "tower", base: "bunker", crater: "vent" }[LEVEL_THEME[id]] || Object.keys(mapArt.markerFor)[0];
     const mx = (b.x0 + b.x1 + 1) * T / 2 - 16 - cx, my = (b.y1 + 1) * T - 32 - cy;
     if (mx > -32 && mx < W && my > -32 && my < H) ctx.drawImage(mapArt.markerFor[kind], mx, my);
   }
@@ -2093,6 +2238,19 @@ function drawMap() {
   }
   /* a parked Catamaran (scenery), drawn like the ship */
   if (world().parked) { const [sx, sy] = world().parked; ctx.drawImage(mapArt.ship, sx * T - cx, (sy - 1) * T - cy); }
+  /* the ferry: under Poom while he rides, else at its dock */
+  const fy = world().ferry;
+  if (fy && mapArt.ferry) {
+    const bob2 = Math.round(Math.sin(m.t / 10));
+    if (m.ride) ctx.drawImage(mapArt.ferry[m.p.dir === "left" ? "l" : "r"], Math.round(m.p.x + m.p.w / 2 - 16) - cx, Math.round(m.p.y + m.p.h) - 12 - cy + bob2);
+    else {
+      const g = fy.docks[G.run.ferry || 0], x0 = Math.min(...g.map(c => c[0])), x1 = Math.max(...g.map(c => c[0])), y1 = Math.max(...g.map(c => c[1]));
+      /* moored on the water beside the dock: the nearest route tile */
+      let best = null;
+      for (const k of fy.path) { const [x, y] = k.split(",").map(Number), d = Math.hypot(x - (x0 + x1) / 2, y - y1); if (!best || d < best.d) best = { x, y, d }; }
+      if (best) ctx.drawImage(mapArt.ferry.r, best.x * T + 8 - 16 - cx, best.y * T + 12 - 12 - cy + bob2);
+    }
+  }
   /* the ship, on its two tiles and the two above */
   if (world().ship) { const [sx, sy] = world().ship; ctx.drawImage(mapArt.ship, sx * T - cx, (sy - 1) * T - cy); }
   /* done flags: on the map's own flag spot, or the level's first entrance tile */
@@ -2108,7 +2266,8 @@ function drawMap() {
   /* the name of the place underfoot */
   const here = mapHere(p);
   const onTele = !here && world().tele[Math.floor((p.x + p.w / 2) / T) + "," + Math.floor((p.y + p.h / 2) / T)];
-  const label = here ? levelName(here) + (G.run.done[here] ? " (done)" : "") : onShip(p) || onParked(p) ? "The Catamaran" : onTele ? mapArt.teleName || "Teleporter" : "";
+  const onDock = !here && fy && fy.at[Math.floor((p.x + p.w / 2) / T) + "," + Math.floor((p.y + p.h / 2) / T)] !== undefined;
+  const label = here ? levelName(here) + (G.run.done[here] ? " (done)" : "") : onShip(p) || onParked(p) ? "The Catamaran" : onTele ? mapArt.teleName || "Teleporter" : onDock || m.ride ? mapArt.ferryName || "The ferry" : "";
   mapLabel(label);
   drawHud(null);
 }
@@ -2137,6 +2296,7 @@ let wasteTitleBg = null;
 function drawTitleScene(t) {
   if (theme.title === "wasteland") return drawWasteTitle(t);
   if (theme.title === "thrum") return drawThrumTitle(t);
+  if (theme.title === "claw") return drawClawTitle(t);
   ctx.fillStyle = "#000"; ctx.fillRect(0, 0, W, H);
   for (const s of titleStars) if ((t >> 4) % 7 !== s.s) { ctx.fillStyle = EGA[s.c]; ctx.fillRect(s.x, s.y, 1, 1); }
   /* the planet */
@@ -2170,6 +2330,25 @@ function drawThrumTitle(t) {
   for (const [i, x] of [[0, 21], [1, 48], [2, 75]]) { ctx.fillStyle = i === on ? "#6fe0c8" : "#10504e"; ctx.fillRect(x - 1, 178, 3, 2); }
   const pose = (t >> 5) % 8 === 0 ? "shoot" : "stand", spr = ART.poom[pose].r;
   ctx.drawImage(spr, 84, 182 - spr.height);
+}
+
+/* Isla Garra's title (Book 3): the volcano island at night from the jetty,
+ * two searchlights sweeping, the lair's windows flickering, the magnet
+ * crane's lamp, and Poom on the jetty in his sneaking suit. */
+let clawTitleBg = null;
+function drawClawTitle(t) {
+  if (!clawTitleBg) clawTitleBg = paintClawTitle(mapArtSets.classic.shipBare);
+  ctx.drawImage(clawTitleBg, 0, 0);
+  for (const s of titleStars) if (s.y < 100 && (t >> 4) % 7 !== s.s && (s.x > 90 || s.y > 80)) { ctx.fillStyle = s.c === 14 ? "#fff2c4" : "#9ab0d0"; ctx.fillRect(s.x, s.y, 1, 1); }
+  /* the searchlights, sweeping from the lair */
+  for (const [x0, ph] of [[120, 0], [170, 2]]) {
+    const a = Math.sin(t / 90 + ph) * 0.7;
+    ctx.fillStyle = "rgba(220, 230, 200, 0.10)"; ctx.beginPath(); ctx.moveTo(x0, 104); ctx.lineTo(x0 + Math.sin(a) * 240 - 16, 104 - Math.cos(a) * 240); ctx.lineTo(x0 + Math.sin(a) * 240 + 16, 104 - Math.cos(a) * 240); ctx.closePath(); ctx.fill();
+  }
+  if ((t >> 4) % 2) { ctx.fillStyle = "#ff3b2f"; ctx.fillRect(151, 36, 2, 2); }
+  if ((t >> 3) % 9 === 0) { ctx.fillStyle = "#1c242e"; ctx.fillRect(122 + ((t >> 6) % 8) * 7, 106, 4, 8); }
+  const pose = (t >> 5) % 8 === 0 ? "shoot" : "stand", spr = ART.poom[pose].r;
+  ctx.drawImage(spr, 84, 179 - spr.height);
 }
 
 /* The wasteland's title: the Glow at dusk over a ruined skyline, the
@@ -2579,6 +2758,74 @@ const BOOK_TEXT = {
       `<b>The End</b> of Book Two: Heavens to Mergatroid.<br><br>${next ? `Score so far: ${score}.<br><br>On to Book ${next}.` : `Final score: ${score}.<br><br>Commander Poom will return.`}`,
     ],
   },
+  /* Book 3, set D: Isla Garra, Dr Claw's island (docs/story/book-3-story.md) */
+  D: {
+    story: `<p>Out past Thrum, over a warm sea at night, something on an island below reaches up and <b>grabs the Catamaran</b>: a magnet crane the size of a church, which hauls the ship down into a volcano.</p>
+<p>This is <b>Isla Garra</b>, home of <b>Dr Claw</b>, a white Persian of enormous fluff and no conscience, who builds doomsday machines for anyone who pays. His newest customer wants a Catamaran of his own. Deep in the volcano, Dr Claw's <b>Copycat</b> is taking Poom's ship apart to build a black copy.</p>
+<p>Poom bailed out over the lagoon and washed up on the beach with a radio and not much else. The islets are linked by <b>transit tubes</b> under the water, and a robot shark called <b>Bruce</b> patrols the lagoon.</p>
+<p>Get into the volcano and break the Copycat. Stay out of sight: the <b>Claw guards</b> shout when they see you. And keep the radio on. Auntie Static is on a frequency she shouldn't know.</p>`,
+    arrive: "Isla Garra, by night. Poom is on the beach, dripping. The way in is <b>The Beach</b>, right here.<br><br>An arrow marks each place you can reach. Walk up to one and press <kbd>Ctrl</kbd>, <kbd>Z</kbd> or <kbd>Space</kbd> to go in.",
+    map: `<p>On the map, walk up to a place and press jump or fire to go in. An arrow marks each place you can reach; a place you haven't cleared blocks the way; Poom's flag marks the ones you have. Stand on a <b>transit tube</b> hatch and press jump or fire to ride it to another islet. Bruce, the robot shark, takes riders from his landings. Break the <b>Copycat</b>, deep in the volcano, to win back the Catamaran.</p>`,
+    creatures: () => { const C = ART.creatureSets.claw; return [
+      [C.guard.walk0.r, "Claw guard", "A stoat in fatigues, on patrol. When one sees you, it shouts and charges. One shot."],
+      [C.heavy.walk0.r, "Heavy", "A stoat in body armour. Deadly to touch, and it takes four shots."],
+      [C.boxer.walk0.r, "Boxer", "A guard hiding under a cardboard box. It isn't fooling anyone. Harmless; jump on one to flatten its box."],
+      [C.dog.walk0.r, "Guard dog", "Fast, loud, and all teeth. One shot."],
+      [C.clawbot.a.r, "Clawbot", "Dr Claw's robot crab. Armoured, can't be hurt. It shoves."],
+      [C.gunner.a.r, "Gunner", "A guard behind sandbags with a machine gun. Can't be hurt either: keep your head down."],
+      [C.ocelot.walk0.r, "Ocelot", "Dr Claw's elite, in a beret, twirling a pistol. Five shots."],
+      [C.ninja.walk0.r, "Ninja", "Nobody knows where Dr Claw found them. Quick, and three shots."],
+    ]; },
+    items: () => { const I = ART.itemSets.claw; return [
+      [I.items.fish, "Dog tags, rations, floppy disks, tapes, gold bars, a diamond", "100, 200, 500, 1000, 2000 and 5000 points. An extra life at 20,000, then 40,000, 80,000 and so on."],
+      [I.items.ammo, "Battery pack", "Five shots for the raygun."],
+      [I.items.life, "Poom bobblehead", "An extra life. Dr Claw keeps one in a glass case. Everyone has one."],
+      [I.gems[0], "Security cards", "Open the base's door of the same colour, in this level."],
+      [I.objectives[0][0], "Power cores", "Six of them feed the Copycat. Shoot or touch one to break it."],
+    ]; },
+    places: {
+      D02: "The Beach", D03: "The Docks", D04: "The Jungle Trail", D05: "The Perimeter Fence", D06: "The Kennels", D07: "The Searchlights",
+      D08: "The Barracks", D10: "The Comms Tower", D11: "The Security Office", D12: "The Brig", D13: "The Armoury", D14: "The Box Depot", D15: "The Clawbot Line",
+      D09: "The Magma Works", D16: "The Hangar", D17: "The Copycat",
+    },
+    signs: {},
+    say: {
+      signNear: () => "A sign. Press ↑ to read it.",
+      noPogo: "No pogo stick. Not yet.",
+      warpDoor: "A hatch. Press ↑ to go through.",
+      socket: c => `A ${c} card reader. A ${c} security card goes here.`,
+      noAmmo: "Click. The raygun's flat. Look for battery packs.",
+      lockedDoor: c => c ? `A ${c} blast door. It wants a ${c} security card.` : "A blast door. It wants a security card.",
+      ammo: "<b>Battery pack!</b> Five shots for the raygun. Fire with <kbd>Space</kbd> or <kbd>C</kbd>.",
+      pogo: "<b>You found a pogo stick!</b><br><br>Press <kbd>Alt</kbd> or <kbd>X</kbd> to hop on and off. Hold <kbd>Ctrl</kbd> or <kbd>Z</kbd> as you land for a big bounce.",
+      swim: "<b>You can swim!</b>",
+      bossDown: null,
+      cell: n => `A power core goes dark. ${n} to go.`,
+      core: "<b>The last core goes!</b><br><br>The Copycat shudders, whines, and overloads. Somewhere above, Dr Claw is shouting.",
+      ferry: "Bruce, the robot shark, takes Poom aboard. He doesn't seem to mind.",
+      wayOpens: "Somewhere on Isla Garra, a gate rolls open.",
+      lostLife: n => n === 0 ? "The radio crackles: <i>\"Poom? Poom! POOOOM!\"</i><br><br>He's all right. <b>This is your last life.</b>" : `The radio crackles: <i>\"Poom? Poom! POOOOM!\"</i><br><br>He's all right. ${n} ${n === 1 ? "life" : "lives"} left.`,
+      water: "The lagoon. Bruce patrols it. Poom isn't going in.",
+      blocked: "A locked compound. Clear the places nearby.",
+      levelDone: name => `${name}: cleared.`,
+      cheatOn: "Auntie Static: <i>\"Sugar, I've hacked the island's mainframe. You're invincible. Don't tell anybody.\"</i> Infinite lives and energy. No high scores this game.",
+      cheatOff: "Auntie Static: <i>\"Back to sneaking, then.\"</i> Cheat mode off.",
+      raygun: n => `${n} shot${n === 1 ? "" : "s"}`,
+      gameOver: n => `<b>Game over.</b><br><br><i>"Poom? Poom! POOOOOOOM!"</i><br><br>Dr Claw keeps the Catamaran. Final score: ${n}.`,
+      highScore: n => `<b>A high score!</b><br><br>${n} points. Dr Claw would like your name, for his files.`,
+    },
+    scores: [["Junk Baron Cal", 20000], ["Dr Claw", 17500], ["Auntie Static", 15000], ["Ocelot", 10000], ["Mr Squeaks", 7500], ["Bruce", 5000], ["Claw guard", 2500]],
+    boot: ["256 colours: ok", "radio: 140.85"],
+    /* the pages played when the Copycat blows */
+    ending: (score, next) => [
+      "The Copycat goes up with a bang that rattles the whole volcano. Red lights, klaxons, guards running every way at once.",
+      "Out of a hatch in the crater wall shoots a little escape pod shaped like a fish. Inside it, shaking a fluffy white paw: <i>\"This isn't over, puma!\"</i>",
+      "Poom finds the Catamaran in the Hangar, nearly whole, and blasts it out of the crater into the night.",
+      "Over the sea, something keeps pace with him in the dark: <b>a black Catamaran</b>, the one copy the Copycat finished. At its helm, a grey-black panther. He gives Poom a little salute, and peels away.",
+      "The radio crackles. <i>\"Well, sugar. Now there are two of you.\"</i>",
+      `<b>The End</b> of Book Three: The Island of Dr Claw.<br><br>${next ? `Score so far: ${score}.<br><br>On to Book ${next}.` : `Final score: ${score}.<br><br>Commander Poom will return.`}`,
+    ],
+  },
 };
 /* the words the help and the game's talk use: the book being played's, or,
  * if it has none yet, those of the book whose theme it wears. A book's
@@ -2859,6 +3106,7 @@ function boot() {
   buildArt();
   const classicMap = paintMapTiles();
   mapArtSets = { classic: classicMap, wasteland: paintWasteMap(classicMap), thrum: paintThrumMap(classicMap) };
+  for (const [name, paint] of Object.entries(MAP_PAINTERS)) mapArtSets[name] = paint(classicMap);
   mapArt = classicMap;
   G.map = { t: 0, p: null };
   injectTitleCSS();
