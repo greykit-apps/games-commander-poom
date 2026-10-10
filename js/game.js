@@ -805,6 +805,14 @@ function loadLevel(n) {
   lv.hang = new Set();
   for (let y = 1; y < h; y++) for (let x = 0; x < w; x++)
     if (rows[y][x] === "^" && SOLID.has(rows[y - 1][x]) && !(rows[y + 1] && SOLID.has(rows[y + 1][x]))) lv.hang.add(x + "," + y);
+  /* steam: the Works' vents blow him away from the nozzle (up, or down from
+     a ceiling) and the pulsing columns shove him out sideways while they're
+     on. Neither hurts */
+  lv.steam = [];
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    if (rows[y][x] === "z") lv.steam.push([x, y, 0]);
+    else if (rows[y][x] === "^" && theme === "works") lv.steam.push([x, y, lv.hang.has(x + "," + y) ? 1 : -1]);
+  }
   if (def.engine === "E1") for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (rows[y][x] === "S" && !lv.switchAt[x + "," + y] && !lv.pswitchAt[x + "," + y]) lv.trapAt.add(x + "," + y);
 
   /* Book 2: the Hum has grown into every heartstone's chamber, whatever the
@@ -1213,7 +1221,20 @@ function updatePlayer(lv) {
      spikes either side at head height, and walking out of it must not kill */
   const hx0 = Math.floor((p.x + 2) / T), hx1 = Math.floor((p.x + p.w - 3) / T);
   const hy0 = Math.floor((p.y + 2) / T), hy1 = Math.floor((p.y + p.h - 1) / T);
+  const pcx = p.x + p.w / 2;
+  for (const [sx, sy, dir] of lv.steam) {
+    if (Math.abs(sx * T + 8 - pcx) > 24 || Math.abs(sy * T + 8 - (p.y + p.h / 2)) > 64) continue;
+    if (dir === 0) {
+      /* a pulsing column, on: out sideways, the way he came */
+      if (pulsePhase(lv) === "on" && overlap(p, { x: sx * T + 2, y: sy * T, w: T - 4, h: T })) { p.pushT = 6; p.pushV = (pcx < sx * T + 8 ? -1 : 1) * 2.5; }
+    } else if (overlap(p, { x: sx * T + 1, y: dir < 0 ? (sy - 2) * T : sy * T, w: T - 2, h: 3 * T })) {
+      /* a vent: a blast away from the nozzle */
+      if (dir < 0) { p.vy = Math.min(p.vy, -3.4); p.onGround = false; } else p.vy = Math.max(p.vy, 2.6);
+    }
+  }
+  const steamy = c => c === "z" || (c === "^" && lv.theme === "works");
   for (let ty = hy0; ty <= hy1; ty++) for (let tx = hx0; tx <= hx1; tx++) {
+    if (steamy(tileAt(lv, tx, ty))) continue;
     const r = lv.hang.has(tx + "," + ty) ? [1, 0, 14, 8] : hazardRect(tileAt(lv, tx, ty), lv);
     if (r && overlap({ x: p.x + 2, y: p.y + 8, w: p.w - 4, h: p.h - 8 }, { x: tx * T + r[0], y: ty * T + r[1], w: r[2], h: r[3] })) return die(lv);
   }
@@ -3271,7 +3292,7 @@ const BOOK_TEXT = {
       socket: c => `A ${c} brass lock. A ${c} keycard goes here.`,
       noAmmo: "Click. The raygun's dry. Look for SPARK hypos.",
       lockedDoor: c => c ? `A ${c} bulkhead. It wants a ${c} keycard.` : "A locked bulkhead. It wants a keycard.",
-      pulseNear: "Steam spikes, sugar. They come and go. When they flicker they're coming back: wait for them to drop, then run.",
+      pulseNear: "Steam, sugar. It comes and goes, and when it's on it'll shove you right back out. When it flickers it's coming back: wait for it to drop, then run.",
       ammo: "<b>SPARK hypo!</b> Five shots for the raygun, glowing pink. Fire with <kbd>Space</kbd> or <kbd>C</kbd>.",
       pogo: "<b>You found a pogo stick!</b><br><br>Press <kbd>Alt</kbd> or <kbd>X</kbd> to hop on and off. Hold <kbd>Ctrl</kbd> or <kbd>Z</kbd> as you land for a big bounce.",
       swim: "<b>A diving suit!</b><br><br>Brass, watertight, and only a little bit haunted. On the map, Poom can swim the deep water now.",

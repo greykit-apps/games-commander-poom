@@ -39,15 +39,16 @@ Set E is on the newer engine (E2), in the shape of Commander Keen 4.
 - Turrets cluster in E12 (30), E13 (16), E14 and E15.
 - Warp doors, key sockets, bridge and platform switches, slopes and poles
   throughout.
-- **Pulsing spikes.** One three-tile spike column (source tiles 1838,
-  1856, 1874; 72 tiles over E06, E13, E14 and E15) stands floor to ceiling
-  across corridors Poom has to cross: E13's are a row of nine, and E15's
-  wall in a keycard pocket and hang across a platform's run. The source
-  marks them deadly and keeps no animation, so they must come and go or
-  those levels can't be finished. They're **steam spikes** (glyph `z`):
-  deadly for one second, gone for one, then a half-second flicker before
-  they come back, and Auntie warns about them the first time Poom gets
-  close.
+- **Steam, not spikes.** One three-tile column (source tiles 1838, 1856,
+  1874; 72 tiles over E06, E13, E14 and E15) stands floor to ceiling
+  across corridors Poom has to cross. The source marks it deadly and keeps
+  no animation, so it comes and goes (glyph `z`): on for one second, off
+  for one, then a half-second flicker before it's back. While it's on it
+  **shoves him back out**; it never hurts. The Works' ordinary hazards are
+  steam vents too, and they **blow him away from the nozzle** (up from a
+  floor, down from a ceiling) rather than kill: they are navigational, and
+  without that E15 is a death pit. Auntie warns about the steam the first
+  time Poom gets close.
 - **Platform decks sit half a tile down** their cell on this engine: E15
   drops Poom down a chute onto a platform that runs under a two-tile
   ceiling, and G11 sends one along spikes under another. Standing at the top
