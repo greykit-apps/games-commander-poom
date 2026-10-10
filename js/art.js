@@ -1314,6 +1314,9 @@ const THEMES = {
   /* Book 2's Station Delve: the mole crew's mine and labs, gunmetal plate,
      amber work-lights, hazard edging, live cables. Full colour. */
   delve: { sky: 0, far: [8, 0], ground: [8, 7, 0], crust: ["#e0b21c", "#ffd16a"], alt: [8, 7], plat: [7, 8], bg: [0, 8], liquid: [10, 2, 14], liquidName: "coolant", style: "delve" },
+  /* Book 2's Hive: the Hum's own body, crimson-plum flesh and chitin, teal
+     veins, magenta nodes, bone barbs. Full colour. */
+  hive: { sky: 0, far: [4, 0], ground: [4, 5, 0], crust: ["#6fe0c8", "#c4fff0"], alt: [4, 5], plat: [7, 8], bg: [0, 4], liquid: [13, 5, 15], liquidName: "ichor", style: "hive" },
 };
 
 function paintTiles(themeName) {
@@ -1509,6 +1512,7 @@ function paintTiles(themeName) {
   if (th.style === "ruins") ruinTiles(tiles, th, mk, E);
   if (th.style === "crags") cragTiles(tiles, th, mk, E);
   if (th.style === "delve") delveTiles(tiles, th, mk, E);
+  if (th.style === "hive") hiveTiles(tiles, th, mk, E);
 
   /* fake wall: looks like ground, walks like air (secret) */
   tiles.fake = tiles.ground[0];
@@ -2069,6 +2073,143 @@ function paintDelveFar() {
   return c;
 }
 
+/* VGA ramps for the Hive: its flesh and chitin, and bone */
+const FLESH = ["#140608", "#260a12", "#380f1c", "#4c1626", "#631f32", "#7c2e42", "#984358", "#bb6378"];
+const BONE = ["#4a4232", "#7a6e54", "#b0a27e", "#ddd2ae", "#fbf4dc"];
+
+/* The Hive: ridged chitin over flesh, a teal vein wandering through, now
+ * and then a magenta node or a cluster of pores; the top a glossy membrane
+ * fringed with cilia. A ledge is a rib of bone, the hazard curved bone
+ * barbs, the doors and the lift the crew's own, half swallowed by growth,
+ * the sign a terminal the Hum has nearly covered. */
+function hiveTiles(tiles, th, mk, E) {
+  const px = (g, c, x, y, w = 1, h = 1) => { g.fillStyle = c; g.fillRect(x, y, w, h); };
+  const flesh = (g, r) => {
+    px(g, FLESH[3], 0, 0, T, T);
+    /* ridges: curved bands of chitin, each lit along its top */
+    for (let y = 1; y < T; y += 5) {
+      const o = (r() * 3 | 0) - 1;
+      for (let x = 0; x < T; x++) { const yy = y + o + Math.round(Math.sin((x + y) / 3) * 0.8); px(g, FLESH[5], x, yy); px(g, FLESH[2], x, yy + 2); }
+    }
+    for (let i = 0; i < 12; i++) px(g, FLESH[2 + (r() * 3 | 0)], r() * T | 0, r() * T | 0);
+  };
+  const vein = (g, r) => {
+    let x = r() * T | 0, y = 0;
+    for (let i = 0; i < 18 && y < T; i++) { px(g, GLOW[1], x, y + 1); px(g, GLOW[3], x, y); x += (r() * 3 | 0) - 1; x = Math.max(0, Math.min(T - 1, x)); y++; }
+  };
+  const block = (top, kind, seed) => mk(g => {
+    const r = rng(seed);
+    flesh(g, r);
+    if (kind === 1) vein(g, r);
+    if (kind === 2) { /* a node, swollen and lit */ px(g, FLESH[1], 5, 5, 6, 6); px(g, SPINE[2], 6, 6, 4, 4); px(g, SPINE[4], 6, 6, 2, 2); px(g, SPINE[5], 6, 6); }
+    if (kind === 3) { /* pores */ for (const [x, y] of [[3, 4], [8, 3], [11, 7], [5, 10], [10, 12]]) { px(g, FLESH[0], x, y, 2, 2); px(g, FLESH[6], x, y); } }
+    if (top) {
+      /* the membrane: glossy, lighter, and its cilia waving up */
+      px(g, FLESH[6], 0, 1, T, 2); px(g, FLESH[7], 0, 1, T, 1);
+      for (let x = 0; x < T; x += 2) { const h = r() < .5 ? 1 : 2; px(g, r() < .3 ? GLOW[4] : GLOW[2], x + (r() < .5 ? 1 : 0), 1 - h, 1, h); }
+    }
+  });
+  tiles.ground = [block(false, 0, 3), block(false, 1, 41), block(false, 0, 17), block(false, 3, 53), block(false, 2, 29), block(false, 1, 67)];
+  tiles.groundTop = [block(true, 0, 9), block(true, 1, 21), block(true, 0, 45), block(true, 3, 33), block(true, 0, 57)];
+
+  /* a ledge: a rib of bone, a strand of sinew hanging off it */
+  tiles.plat = mk(g => {
+    px(g, BONE[2], 0, 0, T, 3); px(g, BONE[4], 0, 0, T, 1); px(g, BONE[1], 0, 3, T, 1);
+    for (const x of [4, 11]) { px(g, BONE[1], x, 0, 1, 3); }
+    px(g, FLESH[5], 7, 4, 1, 3); px(g, FLESH[6], 7, 7, 1, 1);
+  });
+
+  /* the hazard: bone barbs, curved and hooked, out of a fleshy bed */
+  tiles.spikes = mk(g => {
+    px(g, FLESH[4], 0, 13, T, 3); px(g, FLESH[6], 0, 13, T, 1);
+    for (const [x, h, lean] of [[2, 9, 1], [6, 12, -1], [10, 10, 1], [13, 8, -1]]) {
+      for (let k = 0; k < h; k++) { const xx = x + Math.round(lean * (k / h) * (k / h) * 3); px(g, k > h - 3 ? BONE[4] : BONE[2], xx, 13 - k, k < 3 ? 2 : 1, 1); }
+    }
+  });
+
+  /* doors: the crew's bulkheads (as in the station), with the Hum grown
+     over their edges */
+  const COLOURS = [[12, 4], [14, 6], [10, 2], [9, 1], [7, 8]];
+  const door = (a, b, top) => mk(g => {
+    px(g, GUN[4], 1, 0, T - 2, T); px(g, GUN[6], 1, 0, 1, T); px(g, GUN[2], T - 2, 0, 1, T);
+    for (let y = top ? 9 : 3; y < T; y += 6) { px(g, GUN[3], 3, y, T - 6, 1); px(g, GUN[5], 3, y + 1, T - 6, 1); }
+    if (top) { px(g, E(b), 2, 4, T - 4, 3); px(g, E(a), 2, 4, T - 4, 1); px(g, GUN[0], 11, 10, 3, 3); px(g, E(a), 12, 11, 1, 1); }
+    else px(g, E(b), 2, 13, T - 4, 1);
+    /* the growth: flesh over the frame, a vein onto the door */
+    for (let y = 0; y < T; y++) { px(g, FLESH[4], 0, y, 1 + ((y * 7) % 3 === 0 ? 1 : 0), 1); px(g, FLESH[4], T - 1 - ((y * 5) % 4 === 0 ? 1 : 0), y, 2, 1); }
+    if (top) { px(g, FLESH[5], 0, 0, 5, 2); px(g, FLESH[6], 0, 0, 3, 1); px(g, GLOW[3], 2, 2, 1, 3); }
+    else { px(g, FLESH[5], 11, 12, 5, 4); px(g, FLESH[6], 12, 12, 3, 1); }
+  });
+  tiles.doors = COLOURS.map(([a, b]) => door(a, b, true));
+  tiles.doorsBelow = COLOURS.map(([a, b]) => door(a, b, false));
+
+  /* the exit: the crew's lift, its frame grown over; open, lit within */
+  const lift = open => { const c = makeCanvas(T, T * 2), g = c.getContext("2d");
+    px(g, GUN[2], 0, 2, T, 30); px(g, GUN[4], 0, 5, 2, 27); px(g, GUN[4], T - 2, 5, 2, 27);
+    if (open) { px(g, AMBER[0], 2, 5, 12, 27); g.fillStyle = "rgba(255, 209, 106, 0.30)"; g.fillRect(2, 5, 12, 27); px(g, GUN[5], 2, 29, 12, 2); }
+    else { px(g, GUN[5], 2, 5, 6, 27); px(g, GUN[4], 8, 5, 6, 27); px(g, GUN[1], 7, 5, 2, 27); }
+    for (let y = 2; y < 32; y++) { px(g, FLESH[4], 0, y, (y * 3) % 5 === 0 ? 3 : 2, 1); px(g, FLESH[4], T - ((y * 7) % 4 === 0 ? 3 : 2), y, 3, 1); }
+    px(g, FLESH[5], 0, 2, T, 3); px(g, FLESH[6], 0, 2, T, 1);
+    for (const [x, y] of [[3, 3], [9, 2], [13, 4]]) px(g, GLOW[4], x, y);
+    g.fillStyle = "rgba(111, 224, 200, 0.35)"; g.fillRect(4, 0, 8, 3); px(g, GLOW[2], 6, 0, 4, 2); px(g, GLOW[5], 7, 0, 2, 1);
+    return c; };
+  tiles.exit = [lift(false), lift(true)];
+
+  tiles.ice = mk(g => {
+    const r = rng(43);
+    g.drawImage(tiles.ground[0], 0, 0);
+    for (let y = 0; y < 4; y++) px(g, ["#e9fbff", "#b2e4f6", "#78c2e4", "#4a92c0"][y], 0, y, T, 1);
+    for (let i = 0; i < 10; i++) px(g, r() < .5 ? "#b2e4f6" : "#e9fbff", r() * T | 0, 4 + (r() * 12 | 0));
+  });
+
+  /* a hint sign: a crew terminal, the Hum grown nearly over it; the screen
+     still glows through */
+  tiles.sign = mk(g => {
+    px(g, GUN[2], 1, 1, 14, 13); px(g, GUN[5], 1, 1, 14, 1);
+    px(g, AMBER[0], 3, 3, 10, 6); px(g, AMBER[3], 4, 4, 6, 1); px(g, AMBER[3], 4, 6, 4, 1);
+    for (const [x, y, w, h] of [[0, 0, 5, 4], [0, 4, 2, 10], [10, 10, 6, 6], [13, 0, 3, 10], [1, 13, 10, 3]]) { px(g, FLESH[4], x, y, w, h); }
+    px(g, FLESH[6], 0, 0, 4, 1); px(g, GLOW[3], 2, 6, 1, 4); px(g, GLOW[4], 14, 3);
+  });
+
+  /* moving platforms: a drifting raft of membrane, lit spots along it */
+  tiles.platform = [[GLOW[2], GLOW[4]], [SPINE[2], SPINE[4]], [BONE[1], BONE[3]]].map(([lamp0, lamp1]) => [0, 1].map(f => {
+    const c = makeCanvas(T * 2, 8), g = c.getContext("2d");
+    px(g, FLESH[5], 1, 0, 30, 6); px(g, FLESH[7], 2, 0, 28, 1); px(g, FLESH[3], 1, 5, 30, 1); px(g, FLESH[5], 0, 1, 32, 4);
+    for (let x = 3; x < 32; x += 8) px(g, (x >> 3) % 2 === f ? lamp1 : lamp0, x, 2, 3, 2);
+    px(g, FLESH[3], 6, 6, 1, 2); px(g, FLESH[3], 18, 6, 1, 2); px(g, FLESH[3], 27, 6, 1, 1);
+    return c;
+  }));
+}
+
+/* The Hive's depths: dark flesh, ribs arching up in two layers like the
+ * inside of something alive, glowing pods hung between them, and spores
+ * drifting in the teal haze. Full colour. */
+function paintHiveFar() {
+  const c = makeCanvas(320, 200), g = c.getContext("2d"), r = rng(17);
+  const px = (col, x, y, w = 1, h = 1) => { g.fillStyle = col; g.fillRect(x, y, w, h); };
+  for (let y = 0; y < 200; y += 4) { const k = y / 200; px(`rgb(${Math.round(18 + 22 * k)},${Math.round(5 + 6 * k)},${Math.round(9 + 8 * k)})`, 0, y, 320, 4); }
+  const haze = g.createLinearGradient(0, 100, 0, 200); haze.addColorStop(0, "rgba(47, 179, 160, 0)"); haze.addColorStop(1, "rgba(47, 179, 160, 0.16)");
+  g.fillStyle = haze; g.fillRect(0, 100, 320, 100);
+  /* ribs: arches from the floor to the roof, far ones dim */
+  for (const [col, hi, step, w, off] of [["#2c0c14", "#3e141e", 54, 10, 0], ["#40121e", "#5e1f2e", 80, 14, 30]]) {
+    for (let x = off; x < 360; x += step) {
+      g.strokeStyle = col; g.lineWidth = w; g.beginPath(); g.moveTo(x - 30, 200); g.quadraticCurveTo(x, 40, x + 30, -10); g.stroke();
+      g.strokeStyle = hi; g.lineWidth = 2; g.beginPath(); g.moveTo(x - 30 - w / 3, 200); g.quadraticCurveTo(x - w / 3, 40, x + 30 - w / 3, -10); g.stroke();
+    }
+  }
+  /* pods: lit sacs hanging between the ribs */
+  for (let i = 0; i < 7; i++) {
+    const x = 20 + r() * 280, y = 30 + r() * 90;
+    px("#3e141e", x, y - 14, 1, 14);
+    g.fillStyle = "rgba(111, 224, 200, 0.18)"; g.beginPath(); g.arc(x, y + 4, 9, 0, Math.PI * 2); g.fill();
+    g.fillStyle = "#187e76"; g.beginPath(); g.ellipse(x, y + 4, 4, 6, 0, 0, Math.PI * 2); g.fill();
+    px("#6fe0c8", x - 1, y + 1, 2, 3); px("#c4fff0", x - 1, y + 1);
+  }
+  /* spores */
+  for (let i = 0; i < 50; i++) px(r() < .7 ? "#2fb3a0" : "#d24aa6", r() * 320 | 0, r() * 200 | 0);
+  return c;
+}
+
 /* a heartstone (Book 2): a faceted magenta stone in a teal halo, the Hum's
  * glow pulsing in it; two frames, dim and bright */
 function paintHeartstone() {
@@ -2261,6 +2402,7 @@ function paintFar(themeName) {
   if (th.style === "ruins") return paintRuinFar();
   if (th.style === "crags") return paintCragFar();
   if (th.style === "delve") return paintDelveFar();
+  if (th.style === "hive") return paintHiveFar();
   return c;
 }
 
