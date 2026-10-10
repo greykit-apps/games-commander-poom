@@ -222,7 +222,10 @@ addEventListener("keydown", ev => {
   held.add(a);
 });
 addEventListener("keyup", ev => { const a = BIND[ev.code]; if (a) held.delete(a); });
-addEventListener("blur", () => { held.clear(); touchHeld.clear(); if (G.mode === "level" || G.mode === "map") openPause(); });
+addEventListener("blur", () => { held.clear(); touchHeld.clear(); if (canPause()) openPause(); });
+/* not while Poom is dying or walking out of a level: Leave level would
+   otherwise take back a death, or throw away a level already finished */
+function canPause() { return G.mode === "map" || (G.mode === "level" && G.lv && G.lv.p.state === "play"); }
 addEventListener("pointerdown", () => audio.unlock());
 
 let padPrev = new Set();
@@ -280,7 +283,7 @@ const bookNumber = b => BOOK_IDS.indexOf(b) + 1;
  * words (BOOK_TEXT). The whole game wears the theme of the book being
  * played, or of the last one played: the title screen too. A new book
  * with its own theme adds an entry to BOOK_THEMES and one to THEME_OF_BOOK.
- * Books not listed wear classic, the original game's. Level tilesets are
+ * Books not listed wear Book 1's (classic, the original game's, is kept for a Book that names it). Level tilesets are
  * per level (LEVEL_THEME). */
 const BOOK_THEMES = {
   classic: { name: "classic", look: "classic", items: "classic", creatures: "classic", map: "classic", title: "classic", subtitle: "Episode One: Lost on Planet Hiss" },
@@ -522,6 +525,12 @@ function loadLevel(n) {
     if (lv.back[y][x] || SOLID.has(rows[y][x])) continue;
     for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) if ((lv.back[y + dy] || [])[x + dx]) lv.back[y][x] = true;
   }
+  /* a turret is placed by its top tile; stand it on the floor below (one
+     that fires downward hangs where it is) */
+  for (const e of lv.ents) if (e.type === "G" && !(e.aim && e.aim[1] > 0)) {
+    const tx = Math.floor((e.x + e.w / 2) / T);
+    for (let k = 0; k < 3 && !isSolid(tileAt(lv, tx, Math.floor((e.y + e.h) / T))); k++) e.y += T;
+  }
   /* Poom stands with his feet at the bottom of the start tile, but he is
      taller than a tile: under a low ceiling that puts his head in the rock.
      Ease him down (or up) to the nearest spot clear of solid tiles. */
@@ -710,7 +719,7 @@ function updatePlayer(lv) {
         p.pogo = true; p.y -= POGO_H; p.h = PH + POGO_H;
         if (p.onGround) { p.compress = KP.pogoCompress; p.pogoBigAsk = false; }
       } else sfx("bump");
-    } else { p.pogo = false; p.y += POGO_H; p.h = PH; }
+    } else { p.pogo = false; p.y += POGO_H; p.h = PH; p.compress = 0; }
   }
 
   /* through a warp door: up, standing in front of one */
@@ -746,7 +755,7 @@ function updatePlayer(lv) {
   if (!p.climbing && !p.pogo && !p.poleCool && (U || (D && !p.onGround)) && poleAt(p.y + 6) ||
       !p.climbing && !p.pogo && !p.poleCool && D && p.onGround && poleAt(p.y + p.h + 4)) {
     const ptx = Math.floor(cx / T);
-    p.climbing = true; p.x = ptx * T + T / 2 - p.w / 2; p.vx = 0; p.vy = 0;
+    p.climbing = true; p.x = ptx * T + T / 2 - p.w / 2; p.vx = 0; p.vy = 0; p.onGround = false; p.coyote = 0; p.crouch = 0;
     if (D && p.onGround && !poleAt(p.y + 6)) p.y += 4;
   }
 
@@ -873,7 +882,7 @@ function updatePlayer(lv) {
       const d = DOOR_CH[tileAt(lv, tx, ty)];
       /* a silver door's colour isn't in the maps: any keycard opens it */
       if (d !== undefined && (lv.keys[d] || d === 4 && lv.keys.some(Boolean))) openDoor(lv, tx, ty);
-      else if (d !== undefined && !lv.warned) { lv.warned = true; toast(say("lockedDoor", c => c ? `A ${c} door. It needs a ${c} keycard.` : "A locked door. It needs a keycard.", d === 4 ? null : GEM_NAMES[d])); }
+      else if (d !== undefined && !(lv.warned || (lv.warned = new Set())).has(d)) { lv.warned.add(d); toast(say("lockedDoor", c => c ? `A ${c} door. It needs a ${c} keycard.` : "A locked door. It needs a keycard.", d === 4 ? null : GEM_NAMES[d])); }
     }
   }
 
@@ -937,7 +946,9 @@ function fillSocket(lv, s) {
 /* a bridge switch: the deck goes solid, or goes away. Not out from under
  * someone standing in its row: it waits until they are clear. */
 function flipBridge(lv, b) {
-  b.on = !b.on;
+  /* on or off is what the deck is now, not a flag: some decks start the
+     other way from their data, and two switches can share one */
+  b.on = !(b.deck.filter(([x, y]) => isSolid(lv.tiles[y][x])).length * 2 > b.deck.length);
   for (const [x, y] of b.deck) lv.tiles[y][x] = b.on ? "#" : ".";
   if (b.on && !rectClear(lv, lv.p.x, lv.p.y, lv.p.w, lv.p.h)) { b.on = false; for (const [x, y] of b.deck) lv.tiles[y][x] = "."; sfx("nope"); return; }
   sfx("click");
@@ -1026,7 +1037,9 @@ function landOnPlat(lv, b, prevBottom) {
   for (const pl of lv.plats) {
     if (b.x + b.w <= pl.x || b.x >= pl.x + pl.w) continue;
     const top = pl.y;
-    if (prevBottom <= Math.max(top, top - pl.dy) + 1 && b.y + b.h >= top) return pl;
+    /* and only if standing on it leaves him clear of the rock (a platform
+       rising into a ceiling must not carry him into it) */
+    if (prevBottom <= Math.max(top, top - pl.dy) + 1 && b.y + b.h >= top && rectClear(lv, b.x, top - b.h, b.w, b.h)) return pl;
   }
   return null;
 }
@@ -1262,7 +1275,7 @@ function hurtEnemy(lv, e, shot) {
     const big = e.type === "W";
     for (let i = 0; i < (big ? 6 : 1); i++) lv.fx.push({ kind: "poof", x: e.x + e.w / 2 - 5 + (big ? (Math.random() - .5) * 30 : 0), y: e.y + e.h / 2 - 3 + (big ? (Math.random() - .5) * 40 : 0), t: -i * 5 });
     if (e.points) { addScore(e.points); popup({ x: e.x + e.w / 2 - 8, y: e.y }, String(e.points)); }
-    if (big) message(say("bossDown", "<b>The Grand Vacuumoid has been unplugged!</b><br><br>Grab the Laser Pointer and get out of here."));
+    if (big || e.type === "L") message(say("bossDown", "<b>The Grand Vacuumoid has been unplugged!</b><br><br>Grab the Laser Pointer and get out of here."));
   } else sfx("hit");
 }
 
@@ -1273,7 +1286,7 @@ function updateShots(lv) {
     const c = tileAt(lv, Math.floor((s.x + s.w / 2) / T), Math.floor((s.y + s.h / 2) / T));
     if (isSolid(c) || s.t > 120) { s.gone = true; lv.fx.push({ kind: "poof", x: s.x - 2, y: s.y - 2, t: 0 }); continue; }
     if (s.mine) {
-      for (const e of lv.ents) if (e.alive && overlap(s, e)) { s.gone = true; lv.fx.push({ kind: "poof", x: s.x - 2, y: s.y - 2, t: 0 }); hurtEnemy(lv, e, s); break; }
+      for (const e of lv.ents) if (e.alive && overlap(s, e.h >= 12 ? e : { x: e.x, y: e.y + e.h - 12, w: e.w, h: 12 })) { s.gone = true; lv.fx.push({ kind: "poof", x: s.x - 2, y: s.y - 2, t: 0 }); hurtEnemy(lv, e, s); break; }
       /* an objective can be shot as well as picked up: the maps' boss weak points */
       if (!s.gone) for (const it of lv.items) if (!it.gone && it.kind === "objective" && overlap(s, { x: it.x + 2, y: it.y + 2, w: 12, h: 12 })) { s.gone = true; lv.fx.push({ kind: "poof", x: it.x + 3, y: it.y + 3, t: 0 }); collect(lv, it); break; }
     } else if (lv.p.state === "play" && overlap(s, { x: lv.p.x + 2, y: lv.p.y + 2, w: lv.p.w - 4, h: lv.p.h - 4 })) { s.gone = true; die(lv); }
@@ -1311,7 +1324,7 @@ function updateLevel() {
   lv.t++;
   updatePlats(lv);
   updatePlayer(lv);
-  if (G.mode !== "level") return;
+  if (G.mode !== "level" || G.lv !== lv) return;
   for (const e of lv.ents) if (e.alive && Math.abs(e.x - lv.p.x) < 400) updateEnemy(lv, e);
   lv.ents = lv.ents.filter(e => e.alive);
   updateShots(lv);
@@ -1364,15 +1377,17 @@ function bookDone() {
   const was = r.book, pages = BOOK_TEXT[was] && BOOK_TEXT[was].ending;
   /* a book with its own ending plays it, then the score goes on the table
      (the run keeps its line there for later Books), then on to the next */
-  const onward = () => recordScore(r.score, k => { moveOn(); if (k >= 0) openScores(k); });
+  const onward = () => recordScore(r.score, k => moveOn(k));
   if (pages) playPages(pages(r.score, bookNumber(next)), onward);
   else onward();
-  function moveOn() {
+  function moveOn(k = -1) {
     r.book = next; r.mx = r.my = null; r.swim = false;
     r.parts = [false, false, false, false]; r.aboard = [false, false, false, false];
     enterMap();
     saveRun();
-    if (!pages) message(`<b>Book ${bookNumber(was)} is done!</b><br><br>On to Book ${bookNumber(next)}.`);
+    const table = () => { if (k >= 0) openScores(k); };
+    if (!pages) message(`<b>Book ${bookNumber(was)} is done!</b><br><br>On to Book ${bookNumber(next)}.`, { onClose: table });
+    else table();
   }
 }
 /* a run of message pages, then done */
@@ -1423,7 +1438,7 @@ function konami(code) {
   if (G.run.cheat) G.run.cheated = true;
   if (G.lv) { G.lv.snapshot.cheat = G.run.cheat; G.lv.snapshot.cheated = G.run.cheated; }
   sfx(G.run.cheat ? "life" : "nope");
-  saveRun();
+  if (G.mode === "map") saveRun();   /* in a level, the snapshot carries it */
   toast(G.run.cheat ? say("cheatOn", "Cheat mode: infinite lives and raygun charges. No high scores this game.") : say("cheatOff", "Cheat mode off."));
 }
 
@@ -1460,6 +1475,8 @@ function loseLife() {
 
 function enterMap() {
   G.mode = "map";
+  /* the one-time map warnings are once per Book, not once per page load */
+  if (G.map.book !== G.run.book) { G.map.book = G.run.book; G.map.waterWarned = G.map.fieldWarned = false; }
   document.getElementById("keystrip").hidden = true;
   dressFor(G.run.book);
   const m = G.map;
@@ -1531,7 +1548,7 @@ function updateMap() {
   const here = mapHere(p);
   if (here && (wasPressed("jump") || wasPressed("fire"))) {
     if (G.run.done[here]) { toast(say("levelDone", name => `${name}: done.`, levelName(here))); sfx("nope"); }
-    else { saveRun(); startLevel(here); }
+    else { saveRun(); startLevel(here); return; }
   }
   if (!here && onShip(p) && (wasPressed("jump") || wasPressed("fire"))) boardShip();
   const tele = world().tele[ctx_ + "," + cty];
@@ -1835,7 +1852,7 @@ function drawMap() {
   const bob = Math.round(Math.sin(m.t / 12) * 2);
   for (const id of openPlaces()) {
     const b = world().box[id]; if (!b) continue;
-    const ax = Math.round((b.x0 + b.x1 + 1) * T / 2) - cx, ay = b.y0 * T - cy - (mapArt.markerFor ? 10 : 9) + bob;
+    const ax = Math.round((b.x0 + b.x1 + 1) * T / 2) - cx, ay = (mapArt.markerFor ? (b.y1 + 1) * T - 32 - 10 : b.y0 * T - 9) - cy + bob;
     if (ax < -8 || ax > W + 8 || ay < -8 || ay > H + 8) continue;
     ctx.fillStyle = "#000"; ctx.beginPath(); ctx.moveTo(ax - 7, ay - 1); ctx.lineTo(ax + 7, ay - 1); ctx.lineTo(ax, ay + 8); ctx.closePath(); ctx.fill();
     ctx.fillStyle = mapArt.markerFor ? "#ffd23f" : EGA[14]; ctx.beginPath(); ctx.moveTo(ax - 5, ay); ctx.lineTo(ax + 5, ay); ctx.lineTo(ax, ay + 6); ctx.closePath(); ctx.fill();
@@ -1928,6 +1945,8 @@ const UI = {
   top() { return this.stack[this.stack.length - 1] || null; },
   push(o) {
     held.clear(); pressed.clear();
+    /* nothing under an overlay keeps focus: Space would click it again */
+    if (document.activeElement && document.activeElement !== document.body && document.activeElement.blur) document.activeElement.blur();
     this.stack.push(o);
     uiRoot.appendChild(o.el);
     if (o.focus) o.focus();
@@ -1941,7 +1960,12 @@ const UI = {
   clear() { while (this.stack.length) { const o = this.stack.pop(); o.el.remove(); } },
   key(ev) {
     const o = this.top();
-    if (ev.code === "KeyM" && !(ev.target.closest && ev.target.closest("input"))) { toggleMute(); ev.preventDefault(); return; }
+    if (ev.code === "KeyM" && !(ev.target.closest && ev.target.closest("input"))) {
+      /* a menu with a Sound item takes M itself, so it shows the new setting */
+      const item = o && [...o.el.querySelectorAll("button")].find(b => { const k = b.querySelector("kbd"); return k && k.textContent === "M"; });
+      if (item) item.click(); else toggleMute();
+      ev.preventDefault(); return;
+    }
     if (o && o.key) o.key(ev);
   },
   padPress(a) {
@@ -1965,7 +1989,7 @@ function message(html, { icon = null, iconRow = null, onClose = null, hint = "pr
   let armed = false; setTimeout(() => { armed = true; }, 250);
   /* onSkip: Esc leaves a run of pages altogether, instead of turning one */
   const o = { el: wrap, onClose, key(ev) {
-    if (!armed && !ev.synthetic) return;
+    if (ev.repeat || (!armed && !ev.synthetic)) return;   /* a held key doesn't close it unread */
     if (ev.preventDefault) ev.preventDefault();
     if (onSkip && ev.code === "Escape") { o.onClose = null; UI.pop(); onSkip(); return; }
     UI.pop();
@@ -2086,7 +2110,7 @@ function statusWindow() {
   box.appendChild(el("p", "hint", "press a key"));
   wrap.appendChild(box);
   wrap.addEventListener("pointerdown", () => UI.pop());
-  UI.push({ el: wrap, key(ev) { ev.preventDefault && ev.preventDefault(); UI.pop(); } });
+  UI.push({ el: wrap, key(ev) { ev.preventDefault && ev.preventDefault(); if (!ev.repeat) UI.pop(); } });
 }
 
 function openPause() {
@@ -2307,7 +2331,7 @@ function enterName(score, then) {
   box.appendChild(el("p", "hint", "Enter to save"));
   wrap.appendChild(box);
   UI.push({ el: wrap, focus() { input.focus(); input.select(); }, key(ev) {
-    if (ev.code === "Enter") { ev.preventDefault(); const n = input.value.trim() || "Poom"; store.set(NS + "_name_v1", n); UI.pop(); then(n); }
+    if (ev.code === "Enter" && !ev.repeat) { ev.preventDefault(); const n = input.value.trim() || "Poom"; store.set(NS + "_name_v1", n); UI.pop(); then(n); }
   } });
 }
 
@@ -2348,7 +2372,7 @@ function openTitle() {
   const items = [
     saved ? { label: "Continue game", key: "R", meta: `score ${saved.score}`, act: () => { UI.clear(); hideLogo(); G.run = saved; enterMap(); } } : null,
     { label: "New game", key: "N", act: () => {
-      const go = () => { UI.clear(); hideLogo(); G.run = newRun(); store.del(KEYS.save); story(); };
+      const go = () => { UI.clear(); hideLogo(); G.run = newRun(); G.map = { t: 0, p: null }; mapLabel(""); store.del(KEYS.save); story(); };
       if (saved) ask("Start a new game? Your saved game will be lost.", "New game", go); else go();
     } },
     { label: "High scores", key: "O", act: () => openScores() },
@@ -2463,7 +2487,7 @@ function frame(now) {
     if (!UI.top()) {
       if (wasPressed("mute")) toggleMute();
       if (G.mode === "level" || G.mode === "map") {
-        if (wasPressed("pause")) openPause();
+        if (wasPressed("pause") && canPause()) openPause();
         else if (wasPressed("status")) statusWindow();
       }
       if (!UI.top()) {
