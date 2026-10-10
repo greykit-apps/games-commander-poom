@@ -613,6 +613,12 @@ function loadLevel(n) {
     if (lv.back[y][x] || SOLID.has(rows[y][x])) continue;
     for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) if ((lv.back[y + dy] || [])[x + dx]) lv.back[y][x] = true;
   }
+  /* a switch on an older-engine (E1) map is a trap: the game-over switch
+     next to a goal, as in Commander Keen 2. Only set C has any. (Set G's
+     unwired E2 switches are something else, not yet built.) */
+  lv.trapAt = new Set();
+  if (def.engine === "E1") for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (rows[y][x] === "S" && !lv.switchAt[x + "," + y] && !lv.pswitchAt[x + "," + y]) lv.trapAt.add(x + "," + y);
+
   /* Book 2: the Hum has grown into every heartstone's chamber, whatever the
      level's biome, so a ragged oval round each one wears the Hive's tiles */
   if (BOOK_GOAL[def.book] === "hearts" && theme !== "hive") {
@@ -827,6 +833,10 @@ function updatePlayer(lv) {
   const door = !p.climbing && warpAt(lv, p);
   if (door && !seen("warpdoor")) toast(say("warpDoor", "A door. Press \u2191 to go through."));
   if (door && wasPressed("up")) { warpTo(lv, p, door); return; }
+
+  /* a trap switch: up, standing at it, pulls it, and that's the game */
+  const trap = !door && !p.climbing && wasPressed("up") && tilesUnder(p).find(k => lv.trapAt.has(k));
+  if (trap) { springTrap(lv, trap); return; }
 
   /* a hint sign: up, standing at it, reads it */
   const sign = !door && !p.climbing && signAt(lv, p);
@@ -1155,6 +1165,15 @@ function drawPlats(lv, cx, cy) {
 
 /* the warp door Poom is standing in, as its target, or null. The tile
  * under his middle wins, so each half of a door goes to its own place. */
+/* Pulling a trap switch: game over, said in the Book's words. With cheat
+ * mode on it costs a life instead, like any other death. */
+function springTrap(lv, key) {
+  lv.pulled = key;
+  sfx("die");
+  if (G.run.cheat) { message(say("trap", "<b>The switch!</b><br><br>That was a trap."), { onClose: () => loseLife() }); return; }
+  message(say("trap", "<b>The switch!</b><br><br>That was a trap."), { onClose: () => { G.lv = null; G.run.lives = 0; gameOver(true); } });
+}
+
 /* the hint sign Poom is standing at, if any */
 function signAt(lv, p) {
   return lv.signs.find(s => p.x < s.x + T && p.x + p.w > s.x && p.y < s.y + T && p.y + p.h > s.y) || null;
@@ -1819,6 +1838,7 @@ function drawLevel() {
   }
   for (const s of lv.sockets) { ctx.drawImage(art.socket, s.x * T - cx, s.y * T - cy); if (s.filled) ctx.drawImage(ART.gems[s.gem], s.x * T + 4 - cx, s.y * T + 4 - cy); }
   for (const b of lv.bridges) ctx.drawImage(art.switch[b.on ? 1 : 0], b.x * T - cx, b.y * T - cy);
+  for (const k of lv.trapAt) { const [x, y] = k.split(",").map(Number), a = lv.hiveAt && lv.hiveAt.has(k) ? lv.hiveArt : art; ctx.drawImage(a.switch[lv.pulled === k ? 1 : 0], x * T - cx, y * T - cy); }
   for (const k of Object.keys(lv.pswitchAt)) { const s = lv.pswitchAt[k]; ctx.drawImage(art.switch[s.on ? 1 : 0], s.x * T - cx, s.y * T - cy); }
   drawPlats(lv, cx, cy);
   /* the secret teleporter: a warp arch, a tile wide, drawn from its top tile */
@@ -2482,7 +2502,7 @@ const BOOK_TEXT = {
     story: `<p>Two days out of the Glow, the Catamaran catches a mayday from <b>Thrum</b>, a hollow moon that hums. Poom answers it. He always does.</p>
 <p>A crew of moles dug a mining station into Thrum's crust: <b>Station Delve</b>. It is empty now. The <b>Hum</b> has grown through it, a hive of glowing, drifting things that feed on energy, down through the <b>Crags</b> and into its own deep <b>Hive</b>.</p>
 <p>The Hum has hold of the Catamaran too: every engine Poom fires drains away into the moon. It draws its strength from eight <b>heartstones</b>, buried in the caves, the station and the hive.</p>
-<p>Break all eight and the Hum lets go. Watch out for the <b>Mergatroids</b>. And keep an ear on the radio: somehow, even down here, Auntie Static is broadcasting.</p>`,
+<p>Break all eight and the Hum lets go. Watch out for the <b>Mergatroids</b>, and whatever you do, don't pull the crew's levers by the heartstones. And keep an ear on the radio: somehow, even down here, Auntie Static is broadcasting.</p>`,
     arrive: "This is Thrum. The Catamaran is down on its pad and the Hum has hold of it. The way in is <b>The Landing Shaft</b>, by the pad.<br><br>An arrow marks each place you can reach. Walk up to one and press <kbd>Ctrl</kbd>, <kbd>Z</kbd> or <kbd>Space</kbd> to go in.",
     map: `<p>On the map, walk up to a place and press jump or fire to go in. An arrow marks each place you can reach; a place you haven't cleared blocks the way; a crew beacon marks the ones you have. Break all eight <b>heartstones</b> to free the Catamaran.</p>`,
     creatures: () => { const C = ART.creatureSets.hum; return [
@@ -2518,6 +2538,7 @@ const BOOK_TEXT = {
       ammo: "<b>Power cell!</b> The station's: five shots for the raygun. Fire with <kbd>Space</kbd> or <kbd>C</kbd>.",
       pogo: "<b>You found a pogo stick!</b><br><br>Press <kbd>Alt</kbd> or <kbd>X</kbd> to hop on and off. Hold <kbd>Ctrl</kbd> or <kbd>Z</kbd> as you land for a big bounce.",
       swim: "<b>You can swim!</b><br><br>On the map, Poom can wade in where the shore meets the water.",
+      trap: "<b>Poom pulls the lever.</b><br><br>The station's power floods into the heartstone. The Hum roars, the whole moon shakes, and Thrum swallows the Catamaran whole.",
       parked: "<b>The Catamaran</b><br><br>Poom fires the engines. Nothing happens: every bit of power drains down into the moon. The Hum has hold of her until its heartstones are broken.",
       heart: (n, of) => `<b>The heartstone shatters!</b><br><br>${n === of ? "That's the last one. The whole moon shudders. Get back to the lift!" : `${n} of ${of} broken. Somewhere below, the Hum stutters.`}`,
       wayOpens: "Somewhere on Thrum, a way opens.",
@@ -2705,12 +2726,12 @@ function story() {
   next();
 }
 
-function gameOver() {
+function gameOver(trapped = false) {
   G.mode = "title";
   const score = G.run.score;
   store.del(KEYS.save);
   sfx("die");
-  message(say("gameOver", n => `<b>Game over.</b><br><br>Commander Poom is out of lives. Final score: ${n}.`, score), { onClose: () => recordScore(score, i => { openTitle(); if (i >= 0) openScores(i); }) });
+  message(trapped ? `<b>Game over.</b><br><br>Final score: ${score}.` : say("gameOver", n => `<b>Game over.</b><br><br>Commander Poom is out of lives. Final score: ${n}.`, score), { onClose: () => recordScore(score, i => { openTitle(); if (i >= 0) openScores(i); }) });
 }
 
 function ending() {

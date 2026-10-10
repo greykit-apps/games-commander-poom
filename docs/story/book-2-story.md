@@ -59,20 +59,28 @@ All four colours appear:
 - 16 doors, two tiles tall.
 - C11 and C15 use all four colours in one level, and are puzzle levels.
 
-### Switches: new engine work
+### Switches: traps
 
-There are 19 switch tiles of two kinds. The engine doesn't support either yet:
-it only wires up switches for the newer engine's maps.
+There are 19 switch tiles. The map maker confirms that **they are game-over
+switches**: traps set next to a goal, as in Commander Keen 2. One sits beside
+the spike shaft in every heartstone chamber, and there are more in C05, C06,
+C14 and C17 (C17 has seven).
 
-- **Behaviour 25, 12 of them.** One sits beside the spike shaft in every
-  device room. Two more are in C06 and C17, beside spike pits. My reading is
-  a bridge switch: it extends a walkway over the pit or shaft.
-- **Behaviour 23, 7 of them.** These sit in open areas: near the start of
-  C05, and four in C17. My reading is a light switch, which darkens or lights
-  the level. Keen 2 had both.
+In the game (`springTrap` in `js/game.js`):
+- **Pulling one** takes ↑ while standing at it, as a Keen switch does, so
+  walking past is safe. Nothing prompts the player; it's a trap.
+- **The result:** "Poom pulls the lever. The station's power floods into the
+  heartstone. The Hum roars, the whole moon shakes, and Thrum swallows the
+  Catamaran whole." Then it's **game over**. With cheat mode on, it is an
+  ordinary death instead.
+- **The warning:** the story pages say "whatever you do, don't pull the crew's
+  levers by the heartstones."
+- **The look:** a lever on a hazard-striped plate, its handle up with a teal
+  lamp; pulled, the handle is down and the lamp is red.
 
-Both readings need the map maker to confirm, and both need building. Lights
-going out would suit Metroid very well.
+Only E1 maps get this rule, and only set C has switches there. Set G's 49
+unwired switches are on the newer engine and are something else, not built
+yet.
 
 ### The rest
 
@@ -120,7 +128,7 @@ there*?" She knows the mayday was Cal's before Poom does.
 | **C06, the gate** | The station's main lift. Getting it working opens the rest of the moon. |
 | **The eight device rooms** | Each holds a **heartstone** on a cradle, guarded by spikes the Hum has grown. Touching one, or shooting it, breaks it. The switch beside its shaft is a station gantry the crew left behind. |
 | **Keycards and doors** | The station's security levels: red, yellow, green and blue cards for bulkhead hatches. The Hum grows over the station, but it can't open a hatch. |
-| **Switches** | Gantry switches extend a walkway over a pit (behaviour 25). Power switches bring the lights up, or put them out (behaviour 23). |
+| **Switches** | The crew's levers by the heartstones, and traps: pulling one pours the station's power into the stone, and the Hum swallows the Catamaran. Game over. |
 | **Moving platforms** | The station's cargo lifts and ore sleds, still running on their tracks. |
 | **Hazards** | Acid and crystal spines in the crags; live conduits in the station; barbs in the hive. |
 | **The two signs** | The crew's last logs, on terminals by the exits (C09 and C11), and possibly Auntie Static cutting in on one of them. |
@@ -203,7 +211,6 @@ All in `BOOK_TEXT.C` in `js/game.js`.
 
 ## Questions to settle
 
-1. **The switches:** confirm bridge (25) and lights (23) with the map maker,
-   then build them in the engine.
+1. ~~The switches~~ Settled: game-over traps (above).
 2. ~~Is the mole crew alive?~~ Yes, evacuated safely (the C11 log), and that
    log is where Poom learns the mayday was fake.

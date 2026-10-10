@@ -2135,6 +2135,7 @@ const ACID = ["#26400a", "#416a10", "#6f9e1a", "#a8d82e", "#e0fa78"];
  * ledge is a shelf fungus, the hazard crystal spines, the doors steel
  * hatches the mole crew set into the rock, the exit a mine-lift cage. */
 function cragTiles(tiles, th, mk, E) {
+  tiles.switch = thrumLever(mk);
   const px = (g, c, x, y, w = 1, h = 1) => { g.fillStyle = c; g.fillRect(x, y, w, h); };
   const rock = (g, r) => {
     px(g, CRAG[3], 0, 0, T, T);
@@ -2250,6 +2251,19 @@ function cragTiles(tiles, th, mk, E) {
   }));
 }
 
+/* a lever on a plate (Book 2): the crew's, by the heartstones, and a
+ * trap; off, the handle up, on, thrown down with the lamp gone red */
+function thrumLever(mk) {
+  const px = (g, c, x, y, w = 1, h = 1) => { g.fillStyle = c; g.fillRect(x, y, w, h); };
+  return [0, 1].map(on => mk(g => {
+    px(g, GUN[2], 3, 4, 10, 12); px(g, GUN[5], 3, 4, 10, 1); px(g, GUN[1], 3, 15, 10, 1);
+    for (let x = 4; x < 12; x += 4) { px(g, STRIPE[0], x, 13, 2, 2); px(g, STRIPE[1], x + 2, 13, 2, 2); }
+    px(g, GUN[0], 7, 7, 2, 4);
+    if (on) { px(g, GUN[6], 8, 10, 1, 5); px(g, "#c8302a", 7, 14, 3, 2); px(g, "#ff6a5a", 5, 5, 2, 2); }
+    else { px(g, GUN[6], 8, 2, 1, 7); px(g, "#c8302a", 7, 1, 3, 2); px(g, GLOW[3], 5, 5, 2, 2); }
+  }));
+}
+
 /* The crags' far wall: a deep cavern, darker at the top; hanging spires of
  * rock in two layers, the nearer with fungus lights on it; crystal glints
  * and a faint teal haze where the Hum is, low down. Full colour. */
@@ -2292,6 +2306,7 @@ const STRIPE = ["#e0b21c", "#1a1608"];
  * sparking, the doors round-cornered bulkheads with a colour band, the exit
  * a lift with an amber lamp, a sign the station's wall terminal. */
 function delveTiles(tiles, th, mk, E) {
+  tiles.switch = thrumLever(mk);
   const px = (g, c, x, y, w = 1, h = 1) => { g.fillStyle = c; g.fillRect(x, y, w, h); };
   const plate = (g, r) => {
     px(g, GUN[3], 0, 0, T, T);
@@ -2437,6 +2452,7 @@ const BONE = ["#4a4232", "#7a6e54", "#b0a27e", "#ddd2ae", "#fbf4dc"];
  * barbs, the doors and the lift the crew's own, half swallowed by growth,
  * the sign a terminal the Hum has nearly covered. */
 function hiveTiles(tiles, th, mk, E) {
+  tiles.switch = thrumLever(mk);
   const px = (g, c, x, y, w = 1, h = 1) => { g.fillStyle = c; g.fillRect(x, y, w, h); };
   const flesh = (g, r) => {
     px(g, FLESH[3], 0, 0, T, T);
