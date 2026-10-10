@@ -77,8 +77,9 @@ const NEEDS = {
  * floor to ceiling, and walls in E15's keycard pocket */
 /* walls opened by hand, per map: [x, y] */
 const OPEN_TILES = {
-  /* D16: the tunnel along row 87 under (38-39, 86) was one tile high */
-  D16: [[38, 86], [39, 86]],
+  /* D16: the tunnel along row 87 under (38-39, 86) was one tile high,
+     and the way right out of the pocket at (30-32, 114-115), under (32-33, 113) */
+  D16: [[38, 86], [39, 86], [32, 113], [33, 113]],
 };
 
 /* hazards taken out by hand, per map: [x, y] */
