@@ -34,7 +34,7 @@ Glyphs marked "no" are air until the engine learns them.
 | `u` | 2000-point pickup (medal) | yes | 235 |
 | `w` | swim ability | yes | 2 |
 | `!` | objective items (collected, or shot) | yes | 52 |
-| `e` | enemies (per-type behaviour: ENEMY_OF in game.js; Book 1 only so far) | yes | 2850 |
+| `e` | enemies (per-type behaviour: ENEMY_OF in game.js; Book 1 only so far) | yes | 2867 |
 | `G` | turrets / emitters | yes | 279 |
 | `N` | NPCs / rescue targets | no | 21 |
 | `M` | moving platforms (paths, dropping, sneaky) | yes | 656 |
@@ -109,7 +109,7 @@ Skipped (not levels): B18 cutscene, B19 highscores
 | B13 | level | 94×66 | `e` 14, `M` 8, `j` 3, `/` 16, `\` 6 |
 | B14 | level | 140×42 | `D` 2, `u` 16, `e` 35, `M` 1, `\` 52, `/` 60, `j` 2 |
 | B15 | level | 144×40 | `\` 12, `G` 8, `e` 14, `M` 14, `u` 3 |
-| B16 | level | 80×90 | `G` 5, `M` 14, `D` 40, `/` 13, `e` 32, `N` 1, `j` 4, `\` 4 |
+| B16 | level | 80×90 | `G` 5, `M` 14, `D` 40, `/` 13, `e` 34, `N` 1, `j` 4, `\` 4 |
 | B17 | level | 73×64 | `/` 22, `\` 15, `M` 6, `e` 21, `j` 3, `u` 1 |
 
 ### Book C
@@ -134,7 +134,7 @@ Skipped (not levels): C18 cutscene, C19 title
 | C14 | level | 84×29 | `M` 1, `!` 1, `e` 13, `S` 3 |
 | C15 | level | 54×41 | `e` 15 |
 | C16 | level | 84×44 | `S` 2, `!` 1, `e` 8, `M` 2 |
-| C17 | level | 84×49 | `S` 7, `e` 13, `M` 2, `!` 1 |
+| C17 | level | 84×49 | `S` 7, `e` 15, `M` 2, `!` 1 |
 
 ### Book D
 
@@ -151,14 +151,14 @@ Skipped (not levels): D18 cutscene, D19 title
 | D07 | level | 74×17 | `e` 11 |
 | D08 | level | 124×37 | `e` 20 |
 | D09 | level | 104×57 | `e` 12, `M` 4 |
-| D10 | level | 67×117 | `)` 7, `(` 23, `G` 11, `e` 19, `M` 7 |
-| D11 | level | 64×37 | `G` 4, `(` 3, `e` 9, `M` 4 |
+| D10 | level | 67×117 | `)` 7, `(` 23, `G` 11, `e` 23, `M` 7 |
+| D11 | level | 64×37 | `G` 4, `(` 3, `e` 11, `M` 4 |
 | D12 | level | 44×37 | `e` 7, `M` 1, `G` 4 |
 | D13 | level | 54×47 | `G` 11, `(` 5, `M` 3, `e` 14 |
 | D14 | level | 84×107 | `e` 26 |
 | D15 | level | 184×25 | `e` 29, `G` 2, `M` 1 |
 | D16 | level | 128×120 | `e` 41 |
-| D17 | level | 25×24 | `G` 2, `!` 7, `e` 2, `(` 2 |
+| D17 | level | 25×24 | `G` 2, `!` 7, `e` 6, `(` 2 |
 
 ### Book E
 
@@ -182,7 +182,7 @@ Skipped (not levels): E19 cutscene, E20 highscores
 | E14 | level | 100×112 | `e` 41, `\` 57, `G` 7, `S` 8, `M` 6, `/` 42, `j` 2, `z` 3, `D` 4, `N` 1 |
 | E15 | level | 100×90 | `G` 6, `e` 47, `D` 39, `Z` 1, `j` 5, `/` 5, `M` 11, `N` 1, `S` 10, `u` 3, `z` 27 |
 | E16 | level | 112×92 | `D` 24, `e` 16, `M` 18, `S` 4, `j` 3, `/` 18, `u` 3 |
-| E17 | level | 140×46 | `M` 10, `e` 28, `/` 46, `\` 4, `j` 2, `S` 1, `N` 1 |
+| E17 | level | 140×46 | `M` 10, `e` 30, `/` 46, `\` 4, `j` 2, `S` 1, `N` 1 |
 | E18 | level | 100×100 | `e` 63, `N` 1 |
 
 ### Book F
@@ -195,7 +195,7 @@ Skipped (not levels): F19 highscores
 | F02 | level | 184×40 | `D` 4, `/` 87, `e` 7, `\` 32, `M` 1 |
 | F03 | level | 180×55 | `M` 5, `e` 8, `/` 126, `\` 54, `u` 4, `j` 2 |
 | F04 | level | 64×120 | `M` 2, `e` 19, `/` 108, `\` 64, `j` 1, `!` 1 |
-| F05 | level | 186×44 | `M` 2, `e` 17, `/` 90, `\` 53, `u` 1 |
+| F05 | level | 186×44 | `M` 2, `e` 18, `/` 90, `\` 53, `u` 1 |
 | F06 | level | 80×132 | `e` 22, `D` 18, `\` 26, `u` 3, `j` 1, `/` 12, `M` 3 |
 | F07 | level | 186×50 | `\` 31, `D` 12, `/` 47, `u` 2, `e` 7, `j` 1, `M` 3 |
 | F08 | level | 165×46 | `/` 16, `u` 5, `e` 17, `\` 20, `M` 9, `j` 1 |

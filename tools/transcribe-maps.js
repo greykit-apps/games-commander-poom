@@ -284,9 +284,11 @@ function convert(d) {
         else if (tg === "+") under = "a";
       }
       /* the ground a creature stands in is in the grid as the creature too:
-         D11's spike floor had two holes where its sparks sit on it */
+         walls, ledges and poles come back. Hazards don't: a spike under a
+         creature was never one a player met, and putting it back adds a
+         hazard the level never had (C17's shaft) */
       const tg = c === "e" && (e1glyph || e2glyph) ? (e1glyph || e2glyph)(x, y) : null;
-      if (!under && tg && "^#-|".includes(tg)) under = tg === "^" && pulse && pulse(x, y) ? "z" : tg;
+      if (!under && tg && "#-|".includes(tg)) under = tg;
       row += under || g;
       if (e && "eGNMZl!P".includes(g)) things.push([x, y, g, e.name]);
       /* E1 tile objects have no entity: name them from their behaviour */
