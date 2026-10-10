@@ -3,8 +3,11 @@
 A working document for choosing each Book's theme. Nothing here is settled
 unless it says so; change it freely.
 
-Book 1 (map set H) is done: a wasteland in the spirit of *Fallout*. Every
-later Book follows the same rules:
+Books 1 to 5 are done: a wasteland in the spirit of *Fallout* (set H), a
+hollow moon in the spirit of *Metroid* (C), an island lair in the spirit of
+*Metal Gear Solid* (D), a drowned city in the spirit of *BioShock* (E) and
+an orbital station in the spirit of *The Terminator*, *Aliens* and
+*Predator* (A). Every later Book follows the same rules:
 
 - **Animals, not humans.** Poom and the Catamaran carry on.
 - **A mashup with its own names.** The Book borrows the feeling of a famous
@@ -12,7 +15,8 @@ later Book follows the same rules:
 - **Everything themes together.** That means the story, place names, signs
   and ending; three or four tilesets and a creature set; Poom's look; the
   title scene, menus and scorebox; and a sound set.
-  (`BOOK_THEMES`, `THEME_OF_BOOK` and `BOOK_TEXT` in `js/game.js`.)
+  (`BOOK_THEMES`, `THEME_OF_BOOK` and `BOOK_TEXT` in `js/game.js`; from
+  Book 3 on, each Book's art is in its own `js/art-book<n>.js`.)
 
 ## Settled
 
@@ -23,12 +27,12 @@ later Book follows the same rules:
   |---|---|---|---|
   | 1 | H | Wastelandia | the wasteland, in the spirit of *Fallout* (done) |
   | 2 | C | Heavens to Mergatroid | Thrum, in the spirit of *Metroid* (done) |
-  | 3 | D | The Island of Dr Claw | to make |
-  | 4 | E | Descent into Rapture | to make (a sunken city, *BioShock*) |
-  | 5 | A | Termination Day | to make |
+  | 3 | D | The Island of Dr Cal | an island lair, *Metal Gear Solid* (done: [book-3-story.md](book-3-story.md)) |
+  | 4 | E | Descent into Rapture | a drowned city, *BioShock* (done: [book-4-story.md](book-4-story.md)) |
+  | 5 | A | Termination Day | an orbital station, *The Terminator* / *Aliens* / *Predator* (done: [book-5-story.md](book-5-story.md)) |
 
-  New game asks which Book to play. Books not built yet are greyed out
-  (`BOOK_PLAYABLE` in `js/game.js`), and the last playable Book ends the game.
+  New game asks which Book to play. All five are playable now
+  (`BOOK_PLAYABLE` in `js/game.js`); the last playable Book ends the game.
 
   Each one's story map is in `docs/story/book-<set>.md`.
 
@@ -50,13 +54,13 @@ theme.
 
 ## Proposals
 
-Books 2, 3 and 4 are sets C, D and E. The order of sets A, B, F, G and I after
+Books 2 to 5 are sets C, D, E and A. The order of sets B, F, G and I after
 them is not settled.
 
 - **Set C (Book 2): an alien hive, in the spirit of *Metroid* / *Alien*.**
   It is simple and hazard-heavy like Book 1, which suits a tense, quiet,
   derelict world: spores, acid pools, organic tunnels. *Settled as Book 2.*
-- **Set A: sky islands, in the spirit of *Laputa* / *Skyward Sword*.** The
+- **Sky islands, in the spirit of *Laputa* / *Skyward Sword*** (once set A's idea; free for another set). The
   platforms and bridges become airship decks and rope bridges between floating
   islands. Each level's objective is a "sky-shard" that keeps an island
   aloft. Alternative: a clockwork city of gears and lifts.
@@ -64,12 +68,13 @@ them is not settled.
   hazards are ready-made assembly lines, crushers and sparking wire; the
   key carriers become worker robots holding security passes. Alternative:
   a candy factory, lighter in tone.
-- **Set D (Book 3): a secret island base, in the spirit of *Metal Gear* and 1960s spy
-  films.** Turrets become security cameras and guns, the many creature types
-  become guards, dogs and drones, and the one objective is stolen plans.
-- **Set E (Book 4): a sunken art-deco city, in the spirit of *BioShock*.** Rescues and
-  swimming fit it best: an underwater city of otters, with eight trapped
-  citizens to free.
+- **Set D (Book 3): a secret island base, in the spirit of *Metal Gear*.**
+  *Settled as Book 3*: [book-3-story.md](book-3-story.md).
+- **Set E (Book 4): a sunken art-deco city, in the spirit of *BioShock*.**
+  *Settled as Book 4*: [book-4-story.md](book-4-story.md).
+- **Set A (Book 5): *The Terminator*, *Aliens* and *Predator*.** *Settled as
+  Book 5*: [book-5-story.md](book-5-story.md). (The sky-islands idea below is
+  no longer set A's.)
 - **Set F: a desert planet, in the spirit of *Dune* / *Tatooine*.** The wide
   world and its slopes turn into dunes. The conveyors become mining
   crawlers, and creatures burst up from the sand.
@@ -94,9 +99,17 @@ A proposal for how the arc could build:
 - **Book 1 (done).** Cal is offstage. His Scrappers strip the Catamaran, and
   he watches it climb away from his throne of hubcaps: "Find out where it's
   going."
-- **Book 2.** His trap: the fake mayday from Thrum. His salvage barge arrives
-  too late, and through its window, for the first time, the player glimpses a
-  grey-black silhouette.
+- **Book 2 (done).** His trap: the fake mayday from Thrum. His salvage barge
+  arrives too late, and through its window, for the first time, the player
+  glimpses a grey-black silhouette.
+- **Book 3 (done).** Cal hires Dr Claw to copy the Catamaran; one copy gets
+  finished, **the black Catamaran**, and Cal flies off in it.
+- **Book 4 (done).** Cal buys every drop of SPARK in Raptura to power it.
+  An audio diary from Raptura Radio's operator ("Keep listening, sugar")
+  hints at who Auntie Static is, without saying.
+- **Book 5 (done).** Cal steals the Hunter's **cloak** from TERMINUS. Auntie:
+  "He's been building himself into you, sugar, one piece at a time." The
+  Shadow Poom reveal is still to come.
 - **The middle Books.** Cal copies Poom, a piece per Book. He builds his own
   ship from the parts his gang has studied, a black Catamaran, and gets his
   paws on the gear Poom used last time (the station's hardsuit tech from
@@ -113,7 +126,7 @@ is the author's to choose.
 
 ## Open questions
 
-- After Book 4, which order for sets A, B, F, G and I?
+- After Book 5, which order for sets B, F, G and I?
 - Which Book does Cal first appear in person, and when does he become Shadow
   Poom?
 - Does Poom's ship take damage in each Book (more parts to find), or does each

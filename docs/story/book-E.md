@@ -12,7 +12,7 @@ Generated from the map data by `tools/story-map.js E`. It says where in Book E t
 
 ## The world map
 
-Poom starts at (56, 37). Some paths are shut until a level is done; this is the order the map lets levels be played, if each one is done as soon as it can be:
+Poom starts at (56, 37). The map has 2 linked teleporters. Some paths are shut until a level is done; this is the order the map lets levels be played, if each one is done as soon as it can be:
 
 1. **Open from the start**:
    - E02 (level 1); finishing it clears 2 barrier tiles
@@ -25,12 +25,14 @@ Poom starts at (56, 37). Some paths are shut until a level is done; this is the 
    - E07 (level 6) — needs E02 (level 1) and E03 (level 2) done
    - E08 (level 7) — needs E02 (level 1) and E03 (level 2) done
    - E09 (level 8) — needs E02 (level 1) and E03 (level 2) done
+   - E10 (level 9) — needs E02 (level 1) and E03 (level 2) done
    - E11 (level 10) — needs E02 (level 1) and E03 (level 2) done
    - E12 (level 11) — needs E02 (level 1) and E03 (level 2) done
    - E13 (level 12) — needs E02 (level 1) and E03 (level 2) done
    - E14 (level 13) — needs E02 (level 1) and E03 (level 2) done
+   - E15 (level 14) — needs E02 (level 1) and E03 (level 2) done
 
-**Not reachable by walking the map: E10 (level 9), E15 (level 14), E16 (level 15), E17 (level 16), E18 (level 17).**
+**Not reachable by walking the map: E16 (level 15), E17 (level 16), E18 (level 17).**
 
 Levels in the same step can be played in any order, so the story can't assume one of them comes before another.
 
@@ -46,11 +48,11 @@ Levels in the same step can be played in any order, so the story can't assume on
 | E07 (level 6) | by reaching the one to rescue | – | – | 1 | – | 01, 02, 04, 06, 09, 10 |
 | E08 (level 7) | by walking off the right edge of the map | – | – | – | – | 01, 03, 04, 06, 07 |
 | E09 (level 8) | by walking off the right edge of the map | – | – | – | – | 01, 04, 05, 06, 07, 11 |
+| E10 (level 9) | by taking the objective | 1 | – | – | – | 01, 04, 05, 06 |
 | E11 (level 10) | by reaching the one to rescue | – | – | 1 | – | 01, 02, 04, 05, 07, 08 |
 | E12 (level 11) | by walking off the right edge of the map | – | – | – | – | turret, 01, 02, 11 |
 | E13 (level 12) | by reaching the one to rescue | – | – | 1 | – | turret, 01, 02, 04 |
 | E14 (level 13) | by reaching the one to rescue | – | – | 1 | – | turret, 01, 02, 04, 12 |
-| E10 (level 9) | by taking the objective | 1 | – | – | – | 01, 04, 05, 06 |
 | E15 (level 14) | through an exit door | – | – | – | – | turret, 01, 02, 04, 06 |
 | E16 (level 15) | by walking off the right edge of the map | – | – | – | – | 01, 04, 05, 06 |
 | E17 (level 16) | by reaching the one to rescue | – | – | 1 | – | 01, 07, 13 |
@@ -215,6 +217,22 @@ Terrain: 2 warp doors, 5 moving platforms, slopes, hazards, poles.
 
 **Creatures**: type 01 ×19, from the early part; type 04 ×11, from the early part; type 05 ×2, from the late part; type 06 ×1, from the late part; type 07 ×7, from the early part; type 11 ×10, from the early part.
 
+### E10 (level 9)
+
+84 × 75 tiles. Ends by taking the objective.
+
+Terrain: 5 moving platforms, slopes, hazards, poles.
+
+**Along the way** (rough order, start first):
+
+- Platform switch — changes a moving platform's path at (78, 69) — (76, 63), bottom right, ≈late
+- Platform switch — changes a moving platform's path at (56, 13) — (8, 30), middle left, late
+- Platform switch — changes a moving platform's path at (10, 41) — (9, 42), middle left, late
+- **Objective** (swim ability) — taking it ends the level — (68, 25), middle right, late
+- **Swim ability** — (68, 25), middle right, late
+
+**Creatures**: type 01 ×18, from the early part; type 04 ×5, from the early part; type 05 ×5, from the early part; type 06 ×5, from the late part.
+
 ### E11 (level 10)
 
 58 × 93 tiles. Ends by reaching the one to rescue.
@@ -301,22 +319,6 @@ Terrain: 2 warp doors, 6 moving platforms, slopes, hazards, poles.
 - **Rescue** (npc type 01) — touching them ends the level; the dialogue happens here — (6, 106), bottom left, late
 
 **Creatures**: turret ×7, from the ≈early part; type 01 ×24, from the early part; type 02 ×6, from the early part; type 04 ×7, from the middle part; type 12 ×4, from the early part.
-
-### E10 (level 9)
-
-84 × 75 tiles. Ends by taking the objective.
-
-Terrain: 5 moving platforms, slopes, hazards, poles.
-
-**Along the way** (rough order, start first):
-
-- Platform switch — changes a moving platform's path at (78, 69) — (76, 63), bottom right, ≈late
-- Platform switch — changes a moving platform's path at (56, 13) — (8, 30), middle left, late
-- Platform switch — changes a moving platform's path at (10, 41) — (9, 42), middle left, late
-- **Objective** (swim ability) — taking it ends the level — (68, 25), middle right, late
-- **Swim ability** — (68, 25), middle right, late
-
-**Creatures**: type 01 ×18, from the early part; type 04 ×5, from the early part; type 05 ×5, from the early part; type 06 ×5, from the late part.
 
 ### E15 (level 14)
 

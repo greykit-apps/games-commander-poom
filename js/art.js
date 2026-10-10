@@ -480,6 +480,11 @@ function useCreatures(name) { Object.assign(ART, ART.creatureSets[name] || ART.c
 function useItems(name) {
   const S = ART.itemSets[name] || ART.itemSets.classic;
   ART.items = S.items; ART.gems = S.gems;
+  /* a set may draw a level's objectives itself: [one that doesn't end the
+     level, one that does] */
+  ART.objectives = S.objectives || null;
+  /* and the one a level is there to rescue: two frames, waving */
+  ART.npc = S.npc || null;
 }
 
 /* dress Poom: the sprites the game draws come from the look in use */
@@ -1544,9 +1549,9 @@ function buildArt() {
       const backView = k === "back" || k === "climb0" || k === "climb1";
       const head = backView ? P_HEAD_BACK : k === "dead" ? P_HEAD_DIZZY : P_HEAD;
       const tail = backView ? TAIL_BACK : k === "walk1" ? TAIL_SWING : TAIL_SIDE;
-      L.poom[k] = both(sprite(dress.head(head).map(pad).concat(overlay(dress.body(body).map(pad), tail))));
+      L.poom[k] = both(sprite(dress.head(head).map(pad).concat(overlay(dress.body(body).map(pad), tail)), { pal: dress.pal || null }));
     }
-    for (const [k, g] of Object.entries(MAP_POOM)) L.map[k] = both(sprite(dress.map(g)));
+    for (const [k, g] of Object.entries(MAP_POOM)) L.map[k] = both(sprite(dress.map(g), { pal: dress.pal || null }));
   }
   useLook("classic");
   ART.pogoLong = both(sprite(POGO_LONG));
@@ -1601,6 +1606,7 @@ function buildArt() {
   ART.poof = POOF.map(g => sprite(g, { outline: false }));
   ART.star = sprite(STAR, { outline: false });
   ART.digits = buildDigits();
+  for (const f of ART_BOOKS) f();
 }
 
 /* LED digits for the scorebox, 5x7 */
@@ -1636,6 +1642,13 @@ function buildDigits() {
 /* Tiles, painted per theme. 16x16.                                       */
 
 const T = 16;
+
+/* Later Books keep their art in their own files (js/art-book3.js and on),
+ * which register here: a tileset style (TILE_STYLES[style](tiles, th, mk,
+ * E), called by paintTiles), a far backdrop (FAR_STYLES[style](th)), a
+ * world map (MAP_PAINTERS[name](classic), called by game.js) and anything
+ * built once at load (ART_BOOKS, run at the end of buildArt). */
+const TILE_STYLES = {}, FAR_STYLES = {}, MAP_PAINTERS = {}, ART_BOOKS = [];
 
 /* a small seeded noise so every brick is not the same brick */
 function rng(seed) {
@@ -1867,6 +1880,7 @@ function paintTiles(themeName) {
   if (th.style === "crags") cragTiles(tiles, th, mk, E);
   if (th.style === "delve") delveTiles(tiles, th, mk, E);
   if (th.style === "hive") hiveTiles(tiles, th, mk, E);
+  if (TILE_STYLES[th.style]) TILE_STYLES[th.style](tiles, th, mk, E);
 
   /* fake wall: looks like ground, walks like air (secret) */
   tiles.fake = tiles.ground[0];
@@ -2773,6 +2787,7 @@ function paintFar(themeName) {
   if (th.style === "crags") return paintCragFar();
   if (th.style === "delve") return paintDelveFar();
   if (th.style === "hive") return paintHiveFar();
+  if (FAR_STYLES[th.style]) return FAR_STYLES[th.style](th);
   return c;
 }
 
