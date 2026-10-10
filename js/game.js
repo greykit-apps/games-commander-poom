@@ -1296,10 +1296,12 @@ const ENEMY = {
  * Sentrybots (05) shove like roombots, the lieutenants (03) are L. Turrets
  * are G in every book. Books not listed have no enemies yet. */
 const ENEMY_OF = { H: { "01": "x", "02": "B", "03": "L", "04": "V", "05": "T" },
-  /* Book 2: Mergatroids (02) hop like mousels, Husks (01) walk like vacuumoids,
-     Skitters (05) charge like barkers, Shellbacks (04) shove like roombots,
-     Spitters (03) shoot like clawtanks */
-  C: { "02": "x", "01": "V", "05": "B", "04": "T", "03": "K" } };
+  /* Book 2: Mergatroids (01) hop like mousels, Husks (02) walk like
+     vacuumoids, Skitters (05) charge like barkers, Shellbacks (04) shove like
+     roombots, Spitters (03) shoot like clawtanks. Type 01 crowds the early
+     levels (four in C02, the first) and 02 the deep ones (17 in the Nursery),
+     so the gentle one is 01 and the deadly one 02 */
+  C: { "01": "x", "02": "V", "05": "B", "04": "T", "03": "K" } };
 /* A Book without a hand-made list gets one from its own maps (type numbers
  * mean something different in every set, maps2/README.md): a rare type
  * that only ever stands near the level's objectives guards them (L); the
@@ -1563,7 +1565,9 @@ function bookDone() {
     r.parts = [false, false, false, false]; r.aboard = [false, false, false, false];
     enterMap();
     saveRun();
-    const table = () => { if (k >= 0) openScores(k); };
+    /* then the new book's story and first word, if it has its own words */
+    const B = BOOK_TEXT[next], intro = () => { if (B && B.story) bookIntro(B, () => {}); };
+    const table = () => { if (k >= 0) openScores(k, intro); else intro(); };
     if (!pages) message(`<b>Book ${bookNumber(was)} is done!</b><br><br>On to Book ${bookNumber(next)}.`, { onClose: table });
     else table();
   }
@@ -1632,18 +1636,23 @@ function konami(code) {
 function leaveLevel(toTitle = false) {
   const snap = G.lv.snapshot;
   const lost = G.run.parts.map((h, i) => h && !snap.parts[i] ? PART_NAMES[i] : null).filter(Boolean);
+  const regrown = Object.keys(G.run.hearts || {}).some(id => !(snap.hearts || {})[id]);
   G.run = snap;
   G.lv = null;
   if (toTitle) { saveRun(); return; }
   enterMap();
   saveRun();
-  if (lost.length) { const one = lost.length === 1; message(`Poom left ${lost.join(" and ")} behind. ${one ? "It's" : "They're"} back where he found ${one ? "it" : "them"}.`); }
+  const one = lost.length === 1;
+  const said = (lost.length ? `Poom left ${lost.join(" and ")} behind. ${one ? "It's" : "They're"} back where he found ${one ? "it" : "them"}.` : "")
+    + (regrown ? `${lost.length ? "<br><br>" : ""}The heartstone he broke there has grown back: a stone only stays broken once he gets out.` : "");
+  if (said) message(said);
 }
 
 function loseLife() {
   const snap = G.lv.snapshot;
   /* the parts picked up in this level go back where they were */
   const lost = G.run.parts.map((h, i) => h && !snap.parts[i] ? PART_NAMES[i] : null).filter(Boolean);
+  const regrown = Object.keys(G.run.hearts || {}).some(id => !(snap.hearts || {})[id]);
   G.run = snap;
   if (!G.run.cheat) G.run.lives--;
   G.lv = null;
@@ -1651,7 +1660,8 @@ function loseLife() {
   enterMap();
   saveRun();
   const one = lost.length === 1;
-  const dropped = lost.length ? `<br><br>Poom dropped ${lost.join(" and ")}. ${one ? "It's" : "They're"} back where he found ${one ? "it" : "them"}.` : "";
+  const dropped = (lost.length ? `<br><br>Poom dropped ${lost.join(" and ")}. ${one ? "It's" : "They're"} back where he found ${one ? "it" : "them"}.` : "")
+    + (regrown ? "<br><br>The heartstone he broke there has grown back." : "");
   message(say("lostLife", n => n === 0 ? "Poom shakes it off.<br><br><b>This is your last life.</b>" : `Poom shakes it off.<br><br>${n} ${n === 1 ? "life" : "lives"} left.`, G.run.lives) + dropped);
 }
 
@@ -2622,10 +2632,10 @@ const DEFAULT_SCORES = [
 ];
 /* until there are real scores, the table is the current book's cast */
 function scores() { const B = textBook(); return store.get(KEYS.scores, null) || ((B && B.scores) || DEFAULT_SCORES).slice(); }
-function openScores(highlight = -1) {
+function openScores(highlight = -1, then = null) {
   const list = scores();
   const rows = list.map(([n, s], i) => `<tr${i === highlight ? ' class="me"' : ""}><td>${i + 1}.</td><td>${escapeHTML(n)}</td><td class="num">${s}</td></tr>`).join("");
-  page("High scores", [["", `<table class="scores">${rows}</table>`]]);
+  page("High scores", [["", `<table class="scores">${rows}</table>`]], then ? { onBack: () => { UI.pop(); then(); } } : {});
 }
 const escapeHTML = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 
@@ -2714,11 +2724,15 @@ function levelTitle(name) { showLogo(name); logoEl().classList.add("level"); fad
 
 function story() {
   G.mode = "story";
-  const B = textBook();
+  bookIntro(textBook(), () => { enterMap(); saveRun(); });
+}
+/* A book's story pages, then its first word on the map: at a new game, and
+ * when the run moves on to the next book. A page count, and Esc skips to
+ * the map: the Help keeps the story. */
+function bookIntro(B, toMap) {
   const pages = (B ? B.story : STORY).split("</p>").map(s => s.replace("<p>", "").trim()).filter(Boolean);
   let i = 0;
-  const arrive = () => { enterMap(); saveRun(); message(B ? B.arrive : "This is Planet Hiss. Walk to a level and press <kbd>Ctrl</kbd>, <kbd>Z</kbd> or <kbd>Space</kbd> to go in.<br><br><kbd>Esc</kbd> pauses; <kbd>Enter</kbd> shows your status."); };
-  /* a page count, and Esc to skip to the map: the Help keeps the story */
+  const arrive = () => { toMap(); message(B ? B.arrive : "This is Planet Hiss. Walk to a level and press <kbd>Ctrl</kbd>, <kbd>Z</kbd> or <kbd>Space</kbd> to go in.<br><br><kbd>Esc</kbd> pauses; <kbd>Enter</kbd> shows your status."); };
   const next = () => {
     if (i >= pages.length) { arrive(); return; }
     message(pages[i++], { onClose: next, onSkip: arrive, hint: `${i} of ${pages.length} &middot; any key &middot; <kbd>Esc</kbd> skips` });

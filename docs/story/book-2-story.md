@@ -152,14 +152,15 @@ whatever biome its level is.
 
 ## The creatures
 
-The engine's automatic assignment gave set C: 02 pusher, 01 walker, 05
-charger, 04 shover, 03 shooter. Book 2 can set its own (`ENEMY_OF.C`).
-Proposed:
+Set in `ENEMY_OF.C`. Type 01 crowds the early levels (four in C02, the
+first) and 02 the deep ones (17 in the Mergatroid Nursery), so 01 is the
+gentle Mergatroid and 02 the deadly Husk. The playtests found the other way
+round put four Husks in the first level.
 
 | Type | Count | Engine kind | Proposal |
 |---|---|---|---|
-| 02 | 73 | pusher (x) | **Mergatroids**: drifting, glowing jelly-things of the Hum, the Book's nod to its namesake; harmless, they bump you away. Jump on one to dim it for a while. |
-| 01 | 59 | walker (V) | **Husks**: armoured crawlers the Hum grows from the rock; deadly to touch, they take a few shots. |
+| 01 | 59 | pusher (x) | **Mergatroids**: drifting, glowing jelly-things of the Hum, the Book's nod to its namesake; harmless, they bump you away. Jump on one to dim it for a while. |
+| 02 | 73 | walker (V) | **Husks**: armoured crawlers the Hum grows from the rock; deadly to touch, they take a few shots. |
 | 05 | 33 | charger (B) | **Skitters**: fast six-legged things that rush you on sight. |
 | 04 | 29 | shover (T) | **Shellbacks**: slow, armoured, can't be hurt; they shove. |
 | 03 | 16 | shooter (K) | **Spitters**: rare and stationary; they spit along the floor. |
