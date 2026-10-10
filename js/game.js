@@ -408,7 +408,8 @@ function loadLevel(n) {
   const airOf = (x, y) => [[1, 0], [-1, 0], [0, -1], [0, 1]].some(([dx, dy]) => (rows[y + dy] || [])[x + dx] === "+") ? "+" : ".";
   for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
     const c = rows[y][x], px = x * T, py = y * T;
-    if (c === "P") { lv.p = makePlayer(px + 2, py + T - 22); rows[y][x] = airOf(x, y); }
+    /* the first start in the map wins (D10 has two) */
+    if (c === "P") { if (!lv.p) lv.p = makePlayer(px + 2, py + T - 22); rows[y][x] = airOf(x, y); }
     else if (c === "E") { lv.exitAt[x + "," + y] = true; rows[y][x] = "."; }
     else if (c === "X") { lv.edge.add(x + "," + y); rows[y][x] = "."; }
     else if (c === "!" || c === "w") {
@@ -423,15 +424,34 @@ function loadLevel(n) {
     else if (c === "*") { lv.items.push({ kind: "part", part: def.part, x: px, y: py, t: 0 }); rows[y][x] = airOf(x, y); }
     else if ("xBVTKW".includes(c)) { lv.ents.push(makeEnemy(c, px, py + T)); rows[y][x] = airOf(x, y); }
   }
-  /* the books' creatures and turrets, from the map's things */
-  const kinds = ENEMY_OF[def.book];
-  if (kinds) for (const [x, y, g, name] of def.things || []) {
-    if (g === "e") { const t = kinds[(/enemy type (\d+)/.exec(name) || [])[1]]; if (t) lv.ents.push(makeEnemy(t, x * T, y * T + T)); }
-    if (g === "G") {
-      const e = makeEnemy("G", x * T, y * T + T), d = TURRET_DIR[(/turret \(([\w-]+)\)/.exec(name) || [])[1]] || [1, 0];
-      e.aim = d; e.face = d[0] < 0 ? -1 : 1; e.vx = 0;
+  /* the books' creatures and turrets, from the map's things. A creature
+     may slide along an axis (0 across, 1 up and down) or keep bouncing, and
+     one that "carries key" drops a keycard the level is missing */
+  const kinds = ENEMY_OF[def.book] || {}, carriers = [];
+  for (const [x, y, g, name] of def.things || []) {
+    if (g === "e") {
+      const t = kinds[(/enemy type (\d+)/.exec(name) || [])[1]];
+      if (!t) continue;
+      const e = makeEnemy(t, x * T, y * T + T), axis = /sliding, axis (\d)/.exec(name);
+      if (axis) { e.slide = +axis[1]; if (e.slide === 1) { e.vx = 0; e.vy = e.speed; } }
+      if (/bouncing/.test(name)) e.bounce = true;
+      if (/carries key/.test(name)) carriers.push(e);
       lv.ents.push(e);
     }
+    if (g === "G") {
+      const dir = (/turret \(([\w-]+)\)/.exec(name) || [])[1], d = TURRET_DIR[dir] || [1, 0];
+      const e = makeEnemy("G", x * T, y * T + T);
+      e.aim = d.slice(); e.face = d[0] < 0 ? -1 : 1; e.vx = 0; e.alternate = dir === "horizontal" || dir === "vertical";
+      lv.ents.push(e);
+    }
+  }
+  if (carriers.length) {
+    const want = new Set();
+    for (const sk of def.sockets || []) want.add(sk.gem);
+    rows.forEach(r => r.forEach(c => { if (DOOR_CH[c] !== undefined) want.add(DOOR_CH[c]); }));
+    for (const it of lv.items) if (it.kind === "gem") want.delete(it.gem);
+    const missing = [...want];
+    carriers.forEach((e, i) => { if (i < missing.length) e.carries = missing[i]; });
   }
   /* Exit doors: each connected group of exit tiles is one door. Walking
    * into any of its tiles finishes the level; it is drawn standing on the
@@ -1168,7 +1188,35 @@ const ENEMY = {
  * Sentrybots (05) shove like roombots, the lieutenants (03) are L. Turrets
  * are G in every book. Books not listed have no enemies yet. */
 const ENEMY_OF = { H: { "01": "x", "02": "B", "03": "L", "04": "V", "05": "T" } };
-const TURRET_DIR = { "up-left": [-1, -1], "up-right": [1, -1], up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
+/* A Book without a hand-made list gets one from its own maps (type numbers
+ * mean something different in every set, maps2/README.md): a rare type
+ * that only ever stands near the level's objectives guards them (L); the
+ * rest, most common first, are pushers (x), walkers (V), chargers (B),
+ * shovers (T) and shooters (K), and any beyond that walk. A guess from the
+ * data, to be replaced when a Book gets its own creatures. */
+for (const b of BOOK_IDS) {
+  if (ENEMY_OF[b]) continue;
+  const seen = {}, nearGoal = {};
+  for (const id in MAPS) {
+    const lv = MAPS[id];
+    if (lv.book !== b) continue;
+    const goals = (lv.ends || []).map(([x, y]) => [x, y]);
+    lv.rows.forEach((r, y) => [...r].forEach((c, x) => { if (c === "*") goals.push([x, y]); }));
+    for (const [x, y, g, name] of lv.things || []) {
+      const n = g === "e" && (/enemy type (\d+)/.exec(name) || [])[1];
+      if (!n) continue;
+      seen[n] = (seen[n] || 0) + 1;
+      const near = goals.some(([gx, gy]) => Math.abs(gx - x) <= 8 && Math.abs(gy - y) <= 4);
+      nearGoal[n] = (nearGoal[n] === undefined ? true : nearGoal[n]) && near;
+    }
+  }
+  const map = {}, rest = [];
+  for (const n of Object.keys(seen)) (nearGoal[n] && seen[n] <= 6 ? (map[n] = "L") : rest.push(n));
+  rest.sort((a, c) => seen[c] - seen[a]).forEach((n, i) => { map[n] = ["x", "V", "B", "T", "K"][i] || "V"; });
+  ENEMY_OF[b] = map;
+}
+/* a turret's barrel; "horizontal" and "vertical" ones fire both ways, in turn */
+const TURRET_DIR = { "up-left": [-1, -1], "up-right": [1, -1], up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0], horizontal: [1, 0], vertical: [0, -1] };
 
 function makeEnemy(c, x, bottom) {
   const d = ENEMY[c];
@@ -1210,6 +1258,7 @@ function updateEnemy(lv, e) {
         const [ax, ay] = e.aim, n = Math.hypot(ax, ay) || 1;
         lv.shots.push({ kind: "hairball", x: e.x + e.w / 2 + ax * 7 - 3, y: e.y + ay * 7, w: 6, h: 6, vx: 2.4 * ax / n, vy: 2.4 * ay / n, t: 0 });
         sfx("tank");
+        if (e.alternate) { e.aim = [-ax, -ay]; e.face = e.aim[0] < 0 ? -1 : 1; }
       }
       return;
     }
@@ -1243,9 +1292,16 @@ function updateEnemy(lv, e) {
     }
   }
 
+  if (e.slide === 1) e.vx = 0;
   if (e.vx) e.face = Math.sign(e.vx);
-  e.vy = Math.min(e.vy + KP.gravity, e.type === "V" || e.type === "W" || e.type === "L" ? 6 : KP.maxFall);
+  /* a slider floats along its axis; everything else falls */
+  if (e.slide === 0) e.vy = 0;
+  else if (e.slide === 1) { if (!e.vy) e.vy = e.speed; }
+  else e.vy = Math.min(e.vy + KP.gravity, e.type === "V" || e.type === "W" || e.type === "L" ? 6 : KP.maxFall);
+  if (e.bounce && e.onGround) e.vy = -3.2;
+  const vy0 = e.vy;
   const hit = moveBody(lv, e, true);
+  if (e.slide === 1 && (hit.top || hit.bottom)) e.vy = hit.top ? Math.abs(vy0) : -Math.abs(vy0);
   if (hit.left || hit.right) {
     if (e.type === "B" && e.state === "charge") { e.state = "walk"; e.t = 0; }
     e.vx = hit.left ? Math.abs(e.speed) : -Math.abs(e.speed);
@@ -1257,7 +1313,7 @@ function updateEnemy(lv, e) {
   const fromAbove = p.vy > 0 && p.y + p.h - p.vy <= e.y + 5;
   if (e.type === "x") {
     if (e.state === "stunned") return;
-    if (fromAbove) { e.state = "stunned"; e.t = 0; p.vy = p.pogo ? -KP.pogoSmall : -2; sfx("stun"); return; }
+    if (fromAbove) { e.state = "stunned"; e.t = 0; p.vy = p.pogo ? -KP.pogoSmall : -2; sfx("stun"); dropKey(lv, e); return; }
     p.pushV = dxp > 0 ? 1.4 : -1.4; p.pushT = 8; if (!(e.t % 8)) sfx("push");
   } else if (e.type === "T" || e.type === "K") {
     if (fromAbove && e.type === "K") { p.vy = -3; return; }
@@ -1267,11 +1323,20 @@ function updateEnemy(lv, e) {
   } else die(lv);
 }
 
+/* a creature that carries a keycard lets it go when stunned or beaten */
+function dropKey(lv, e) {
+  if (e.carries === undefined || e.carries === null) return;
+  const tx = Math.floor((e.x + e.w / 2) / T), ty = Math.floor((e.y + e.h - 1) / T);
+  lv.items.push({ kind: "gem", gem: e.carries, x: tx * T, y: ty * T, t: 0 });
+  e.carries = null;
+  sfx("gem");
+}
+
 function hurtEnemy(lv, e, shot) {
   if (e.hp === Infinity) { sfx("ricochet"); return; }
   e.hp--; e.flash = 6;
   if (e.hp <= 0) {
-    e.alive = false; sfx("kill");
+    e.alive = false; sfx("kill"); dropKey(lv, e);
     const big = e.type === "W";
     for (let i = 0; i < (big ? 6 : 1); i++) lv.fx.push({ kind: "poof", x: e.x + e.w / 2 - 5 + (big ? (Math.random() - .5) * 30 : 0), y: e.y + e.h / 2 - 3 + (big ? (Math.random() - .5) * 40 : 0), t: -i * 5 });
     if (e.points) { addScore(e.points); popup({ x: e.x + e.w / 2 - 8, y: e.y }, String(e.points)); }
@@ -1730,7 +1795,13 @@ function drawEnemy(e, cx, cy) {
   const spr = set[k][dir], sc = e.scale || 1;
   const x = Math.round(e.x + e.w / 2 - spr.width * sc / 2) - cx, y = Math.round(e.y + e.h) + sc - spr.height * sc - cy;
   if (e.flash && e.flash % 2) ctx.globalAlpha = 0.4;
-  ctx.drawImage(spr, x, y, spr.width * sc, spr.height * sc);
+  if (e.type === "G" && e.aim) {
+    /* the turret's art points up and to the right: mirror it to the barrel's
+       side, and hang it upside down when it fires downward */
+    const fx = e.aim[0] < 0 ? -1 : 1, fy = e.aim[1] > 0 ? -1 : 1;
+    ctx.save(); ctx.translate(x + (fx < 0 ? spr.width : 0), y + (fy < 0 ? spr.height : 0)); ctx.scale(fx, fy);
+    ctx.drawImage(set[k].r, 0, 0); ctx.restore();
+  } else ctx.drawImage(spr, x, y, spr.width * sc, spr.height * sc);
   ctx.globalAlpha = 1;
   if (e.type === "x" && e.state === "stunned" && (e.t >> 3) % 2) ctx.drawImage(ART.star, x + 6, y - 2);
 }
@@ -2434,7 +2505,13 @@ function ending() {
   addScore(10000);
   /* the last book played ends the game in its own words, bonus included */
   const own = BOOK_TEXT[r.book] && BOOK_TEXT[r.book].ending;
-  const pages = own ? own(r.score, null) : [
+  /* the last Book's own ending if it has one; if not, a plain one: the
+     original game's pages (Planet Hiss, the Laser Pointer) only make sense
+     for a game still wearing its classic look */
+  const pages = own ? own(r.score, null) : theme.name !== "classic" ? [
+    `<b>Book ${bookNumber(r.book)} is done, and that's the last of them.</b><br><br>Commander Poom points the Catamaran home at last. Bonus: 10,000 points.`,
+    `<b>The End.</b><br><br>Final score: ${r.score}.<br><br>Commander Poom will return.`,
+  ] : [
     "<b>The Catamaran is whole again.</b><br><br>Poom bolts in the Laser Pointer, spins up the Yarn Drive, and Planet Hiss falls away beneath him. Bonus: 10,000 points.",
     "He lands in the back yard with a soft <i>thump</i>, hides the ship behind the shed, and is in bed, eyes shut, when the front door opens.",
     "\"Was he good?\" his mom asks the babysitter. \"Purrfect,\" says the babysitter.<br><br>From the hall closet comes a faint, hungry whirr...",
