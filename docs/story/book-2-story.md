@@ -1,6 +1,7 @@
 # Book 2: the story (first draft)
 
-Book 2 is map set C, in the spirit of *Metroid*: a lone hunter, a dead
+Book 2 is map set C, in the spirit of *Metroid* (hence its **Mergatroids**,
+and Auntie Static's "Heavens to Mergatroid"): a lone hunter, a dead
 research station, something alive growing through it, and a lot of quiet.
 Like Book 1, it keeps the feeling and invents its own names: no Samus, Zebes,
 Metroids, Chozo, Mother Brain or Varia. It keeps Book 1's rules: animals, not
@@ -106,7 +107,8 @@ caves, and it has hold of the Catamaran too. Every engine Poom fires drains
 into the moon. To leave, he has to go down through the crags, the station and
 the hive itself, and break all eight heartstones before Cal's salvage barge
 arrives. And somewhere under the crust, faint and impossible, Auntie Static's
-radio is playing. She knows the mayday was Cal's before Poom does.
+radio is playing. "Heavens to Mergatroid, sugar, what are you doing *down
+there*?" She knows the mayday was Cal's before Poom does.
 
 ## Why the game works the way it does
 
@@ -148,7 +150,7 @@ Proposed:
 
 | Type | Count | Engine kind | Proposal |
 |---|---|---|---|
-| 02 | 73 | pusher (x) | **Glimmers**: drifting, glowing jelly-things of the Hum; harmless, they bump you away. Jump on one to dim it for a while. |
+| 02 | 73 | pusher (x) | **Mergatroids**: drifting, glowing jelly-things of the Hum, the Book's nod to its namesake; harmless, they bump you away. Jump on one to dim it for a while. |
 | 01 | 59 | walker (V) | **Husks**: armoured crawlers the Hum grows from the rock; deadly to touch, they take a few shots. |
 | 05 | 33 | charger (B) | **Skitters**: fast six-legged things that rush you on sight. |
 | 04 | 29 | shover (T) | **Shellbacks**: slow, armoured, can't be hurt; they shove. |

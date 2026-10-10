@@ -1334,12 +1334,12 @@ const STAR = ["E", ".", "E"];
 
 
 /* ---- Book 2's creatures, the Hum's (docs/story/book-2-story.md) ----
- * Each wears an engine creature's frames and size: a Glimmer hops like a
+ * Each wears an engine creature's frames and size: a Mergatroid hops like a
  * mousel, a Husk walks like a vacuumoid, a Skitter charges like a barker, a
  * Shellback shoves like a roombot, a Spitter fires like a clawtank. Feet on
- * the bottom row. Glimmers and Husks are drawn facing left, the rest right. */
-const GLIMMER_PAL = { a: "#187e76", b: "#2fb3a0", c: "#6fe0c8", d: "#c4fff0", e: "#0a2e30", f: "#d24aa6", g: "#3a4a4a", h: "#5a6e6c" };
-const GLIMMER = {
+ * the bottom row. Mergatroids and Husks are drawn facing left, the rest right. */
+const MERGATROID_PAL = { a: "#187e76", b: "#2fb3a0", c: "#6fe0c8", d: "#c4fff0", e: "#0a2e30", f: "#d24aa6", g: "#3a4a4a", h: "#5a6e6c" };
+const MERGATROID = {
   walk0: [
     "....bbbbb.....",
     "..bbccccbbb...",
@@ -1571,7 +1571,7 @@ function buildArt() {
     turret: each(TURRET, g => sprite(g, { pal: TURRET_PAL })),
   };
   const humCreatures = {
-    mousel: each(GLIMMER, g => sprite(g, { pal: GLIMMER_PAL })),
+    mousel: each(MERGATROID, g => sprite(g, { pal: MERGATROID_PAL })),
     vac: each(HUSK, g => sprite(g, { pal: HUSK_PAL })),
     lieut: each(HUSK, g => sprite(g, { pal: { ...HUSK_PAL, n: "#9c2878", o: "#f48cd0", m: "#681750" } })),
     barker: each(SKITTER, g => sprite(g, { pal: SKITTER_PAL })),

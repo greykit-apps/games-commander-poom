@@ -1212,7 +1212,7 @@ const ENEMY = {
  * Sentrybots (05) shove like roombots, the lieutenants (03) are L. Turrets
  * are G in every book. Books not listed have no enemies yet. */
 const ENEMY_OF = { H: { "01": "x", "02": "B", "03": "L", "04": "V", "05": "T" },
-  /* Book 2: Glimmers (02) hop like mousels, Husks (01) walk like vacuumoids,
+  /* Book 2: Mergatroids (02) hop like mousels, Husks (01) walk like vacuumoids,
      Skitters (05) charge like barkers, Shellbacks (04) shove like roombots,
      Spitters (03) shoot like clawtanks */
   C: { "02": "x", "01": "V", "05": "B", "04": "T", "03": "K" } };
