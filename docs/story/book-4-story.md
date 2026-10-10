@@ -1,4 +1,4 @@
-# Book 4: Descent into Rapture
+# Book 4: Descent into Raptura
 
 Book 4 is map set E, a drowned city in the spirit of *BioShock*: an
 art-deco metropolis of otters at the bottom of the sea, built by a man who
@@ -6,7 +6,7 @@ wanted no rules, ruined by the miracle substance that powered it, haunted
 by its own citizens and guarded by giants in diving suits. Like the other
 Books, it keeps the feeling and invents its own names: no Andrew Ryan,
 ADAM, EVE, Big Daddies, Little Sisters, plasmids or Vita-Chambers. The
-Book's title is the author's; the city is **Raptura**. Animals, not humans;
+city, and the Book's title, say **Raptura**. Animals, not humans;
 Poom and the Catamaran carry on.
 
 The level-by-level detail is in [book-E.md](book-E.md), which
@@ -141,7 +141,7 @@ cable-knit sweater, brown trousers. Tail still his.
 3. The black Catamaran breaks the surface, glowing with SPARK, and shoots
    into the sky with a grey-black panther at the helm.
 4. Auntie: "He's got power to burn now, sugar. Best keep up."
-5. The End of Book Four: Descent into Rapture.
+5. The End of Book Four: Descent into Raptura.
 
 ## Settled
 

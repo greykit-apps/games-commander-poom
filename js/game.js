@@ -446,7 +446,7 @@ const BOOK_THEMES = {
   claw: { name: "claw", look: "sneak", items: "claw", creatures: "claw", map: "claw", title: "claw", subtitle: "Book Three: The Island of Dr Cal", hud: "codec", sound: "claw" },
   /* Book 4, set E: Raptura, the city under the sea (docs/story/book-4-story.md);
      its art is in js/art-book4.js */
-  deep: { name: "deep", look: "diver", items: "deep", creatures: "deep", map: "deep", title: "deep", subtitle: "Book Four: Descent into Rapture", hud: "deco", sound: "deep" },
+  deep: { name: "deep", look: "diver", items: "deep", creatures: "deep", map: "deep", title: "deep", subtitle: "Book Four: Descent into Raptura", hud: "deco", sound: "deep" },
   /* Book 5, set A: TERMINUS, the machine's station (docs/story/book-5-story.md);
      its art is in js/art-book5.js */
   terminus: { name: "terminus", look: "marine", items: "terminus", creatures: "terminus", map: "terminus", title: "terminus", subtitle: "Book Five: Termination Day", hud: "tracker", sound: "terminus" },
@@ -507,7 +507,7 @@ const levelName = id => {
 
 /* Each Book's name (the player sees "Book Two: Heavens to Mergatroid"),
  * and which can be played yet; the rest show greyed out on New game. */
-const BOOK_NAMES = { H: "Wastelandia", C: "Heavens to Mergatroid", D: "The Island of Dr Cal", E: "Descent into Rapture", A: "Termination Day" };
+const BOOK_NAMES = { H: "Wastelandia", C: "Heavens to Mergatroid", D: "The Island of Dr Cal", E: "Descent into Raptura", A: "Termination Day" };
 const BOOK_PLAYABLE = new Set(["H", "C", "D", "E", "A"]);
 
 /* What finishes a book, beyond its levels: Book 2 (set C) ends when its
@@ -3143,7 +3143,7 @@ const BOOK_TEXT = {
       "At the lighthouse they blink at the sun. Poom finds the Catamaran where he left it, bobbing at the jetty.",
       "Far out, the sea boils. The black Catamaran breaks the surface, glowing pink to its rivets with SPARK, and goes straight up into the sky. A grey-black panther at the helm doesn't even look back.",
       "The radio crackles. <i>\"He's got power to burn now, sugar. Best keep up.\"</i>",
-      `<b>The End</b> of Book Four: Descent into Rapture.<br><br>${next ? `Score so far: ${score}.<br><br>On to Book ${next}.` : `Final score: ${score}.<br><br>Commander Poom will return.`}`,
+      `<b>The End</b> of Book Four: Descent into Raptura.<br><br>${next ? `Score so far: ${score}.<br><br>On to Book ${next}.` : `Final score: ${score}.<br><br>Commander Poom will return.`}`,
     ],
   },  /* Book 5, set A: TERMINUS, the machine's station (docs/story/book-5-story.md) */
   A: {
