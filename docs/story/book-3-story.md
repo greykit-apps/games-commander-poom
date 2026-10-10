@@ -41,7 +41,11 @@ Set D is on the older engine (E1), like Books 1 and 2.
   D17. Turrets fire along a line, both ways in turn (22 horizontal, 13
   vertical), and cluster in D10 and D13 (11 each).
 - **Keycards** in D04, D05, D10, D11, D12, D13, D15 and D16 (all four
-  colours in D10 and D16).
+  colours in D10 and D16). Two levels have a door whose keycard isn't in
+  the level: D05's yellow door and D10's red one. The engine lets such a
+  door take any keycard the level has (as a door of no stated colour), so
+  neither level can be stuck; the map maker can say whether they were
+  meant to be optional.
 - **25 moving platforms**, horizontal and vertical.
 - **No signs, no rescues, no ship.**
 

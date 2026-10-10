@@ -678,6 +678,19 @@ function loadLevel(n) {
     const missing = [...want];
     carriers.forEach((e, i) => { if (i < missing.length) e.carries = missing[i]; });
   }
+  /* a locked door whose keycard isn't in the level at all (set D's D05 and
+     D10 have one each; the map maker can say why) takes any keycard the
+     level does have, like a door of no stated colour; with none, it stands
+     open, so no level can't be finished for want of a card */
+  {
+    const have = new Set(lv.items.filter(i => i.kind === "gem").map(i => i.gem));
+    lv.ents.forEach(e => { if (e.carries !== undefined) have.add(e.carries); });
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const c = rows[y][x], d = DOOR_CH[c];
+      if (d === undefined || d === 4 || have.has(d)) continue;
+      rows[y][x] = have.size ? "d" : airOf(x, y);
+    }
+  }
   /* Exit doors: each connected group of exit tiles is one door. Walking
    * into any of its tiles finishes the level; it is drawn standing on the
    * floor up to three tiles below the group, or at the group's foot. */
