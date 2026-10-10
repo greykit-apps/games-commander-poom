@@ -1311,6 +1311,9 @@ const THEMES = {
   /* Book 2's crags: Thrum's outer caves, violet rock, glowing fungus,
      crystal spines and acid. Full colour. */
   crags: { sky: 0, far: [5, 1], ground: [5, 1, 0], crust: ["#45c9b4", "#a8f2e0"], alt: [5, 1], plat: [3, 11], bg: [0, 5], liquid: [10, 2, 14], liquidName: "acid", style: "crags" },
+  /* Book 2's Station Delve: the mole crew's mine and labs, gunmetal plate,
+     amber work-lights, hazard edging, live cables. Full colour. */
+  delve: { sky: 0, far: [8, 0], ground: [8, 7, 0], crust: ["#e0b21c", "#ffd16a"], alt: [8, 7], plat: [7, 8], bg: [0, 8], liquid: [10, 2, 14], liquidName: "coolant", style: "delve" },
 };
 
 function paintTiles(themeName) {
@@ -1505,6 +1508,7 @@ function paintTiles(themeName) {
   if (th.style === "raiders") raiderTiles(tiles, th, mk, E);
   if (th.style === "ruins") ruinTiles(tiles, th, mk, E);
   if (th.style === "crags") cragTiles(tiles, th, mk, E);
+  if (th.style === "delve") delveTiles(tiles, th, mk, E);
 
   /* fake wall: looks like ground, walks like air (secret) */
   tiles.fake = tiles.ground[0];
@@ -1919,6 +1923,152 @@ function paintCragFar() {
   return c;
 }
 
+/* VGA ramps for Station Delve: a warm gunmetal, and its amber lamps */
+const GUN = ["#0c0e0f", "#181b1d", "#24282a", "#323739", "#42484a", "#575e60", "#737b7c", "#9ba3a3"];
+const AMBER = ["#3a2306", "#6b420c", "#a8670f", "#e09a1c", "#ffd16a", "#fff2c4"];
+const STRIPE = ["#e0b21c", "#1a1608"];
+
+/* Station Delve: riveted gunmetal plate, seamed in panels, now and then a
+ * vent, a pipe run or a patch of the Hum's teal growth; the floor's edge in
+ * hazard stripes. A ledge is a mesh catwalk, the hazard live cables
+ * sparking, the doors round-cornered bulkheads with a colour band, the exit
+ * a lift with an amber lamp, a sign the station's wall terminal. */
+function delveTiles(tiles, th, mk, E) {
+  const px = (g, c, x, y, w = 1, h = 1) => { g.fillStyle = c; g.fillRect(x, y, w, h); };
+  const plate = (g, r) => {
+    px(g, GUN[3], 0, 0, T, T);
+    for (let i = 0; i < 14; i++) px(g, GUN[2 + (r() * 3 | 0)], r() * T | 0, r() * T | 0, 1 + (r() * 3 | 0), 1);
+    /* the panel's seams: one horizontal, offset, and a lit upper lip */
+    const sy = 7 + (r() * 2 | 0);
+    px(g, GUN[1], 0, sy, T, 1); px(g, GUN[5], 0, sy + 1, T, 1);
+    px(g, GUN[5], 0, 0, T, 1); px(g, GUN[1], 0, T - 1, T, 1);
+    for (const [x, y] of [[2, 2], [13, 2], [2, sy + 3], [13, sy + 3]]) { px(g, GUN[6], x, y); px(g, GUN[1], x, y + 1); }
+  };
+  const block = (top, kind, seed) => mk(g => {
+    const r = rng(seed);
+    plate(g, r);
+    if (kind === 1) { /* a vent */ px(g, GUN[1], 4, 3, 8, 4); for (let y = 3; y < 7; y += 2) px(g, GUN[4], 4, y, 8, 1); }
+    if (kind === 2) { /* a pipe run across */ px(g, GUN[1], 0, 10, T, 4); px(g, GUN[5], 0, 10, T, 1); px(g, GUN[4], 0, 11, T, 2); px(g, GUN[2], 0, 13, T, 1); px(g, AMBER[2], 7, 10, 2, 4); }
+    if (kind === 3) { /* the Hum creeping in at a seam */ for (const [x, y, w] of [[0, 9, 5], [1, 10, 3], [3, 8, 2], [11, 3, 3], [12, 4, 4]]) { px(g, GLOW[1], x, y, w, 1); } px(g, GLOW[3], 2, 9, 2, 1); px(g, GLOW[4], 13, 4); }
+    if (top) {
+      /* the floor's edge: hazard stripes, lit */
+      for (let x = -4; x < T; x += 4) { px(g, STRIPE[0], x + 2, 0, 2, 3); px(g, STRIPE[1], x, 0, 2, 3); }
+      px(g, GUN[6], 0, 3, T, 1);
+    }
+  });
+  tiles.ground = [block(false, 0, 3), block(false, 0, 41), block(false, 1, 17), block(false, 0, 53), block(false, 2, 29), block(false, 3, 67)];
+  tiles.groundTop = [block(true, 0, 9), block(true, 0, 21), block(true, 1, 45), block(true, 0, 33), block(true, 3, 57)];
+
+  /* a ledge: a mesh catwalk, its frame lit along the top */
+  tiles.plat = mk(g => {
+    px(g, GUN[5], 0, 0, T, 1); px(g, GUN[4], 0, 1, T, 1);
+    for (let x = 0; x < T; x += 2) px(g, GUN[3], x, 2, 1, 3);
+    px(g, GUN[2], 0, 2, T, 1); px(g, GUN[4], 0, 5, T, 1);
+    for (const x of [1, 14]) px(g, GUN[5], x, 2, 1, 3);
+  });
+
+  /* the hazard: torn cables up out of a floor duct, arcing */
+  tiles.spikes = mk(g => {
+    px(g, GUN[2], 0, 12, T, 4); px(g, GUN[4], 0, 12, T, 1); px(g, GUN[1], 2, 13, 12, 2);
+    for (const [x, h, c] of [[3, 9, "#b42e2e"], [7, 12, "#2e6eb4"], [11, 8, "#c8a41c"]]) {
+      for (let k = 0; k < h; k++) px(g, c, x + (k > h / 2 ? 1 : 0), 12 - k, 2, 1);
+      px(g, "#d8e2e8", x + 1, 12 - h, 1, 1);
+    }
+    /* the arc: a jag of blue-white between two ends, and the glow */
+    g.fillStyle = "rgba(160, 210, 255, 0.35)"; g.fillRect(2, 0, 12, 6);
+    for (const [x, y] of [[4, 4], [5, 2], [6, 3], [7, 1], [8, 2], [9, 0], [10, 2], [11, 3]]) px(g, y % 2 ? "#e6f4ff" : "#8cc8ff", x, y);
+  });
+
+  /* doors: a bulkhead, round-cornered in its frame, a band in the door's
+     colour across the top tile, the lock's lamp */
+  const COLOURS = [[12, 4], [14, 6], [10, 2], [9, 1], [7, 8]];
+  const door = (a, b, top) => mk(g => {
+    px(g, GUN[1], 0, 0, T, T);
+    px(g, GUN[4], 1, top ? 1 : 0, T - 2, top ? T - 1 : T); px(g, GUN[6], 1, top ? 1 : 0, 1, T); px(g, GUN[2], T - 2, 0, 1, T);
+    if (top) { px(g, GUN[1], 1, 1, 1, 1); px(g, GUN[1], T - 2, 1, 1, 1); px(g, GUN[5], 2, 1, T - 4, 1); }
+    for (let y = top ? 9 : 3; y < T; y += 6) { px(g, GUN[3], 3, y, T - 6, 1); px(g, GUN[5], 3, y + 1, T - 6, 1); }
+    if (top) {
+      px(g, E(b), 2, 4, T - 4, 3); px(g, E(a), 2, 4, T - 4, 1);
+      px(g, GUN[0], 11, 10, 3, 3); px(g, E(a), 12, 11, 1, 1);
+    } else { px(g, E(b), 2, 13, T - 4, 1); px(g, STRIPE[0], 3, 14, 2, 1); px(g, STRIPE[0], 11, 14, 2, 1); }
+  });
+  tiles.doors = COLOURS.map(([a, b]) => door(a, b, true));
+  tiles.doorsBelow = COLOURS.map(([a, b]) => door(a, b, false));
+
+  /* the exit: a lift's doors under an amber lamp; open, the lit car */
+  const lift = open => { const c = makeCanvas(T, T * 2), g = c.getContext("2d");
+    px(g, GUN[2], 0, 2, T, 30); px(g, GUN[5], 0, 2, T, 1);
+    for (let x = -4; x < T; x += 4) { px(g, STRIPE[0], x + 2, 3, 2, 2); px(g, STRIPE[1], x, 3, 2, 2); }
+    px(g, GUN[4], 0, 5, 2, 27); px(g, GUN[4], T - 2, 5, 2, 27);
+    if (open) {
+      px(g, AMBER[0], 2, 5, 12, 27); g.fillStyle = "rgba(255, 209, 106, 0.35)"; g.fillRect(2, 5, 12, 27);
+      px(g, GUN[5], 2, 29, 12, 2); px(g, GUN[6], 2, 29, 12, 1); px(g, AMBER[4], 4, 7, 8, 1);
+    } else {
+      px(g, GUN[5], 2, 5, 6, 27); px(g, GUN[4], 8, 5, 6, 27); px(g, GUN[1], 7, 5, 2, 27);
+      for (const y of [12, 22]) { px(g, GUN[3], 3, y, 4, 1); px(g, GUN[3], 9, y, 4, 1); }
+    }
+    g.fillStyle = "rgba(255, 209, 106, 0.4)"; g.fillRect(4, 0, 8, 3);
+    px(g, AMBER[2], 6, 0, 4, 2); px(g, AMBER[5], 7, 0, 2, 1);
+    return c; };
+  tiles.exit = [lift(false), lift(true)];
+
+  tiles.ice = mk(g => {
+    const r = rng(43);
+    g.drawImage(tiles.ground[0], 0, 0);
+    for (let y = 0; y < 4; y++) px(g, ["#e9fbff", "#b2e4f6", "#78c2e4", "#4a92c0"][y], 0, y, T, 1);
+    for (let i = 0; i < 10; i++) px(g, r() < .5 ? "#b2e4f6" : "#e9fbff", r() * T | 0, 4 + (r() * 12 | 0));
+  });
+
+  /* a hint sign is the station's wall terminal: an amber screen, a keypad */
+  tiles.sign = mk(g => {
+    px(g, GUN[2], 1, 1, 14, 13); px(g, GUN[5], 1, 1, 14, 1); px(g, GUN[1], 1, 13, 14, 1);
+    px(g, AMBER[0], 3, 3, 10, 6);
+    for (const [y, w] of [[4, 7], [6, 5]]) px(g, AMBER[3], 4, y, w, 1);
+    px(g, AMBER[4], 4, 8, 2, 1);
+    for (let x = 4; x < 12; x += 3) px(g, GUN[5], x, 11, 2, 1);
+    px(g, GUN[4], 7, 14, 2, 2);
+  });
+
+  /* moving platforms: a cargo lift's deck, striped, with lamps */
+  tiles.platform = [[AMBER[2], AMBER[4]], [GLOW[2], GLOW[4]], ["#8c2a2a", "#ff6a5a"]].map(([lamp0, lamp1]) => [0, 1].map(f => {
+    const c = makeCanvas(T * 2, 8), g = c.getContext("2d");
+    px(g, GUN[4], 0, 0, 32, 6); px(g, GUN[6], 0, 0, 32, 1);
+    for (let x = -4; x < 32; x += 4) { px(g, STRIPE[0], x + 2, 4, 2, 2); px(g, STRIPE[1], x, 4, 2, 2); }
+    px(g, "#000", 1, 6, 30, 2);
+    for (let x = 3; x < 32; x += 8) px(g, (x >> 3) % 2 === f ? lamp1 : lamp0, x, 1, 3, 2);
+    return c;
+  }));
+}
+
+/* Station Delve's far wall: dark plating in bays between girders, big pipe
+ * runs, amber lamps down the bays, and through a long viewport the crags'
+ * violet, with the Hum's glow coming up from below. Full colour. */
+function paintDelveFar() {
+  const c = makeCanvas(320, 200), g = c.getContext("2d"), r = rng(23);
+  const px = (col, x, y, w = 1, h = 1) => { g.fillStyle = col; g.fillRect(x, y, w, h); };
+  px("#101314", 0, 0, 320, 200);
+  /* the viewport: a band of cave behind glass */
+  for (let y = 46; y < 104; y += 2) { const k = (y - 46) / 58; px(`rgb(${Math.round(30 + 10 * k)},${Math.round(20 + 30 * k)},${Math.round(50 + 20 * k)})`, 0, y, 320, 2); }
+  for (let i = 0; i < 9; i++) { const x = r() * 320, w = 14 + r() * 20, h = 16 + r() * 30; g.fillStyle = "#1e1430"; g.beginPath(); g.moveTo(x - w / 2, 104); g.lineTo(x, 104 - h); g.lineTo(x + w / 2, 104); g.fill(); }
+  for (let i = 0; i < 24; i++) px(r() < .6 ? "#2fb3a0" : "#6fe0c8", r() * 320 | 0, 90 + (r() * 14 | 0));
+  px("#2a3032", 0, 44, 320, 2); px("#4a5254", 0, 44, 320, 1); px("#2a3032", 0, 104, 320, 3); px("#4a5254", 0, 104, 320, 1);
+  /* the bays: girders, each with a lamp, plating between */
+  for (let x = 0; x < 320; x += 64) {
+    px("#1c2123", x, 0, 10, 200); px("#2c3335", x + 1, 0, 2, 200); px("#141819", x + 8, 0, 2, 200);
+    for (let y = 0; y < 200; y += 12) px("#3a4244", x + 4, y + 2, 2, 2);
+    /* a caged work-lamp on its bracket, a soft pool of light under it */
+    g.fillStyle = "rgba(255, 190, 90, 0.10)"; g.beginPath(); g.ellipse(x + 32, 36, 12, 7, 0, 0, Math.PI * 2); g.fill();
+    px("#2c3335", x + 31, 22, 2, 5); px("#3a4244", x + 29, 27, 6, 1);
+    px("#a8670f", x + 30, 28, 4, 3); px("#ffd16a", x + 31, 28, 2, 2); px("#3a4244", x + 30, 29, 4, 1);
+  }
+  /* pipes along the lower wall */
+  for (const [y, h, col, hi] of [[128, 8, "#262c2e", "#3e4648"], [142, 5, "#2e2418", "#4c3a22"], [170, 10, "#202527", "#384042"]]) { px(col, 0, y, 320, h); px(hi, 0, y, 320, 1); }
+  for (let x = 20; x < 320; x += 40) { px("#3e4648", x, 126, 4, 12); px("#4c3a22", x + 18, 141, 3, 7); }
+  /* plating below, in panels */
+  for (let y = 112; y < 200; y += 22) px("#171b1c", 0, y, 320, 1);
+  return c;
+}
+
 /* a heartstone (Book 2): a faceted magenta stone in a teal halo, the Hum's
  * glow pulsing in it; two frames, dim and bright */
 function paintHeartstone() {
@@ -2110,6 +2260,7 @@ function paintFar(themeName) {
   if (th.style === "raiders") return paintRaiderFar();
   if (th.style === "ruins") return paintRuinFar();
   if (th.style === "crags") return paintCragFar();
+  if (th.style === "delve") return paintDelveFar();
   return c;
 }
 
