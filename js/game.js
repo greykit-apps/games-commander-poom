@@ -274,7 +274,7 @@ function newRun() {
 
 /* The order the books are played in; Book 1 is the first. Map sets keep
  * their letters (H01, H02...), the player sees numbers. */
-const BOOK_ORDER = ["H", "A", "B", "C", "D", "E", "F", "G", "I"];
+const BOOK_ORDER = ["H", "C", "D", "E", "A", "B", "F", "G", "I"];
 const BOOK_IDS = BOOK_ORDER.filter(b => BOOKS[b]);
 const bookNumber = b => BOOK_IDS.indexOf(b) + 1;
 /* Themes. A book's theme is everything about how the game looks and reads
