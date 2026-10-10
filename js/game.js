@@ -2400,6 +2400,70 @@ const BOOK_TEXT = {
       `<b>The End</b> of Book One: Down in the Glow.<br><br>${next ? `Score so far: ${score}.<br><br>On to Book ${next}.` : `Final score: ${score}.<br><br>Commander Poom will return.`}`,
     ],
   },
+  /* Book 2, set C: Thrum, the hollow moon (docs/story/book-2-story.md) */
+  C: {
+    story: `<p>Two days out of the Glow, the Catamaran catches a mayday from <b>Thrum</b>, a hollow moon that hums. Poom answers it. He always does.</p>
+<p>A crew of moles dug a mining station into Thrum's crust: <b>Station Delve</b>. It is empty now. The <b>Hum</b> has grown through it, a hive of glowing, drifting things that feed on energy, down through the <b>Crags</b> and into its own deep <b>Hive</b>.</p>
+<p>The Hum has hold of the Catamaran too: every engine Poom fires drains away into the moon. It draws its strength from eight <b>heartstones</b>, buried in the caves, the station and the hive.</p>
+<p>Break all eight and the Hum lets go. Watch out for the <b>Mergatroids</b>. And keep an ear on the radio: somehow, even down here, Auntie Static is broadcasting.</p>`,
+    arrive: "This is Thrum. The Catamaran is down on its pad and the Hum has hold of it. The way in is <b>The Landing Shaft</b>, by the pad.<br><br>An arrow marks each place you can reach. Walk up to one and press <kbd>Ctrl</kbd>, <kbd>Z</kbd> or <kbd>Space</kbd> to go in.",
+    map: `<p>On the map, walk up to a place and press jump or fire to go in. An arrow marks each place you can reach; a place you haven't cleared blocks the way; a crew beacon marks the ones you have. Break all eight <b>heartstones</b> to free the Catamaran.</p>`,
+    creatures: () => { const C = ART.creatureSets.hum; return [
+      [C.mousel.walk0.r, "Mergatroid", "A drifting jelly of the Hum: harmless, nosy and pushy. Jump on one to dim it for a while."],
+      [C.vac.walk0.r, "Husk", "An armoured crawler the Hum grows out of the rock. Deadly to touch, and it takes four shots."],
+      [C.barker.walk0.r, "Skitter", "Six legs and no patience: it rushes you the moment it sees you. One shot."],
+      [C.roombot.a.r, "Shellback", "Slow, armoured, can't be hurt. It shoves."],
+      [C.tank.a.r, "Spitter", "Sits tight and spits along the floor. Can't be hurt either."],
+    ]; },
+    items: () => { const I = ART.itemSets.thrum; return [
+      [I.items.fish, "Ore chips, ration packs, data slugs, lanterns, a drill bit, a geode", "100, 200, 500, 1000, 2000 and 5000 points. An extra life at 20,000, then 40,000, 80,000 and so on."],
+      [I.items.ammo, "Power cell", "The station's. Five shots for the raygun."],
+      [I.items.life, "Poom bobblehead", "An extra life. They're here too. Nobody knows."],
+      [I.gems[0], "Security cards", "Open the station's door of the same colour, in this level."],
+      [ART.heartstone[1], "Heartstones", "Eight, each in its own chamber. Touch one, or shoot it, to break it."],
+    ]; },
+    places: {
+      C02: "The Landing Shaft", C03: "Fungus Hollow", C04: "Lantern Caves", C05: "The Spine Garden", C06: "The Main Lift", C07: "Crystal Drop",
+      C08: "The Ore Line", C10: "The Long Gallery", C11: "The Security Wing", C12: "The Assay Labs", C14: "The Drill Hall", C15: "The Records Room",
+      C09: "The Hive Mouth", C13: "The Mergatroid Nursery", C16: "The Heart Chambers", C17: "The Hum's Core",
+    },
+    signs: {
+      C09: `<b>A crew terminal, half grown over</b><br><br>LOG, DAY 412: The Hum is in the lower galleries. All crew to the lifts. FOREMAN DIGBY<br><br>Under the static: <i>"Heavens to Mergatroid, sugar, what are you doing down there?"</i>`,
+      C11: `<b>A security terminal</b><br><br>STATION EVACUATED. ALL CREW SAFE. Distress beacon SWITCHED OFF by order of Foreman Digby.<br><br>The log is six years old. Poom reads it twice. Then who sent the mayday?`,
+    },
+    say: {
+      signNear: tiles => ({ crags: "A crew terminal. Press ↑ to read it.", delve: "A station terminal. Press ↑ to read it.", hive: "A terminal, half grown over. Press ↑ to read it." })[tiles] || "A terminal. Press ↑ to read it.",
+      noPogo: "No pogo stick. Not yet.",
+      warpDoor: "A hatch. Press ↑ to go through.",
+      socket: c => `A ${c} card slot. A ${c} security card goes here.`,
+      noAmmo: "Click. The raygun's dry. Look for power cells.",
+      lockedDoor: c => c ? `A ${c} bulkhead. It wants a ${c} security card.` : "A locked bulkhead. It wants a security card.",
+      ammo: "<b>Power cell!</b> The station's: five shots for the raygun. Fire with <kbd>Space</kbd> or <kbd>C</kbd>.",
+      pogo: "<b>You found a pogo stick!</b><br><br>Press <kbd>Alt</kbd> or <kbd>X</kbd> to hop on and off. Hold <kbd>Ctrl</kbd> or <kbd>Z</kbd> as you land for a big bounce.",
+      swim: "<b>You can swim!</b><br><br>On the map, Poom can wade in where the shore meets the water.",
+      heart: (n, of) => `<b>The heartstone shatters!</b><br><br>${n === of ? "That's the last one. The whole moon shudders. Get back to the lift!" : `${n} of ${of} broken. Somewhere below, the Hum stutters.`}`,
+      wayOpens: "Somewhere on Thrum, a way opens.",
+      lostLife: n => n === 0 ? "Poom's suit reboots.<br><br><b>This is your last life.</b>" : `Poom's suit reboots.<br><br>${n} ${n === 1 ? "life" : "lives"} left.`,
+      water: "Acid. Poom isn't going in that. Not yet.",
+      blocked: "The Hum has grown across the way. Clear the places nearby.",
+      levelDone: name => `${name}: cleared.`,
+      cheatOn: "Auntie Static: \"Heavens to Mergatroid, sugar. I didn't see a thing.\" Infinite lives and energy. No high scores this game.",
+      cheatOff: "Auntie Static: \"On the level again, then.\" Cheat mode off.",
+      raygun: n => `${n} shot${n === 1 ? "" : "s"}`,
+      gameOver: n => `<b>Game over.</b><br><br>Thrum keeps this one. Commander Poom is out of lives. Final score: ${n}.`,
+      highScore: n => `<b>A high score!</b><br><br>${n} points. The station log wants your name.`,
+    },
+    scores: [["Junk Baron Cal", 20000], ["Auntie Static", 15000], ["Foreman Digby", 10000], ["Mergatroid #8", 7500], ["Shellback", 5000], ["Skitter", 2500], ["Husk", 1000]],
+    boot: ["256 colours: ok", "hum detected: 41 hz"],
+    /* the pages played when the eighth heartstone has broken and Poom is out */
+    ending: (score, next) => [
+      "The last heartstone goes dark. All through Thrum the Hum falls silent, and the hold on the Catamaran lets go.",
+      "Poom fires the engines. Nothing drains away. The Catamaran lifts off its pad and climbs out of the hollow moon into open space.",
+      "Halfway to the gas giant, a salvage barge goes by the other way, too late, crusted in Scrapper paint. Through its window, for a moment, a grey-black panther watches the Catamaran go.",
+      "The radio crackles. <i>\"That was Cal's barge, sugar. He set that mayday for you, and he'll be wanting a word. I'd keep moving.\"</i>",
+      `<b>The End</b> of Book Two: The Hollow Moon.<br><br>${next ? `Score so far: ${score}.<br><br>On to Book ${next}.` : `Final score: ${score}.<br><br>Commander Poom will return.`}`,
+    ],
+  },
 };
 /* the words the help and the game's talk use: the book being played's, or,
  * if it has none yet, those of the book whose theme it wears. A book's

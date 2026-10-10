@@ -166,6 +166,31 @@ Proposed:
 | Vault keycards | station security cards, the same four colours |
 | ship parts | **heartstones** (broken, not carried) |
 
+## In the game
+
+All in `BOOK_TEXT.C` in `js/game.js`.
+
+- **Place names** (level titles and map labels):
+
+  | Biome | Levels |
+  |---|---|
+  | The Crags | C02 The Landing Shaft, C03 Fungus Hollow, C04 Lantern Caves, C05 The Spine Garden, C06 The Main Lift, C07 Crystal Drop |
+  | Station Delve | C08 The Ore Line, C10 The Long Gallery, C11 The Security Wing, C12 The Assay Labs, C14 The Drill Hall, C15 The Records Room |
+  | The Hive | C09 The Hive Mouth, C13 The Mergatroid Nursery, C16 The Heart Chambers, C17 The Hum's Core |
+
+- **The two logs.**
+  - **C09, the Hive Mouth:** Foreman Digby's last log ("All crew to the lifts"), then Auntie Static under the static: "Heavens to Mergatroid, sugar, what are you doing down there?"
+  - **C11, the Security Wing:** the station was evacuated with all the crew safe, and its beacon was switched off six years ago. "Then who sent the mayday?"
+
+  Either can be read first.
+- **The crew.** The moles got out safely, under **Foreman Digby**.
+- **The ending.**
+  1. The Hum falls silent.
+  2. The Catamaran climbs out.
+  3. Cal's salvage barge passes the other way, with a grey-black panther in its window.
+  4. Auntie: "That was Cal's barge, sugar. He set that mayday for you."
+  5. The End of Book Two.
+
 ## Settled
 
 - **Heartstones are destroyed.** Touching one, or shooting it, breaks it. It
@@ -180,6 +205,5 @@ Proposed:
 
 1. **The switches:** confirm bridge (25) and lights (23) with the map maker,
    then build them in the engine.
-2. **Is the mole crew alive?** Book 2 has no rescues, so the crew left or are
-   lost. The two logs can say which, gently. They could also be where Poom
-   learns the mayday was fake.
+2. ~~Is the mole crew alive?~~ Yes, evacuated safely (the C11 log), and that
+   log is where Poom learns the mayday was fake.
