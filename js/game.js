@@ -288,8 +288,11 @@ const bookNumber = b => BOOK_IDS.indexOf(b) + 1;
 const BOOK_THEMES = {
   classic: { name: "classic", look: "classic", items: "classic", creatures: "classic", map: "classic", title: "classic", subtitle: "Episode One: Lost on Planet Hiss" },
   wasteland: { name: "wasteland", look: "ranger", items: "wasteland", creatures: "wasteland", map: "wasteland", title: "wasteland", subtitle: "Book One: Down in the Glow", hud: "wrist", sound: "wasteland" },
+  /* Book 2, set C: Thrum, the hollow moon (docs/story/book-2-story.md).
+     Pieces not yet its own borrow Book 1's for now */
+  thrum: { name: "thrum", look: "ranger", items: "wasteland", creatures: "hum", map: "wasteland", title: "wasteland", subtitle: "Book Two: The Hollow Moon", hud: "wrist", sound: "wasteland" },
 };
-const THEME_OF_BOOK = { H: "wasteland" };
+const THEME_OF_BOOK = { H: "wasteland", C: "thrum" };
 /* a book with no theme of its own wears Book 1's */
 const themeOf = book => BOOK_THEMES[THEME_OF_BOOK[book] || THEME_OF_BOOK[BOOK_IDS[0]]] || BOOK_THEMES.classic;
 /* the book a theme's words come from: the first that has that theme and words */
@@ -1208,7 +1211,11 @@ const ENEMY = {
  * scrap hounds (02) charge like barkers, Scrappers (04) are vacuumoids,
  * Sentrybots (05) shove like roombots, the lieutenants (03) are L. Turrets
  * are G in every book. Books not listed have no enemies yet. */
-const ENEMY_OF = { H: { "01": "x", "02": "B", "03": "L", "04": "V", "05": "T" } };
+const ENEMY_OF = { H: { "01": "x", "02": "B", "03": "L", "04": "V", "05": "T" },
+  /* Book 2: Glimmers (02) hop like mousels, Husks (01) walk like vacuumoids,
+     Skitters (05) charge like barkers, Shellbacks (04) shove like roombots,
+     Spitters (03) shoot like clawtanks */
+  C: { "02": "x", "01": "V", "05": "B", "04": "T", "03": "K" } };
 /* A Book without a hand-made list gets one from its own maps (type numbers
  * mean something different in every set, maps2/README.md): a rare type
  * that only ever stands near the level's objectives guards them (L); the

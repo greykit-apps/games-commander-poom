@@ -1189,6 +1189,201 @@ const STAR = ["E", ".", "E"];
 /* ------------------------------------------------------------------ */
 /* Build                                                                 */
 
+
+/* ---- Book 2's creatures, the Hum's (docs/story/book-2-story.md) ----
+ * Each wears an engine creature's frames and size: a Glimmer hops like a
+ * mousel, a Husk walks like a vacuumoid, a Skitter charges like a barker, a
+ * Shellback shoves like a roombot, a Spitter fires like a clawtank. Feet on
+ * the bottom row. Glimmers and Husks are drawn facing left, the rest right. */
+const GLIMMER_PAL = { a: "#187e76", b: "#2fb3a0", c: "#6fe0c8", d: "#c4fff0", e: "#0a2e30", f: "#d24aa6", g: "#3a4a4a", h: "#5a6e6c" };
+const GLIMMER = {
+  walk0: [
+    "....bbbbb.....",
+    "..bbccccbbb...",
+    ".bcddcccccbb..",
+    ".bcdecccccfb..",
+    "bccccccccfffb.",
+    "bbccccccccfbb.",
+    ".bbbbbbbbbbb..",
+    "..a..a..a..a..",
+    ".a..a..a..a...",
+    ".a...a..a..a..",
+    "..a...a...a...",
+  ],
+  walk1: [
+    "..............",
+    "....bbbbb.....",
+    "..bbccccbbb...",
+    ".bcddcccccbb..",
+    ".bcdecccccfb..",
+    "bccccccccfffb.",
+    "bbbbbbbbbbbbb.",
+    "..a..a..a..a..",
+    "..a..a..a..a..",
+    ".a..a..a..a...",
+    ".a..a...a..a..",
+  ],
+  look: [
+    "....bbbbb.....",
+    "..bbcdecbbb...",
+    ".bccddccccbb..",
+    ".bccccccccfb..",
+    "bccccccccfffb.",
+    "bbccccccccfbb.",
+    ".bbbbbbbbbbb..",
+    "..a..a..a..a..",
+    ".a..a..a..a...",
+    ".a...a..a..a..",
+    "..a...a...a...",
+  ],
+  stunned: [
+    "..............",
+    "..............",
+    "..............",
+    "..............",
+    "....hhhhh.....",
+    "..hhggggghh...",
+    ".hgggeggeggh..",
+    "hgggggggggggh.",
+    "hhhhhhhhhhhhh.",
+    ".g..g..g..g...",
+    "g..g...g...g..",
+  ],
+};
+/* bone-pale chitin, so a Husk stands out against violet rock, gunmetal and
+   flesh alike; its eye the Hum's magenta */
+const HUSK_PAL = { k: "#2a2418", m: "#7a6e54", n: "#b0a27e", o: "#ddd2ae", e: "#9c2878", E: "#ffd2f0", l: "#fbf4dc", L: "#b0a27e" };
+const HUSK_TOP = [
+  "....kkkk......",
+  "...knnnnk.....",
+  "..knoonnnk....",
+  ".kneennnnnk...",
+  ".knEEnnnnnk...",
+  ".knnnnnnnnk...",
+  "..kmmmmmmk....",
+  "...kkkkkk.....",
+  "..kmmnnmmk....",
+  "lkmnnoonnmk...",
+  "Lmnnnnnnnnmk..",
+  "lkmmmmmmmmmk..",
+  ".kmnnoonnnmk..",
+  ".kmnnnnnnnmk..",
+  ".kmmmmmmmmmk..",
+  "..kmnnoonnmk..",
+  "..kmnnnnnnmk..",
+  "...kmmmmmmk...",
+  "...kmnnnnmk...",
+  "....kmmmmk....",
+];
+const HUSK = {
+  walk0: HUSK_TOP.concat([
+    "....kk..kk....",
+    "...kmk..kmk...",
+    "...km....mk...",
+    "..kmk....kmk..",
+    "..km......mk..",
+    ".kmk......kmk.",
+    ".km........mk.",
+    "kkk........kkk",
+  ]),
+  walk1: HUSK_TOP.concat([
+    "....kk.kk.....",
+    "....kmkmk.....",
+    "....kmkm......",
+    "...kmk.kmk....",
+    "...km...mk....",
+    "..kmk...kmk...",
+    "..km.....mk...",
+    ".kkk....kkk...",
+  ]),
+  jump: HUSK_TOP.concat([
+    "...kkk.kkk....",
+    "..kmmk.kmmk...",
+    "..kkk...kkk...",
+  ]),
+};
+const SKITTER_PAL = { k: "#3a0b2e", s: "#9c2878", t: "#d24aa6", u: "#ffd2f0", e: "#c4fff0" };
+const SKITTER = {
+  walk0: [
+    "......ssss......",
+    "....sstttss.....",
+    "...sttuuttts....",
+    "..sttttttttsse..",
+    "..ssssssssssss..",
+    "...k.k..k.k.k...",
+    "..k..k..k..k.k..",
+    ".k..k....k..k.k.",
+  ],
+  walk1: [
+    "......ssss......",
+    "....sstttss.....",
+    "...sttuuttts....",
+    "..sttttttttsse..",
+    "..ssssssssssss..",
+    "...k..k.k..k.k..",
+    "...k..k.k..k..k.",
+    "..k..k...k..k.k.",
+  ],
+  charge: [
+    "................",
+    "...ssssss.......",
+    ".ssttttttsss....",
+    "sttuuuttttttsse.",
+    "sssssssssssssss.",
+    ".k.k..k.k..k.k..",
+    "k..k.k...k..k..k",
+    "k.k..k....k.k..k",
+  ],
+};
+const SHELLBACK_PAL = { k: "#181b1d", g: "#575e60", h: "#9ba3a3", i: "#c8d0d0", t: "#2fb3a0", e: "#6fe0c8" };
+const SHELLBACK = {
+  a: [
+    ".....kkkkk.....",
+    "...kkihhggkk...",
+    "..khhggggggk...",
+    ".kgttggtgggek..",
+    "kgggggggggggk..",
+    "kkkkkkkkkkkkk..",
+    ".k..k..k..k....",
+  ],
+  b: [
+    ".....kkkkk.....",
+    "...kkihhggkk...",
+    "..khhggggggk...",
+    ".kggtggtggtek..",
+    "kgggggggggggk..",
+    "kkkkkkkkkkkkk..",
+    "..k..k..k..k...",
+  ],
+};
+const SPITTER_PAL = { f: "#4c1626", g: "#7c2e42", h: "#984358", i: "#bb6378", o: "#140608", w: "#fbf4dc", t: "#6fe0c8" };
+const SPITTER = {
+  a: [
+    "....ffff.....",
+    "..ffgggiff...",
+    ".fgghhhhiff..",
+    ".fghhthhhhgf.",
+    "fgghhhhhhhgff",
+    "fghhhhhhhhhgf",
+    "fgghhhhhwhwgf",
+    ".fgggggggggf.",
+    "..ffffffffff.",
+    ".ffgf.fgff...",
+  ],
+  b: [
+    "....ffff.....",
+    "..ffgggiff...",
+    ".fgghhhhiff..",
+    ".fghhthhhfff.",
+    "fgghhhhhfoooo",
+    "fghhhhhhfwooo",
+    "fgghhhhhfoooo",
+    ".fgggggggfff.",
+    "..ffffffffff.",
+    ".ffgf.fgff...",
+  ],
+};
+
 const ART = { looks: {}, poom: {}, map: {}, mousel: {}, barker: {}, vac: {}, boss: {}, roombot: {}, tank: {}, lieut: {}, turret: {}, items: {}, gems: [], parts: [] };
 
 function both(c) { return { r: c, l: flipped(c) }; }
@@ -1232,7 +1427,17 @@ function buildArt() {
     tank: ART.tank, boss: ART.boss,
     turret: each(TURRET, g => sprite(g, { pal: TURRET_PAL })),
   };
-  ART.creatureSets = { classic: classicCreatures, wasteland: wasteCreatures };
+  const humCreatures = {
+    mousel: each(GLIMMER, g => sprite(g, { pal: GLIMMER_PAL })),
+    vac: each(HUSK, g => sprite(g, { pal: HUSK_PAL })),
+    lieut: each(HUSK, g => sprite(g, { pal: { ...HUSK_PAL, n: "#9c2878", o: "#f48cd0", m: "#681750" } })),
+    barker: each(SKITTER, g => sprite(g, { pal: SKITTER_PAL })),
+    roombot: each(SHELLBACK, g => sprite(g, { pal: SHELLBACK_PAL })),
+    tank: each(SPITTER, g => sprite(g, { pal: SPITTER_PAL })),
+    boss: ART.boss,
+    turret: each(TURRET, g => sprite(g, { pal: TURRET_PAL })),
+  };
+  ART.creatureSets = { classic: classicCreatures, wasteland: wasteCreatures, hum: humCreatures };
   /* item sets: classic, and the wasteland over it */
   const classic = { items: {}, gems: GEM_SWAPS.map(s => sprite(GEM, { swap: s })) };
   for (const [k, g] of Object.entries(ITEMS)) classic.items[k] = sprite(g);
