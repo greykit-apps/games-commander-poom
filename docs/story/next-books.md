@@ -27,7 +27,7 @@ an orbital station in the spirit of *The Terminator*, *Aliens* and
   |---|---|---|---|
   | 1 | H | Wastelandia | the wasteland, in the spirit of *Fallout* (done) |
   | 2 | C | Heavens to Mergatroid | Thrum, in the spirit of *Metroid* (done) |
-  | 3 | D | The Island of Dr Claw | an island lair, *Metal Gear Solid* (done: [book-3-story.md](book-3-story.md)) |
+  | 3 | D | The Island of Dr Cal | an island lair, *Metal Gear Solid* (done: [book-3-story.md](book-3-story.md)) |
   | 4 | E | Descent into Rapture | a drowned city, *BioShock* (done: [book-4-story.md](book-4-story.md)) |
   | 5 | A | Termination Day | an orbital station, *The Terminator* / *Aliens* / *Predator* (done: [book-5-story.md](book-5-story.md)) |
 

@@ -441,9 +441,9 @@ const BOOK_THEMES = {
   /* Book 2, set C: Thrum, the hollow moon (docs/story/book-2-story.md).
      Pieces not yet its own borrow Book 1's for now */
   thrum: { name: "thrum", look: "hunter", items: "thrum", creatures: "hum", map: "thrum", title: "thrum", subtitle: "Book Two: Heavens to Mergatroid", hud: "visor", sound: "thrum" },
-  /* Book 3, set D: Isla Garra, Dr Claw's island (docs/story/book-3-story.md);
+  /* Book 3, set D: Isla Garra, Dr Cal's island (docs/story/book-3-story.md);
      its art is in js/art-book3.js */
-  claw: { name: "claw", look: "sneak", items: "claw", creatures: "claw", map: "claw", title: "claw", subtitle: "Book Three: The Island of Dr Claw", hud: "codec", sound: "claw" },
+  claw: { name: "claw", look: "sneak", items: "claw", creatures: "claw", map: "claw", title: "claw", subtitle: "Book Three: The Island of Dr Cal", hud: "codec", sound: "claw" },
   /* Book 4, set E: Raptura, the city under the sea (docs/story/book-4-story.md);
      its art is in js/art-book4.js */
   deep: { name: "deep", look: "diver", items: "deep", creatures: "deep", map: "deep", title: "deep", subtitle: "Book Four: Descent into Rapture", hud: "deco", sound: "deep" },
@@ -507,12 +507,12 @@ const levelName = id => {
 
 /* Each Book's name (the player sees "Book Two: Heavens to Mergatroid"),
  * and which can be played yet; the rest show greyed out on New game. */
-const BOOK_NAMES = { H: "Wastelandia", C: "Heavens to Mergatroid", D: "The Island of Dr Claw", E: "Descent into Rapture", A: "Termination Day" };
+const BOOK_NAMES = { H: "Wastelandia", C: "Heavens to Mergatroid", D: "The Island of Dr Cal", E: "Descent into Rapture", A: "Termination Day" };
 const BOOK_PLAYABLE = new Set(["H", "C", "D", "E", "A"]);
 
 /* What finishes a book, beyond its levels: Book 2 (set C) ends when its
  * heartstones are all broken (docs/story/book-2-story.md); Book 3 (set D)
- * when its last level, Dr Claw's own, is done, whatever is left
+ * when its last level, Dr Cal's own, is done, whatever is left
  * (docs/story/book-3-story.md); a book with a ship ends at the ship; any
  * other when its levels are done. */
 const BOOK_GOAL = { C: "hearts", D: { last: "D17" }, E: "rescues", A: { last: "A16" } };
@@ -1492,14 +1492,14 @@ const ENEMY_OF = { H: { "01": "x", "02": "B", "03": "L", "04": "V", "05": "T" },
   /* Book 3 (docs/story/book-3-story.md): each type its own art. Claw guards
      (04) charge like barkers, at a stoat's height, and shout "!" first;
      Heavies (02) walk like vacuumoids; Boxers (01) push like mousels;
-     Clawbots (06, and 09 by the Copycat) shove; Gunners (05) and Dr Claw
+     Clawbots (06, and 09 by the Copycat) shove; Gunners (05) and Dr Cal
      (10) shoot along the floor; guard dogs (03) charge; Ocelots (08) are
      the lieutenants; ninjas (07) charge harder and take three shots; Mr
      Squeaks (11) is a pusher */
   D: { "04": { kind: "B", art: "guard", w: 12, h: 20, alert: true }, "02": { kind: "V", art: "heavy" }, "01": { kind: "x", art: "boxer" },
     "06": { kind: "T", art: "clawbot" }, "09": { kind: "T", art: "clawbot" }, "05": { kind: "K", art: "gunner" }, "03": { kind: "B", art: "dog" },
     "08": { kind: "L", art: "ocelot", points: 1000 }, "07": { kind: "B", art: "ninja", w: 12, h: 20, hp: 3, rush: 1.4, alert: true, points: 500 },
-    "10": { kind: "K", art: "drclaw", w: 14, h: 20 }, "11": { kind: "x", art: "whitemouse" } },
+    "10": { kind: "K", art: "drcal", w: 14, h: 20 }, "11": { kind: "x", art: "whitemouse" } },
   /* Book 4 (docs/story/book-4-story.md): SPARK slugs (01) and hermit crabs
      (03) push; Thugs (02) walk; masked splicers (04), spider splicers (05)
      and houdinis (08) charge, shouting first; the Big Brass (06) and iron
@@ -3009,10 +3009,10 @@ const BOOK_TEXT = {
       `<b>The End</b> of Book Two: Heavens to Mergatroid.<br><br>${next ? `Score so far: ${score}.<br><br>On to Book ${next}.` : `Final score: ${score}.<br><br>Commander Poom will return.`}`,
     ],
   },
-  /* Book 3, set D: Isla Garra, Dr Claw's island (docs/story/book-3-story.md) */
+  /* Book 3, set D: Isla Garra, Dr Cal's island (docs/story/book-3-story.md) */
   D: {
     story: `<p>Out past Thrum, over a warm sea at night, something on an island below reaches up and <b>grabs the Catamaran</b>: a magnet crane the size of a church, which hauls the ship down into a volcano.</p>
-<p>This is <b>Isla Garra</b>, home of <b>Dr Claw</b>, a white Persian of enormous fluff and no conscience, who builds doomsday machines for anyone who pays. His newest customer wants a Catamaran of his own. Deep in the volcano, Dr Claw's <b>Copycat</b> is taking Poom's ship apart to build a black copy.</p>
+<p>This is <b>Isla Garra</b>, home of <b>Dr Cal</b>: a grey-black panther in a white lab coat and a monocle, with a doctorate nobody has ever seen. He builds doomsday machines, and in the labs under the volcano he breeds his own staff. He has always wanted a Catamaran of his own. Deep in the volcano, his <b>Copycat</b> is taking Poom's ship apart to build a black copy.</p>
 <p>Poom bailed out over the lagoon and washed up on the beach with a radio and not much else. The islets are linked by <b>transit tubes</b> under the water, and a robot shark called <b>Bruce</b> patrols the lagoon.</p>
 <p>Get into the volcano and break the Copycat. Stay out of sight: the <b>Claw guards</b> shout when they see you. And keep the radio on. Auntie Static is on a frequency she shouldn't know.</p>`,
     arrive: "Isla Garra, by night. Poom is on the beach, dripping. The way in is <b>The Beach</b>, right here.<br><br>An arrow marks each place you can reach. Walk up to one and press <kbd>Ctrl</kbd>, <kbd>Z</kbd> or <kbd>Space</kbd> to go in.",
@@ -3022,15 +3022,15 @@ const BOOK_TEXT = {
       [C.heavy.walk0.r, "Heavy", "A stoat in body armour. Deadly to touch, and it takes four shots."],
       [C.boxer.walk0.r, "Boxer", "A guard hiding under a cardboard box. It isn't fooling anyone. Harmless; jump on one to flatten its box."],
       [C.dog.walk0.r, "Guard dog", "Fast, loud, and all teeth. One shot."],
-      [C.clawbot.a.r, "Clawbot", "Dr Claw's robot crab. Armoured, can't be hurt. It shoves."],
+      [C.clawbot.a.r, "Clawbot", "Dr Cal's robot crab. Armoured, can't be hurt. It shoves."],
       [C.gunner.a.r, "Gunner", "A guard behind sandbags with a machine gun. Can't be hurt either: keep your head down."],
-      [C.ocelot.walk0.r, "Ocelot", "Dr Claw's elite, in a beret, twirling a pistol. Five shots."],
-      [C.ninja.walk0.r, "Ninja", "Nobody knows where Dr Claw found them. Quick, and three shots."],
+      [C.ocelot.walk0.r, "Ocelot", "Dr Cal's elite, in a beret, twirling a pistol. Five shots."],
+      [C.ninja.walk0.r, "Ninja", "Bred in Dr Cal's labs, and nobody wants to know how. Quick, and three shots."],
     ]; },
     items: () => { const I = ART.itemSets.claw; return [
       [I.items.fish, "Dog tags, rations, floppy disks, tapes, gold bars, a diamond", "100, 200, 500, 1000, 2000 and 5000 points. An extra life at 20,000, then 40,000, 80,000 and so on."],
       [I.items.ammo, "Battery pack", "Five shots for the raygun."],
-      [I.items.life, "Poom bobblehead", "An extra life. Dr Claw keeps one in a glass case. Everyone has one."],
+      [I.items.life, "Poom bobblehead", "An extra life. Dr Cal keeps one in a glass case, with the eyes scratched out."],
       [I.gems[0], "Security cards", "Open the base's door of the same colour, in this level."],
       [I.objectives[0][0], "Power cores", "Six of them feed the Copycat. Shoot or touch one to break it."],
     ]; },
@@ -3052,7 +3052,7 @@ const BOOK_TEXT = {
       swim: "<b>You can swim!</b>",
       bossDown: null,
       cell: n => `A power core goes dark. ${n} to go.`,
-      core: "<b>The last core goes!</b><br><br>The Copycat shudders, whines, and overloads. Somewhere above, Dr Claw is shouting.",
+      core: "<b>The last core goes!</b><br><br>The Copycat shudders, whines, and overloads. Somewhere above, Dr Cal is shouting.",
       ferry: "Bruce, the robot shark, takes Poom aboard. He doesn't seem to mind.",
       wayOpens: "Somewhere on Isla Garra, a gate rolls open.",
       lostLife: n => n === 0 ? "The radio crackles: <i>\"Poom? Poom! POOOOM!\"</i><br><br>He's all right. <b>This is your last life.</b>" : `The radio crackles: <i>\"Poom? Poom! POOOOM!\"</i><br><br>He's all right. ${n} ${n === 1 ? "life" : "lives"} left.`,
@@ -3062,19 +3062,19 @@ const BOOK_TEXT = {
       cheatOn: "Auntie Static: <i>\"Sugar, I've hacked the island's mainframe. You're invincible. Don't tell anybody.\"</i> Infinite lives and energy. No high scores this game.",
       cheatOff: "Auntie Static: <i>\"Back to sneaking, then.\"</i> Cheat mode off.",
       raygun: n => `${n} shot${n === 1 ? "" : "s"}`,
-      gameOver: n => `<b>Game over.</b><br><br><i>"Poom? Poom! POOOOOOOM!"</i><br><br>Dr Claw keeps the Catamaran. Final score: ${n}.`,
-      highScore: n => `<b>A high score!</b><br><br>${n} points. Dr Claw would like your name, for his files.`,
+      gameOver: n => `<b>Game over.</b><br><br><i>"Poom? Poom! POOOOOOOM!"</i><br><br>Dr Cal keeps the Catamaran. Final score: ${n}.`,
+      highScore: n => `<b>A high score!</b><br><br>${n} points. Dr Cal would like your name, for his files.`,
     },
-    scores: [["Junk Baron Cal", 20000], ["Dr Claw", 17500], ["Auntie Static", 15000], ["Ocelot", 10000], ["Mr Squeaks", 7500], ["Bruce", 5000], ["Claw guard", 2500]],
+    scores: [["Dr Cal", 20000], ["Junk Baron Cal", 17500], ["Auntie Static", 15000], ["Ocelot", 10000], ["Mr Squeaks", 7500], ["Bruce", 5000], ["Claw guard", 2500]],
     boot: ["256 colours: ok", "radio: 140.85"],
     /* the pages played when the Copycat blows */
     ending: (score, next) => [
       "The Copycat goes up with a bang that rattles the whole volcano. Red lights, klaxons, guards running every way at once.",
-      "Out of a hatch in the crater wall shoots a little escape pod shaped like a fish. Inside it, shaking a fluffy white paw: <i>\"This isn't over, puma!\"</i>",
-      "Poom finds the Catamaran in the Hangar, nearly whole, and blasts it out of the crater into the night.",
-      "Over the sea, something keeps pace with him in the dark: <b>a black Catamaran</b>, the one copy the Copycat finished. At its helm, a grey-black panther. He gives Poom a little salute, and peels away.",
+      "Out of the Hangar roars the one copy the Copycat finished: <b>a black Catamaran</b>. At its helm, monocle glinting, lab coat flapping, Dr Cal: <i>\"This isn't over, puma!\"</i>",
+      "Poom finds his own Catamaran in the Hangar, nearly whole, and blasts it out of the crater into the night.",
+      "Over the sea, the black Catamaran keeps pace with him in the dark for a while. Its pilot gives Poom a little salute, and peels away.",
       "The radio crackles. <i>\"Well, sugar. Now there are two of you.\"</i>",
-      `<b>The End</b> of Book Three: The Island of Dr Claw.<br><br>${next ? `Score so far: ${score}.<br><br>On to Book ${next}.` : `Final score: ${score}.<br><br>Commander Poom will return.`}`,
+      `<b>The End</b> of Book Three: The Island of Dr Cal.<br><br>${next ? `Score so far: ${score}.<br><br>On to Book ${next}.` : `Final score: ${score}.<br><br>Commander Poom will return.`}`,
     ],
   },  /* Book 4, set E: Raptura, the city under the sea (docs/story/book-4-story.md) */
   E: {

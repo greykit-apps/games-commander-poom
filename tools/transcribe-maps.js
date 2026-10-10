@@ -196,12 +196,13 @@ function convert(d) {
   const at = new Map();
   for (const e of d.entities) at.set(e.x + "," + e.y, e);
   const things = [], marks = [], rows = [];
-  let e1 = null, e1solid = null;
+  let e1 = null, e1solid = null, e1glyph = null;
   if (d.engine === "E1") {
     const raw = JSON.parse(fs.readFileSync(path.join(MAPS, d.set, d.map + ".raw.json"), "utf8"));
     const prop = (x, y) => raw.tile_properties[raw.planes.tiles[y][x]] || {};
     e1 = (x, y) => prop(x, y).behavior;
     e1solid = (x, y) => { const t = prop(x, y); return !!(t.top && t.bottom && t.left && t.right); };
+    e1glyph = (x, y) => prop(x, y).glyph;
   }
   for (let y = 0; y < d.height; y++) {
     let row = "";
@@ -225,7 +226,18 @@ function convert(d) {
       else if (c === "?" && e1solid && e1solid(x, y)) g = "#";
       else g = PLAIN[c];
       if (g === undefined) throw new Error(`${d.map}: no mapping for '${c}' at ${x},${y}`);
-      row += g;
+      /* E1 keeps a pickup as a tile, so a creature standing on one hides it
+         in the grid (a key in each of D05 and D10, points and power-ups in
+         C03, C09, D02, D06, D10, H09, H15): the creature goes in things, the
+         pickup back in the row */
+      let under = null;
+      if (e1glyph && c === "e") {
+        const tg = e1glyph(x, y);
+        if (tg === "k") under = E1_KEY[e1(x, y)] || "q";
+        else if (tg === "$") under = E1_POINTS[e1(x, y)] || "f";
+        else if (tg === "+") under = "a";
+      }
+      row += under || g;
       if (e && "eGNMZl!P".includes(g)) things.push([x, y, g, e.name]);
       /* E1 tile objects have no entity: name them from their behaviour */
       else if (e1 && !e && c === "!") things.push([x, y, g, "objective type " + String(e1(x, y) - 10).padStart(2, "0")]);

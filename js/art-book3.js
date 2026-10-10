@@ -1,8 +1,8 @@
-/* Commander Poom -- Book 3's art: The Island of Dr Claw (map set D).
+/* Commander Poom -- Book 3's art: The Island of Dr Cal (map set D).
  *
  * Isla Garra by night, in the spirit of 1998's sneaking games
  * (docs/story/book-3-story.md): three tilesets (the Shore, the Base, the
- * Crater), Dr Claw's creatures, the items, Poom's sneaking suit, the world
+ * Crater), Dr Cal's creatures, the items, Poom's sneaking suit, the world
  * map and the title backdrop. Registers with art.js (TILE_STYLES,
  * FAR_STYLES, MAP_PAINTERS, ART_BOOKS); loads after it. */
 "use strict";
@@ -266,7 +266,7 @@ TILE_STYLES.crater = (tiles, th, mk, E) => {
   tiles.doorsBelow = COLOURS.map(([a, b]) => b3Door(mk, E, B3_BASALT[1], a, b, false));
   tiles.exit = b3Exit(B3_BASALT[1], B3_RED[1], B3_RED[3], B3_CHROME[2]);
   tiles.platform = b3Platform(B3_CHROME[2], B3_CHROME[4], B3_RED[1], [[B3_RED[3], "#ffc0c8"], ["#ffb02e", "#fff0b0"], [B3_CHROME[1], B3_CHROME[2]]]);
-  tiles.sign = mk(g => { /* a monitor on a chrome stand, Dr Claw's claw on it */
+  tiles.sign = mk(g => { /* a monitor on a chrome stand, Dr Cal's claw on it */
     px(g, B3_CHROME[2], 7, 10, 2, 6); px(g, B3_CHROME[1], 1, 1, 14, 10); px(g, B3_CHROME[3], 1, 1, 14, 1); px(g, B3_RED[0], 2, 2, 12, 8);
     for (const x of [5, 8, 11]) px(g, B3_RED[3], x, 3, 1, 4);
     px(g, B3_RED[3], 5, 7, 7, 2);
@@ -365,7 +365,7 @@ LOOKS.sneak = {
 };
 
 /* ------------------------------------------------------------------ */
-/* Dr Claw's creatures (docs/story/book-3-story.md). Each is drawn in the
+/* Dr Cal's creatures (docs/story/book-3-story.md). Each is drawn in the
  * direction its engine kind expects: pushers, walkers and lieutenants
  * face left, the rest right.                                            */
 
@@ -539,7 +539,7 @@ const B3_DOG = {
   ],
 };
 
-/* a Clawbot: Dr Claw's robot crab, its big claw forward (facing right) */
+/* a Clawbot: Dr Cal's robot crab, its big claw forward (facing right) */
 const B3_CLAWBOT = {
   a: [
     "...L...L.....",
@@ -576,7 +576,7 @@ const B3_GUNNER = {
   b: ["....cccc.....", "...cCCCcc....", "....fFeFw....", "...gggggggggR"].concat(B3_GUNNER_BAGS),
 };
 
-/* an Ocelot: Dr Claw's elite, in a red beret and a long coat, a pistol out
+/* an Ocelot: Dr Cal's elite, in a red beret and a long coat, a pistol out
    (facing left) */
 const B3_OCELOT_TOP = [
   "....rrrr......",
@@ -603,9 +603,10 @@ const B3_OCELOT = {
   jump: B3_OCELOT_TOP.concat([".akxxxxxxx....", "..xxx...xxx...", "..ooo...ooo...", ".kkkk...kkkk.."]),
 };
 
-/* Dr Claw: a white Persian, flat-faced and enormously fluffy, a monocle,
- * a purple smoking jacket, a laser pistol (facing right) */
-const B3_DRCLAW_TOP = [
+/* Dr Cal: Junk Baron Cal in his island persona (after Dr Claw, after Dr
+ * No, with a bit of Dr Moreau): a grey-black panther, yellow-eyed, in a
+ * white lab coat, a monocle and a laser pistol (facing right) */
+const B3_DRCAL_TOP = [
   "..W......W....",
   ".WpW....WpW...",
   ".WWWWWWWWWWW..",
@@ -619,12 +620,13 @@ const B3_DRCLAW_TOP = [
   "...jjjjjjj....",
   "..jjJJWJJjj...",
 ];
-const B3_DRCLAW = {
-  a: B3_DRCLAW_TOP.concat([".jjjJJWJJjjWs.", ".jjjJJJJJjj.ss", ".jjjJJJJJjj...", "..jjJJJJJjj...", "..jjjjjjjjj...", "..jjj...jjj...", "..jjj...jjj...", ".kkkk...kkkk.."]),
-  b: B3_DRCLAW_TOP.concat([".jjjJJWJJjjWs.", ".jjjJJJJJjj.sR", ".jjjJJJJJjj...", "..jjJJJJJjj...", "..jjjjjjjjj...", "..jjj...jjj...", "..jjj...jjj...", ".kkkk...kkkk.."]),
+const B3_DRCAL = {
+  a: B3_DRCAL_TOP.concat([".jjjJJWJJjjWs.", ".jjjJJJJJjj.ss", ".jjjJJJJJjj...", "..jjJJJJJjj...", "..jjjjjjjjj...", "..jjj...jjj...", "..jjj...jjj...", ".kkkk...kkkk.."]),
+  b: B3_DRCAL_TOP.concat([".jjjJJWJJjjWs.", ".jjjJJJJJjj.sR", ".jjjJJJJJjj...", "..jjJJJJJjj...", "..jjjjjjjjj...", "..jjj...jjj...", "..jjj...jjj...", ".kkkk...kkkk.."]),
 };
 
-/* Mr Squeaks: Dr Claw's white mouse (a pusher: facing left) */
+const B3_DRCAL_PAL = { ...B3_PAL, W: "#26262c", w: "#3a3a44", p: "#5a4450", e: "#ffd23f", j: "#e8eef0", J: "#c4ccd2", k: "#121214" };
+/* Mr Squeaks: Dr Cal's white mouse (a pusher: facing left) */
 const B3_MOUSE = {
   walk0: ["......pp....", ".....WWpW...", "....WWWWWWe.", "...WWWWWWWWn", "pWWWWWWWWW..", ".WWWWWWWWW..", "..p..p..p..."],
   walk1: ["......pp....", ".....WWpW...", "....WWWWWWe.", "...WWWWWWWWn", "pWWWWWWWWW..", ".WWWWWWWWW..", "...p..p..p.."],
@@ -679,7 +681,7 @@ const B3_ITEMS = {
   catnip: ["kkkkkkkkkk", "kwwwwwwwwk", "kwkkwwkkwk", "kwkskkskwk", "kwwwwwwwwk", "kggggggggk", ".kkkkkkkk."],
   /* a gold bar, stamped */
   medal: ["...yyyyyy..", "..yYYzYYYy.", ".yYYYYYYYyy", "yyyyyyyyyyy", "yYyyyyyyyYy", "yyyyyyyyyyy"],
-  /* Dr Claw's diamond */
+  /* Dr Cal's diamond */
   trophy: ["..cCCCc...", ".cCMMMCc..", "cCMMMMMCcc", ".cMMMMMcc.", "..cMMMc...", "...cMc....", "....c....."],
   /* a battery pack */
   ammo: [".kk.", "gssg", "gGGg", "gyYg", "gyYg", "gGGg", "gssg", "gggg"],
@@ -707,7 +709,7 @@ ART_BOOKS.push(() => {
     clawbot: each(B3_CLAWBOT, B3_PAL),
     gunner: each(B3_GUNNER, B3_PAL),
     ocelot: each(B3_OCELOT, B3_PAL, b3mirror),
-    drclaw: each(B3_DRCLAW, B3_PAL),
+    drcal: each(B3_DRCAL, B3_DRCAL_PAL),
     whitemouse: each(B3_MOUSE, B3_PAL, b3mirror),
     turret: each(B3_CAMERA, B3_PAL),
   };
@@ -801,7 +803,7 @@ MAP_PAINTERS.claw = classic => {
 
 /* ------------------------------------------------------------------ */
 /* The title backdrop: Isla Garra at night from the sea. A moon, the
- * volcano with Dr Claw's lair cut into it and its red-lit windows, the
+ * volcano with Dr Cal's lair cut into it and its red-lit windows, the
  * magnet crane on the cone, the lagoon, a jetty with the Catamaran
  * tied up. Searchlights and Poom are drawn over it by game.js.          */
 function paintClawTitle(shipBare, W_ = 320, H_ = 200) {

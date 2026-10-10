@@ -17,7 +17,7 @@ original.
 |---|---|---|
 | 1 | **Wastelandia**: the Glow, a wasteland of raiders and old Vaults | *Fallout* |
 | 2 | **Heavens to Mergatroid**: Thrum, a hollow moon with something alive inside | *Metroid* |
-| 3 | **The Island of Dr Claw**: a villain's volcano lair, by night, on the quiet | *Metal Gear Solid* |
+| 3 | **The Island of Dr Cal**: a villain's volcano lair, by night, on the quiet | *Metal Gear Solid* |
 | 4 | **Descent into Rapture**: Raptura, a drowned art-deco city of otters | *BioShock* |
 | 5 | **Termination Day**: TERMINUS, a machine's station overrun by an alien swarm | *The Terminator*, *Aliens*, *Predator* |
 
@@ -58,7 +58,7 @@ A gamepad works too, and on a touch screen the controls appear on screen.
 
 ![Book Two, Heavens to Mergatroid: Poom in his white hardsuit and amber visor in the violet crags of Thrum, teal fungus on the rock, a Mergatroid drifting by and a station hatch set into the cave wall](screenshots/book2.png)
 
-![Book Three, The Island of Dr Claw: Poom in a sneaking suit and red bandana on Isla Garra's docks at night, under a full moon and a searchlight, three stoat guards with red exclamation marks over their heads as they spot him; the radio scorebox reads 12750 in green](screenshots/book3.png)
+![Book Three, The Island of Dr Cal: Poom in a sneaking suit and red bandana on Isla Garra's docks at night, under a full moon and a searchlight, three stoat guards with red exclamation marks over their heads as they spot him; the radio scorebox reads 12750 in green](screenshots/book3.png)
 
 ![Book Four, Descent into Rapture: Poom in a brass diving helmet in Raptura's marble promenade, a great round window on the sea behind him with a fish going by, a Big Brass diving suit on a gilded balcony, pink and teal neon glowing](screenshots/book4.png)
 
