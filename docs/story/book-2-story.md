@@ -95,18 +95,18 @@ going out would suit Metroid very well.
 ## The plot, in a paragraph
 
 The Catamaran limps out of the Glow and, two days out, catches a mayday from
-**Thrum**, a hollow moon that hums. The mayday is a fake. **Junk Baron Rex**
+**Thrum**, a hollow moon that hums. The mayday is a fake. **Junk Baron Cal**
 had the Scrappers follow the Catamaran's trail out of the Glow and broadcast
-it on the moles' old frequency, because Rex knows what's on Thrum. A ship that
+it on the moles' old frequency, because Cal knows what's on Thrum. A ship that
 lands there doesn't leave, and he can strip it at his leisure. A mining and
 research station was dug into Thrum's crust by a crew of moles, and the
 **Hum** has grown through it: a hive of glowing, drifting things that feed on
 energy. The Hum is fed by eight **heartstones** buried in the station and the
 caves, and it has hold of the Catamaran too. Every engine Poom fires drains
 into the moon. To leave, he has to go down through the crags, the station and
-the hive itself, and break all eight heartstones before Rex's salvage barge
+the hive itself, and break all eight heartstones before Cal's salvage barge
 arrives. And somewhere under the crust, faint and impossible, Auntie Static's
-radio is playing. She knows the mayday was Rex's before Poom does.
+radio is playing. She knows the mayday was Cal's before Poom does.
 
 ## Why the game works the way it does
 
@@ -123,7 +123,7 @@ radio is playing. She knows the mayday was Rex's before Poom does.
 | **Hazards** | Acid and crystal spines in the crags; live conduits in the station; barbs in the hive. |
 | **The two signs** | The crew's last logs, on terminals by the exits (C09 and C11), and possibly Auntie Static cutting in on one of them. |
 | **Exits** | Airlock hatches and lift doors. |
-| **The ending (C18, stars)** | The last heartstone breaks, the Hum goes quiet and lets go, and the Catamaran climbs off Thrum into open space, past Rex's salvage barge arriving to find nothing to salvage. |
+| **The ending (C18, stars)** | The last heartstone breaks, the Hum goes quiet and lets go, and the Catamaran climbs off Thrum into open space, past Cal's salvage barge arriving to find nothing to salvage. |
 | **Score items** | The crew's things and Thrum's ore. The extra life is still a Poom bobblehead: "They're here too." |
 
 ## Three biomes
@@ -172,7 +172,7 @@ Proposed:
 - **The Book ends when the eighth heartstone breaks:** the Hum lets go of the
   Catamaran at once. The levels without one still have to be crossed, because
   on this map an unfinished level is a wall.
-- **The mayday was Rex's**, a trap (above).
+- **The mayday was Cal's**, a trap (above).
 
 ## Questions to settle
 

@@ -78,7 +78,7 @@ them is not settled.
 
 ## A thread across the Books
 
-Book 1 ends with Junk Baron Rex watching the Catamaran climb: "Find out where
+Book 1 ends with Junk Baron Cal watching the Catamaran climb: "Find out where
 it's going." He could chase Poom through every Book, while Auntie Static's
 radio somehow reaches him wherever he lands. The last Book would be the place
 to say who she is, which answers the open question in
@@ -87,6 +87,6 @@ to say who she is, which answers the open question in
 ## Open questions
 
 - After Book 4, which order for sets A, B, F, G and I?
-- Does Rex appear in person in a later Book, or stay offstage until the end?
+- Does Cal appear in person in a later Book, or stay offstage until the end?
 - Does Poom's ship take damage in each Book (more parts to find), or does each
   Book find him a different reason to land?

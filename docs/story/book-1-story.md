@@ -22,7 +22,7 @@ out the Yarn Drive, and he comes down hard in **the Glow**: the wasteland
 left behind by a war fought by cats and dogs who should have known better.
 Before the engines have stopped ticking, the **Scrappers**, a raider gang
 who strip anything that falls from the sky, have hauled off four of the
-ship's parts. Their boss, **Junk Baron Rex**, gave one to each of his four
+ship's parts. Their boss, **Junk Baron Cal**, gave one to each of his four
 lieutenants as a trophy, and each lieutenant locked it away in their own
 turf: two in the old underground shelters (the **Vaults**), one in the
 Scrappers' fortress, one in the ruins of the town of **Old Litterburg**.
@@ -42,7 +42,7 @@ tower nobody can find, keeps telling him things she shouldn't know.
 | **H08, the gate to the second half** | **Fort Scrap**, the Scrappers' fortress, sits on the only working station of the old **Tube**, a pneumatic subway under the mountains. Clear the fort and the Tube carries Poom north (the map's teleporter pair, 38 and 41). |
 | **Keycards and coloured doors** | The Vaults were built with four security levels, red, yellow, green and blue, and their doors still answer to the cards. The Scrappers loot the cards and reuse the doors to lock up their own stashes, which is why even a raider camp has a blue door. |
 | **The four parts are always behind a locked door** | Each lieutenant keeps their trophy in their strongroom and carries the card that opens it, or drops it nearby. |
-| **The four lieutenants** (creature type 03, one beside each part) | Rex's lieutenants. Each guards one part, and each is the hardest thing in their level. |
+| **The four lieutenants** (creature type 03, one beside each part) | Cal's lieutenants. Each guards one part, and each is the hardest thing in their level. |
 | **Exit doors** | Every place has one way out the far side: a Vault's lift, the fort's back gate, a stairwell up from the ruins. |
 | **Hint signs** | Terminals in the Vaults, graffiti and warning boards in the ruins and the camps, and Auntie Static's radio wherever there's an aerial. |
 | **H03 and H07, the story rooms** | Two of Auntie Static's relay towers: a short climb to the top, a radio, a message. |
@@ -81,7 +81,7 @@ map onto them neatly, which would let the engine reuse what it has.
 | 03 | 4, one by each part | **The lieutenants**: big, tough, a few shots each | Grand Vacuumoid |
 | turret | 4, in Vaults | **Auto-turrets**: fire along a line | Clawtank's shot |
 
-Junk Baron Rex himself never appears in Book 1: he's for later.
+Junk Baron Cal himself never appears in Book 1: he's for later.
 
 **Made**: the `wasteland` creature set in js/art.js (sheet in docs/art/wasteland-creatures.png), and `ENEMY_OF` in game.js gives each type its behaviour. The lieutenants are their own engine type (L): they walk and jump like Scrappers and take five shots. Turrets (G) are fixed and fire along their barrel when Poom is near.
 
@@ -161,10 +161,10 @@ the ship's "The Catamaran is whole again!":
 1. The Yarn Drive catches; the Catamaran rises out of the crash valley.
 2. The Glow from above: the Vault hatches, the smoke over Fort Scrap, Old
    Litterburg's towers. It almost looks pretty.
-3. Auntie Static on the radio: Rex will be sore; she'll be in touch. Poom
+3. Auntie Static on the radio: Cal will be sore; she'll be in touch. Poom
    never told her his frequency.
-4. Junk Baron Rex, on a throne of hubcaps, watches the light climb: "Find out
-   where it's going." (Rex never appears in Book 1; this sets him up.)
+4. Junk Baron Cal, on a throne of hubcaps, watches the light climb: "Find out
+   where it's going." (Cal never appears in Book 1; this sets him up.)
 5. The End of Book One, the score, and on to the next book.
 
 If Book 1 is ever the last book played to the end of the game, the same pages
