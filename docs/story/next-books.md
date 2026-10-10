@@ -16,8 +16,17 @@ later Book follows the same rules:
 
 ## Settled
 
-- **Book 2 is map set C, in the spirit of *Metroid*.** Set C moves up to
-  Book 2 (`BOOK_ORDER` in `js/game.js`), and set A becomes Book 3.
+- **The order of the first four Books.** `BOOK_ORDER` in `js/game.js` is now
+  H, C, D, E, then A, B, F, G and I.
+
+  | Book | Map set | Theme |
+  |---|---|---|
+  | 1 | H | the wasteland, in the spirit of *Fallout* (done) |
+  | 2 | C | in the spirit of *Metroid* |
+  | 3 | D | to choose |
+  | 4 | E | to choose |
+
+  Each one's story map is in `docs/story/book-<set>.md`.
 
 ## What each map set is like
 
@@ -37,8 +46,8 @@ theme.
 
 ## Proposals
 
-The Book numbers here follow the new order: Book 2 is set C, then sets A, B,
-D, E, F, G and I. The numbers are not settled past Book 2.
+Books 2, 3 and 4 are sets C, D and E. The order of sets A, B, F, G and I after
+them is not settled.
 
 - **Set C (Book 2): an alien hive, in the spirit of *Metroid* / *Alien*.**
   It is simple and hazard-heavy like Book 1, which suits a tense, quiet,
@@ -51,10 +60,10 @@ D, E, F, G and I. The numbers are not settled past Book 2.
   hazards are ready-made assembly lines, crushers and sparking wire; the
   key carriers become worker robots holding security passes. Alternative:
   a candy factory, lighter in tone.
-- **Set D: a secret island base, in the spirit of *Metal Gear* and 1960s spy
+- **Set D (Book 3): a secret island base, in the spirit of *Metal Gear* and 1960s spy
   films.** Turrets become security cameras and guns, the many creature types
   become guards, dogs and drones, and the one objective is stolen plans.
-- **Set E: a sunken art-deco city, in the spirit of *BioShock*.** Rescues and
+- **Set E (Book 4): a sunken art-deco city, in the spirit of *BioShock*.** Rescues and
   swimming fit it best: an underwater city of otters, with eight trapped
   citizens to free.
 - **Set F: a desert planet, in the spirit of *Dune* / *Tatooine*.** The wide
@@ -77,7 +86,7 @@ to say who she is, which answers the open question in
 
 ## Open questions
 
-- After Book 2, which order for the rest?
+- After Book 4, which order for sets A, B, F, G and I?
 - Does Rex appear in person in a later Book, or stay offstage until the end?
 - Does Poom's ship take damage in each Book (more parts to find), or does each
   Book find him a different reason to land?
