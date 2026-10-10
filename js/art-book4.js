@@ -217,7 +217,7 @@ TILE_STYLES.works = (tiles, th, mk, E) => {
     px(g, B4_IRON[1], 0, T - 1, T, 1); px(g, B4_IRON[1], T - 1, 0, 1, T); px(g, B4_IRON[5], 0, 0, T, 1); px(g, B4_IRON[5], 0, 0, 1, T);
     for (const [x, y] of [[2, 2], [13, 2], [2, 13], [13, 13]]) { px(g, B4_BRASS[4], x, y); px(g, B4_IRON[1], x + 1, y + 1); }
     if (kind === 1) { px(g, "#7a3a1c", 5, 4, 1, 9); px(g, "#9a4b22", 6, 6, 1, 5); }
-    if (kind === 2) { g.fillStyle = B4_BRASS[2]; g.beginPath(); g.arc(8, 8, 4, 0, Math.PI * 2); g.fill(); g.fillStyle = "#e8e0c8"; g.beginPath(); g.arc(8, 8, 3, 0, Math.PI * 2); g.fill(); px(g, "#a01848", 8, 6, 1, 3); }
+    if (kind === 2) { g.fillStyle = B4_BRASS[2]; g.beginPath(); g.arc(8, 8, 3.5, 0, Math.PI * 2); g.fill(); g.fillStyle = "#8a8270"; g.beginPath(); g.arc(8, 8, 2.5, 0, Math.PI * 2); g.fill(); px(g, "#a01848", 8, 6, 1, 2); }
     if (top) { px(g, B4_BRASS[3], 0, 0, T, 3); px(g, B4_BRASS[5], 0, 0, T, 1); px(g, B4_BRASS[1], 0, 3, T, 1); }
   });
   tiles.ground = [plate(false, 0, 9), plate(false, 1, 19), plate(false, 0, 29), plate(false, 0, 59), plate(false, 2, 39), plate(false, 0, 49), plate(false, 0, 69), plate(false, 0, 79)];
