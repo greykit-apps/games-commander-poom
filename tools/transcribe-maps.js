@@ -86,6 +86,8 @@ const OPEN_TILES = {
 const CLEAR_HAZARDS = {
   /* the spikes either side of C17's heartstone */
   C17: [[64, 14], [68, 14]],
+  /* the fires beside D16's lower exit */
+  D16: [[120, 113], [120, 115]],
 };
 
 const PULSE_TILES = { E: new Set([1838, 1856, 1874]) };
