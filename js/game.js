@@ -879,6 +879,10 @@ const isSolid = c => SOLID.has(c);
 /* a pulsing column (z) runs on a cycle: deadly, then gone, then a warning
  * flicker before it comes back. Ticks */
 const PULSE = { period: 150, on: 60, warn: 30 };
+/* the Works' vents blow in bursts, all together: on, then off long enough
+ * to walk past, with a wisp just before the next burst. Ticks */
+const VENT = { period: 150, on: 70, warn: 20 };
+const ventPhase = lv => { const t = lv.t % VENT.period; return t < VENT.on ? "on" : t < VENT.period - VENT.warn ? "off" : "warn"; };
 const pulsePhase = lv => { const t = lv.t % PULSE.period; return t < PULSE.on ? "on" : t < PULSE.period - PULSE.warn ? "off" : "warn"; };
 
 /* the hazard part of a tile, in tile-local pixels, or null */
@@ -1227,7 +1231,7 @@ function updatePlayer(lv) {
     if (dir === 0) {
       /* a pulsing column, on: out sideways, the way he came */
       if (pulsePhase(lv) === "on" && overlap(p, { x: sx * T + 2, y: sy * T, w: T - 4, h: T })) { p.pushT = 6; p.pushV = (pcx < sx * T + 8 ? -1 : 1) * 2.5; }
-    } else if (!p.riding && overlap(p, { x: sx * T + 1, y: dir < 0 ? (sy - 1) * T : sy * T, w: T - 2, h: 2 * T })) {
+    } else if (ventPhase(lv) === "on" && !p.riding && overlap(p, { x: sx * T + 1, y: dir < 0 ? (sy - 1) * T : sy * T, w: T - 2, h: 2 * T })) {
       /* a vent: a blast away from the nozzle, two tiles long. A platform
          between him and it takes the blast (E15's chute drops onto one
          running just over a floor of vents) */
@@ -2230,7 +2234,7 @@ function drawLevel() {
          steam vents) runs its own effect in the same frame */
       const hang = lv.hang.has(tx + "," + ty);
       ctx.save(); ctx.translate(x, hang ? y + T : y); if (hang) ctx.scale(1, -1);
-      ctx.drawImage(art.spikes, 0, 0); if (art.spikeFx) art.spikeFx(ctx, lv.t, tx * 3 + ty);
+      ctx.drawImage(art.spikes, 0, 0); if (art.spikeFx && lv.theme === "works") { const vp = ventPhase(lv); if (vp !== "off") art.spikeFx(ctx, lv.t, tx * 3 + ty, vp === "warn"); }
       ctx.restore();
     }
     else if (ch === "z") drawPulse(art, x, y, pulsePhase(lv), lv.t);

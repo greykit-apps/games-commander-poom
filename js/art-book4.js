@@ -229,7 +229,8 @@ TILE_STYLES.works = (tiles, th, mk, E) => {
   });
   /* a steam vent is live: puffs billow out of the nozzle, over and over
      (the engine draws it in tile space, flipped for a vent in a ceiling) */
-  tiles.spikeFx = (g, t, n) => {
+  tiles.spikeFx = (g, t, n, wisp) => {
+    if (wisp) { g.fillStyle = "rgba(240, 248, 248, 0.35)"; g.beginPath(); g.arc(8, 8 - (t % 10) * 0.4, 1.3, 0, Math.PI * 2); g.fill(); return; }
     for (let i = 0; i < 4; i++) {
       const f = ((t + n * 7 + i * 9) % 36) / 36, r = 1.5 + f * 3.5;
       g.fillStyle = `rgba(240, 248, 248, ${0.75 * (1 - f)})`;
