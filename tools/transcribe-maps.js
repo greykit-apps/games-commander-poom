@@ -75,6 +75,12 @@ const NEEDS = {
 /* deadly columns a level can't be crossed without: they must come and go.
  * Set E's three-tile column (tiles 1838, 1856, 1874) spans E13's corridors
  * floor to ceiling, and walls in E15's keycard pocket */
+/* hazards taken out by hand, per map: [x, y] */
+const CLEAR_HAZARDS = {
+  /* the spikes either side of C17's heartstone */
+  C17: [[64, 14], [68, 14]],
+};
+
 const PULSE_TILES = { E: new Set([1838, 1856, 1874]) };
 
 const GEM_OF_SOCKET = { 7: 0, 8: 1, 9: 3, 10: 2 };   /* red yellow blue green -> Poom's r y g b order */
@@ -301,6 +307,7 @@ function convert(d) {
      safe floor instead, so it can be walked up to and read */
   for (let y = 0; y + 1 < rows.length; y++) for (let x = 0; x < rows[y].length; x++)
     if (rows[y][x] === "H" && rows[y + 1][x] === "^") rows[y + 1] = rows[y + 1].slice(0, x) + "#" + rows[y + 1].slice(x + 1);
+  for (const [x, y] of CLEAR_HAZARDS[d.map] || []) if ("^z".includes(rows[y][x])) rows[y] = rows[y].slice(0, x) + "." + rows[y].slice(x + 1);
   const links = [], ends = [];
   for (const e of d.entities) {
     if (MOVE_ENTRANCE[d.map] && e.y >= MOVE_ENTRANCE[d.map].below) continue;
