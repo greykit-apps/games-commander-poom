@@ -598,6 +598,19 @@ function loadLevel(n) {
     if (lv.back[y][x] || SOLID.has(rows[y][x])) continue;
     for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) if ((lv.back[y + dy] || [])[x + dx]) lv.back[y][x] = true;
   }
+  /* Book 2: the Hum has grown into every heartstone's chamber, whatever the
+     level's biome, so a ragged oval round each one wears the Hive's tiles */
+  if (BOOK_GOAL[def.book] === "hearts" && theme !== "hive") {
+    lv.hiveAt = new Set();
+    def.rows.forEach((row, hy) => [...row].forEach((c, hx) => {
+      if (c !== "!") return;
+      for (let dy = -9; dy <= 9; dy++) for (let dx = -11; dx <= 11; dx++) {
+        const x = hx + dx, y = hy + dy, ragged = (((x * 73856093) ^ (y * 19349663)) >>> 0) % 7 / 7 * 0.4;
+        if ((dx / 11) ** 2 + (dy / 9) ** 2 <= 1 - ragged) lv.hiveAt.add(x + "," + y);
+      }
+    }));
+    if (lv.hiveAt.size) lv.hiveArt = paintTiles("hive");
+  }
   /* a turret is placed by its top tile; stand it on the floor below (one
      that fires downward hangs where it is) */
   for (const e of lv.ents) if (e.type === "G" && !(e.aim && e.aim[1] > 0)) {
@@ -1763,6 +1776,8 @@ function drawLevel() {
   for (let ty = ty0; ty <= ty0 + Math.ceil(H / T); ty++) for (let tx = tx0; tx <= tx0 + Math.ceil(W / T); tx++) {
     if (ty < 0 || ty >= lv.h || tx < 0 || tx >= lv.w) continue;
     const ch = lv.tiles[ty][tx], x = tx * T - cx, y = ty * T - cy;
+    /* this tile's art: the level's, or the Hive's in a heartstone chamber */
+    const art = lv.hiveAt && lv.hiveAt.has(tx + "," + ty) ? lv.hiveArt : lv.art;
     if (lv.back[ty][tx] && !solidLike(ch)) ctx.drawImage(art.bgwall, x, y);
     const v = tx * 7 + ty * 13;
     if (ch === "#" && lv.deckAt.has(tx + "," + ty)) ctx.drawImage(art.bridge, x, y);
@@ -1786,7 +1801,7 @@ function drawLevel() {
   /* the secret teleporter: a warp arch, a tile wide, drawn from its top tile */
   for (const k of lv.secretAt) { const [x, y] = k.split(",").map(Number); if (!lv.secretAt.has(x + "," + (y - 1))) ctx.drawImage(art.warp[(lv.t >> 2) % 4], x * T - cx, y * T - cy, T, T * 2); }
   for (const d of lv.warpDoors) if (d.x - cx > -d.w && d.x - cx < W && d.y - cy > -d.h && d.y - cy < H) ctx.drawImage(art.warp[(lv.t >> 3) % 4], d.x - cx, d.y - cy, d.w, d.h);
-  for (const e of lv.exits) ctx.drawImage(art.exit[lv.exitUsed === e ? 1 : 0], e.x - cx, e.y - cy);
+  for (const e of lv.exits) { const a = lv.hiveAt && lv.hiveAt.has(Math.floor(e.x / T) + "," + Math.floor(e.y / T)) ? lv.hiveArt : art; ctx.drawImage(a.exit[lv.exitUsed === e ? 1 : 0], e.x - cx, e.y - cy); }
 
   for (const it of lv.items) {
     if (it.gone) continue;
