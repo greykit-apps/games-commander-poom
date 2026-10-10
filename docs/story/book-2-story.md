@@ -125,7 +125,7 @@ there*?" She knows the mayday was Cal's before Poom does.
 | **Hazards** | Acid and crystal spines in the crags; live conduits in the station; barbs in the hive. |
 | **The two signs** | The crew's last logs, on terminals by the exits (C09 and C11), and possibly Auntie Static cutting in on one of them. |
 | **Exits** | Airlock hatches and lift doors. |
-| **The ending (C18, stars)** | The last heartstone breaks, the Hum goes quiet and lets go, and the Catamaran climbs off Thrum into open space, past Cal's salvage barge arriving to find nothing to salvage. |
+| **The ending (C18, stars)** | The last heartstone breaks, the Hum goes quiet and lets go, and the Catamaran climbs off Thrum into open space, past Cal's salvage barge arriving to find nothing to salvage. Through the barge's window, for the first time, a grey-black panther's silhouette: the Shadow Poom arc begins. |
 | **Score items** | The crew's things and Thrum's ore. The extra life is still a Poom bobblehead: "They're here too." |
 
 ## Three biomes

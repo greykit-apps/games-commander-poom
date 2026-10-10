@@ -81,7 +81,9 @@ map onto them neatly, which would let the engine reuse what it has.
 | 03 | 4, one by each part | **The lieutenants**: big, tough, a few shots each | Grand Vacuumoid |
 | turret | 4, in Vaults | **Auto-turrets**: fire along a line | Clawtank's shot |
 
-Junk Baron Cal himself never appears in Book 1: he's for later.
+Junk Baron Cal himself never appears in Book 1: he's for later. In the canon
+he is a grey-black puma (a Florida panther), Poom's shadow; the series' arc
+is Commander Poom and Shadow Poom (see [next-books.md](next-books.md)).
 
 **Made**: the `wasteland` creature set in js/art.js (sheet in docs/art/wasteland-creatures.png), and `ENEMY_OF` in game.js gives each type its behaviour. The lieutenants are their own engine type (L): they walk and jump like Scrappers and take five shots. Turrets (G) are fixed and fire along their barrel when Poom is near.
 

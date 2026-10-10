@@ -76,17 +76,41 @@ them is not settled.
   the series: rescuing a scattered crew, swimming between islands, a wry
   voice. It mirrors set E's structure.
 
-## A thread across the Books
+## A thread across the Books: Commander Poom and Shadow Poom
 
-Book 1 ends with Junk Baron Cal watching the Catamaran climb: "Find out where
-it's going." He could chase Poom through every Book, while Auntie Static's
-radio somehow reaches him wherever he lands. The last Book would be the place
-to say who she is, which answers the open question in
-[book-1-story.md](book-1-story.md) without settling it now.
+**Junk Baron Cal** is named for the author's friend Cal, who is in on it and
+loves it. In the canon he is a **grey-black puma, a Florida panther**: a
+shadow-cougar to Poom's tawny one. So the series' villain arc is **Commander
+Poom and Shadow Poom**, Cal as Poom's dark mirror. Write him affectionately:
+he's a schemer, a scavenger and a show-off, never cruel. The series stays
+darkly funny and never grim.
+
+A proposal for how the arc could build:
+
+- **Book 1 (done).** Cal is offstage. His Scrappers strip the Catamaran, and
+  he watches it climb away from his throne of hubcaps: "Find out where it's
+  going."
+- **Book 2.** His trap: the fake mayday from Thrum. His salvage barge arrives
+  too late, and through its window, for the first time, the player glimpses a
+  grey-black silhouette.
+- **The middle Books.** Cal copies Poom, a piece per Book. He builds his own
+  ship from the parts his gang has studied, a black Catamaran, and gets his
+  paws on the gear Poom used last time (the station's hardsuit tech from
+  Thrum, say). Auntie Static keeps her ear on him.
+- **The reveal.** Cal turns up as **Shadow Poom**: Poom's outfit in black and
+  grey, his own ship, his own catchphrase. The Scrappers have been calling him
+  that all along.
+- **The end.** A showdown worthy of the two of them, and an ending that leaves
+  them rivals, not enemies. That is also the natural place to say who Auntie
+  Static is.
+
+How literal "Shadow Poom" gets (a title, a costume, a whole Book of his own)
+is the author's to choose.
 
 ## Open questions
 
 - After Book 4, which order for sets A, B, F, G and I?
-- Does Cal appear in person in a later Book, or stay offstage until the end?
+- Which Book does Cal first appear in person, and when does he become Shadow
+  Poom?
 - Does Poom's ship take damage in each Book (more parts to find), or does each
   Book find him a different reason to land?
