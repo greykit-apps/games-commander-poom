@@ -46,6 +46,9 @@ function worldOrder() {
   for (const [x, y, g, nm] of w.things) { const m = /^entrance to ([A-I]\d\d)/.exec(nm); if (g === "l" && m && byId[m[1]]) entrance[at(x, y)] = m[1]; }
   for (const [x, y, nm] of w.marks) { const m = /^removed when ([A-I]\d\d) is done/.exec(nm); if (m) barrier[at(x, y)] = m[1]; }
   for (const [x, y, tx, ty, kind] of w.links) if (kind === "door" && w.rows[y][x] === "Q") tele[at(x, y)] = [tx, ty];
+  /* a ferry (set D): each landing reaches the others (groups of touching tiles) */
+  const ferry = {};
+  if (w.ferry) for (const [x, y] of w.ferry.landings) ferry[at(x, y)] = w.ferry.landings.filter(([a, b]) => Math.abs(a - x) + Math.abs(b - y) > 2);
   const start = (w.things.find(t => t[2] === "P" && /player start/.test(t[3])) || w.things.find(t => t[2] === "P")).slice(0, 2);
   /* on an E1 map an unfinished level is a wall: reached by walking up to it */
   const e1 = w.engine === "E1";
@@ -57,6 +60,7 @@ function worldOrder() {
       if (e1) for (const [nx, ny] of [[x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]]) { const e = entrance[at(nx, ny)]; if (e) got.add(e); }
       const nexts = [[x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]];
       if (tele[at(x, y)]) { nexts.push(tele[at(x, y)]); usedTele.add(at(x, y)); }
+      if (ferry[at(x, y)]) nexts.push(...ferry[at(x, y)]);
       for (const [nx, ny] of nexts) {
         const k = at(nx, ny), c = (w.rows[ny] || "")[nx];
         if (!c || seen.has(k)) continue;
@@ -92,7 +96,7 @@ function worldOrder() {
   const arrivals = w.things.filter(t => t[2] === "P" && /arrival/.test(t[3])).map(t => t.slice(0, 2));
   const lone = [];
   w.rows.forEach((r, y) => [...r].forEach((c, x) => { if (c === "Q" && !tele[at(x, y)]) lone.push([x, y]); }));
-  return { tiers, never, opens, needs, start, tele: Object.keys(tele).length, arrivals, lone, e1 };
+  return { tiers, never, opens, needs, start, tele: Object.keys(tele).length, arrivals, lone, e1, ferry: !!w.ferry };
 }
 
 /* ------------------------------------------------------------------ */
@@ -283,7 +287,7 @@ out.push(`- **Story elements**: ${plural(tot("objectives"), "objective")} that e
 out.push("");
 
 out.push(`## The world map`, "");
-out.push(`Poom starts at (${order.start.join(", ")}). ${order.tele ? `The map has ${plural(order.tele, "linked teleporter")}. ` : ""}${order.e1 ? "On this map an unfinished level is a wall: Poom can't walk past one until it is done. " : ""}Some paths are shut until a level is done; this is the order the map lets levels be played, if each one is done as soon as it can be:`, "");
+out.push(`Poom starts at (${order.start.join(", ")}). ${order.tele ? `The map has ${plural(order.tele, "linked teleporter")}. ` : ""}${order.ferry ? "A ferry crosses the water between its landings. " : ""}${order.e1 ? "On this map an unfinished level is a wall: Poom can't walk past one until it is done. " : ""}Some paths are shut until a level is done; this is the order the map lets levels be played, if each one is done as soon as it can be:`, "");
 order.tiers.forEach((t, i) => {
   out.push(`${i + 1}. ${i === 0 ? "**Open from the start**" : "**Then**"}:`);
   for (const id of t.levels) {

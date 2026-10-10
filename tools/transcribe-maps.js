@@ -184,7 +184,13 @@ function e1Wiring(d, rows) {
  * (13, 19) is what carries the player to E15's sealed pocket, a secret
  * level: a pair of teleporters, there and back. */
 const MOVE_ENTRANCE = { E01: { id: "E10", to: [16, 21], below: 59 } };
-const SECRET_RIDE = { E01: { at: [13, 19], to: [30, 55], back: [31, 55], level: "E15" } };
+const SECRET_RIDE = { E01: { at: [13, 19], to: [30, 55], back: [31, 55], level: "E15" },
+  /* Set A's A14 sits in a walled room with a "player arrival point" (72,
+   * 51): in the original, a secret exit in some level brings the player
+   * there, and the room's own teleporter (69, 51) leads back out. Which
+   * level's exit it was isn't in the data, so a pad just outside the room's
+   * west wall leads in instead (no way back needed). */
+  A01: { at: [62, 51], to: [72, 51], back: null, level: "A14" } };
 
 function convert(d) {
   const at = new Map();
@@ -276,9 +282,13 @@ function convert(d) {
   }
   const ride = SECRET_RIDE[d.map];
   if (ride) {
-    for (const [x, y] of [ride.at, ride.back]) rows[y] = rows[y].slice(0, x) + "Q" + rows[y].slice(x + 1);
+    for (const [x, y] of [ride.at, ride.back].filter(Boolean)) {
+      if (!"./Z".includes(rows[y][x]) && rows[y][x] !== "Q") throw new Error(`${d.map}: no room for a teleporter at ${x},${y}`);
+      rows[y] = rows[y].slice(0, x) + "Q" + rows[y].slice(x + 1);
+    }
     for (const t of things) if (t[0] === ride.at[0] && t[1] === ride.at[1]) { t[2] = "Q"; t[3] = "teleporter (the secret ride)"; }
-    links.push([...ride.at, ...ride.to, "door"], [...ride.back, ...ride.at, "door"]);
+    links.push([...ride.at, ...ride.to, "door"]);
+    if (ride.back) links.push([...ride.back, ...ride.at, "door"]);
   }
   const { sockets, bridges, pswitches } = switchesOf(d, rows);
   const wiring = e1Wiring(d, rows), ferry = wiring && wiring.ferry;

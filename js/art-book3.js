@@ -808,31 +808,31 @@ function paintClawTitle(shipBare, W_ = 320, H_ = 200) {
   const c = makeCanvas(W_, H_), g = c.getContext("2d"), r = rng(91);
   const px = (col, x, y, w = 1, h = 1) => { g.fillStyle = col; g.fillRect(x, y, w, h); };
   for (let y = 0; y < H_; y += 4) { const k = Math.min(1, y / 160); px(`rgb(${Math.round(4 + 16 * k)},${Math.round(8 + 22 * k)},${Math.round(22 + 40 * k)})`, 0, y, W_, 4); }
-  g.fillStyle = "rgba(240, 240, 210, 0.10)"; g.beginPath(); g.arc(54, 46, 28, 0, Math.PI * 2); g.fill();
-  g.fillStyle = "#ece8cc"; g.beginPath(); g.arc(54, 46, 15, 0, Math.PI * 2); g.fill();
-  g.fillStyle = "#cfcab0"; g.beginPath(); g.arc(49, 42, 4, 0, Math.PI * 2); g.arc(59, 51, 3, 0, Math.PI * 2); g.fill();
-  /* the volcano */
-  g.fillStyle = "#0e151c"; g.beginPath(); g.moveTo(20, 160); g.lineTo(108, 70); g.lineTo(150, 66); g.lineTo(250, 160); g.closePath(); g.fill();
-  g.fillStyle = "#16202a"; g.beginPath(); g.moveTo(108, 70); g.lineTo(150, 66); g.lineTo(170, 100); g.lineTo(120, 96); g.closePath(); g.fill();
-  g.fillStyle = "rgba(255, 106, 26, 0.4)"; g.fillRect(110, 62, 38, 6);
-  px("#ff6a1a", 114, 66, 30, 1);
+  /* the moon, top right, clear of the logo and the menu */
+  g.fillStyle = "rgba(240, 240, 210, 0.10)"; g.beginPath(); g.arc(266, 42, 26, 0, Math.PI * 2); g.fill();
+  g.fillStyle = "#ece8cc"; g.beginPath(); g.arc(266, 42, 14, 0, Math.PI * 2); g.fill();
+  g.fillStyle = "#cfcab0"; g.beginPath(); g.arc(261, 38, 4, 0, Math.PI * 2); g.arc(271, 47, 3, 0, Math.PI * 2); g.fill();
+  /* the volcano, on the left (the menu has the right) */
+  g.fillStyle = "#0e151c"; g.beginPath(); g.moveTo(-30, 168); g.lineTo(34, 74); g.lineTo(74, 70); g.lineTo(150, 168); g.closePath(); g.fill();
+  g.fillStyle = "#16202a"; g.beginPath(); g.moveTo(34, 74); g.lineTo(74, 70); g.lineTo(90, 100); g.lineTo(44, 98); g.closePath(); g.fill();
+  g.fillStyle = "rgba(255, 106, 26, 0.4)"; g.fillRect(36, 66, 36, 6);
+  px("#ff6a1a", 40, 70, 28, 1);
   /* the lair: a slanted glass face, red-lit, cut into the cone */
-  g.fillStyle = "#1c242e"; g.beginPath(); g.moveTo(96, 120); g.lineTo(112, 100); g.lineTo(172, 100); g.lineTo(186, 120); g.closePath(); g.fill();
-  for (let x = 108; x < 180; x += 7) px(r() < .7 ? "#e03040" : "#ffb02e", x, 106, 4, 8);
-  px("#2a3440", 96, 120, 90, 2);
-  /* the magnet crane, on the rim */
-  px("#2a2e34", 150, 38, 3, 30); px("#2a2e34", 150, 38, 50, 3); px("#2a2e34", 196, 41, 1, 22);
-  g.fillStyle = "#3a3e48"; g.beginPath(); g.moveTo(188, 63); g.lineTo(204, 63); g.lineTo(200, 70); g.lineTo(192, 70); g.closePath(); g.fill();
-  px("#e03040", 151, 36, 2, 2);
+  g.fillStyle = "#1c242e"; g.beginPath(); g.moveTo(22, 124); g.lineTo(36, 104); g.lineTo(92, 104); g.lineTo(106, 124); g.closePath(); g.fill();
+  for (let x = 32; x < 100; x += 7) px(r() < .7 ? "#e03040" : "#ffb02e", x, 110, 4, 8);
+  px("#2a3440", 22, 124, 84, 2);
+  /* the magnet crane, on the rim, its arm out over the lagoon */
+  px("#2a2e34", 74, 40, 3, 30); px("#2a2e34", 74, 40, 44, 3); px("#2a2e34", 114, 43, 1, 20);
+  g.fillStyle = "#3a3e48"; g.beginPath(); g.moveTo(106, 63); g.lineTo(122, 63); g.lineTo(118, 70); g.lineTo(110, 70); g.closePath(); g.fill();
+  px("#e03040", 75, 38, 2, 2);
   /* the lagoon */
-  for (let y = 158; y < H_; y++) px(`rgb(${8 + (y - 158) / 4 | 0},${18 + (y - 158) / 3 | 0},${34 + (y - 158) / 2 | 0})`, 0, y, W_, 1);
-  for (let i = 0; i < 70 * W_ / 320; i++) px("#2a4a66", r() * W_ | 0, 160 + (r() * (H_ - 160) | 0), 2 + (r() * 5 | 0), 1);
-  for (let y = 162; y < H_; y += 5) px("#c8c4a8", 46 + (r() * 6 | 0), y, 10 - ((y - 160) >> 3), 1);
-  /* reflections of the lair's windows */
-  for (let x = 108; x < 180; x += 7) px("rgba(224, 48, 64, 0.35)", x, 166 + (x % 3), 4, 1);
+  for (let y = 160; y < H_; y++) px(`rgb(${8 + (y - 160) / 4 | 0},${18 + (y - 160) / 3 | 0},${34 + (y - 160) / 2 | 0})`, 0, y, W_, 1);
+  for (let i = 0; i < 70 * W_ / 320; i++) px("#2a4a66", r() * W_ | 0, 162 + (r() * (H_ - 162) | 0), 2 + (r() * 5 | 0), 1);
+  for (let y = 164; y < H_; y += 5) px("#c8c4a8", 260 + (r() * 6 | 0), y, 10 - ((y - 160) >> 3), 1);
+  for (let x = 32; x < 100; x += 7) px("rgba(224, 48, 64, 0.35)", x, 168 + (x % 3), 4, 1);
   /* the jetty, and the Catamaran tied up at it */
-  px("#3a2a16", 0, 178, 120, 4); px("#5a4026", 0, 178, 120, 1);
-  for (let x = 6; x < 120; x += 18) px("#2a1e10", x, 182, 3, 18);
-  g.imageSmoothingEnabled = false; g.drawImage(shipBare, 0, 0, 32, 32, 18, 120, 60, 60);
+  px("#3a2a16", 0, 180, 110, 4); px("#5a4026", 0, 180, 110, 1);
+  for (let x = 6; x < 110; x += 18) px("#2a1e10", x, 184, 3, 16);
+  g.imageSmoothingEnabled = false; g.drawImage(shipBare, 0, 0, 32, 32, 2, 128, 54, 54);
   return c;
 }

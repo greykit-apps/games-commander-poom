@@ -683,7 +683,9 @@ function paintDeepTitle(shipBare, W_ = 320, H_ = 200) {
   /* the Catamaran's hull, floating on the surface, its ladder down */
   g.save(); g.imageSmoothingEnabled = false; g.globalAlpha = 0.9; g.drawImage(shipBare, 0, 0, 32, 32, 40, -16, 32, 32); g.restore();
   /* the city */
-  const towers = [[110, 26, 120], [140, 18, 90], [166, 34, 150], [204, 22, 110], [232, 30, 136], [268, 20, 96], [292, 28, 124]];
+  /* the city: tall towers to the left and the top right, clear of the
+     logo and the menu, low ones between them under the menu */
+  const towers = [[2, 22, 150], [28, 16, 118], [48, 26, 168], [150, 22, 70], [190, 26, 80], [238, 22, 164], [264, 30, 186], [298, 20, 150]];
   for (const [x, w, h] of towers) {
     px("#0a2430", x, H_ - h, w, h); px("#0e3040", x, H_ - h, 2, h);
     px("#0a2430", x + w / 2 - 3, H_ - h - 14, 6, 14); px("#0a2430", x + w / 2 - 1, H_ - h - 22, 2, 8);
@@ -692,9 +694,10 @@ function paintDeepTitle(shipBare, W_ = 320, H_ = 200) {
     if (r() < .8) { const col = r() < .5 ? B4_NEON.pink : B4_NEON.teal; px(col, x + 3, H_ - h + 4, w - 6, 2); g.fillStyle = col === B4_NEON.pink ? "rgba(255, 79, 168, 0.15)" : "rgba(63, 240, 224, 0.15)"; g.fillRect(x - 2, H_ - h, w + 4, 10); }
   }
   /* a glass tunnel between two towers */
-  g.strokeStyle = "rgba(160, 220, 230, 0.4)"; g.lineWidth = 6; g.beginPath(); g.moveTo(192, 120); g.quadraticCurveTo(218, 110, 244, 118); g.stroke();
+  g.strokeStyle = "rgba(160, 220, 230, 0.4)"; g.lineWidth = 6; g.beginPath(); g.moveTo(260, 70); g.quadraticCurveTo(280, 60, 300, 66); g.stroke();
+  g.beginPath(); g.moveTo(38, 100); g.quadraticCurveTo(46, 92, 52, 98); g.stroke();
   /* kelp in front, and the seabed */
-  for (let i = 0; i < 10; i++) { const x = r() * 110, h = 40 + r() * 70; g.strokeStyle = "#0c3418"; g.lineWidth = 3; g.beginPath(); g.moveTo(x, H_); for (let y = H_; y > H_ - h; y -= 8) g.lineTo(x + Math.sin(y / 12 + i) * 4, y); g.stroke(); }
+  for (let i = 0; i < 6; i++) { const x = 80 + r() * 40, h = 40 + r() * 70; g.strokeStyle = "#0c3418"; g.lineWidth = 3; g.beginPath(); g.moveTo(x, H_); for (let y = H_; y > H_ - h; y -= 8) g.lineTo(x + Math.sin(y / 12 + i) * 4, y); g.stroke(); }
   for (let y = 184; y < H_; y++) px(y < 186 ? "#6a6042" : "#46402c", 0, y, W_, 1);
   for (let i = 0; i < 40 * W_ / 320; i++) px(r() < .5 ? "#2a2618" : "#90845c", r() * W_ | 0, 186 + (r() * 14 | 0), 1 + (r() * 3 | 0), 1);
   /* a rock for Poom to stand on */

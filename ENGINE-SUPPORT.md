@@ -25,7 +25,7 @@ Glyphs marked "no" are air until the engine learns them.
 | `<` | conveyor left | yes | 0 |
 | `>` | conveyor right | yes | 92 |
 | `S` | switches (bridge and platform switches) | yes | 200 |
-| `Q` | teleporters (world maps) | yes | 58 |
+| `Q` | teleporters (world maps) | yes | 59 |
 | `j` | key sockets (and the doors they open: 5 6 7 8) | yes | 186 |
 | `H` | hint triggers | no | 9 |
 | `D` | warp doors | yes | 596 |
@@ -66,7 +66,7 @@ Skipped (not levels): A17 highscores, A18 test
 
 | Map | Kind | Size | Glyphs beyond the original game (count) |
 |---|---|---|---|
-| A01 | world | 86×108 | `Q` 17, `/` 42, `\` 49, `l` 72, `S` 2 |
+| A01 | world | 86×108 | `Q` 18, `/` 42, `\` 49, `l` 72, `S` 2 |
 | A02 | level | 111×68 | `!` 1, `D` 2, `e` 13, `\` 41, `/` 37, `M` 10 |
 | A03 | level | 128×49 | `G` 4, `M` 5, `/` 35, `e` 22, `\` 19, `S` 2, `j` 2, `u` 2, `!` 1 |
 | A04 | level | 76×104 | `e` 27, `S` 4, `/` 27, `D` 6, `\` 38, `M` 5, `u` 4, `G` 2, `j` 1 |
