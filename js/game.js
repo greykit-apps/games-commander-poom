@@ -290,7 +290,7 @@ const BOOK_THEMES = {
   wasteland: { name: "wasteland", look: "ranger", items: "wasteland", creatures: "wasteland", map: "wasteland", title: "wasteland", subtitle: "Book One: Down in the Glow", hud: "wrist", sound: "wasteland" },
   /* Book 2, set C: Thrum, the hollow moon (docs/story/book-2-story.md).
      Pieces not yet its own borrow Book 1's for now */
-  thrum: { name: "thrum", look: "hunter", items: "thrum", creatures: "hum", map: "wasteland", title: "wasteland", subtitle: "Book Two: The Hollow Moon", hud: "wrist", sound: "wasteland" },
+  thrum: { name: "thrum", look: "hunter", items: "thrum", creatures: "hum", map: "thrum", title: "wasteland", subtitle: "Book Two: The Hollow Moon", hud: "wrist", sound: "wasteland" },
 };
 const THEME_OF_BOOK = { H: "wasteland", C: "thrum" };
 /* a book with no theme of its own wears Book 1's */
@@ -1944,7 +1944,7 @@ function drawMap() {
   }
   /* a set with its own markers draws one per entrance, by the level's type */
   if (mapArt.markerFor) for (const [id, b] of Object.entries(world().box)) {
-    const kind = { vault: "vault", vaultCold: "vault", raiders: "camp", ruins: "ruin" }[LEVEL_THEME[id]] || "ruin";
+    const kind = { vault: "vault", vaultCold: "vault", raiders: "camp", ruins: "ruin", crags: "cave", delve: "station", hive: "pod" }[LEVEL_THEME[id]] || Object.keys(mapArt.markerFor)[0];
     const mx = (b.x0 + b.x1 + 1) * T / 2 - 16 - cx, my = (b.y1 + 1) * T - 32 - cy;
     if (mx > -32 && mx < W && my > -32 && my < H) ctx.drawImage(mapArt.markerFor[kind], mx, my);
   }
@@ -2613,7 +2613,7 @@ function frame(now) {
 function boot() {
   buildArt();
   const classicMap = paintMapTiles();
-  mapArtSets = { classic: classicMap, wasteland: paintWasteMap(classicMap) };
+  mapArtSets = { classic: classicMap, wasteland: paintWasteMap(classicMap), thrum: paintThrumMap(classicMap) };
   mapArt = classicMap;
   G.map = { t: 0, p: null };
   injectTitleCSS();

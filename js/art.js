@@ -2985,6 +2985,98 @@ function paintWasteMap(classic) {
   return { ...classic, ground, rockAt, rock: rockAt(0), water, field, flag, tele, ship, markerFor: marker, teleName: "Tube station" };
 }
 
+/* Thrum's crust (Book 2): grey-violet regolith pocked with craters, violet
+ * crag rock, the Hum's growth as the barrier, a crew beacon for a done
+ * place, a lift pad for a teleporter; the markers by biome: a cave mouth
+ * (the crags), a station hatch under a mast (Station Delve), a glowing pod
+ * (the Hive). */
+function paintThrumMap(classic) {
+  const mk = (fn, w = T, h = T) => { const c = makeCanvas(w, h); fn(c.getContext("2d")); return c; };
+  const px = (g, col, x, y, w = 1, h = 1) => { g.fillStyle = col; g.fillRect(x, y, w, h); };
+  const DUST = ["#2c2836", "#3a3546", "#4a4458", "#5b5468", "#6e6680"];
+  const ground = [0, 1, 2, 3].map(v => mk(g => {
+    const r = rng(211 + v * 13);
+    px(g, DUST[2], 0, 0, T, T);
+    for (let i = 0; i < 24; i++) px(g, DUST[1 + (r() * 4 | 0)], r() * T | 0, r() * T | 0, 1 + (r() * 2 | 0), 1);
+    /* a small crater: a dark bowl, its far rim lit */
+    if (v === 1 || v === 3) { const x = 3 + (r() * 8 | 0), y = 4 + (r() * 7 | 0); px(g, DUST[0], x, y, 4, 2); px(g, DUST[1], x - 1, y + 1, 6, 1); px(g, DUST[4], x, y + 2, 4, 1); }
+    /* a fleck of crystal */
+    if (v === 2) { px(g, SPINE[3], 10, 6); px(g, SPINE[5], 10, 5); }
+  }));
+  const rockCache = {};
+  const rockAt = mask => rockCache[mask] || (rockCache[mask] = mk(g => {
+    const r = rng(17 + mask);
+    px(g, CRAG[3], 0, 0, T, T);
+    for (let i = 0; i < 26; i++) px(g, CRAG[1 + (r() * 5 | 0)], r() * T | 0, r() * T | 0, 1 + (r() * 3 | 0), 1);
+    if (mask & 1) { px(g, CRAG[6], 0, 0, T, 1); px(g, CRAG[5], 0, 1, T, 2); for (let x = 0; x < T; x++) if (r() < .25) px(g, GLOW[2], x, 0); }
+    if (mask & 8) px(g, CRAG[5], 0, 0, 1, T);
+    if (mask & 2) px(g, CRAG[1], T - 1, 0, 1, T);
+    if (mask & 4) { px(g, CRAG[0], 0, T - 2, T, 2); px(g, "rgba(0,0,0,0.35)", 0, T - 4, T, 2); }
+  }));
+  /* acid, two frames */
+  const water = [0, 1].map(f => mk(g => {
+    px(g, ACID[0], 0, 0, T, T);
+    for (let y = 2; y < T; y += 5) for (let x = (y + f * 3) % 6; x < T; x += 6) { px(g, ACID[3], x, y, 3, 1); px(g, ACID[4], x + 1, y, 1, 1); }
+  }));
+  /* the barrier: the Hum's growth across the way, pulsing */
+  const field = [0, 1, 2].map(f => mk(g => {
+    g.drawImage(ground[0], 0, 0);
+    px(g, FLESH[4], 0, 3, T, 12); px(g, FLESH[6], 0, 3, T, 1); px(g, FLESH[2], 0, 14, T, 1);
+    for (let x = 0; x < T; x += 4) px(g, GLOW[f === 1 ? 4 : 3], (x + f * 2) % T, 6 + (x & 4 ? 2 : 0), 2, 2);
+  }));
+  /* a done place: a crew beacon planted, its amber lamp lit */
+  const flag = mk(g => {
+    px(g, GUN[5], 7, 3, 1, 12); px(g, GUN[3], 8, 3, 1, 12); px(g, GUN[4], 5, 14, 6, 1);
+    px(g, AMBER[3], 6, 1, 4, 3); px(g, AMBER[5], 7, 1, 2, 1);
+    g.fillStyle = "rgba(255, 209, 106, 0.3)"; g.fillRect(4, 0, 8, 5);
+  });
+  /* a lift pad: a ringed hatch, its light blinking */
+  const tele = [0, 1].map(f => mk(g => {
+    g.drawImage(ground[2], 0, 0);
+    g.fillStyle = GUN[3]; g.beginPath(); g.arc(8, 9, 6, 0, Math.PI * 2); g.fill();
+    g.strokeStyle = STRIPE[0]; g.lineWidth = 1; g.beginPath(); g.arc(8, 9, 5.5, 0, Math.PI * 2); g.stroke();
+    px(g, GUN[1], 5, 9, 7, 1); px(g, GUN[1], 8, 6, 1, 7);
+    px(g, f ? GLOW[4] : GLOW[2], 7, 2, 3, 2);
+  }));
+  /* the Catamaran, landed upright on Thrum, a pad of dust round it */
+  const ship = mk(g => {
+    for (const [x, y] of [[0, 0], [16, 0], [0, 16], [16, 16]]) g.drawImage(ground[(x + y) >> 4 & 3], x, y);
+    g.fillStyle = "rgba(10, 8, 16, 0.55)"; g.beginPath(); g.ellipse(16, 28, 14, 4, 0, 0, Math.PI * 2); g.fill();
+    g.drawImage(classic.shipBare, 0, -2);
+  }, 32, 32);
+  const marker = {
+    /* a cave mouth in a violet outcrop, fungus glowing at its lip */
+    cave: mk(g => {
+      px(g, "rgba(0,0,0,0.3)", 2, 28, 28, 3);
+      g.fillStyle = CRAG[3]; g.beginPath(); g.moveTo(1, 30); g.lineTo(3, 14); g.lineTo(9, 5); g.lineTo(18, 3); g.lineTo(26, 8); g.lineTo(30, 18); g.lineTo(31, 30); g.closePath(); g.fill();
+      g.fillStyle = CRAG[5]; g.beginPath(); g.moveTo(3, 14); g.lineTo(9, 5); g.lineTo(18, 3); g.lineTo(15, 7); g.lineTo(8, 10); g.closePath(); g.fill();
+      g.fillStyle = CRAG[0]; g.beginPath(); g.moveTo(9, 30); g.quadraticCurveTo(16, 10, 23, 30); g.closePath(); g.fill();
+      for (const [x, y] of [[9, 24], [12, 17], [20, 16], [23, 23]]) { px(g, GLOW[3], x, y, 2, 1); px(g, GLOW[5], x, y); }
+      px(g, SPINE[4], 26, 12); px(g, SPINE[4], 5, 20);
+    }, 32, 32),
+    /* a station hatch in a steel housing, a mast with an amber lamp */
+    station: mk(g => {
+      px(g, "rgba(0,0,0,0.3)", 2, 28, 28, 3);
+      px(g, GUN[2], 4, 13, 24, 17); px(g, GUN[5], 4, 13, 24, 1); px(g, GUN[1], 4, 29, 24, 1);
+      for (let x = 4; x < 28; x += 4) { px(g, STRIPE[0], x, 14, 2, 2); px(g, STRIPE[1], x + 2, 14, 2, 2); }
+      px(g, GUN[4], 10, 18, 12, 11); px(g, GUN[6], 10, 18, 12, 1); px(g, GUN[1], 15, 18, 2, 11);
+      px(g, GUN[4], 25, 2, 1, 12); px(g, AMBER[3], 24, 0, 3, 3); px(g, AMBER[5], 25, 0);
+      px(g, GLOW[1], 4, 24, 3, 5); px(g, GLOW[3], 5, 25);
+    }, 32, 32),
+    /* a pod of the Hive: a fleshy sac split open, glowing inside */
+    pod: mk(g => {
+      px(g, "rgba(0,0,0,0.3)", 3, 28, 26, 3);
+      g.fillStyle = FLESH[4]; g.beginPath(); g.ellipse(16, 18, 13, 12, 0, 0, Math.PI * 2); g.fill();
+      g.fillStyle = FLESH[6]; g.beginPath(); g.ellipse(12, 12, 6, 4, -0.5, 0, Math.PI * 2); g.fill();
+      g.fillStyle = "rgba(111, 224, 200, 0.35)"; g.beginPath(); g.ellipse(16, 20, 8, 9, 0, 0, Math.PI * 2); g.fill();
+      g.fillStyle = FLESH[0]; g.beginPath(); g.ellipse(16, 21, 4, 8, 0, 0, Math.PI * 2); g.fill();
+      px(g, GLOW[4], 15, 17, 2, 6); px(g, GLOW[5], 15, 18);
+      for (const [x, y] of [[5, 22], [26, 14], [24, 25]]) { px(g, BONE[3], x, y, 1, 3); px(g, BONE[4], x, y); }
+    }, 32, 32),
+  };
+  return { ...classic, ground, rockAt, rock: rockAt(0), water, field, flag, tele, ship, markerFor: marker, teleName: "Lift pad" };
+}
+
 /* The wasteland's title backdrop, 320x200 unless asked for bigger (the
  * share card's carries the skyline and the ground further), painted once:
  * a dusk sky in bands, a swollen sun setting behind mesas on the left,
