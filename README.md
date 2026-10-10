@@ -8,8 +8,18 @@ pogo and zap your way across the Glow, take them back, and bolt them in.
 
 A love letter to Commander Keen and a growing list of mashups: each Book is its
 own world with its own look, creatures, story and sound, and the whole game,
-title screen included, dresses as the last Book played. Book One is in the
-spirit of *Fallout*; its names, art and text are all original.
+title screen included, dresses as the last Book played. New game asks which
+Book to start with; finishing one goes on to the next. Each Book borrows the
+feeling of a famous game or film, and its names, art and text are all
+original.
+
+| Book | | In the spirit of |
+|---|---|---|
+| 1 | **Wastelandia**: the Glow, a wasteland of raiders and old Vaults | *Fallout* |
+| 2 | **Heavens to Mergatroid**: Thrum, a hollow moon with something alive inside | *Metroid* |
+| 3 | **The Island of Dr Claw**: a villain's volcano lair, by night, on the quiet | *Metal Gear Solid* |
+| 4 | **Descent into Rapture**: Raptura, a drowned art-deco city of otters | *BioShock* |
+| 5 | **Termination Day**: TERMINUS, a machine's station overrun by an alien swarm | *The Terminator*, *Aliens*, *Predator* |
 
 ## Play
 
@@ -44,17 +54,28 @@ A gamepad works too, and on a touch screen the controls appear on screen.
 
 ![A Vault terminal, read in Vault 9: "VAULT 9 COLD-SLEEP STATUS: COOLANT BREACH. Floors may be slippery. Have a nice day."](screenshots/sign.png)
 
+### The other Books
+
+![Book Two, Heavens to Mergatroid: Poom in his white hardsuit and amber visor in the violet crags of Thrum, teal fungus on the rock, a Mergatroid drifting by and a station hatch set into the cave wall](screenshots/book2.png)
+
+![Book Three, The Island of Dr Claw: Poom in a sneaking suit and red bandana on Isla Garra's docks at night, under a full moon and a searchlight, three stoat guards with red exclamation marks over their heads as they spot him; the radio scorebox reads 12750 in green](screenshots/book3.png)
+
+![Book Four, Descent into Rapture: Poom in a brass diving helmet in Raptura's marble promenade, a great round window on the sea behind him with a fish going by, a Big Brass diving suit on a gilded balcony, pink and teal neon glowing](screenshots/book4.png)
+
+![Book Five, Termination Day: Poom in olive marine armour on TERMINUS's steel decks, a chrome skeleton with red eyes walking at him, racks of more skeletons behind, the motion tracker in the scorebox showing its blip](screenshots/book5.png)
+
 ## The repo
 
 | | |
 |---|---|
 | `index.html` | the page |
 | `js/game.js` | the engine, the Books' words and themes, the UI |
-| `js/art.js` | every sprite, tileset, backdrop and world map, drawn in code |
+| `js/art.js` | every sprite, tileset, backdrop and world map, drawn in code, for Books 1 and 2 |
+| `js/art-book3.js`–`art-book5.js` | the same for Books 3, 4 and 5, each registering with `art.js` |
 | `js/books/A.js`–`I.js` | the levels, transcribed from `maps2/` |
 | `js/gk-title.js` | the family's boot and title block, from `games-meta/canon` |
 | `maps2/` | the level designs from the map builder, and their README |
-| `docs/story/` | Book One's story, and what the maps need from it |
+| `docs/story/` | each Book's story (`book-<n>-story.md`), what its maps need from it (`book-<set>.md`), and ideas for the Books to come |
 | `docs/art/` | sheets of the tilesets, Poom, the items and the creatures |
 | `ENGINE-SUPPORT.md` | what each Book's maps ask of the engine |
 | `tools/` | the map transcriber, the story map, the icon and share-card makers, the asset check |
