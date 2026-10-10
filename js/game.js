@@ -1521,13 +1521,15 @@ const ENEMY_OF = { H: { "01": "x", "02": "B", "03": "L", "04": "V", "05": "T" },
      quicksilver (06) shoves; sentry guns (07) shoot; hunter-killer drones
      (08) fly at Poom; the Hunter (09) and Shades (13) are lieutenants; acid
      globs (12) slide or bounce and can't be hurt; the Brood Mother (14),
-     in A16, is the last of them */
+     in A16, is the last of them: drawn twice the size, in her seven-tile
+     hall, but her body a little shorter than her crest, 44 pixels, so a full
+     jump (54) still clears her; the same twelve hits as before */
   A: { "01": { kind: "x", art: "cat" }, "02": { kind: "V", art: "endo", hp: 5, points: 800 }, "03": { kind: "B", art: "skulker", w: 14, h: 8, alert: true },
     "04": { kind: "B", art: "burster", w: 8, h: 4, rush: 1.6 }, "05": { kind: "B", art: "clinger", w: 10, h: 5, alert: true, rush: 1.5 },
     "06": { kind: "T", art: "quick" }, "07": { kind: "K", art: "sentry" }, "08": { kind: "B", art: "hk", w: 14, h: 6, swim: true, hunt: true, hp: 2 },
     "09": { kind: "L", art: "hunter", hp: 6, points: 2000 }, "10": { kind: "B", art: "hound", alert: true }, "11": { kind: "V", art: "xdrone", hp: 3 },
     "12": { kind: "V", art: "glob", w: 8, h: 6, hp: Infinity, points: 0 }, "13": { kind: "L", art: "shades", points: 1500 },
-    "14": { kind: "L", art: "brood", w: 16, h: 28, hp: 12, points: 5000 } } };
+    "14": { kind: "L", art: "brood", w: 24, h: 44, scale: 2, hp: 12, points: 5000 } } };
 /* A Book without a hand-made list gets one from its own maps (type numbers
  * mean something different in every set, maps2/README.md): a rare type
  * that only ever stands near the level's objectives guards them (L); the
