@@ -1,4 +1,4 @@
-/* Commander Poom -- Book 4's art: Descent into Rapture (map set E).
+/* Commander Poom -- Book 4's art: Descent into Raptura (map set E).
  *
  * Raptura, a drowned art-deco city of otters at the bottom of the sea,
  * in the spirit of BioShock (docs/story/book-4-story.md): three tilesets
