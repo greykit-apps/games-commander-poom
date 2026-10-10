@@ -92,6 +92,9 @@ yet.
   - The story map first counted 210. The other 208 were solid tiles carrying
     the sign behaviour, building walls and steps; the transcriber now makes
     them walls.
+  - In the source, both signs stand on a single deadly floor tile, so
+    walking up to read one killed Poom. That floor is now made safe (by the
+    transcriber), so the logs can be read.
 - **Five creature types.**
   - 01 and 02 are common (59 and 73).
   - 04 is clustered (29 in all, 16 of them in C09).

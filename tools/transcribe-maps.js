@@ -176,6 +176,10 @@ function convert(d) {
     }
     rows.push(row);
   }
+  /* a sign standing on a deadly floor tile (both of set C's do) gets a
+     safe floor instead, so it can be walked up to and read */
+  for (let y = 0; y + 1 < rows.length; y++) for (let x = 0; x < rows[y].length; x++)
+    if (rows[y][x] === "H" && rows[y + 1][x] === "^") rows[y + 1] = rows[y + 1].slice(0, x) + "#" + rows[y + 1].slice(x + 1);
   const links = [], ends = [];
   for (const e of d.entities) {
     if (e.kind === "door_link" || e.kind === "marker" || e.kind === "unknown") marks.push([e.x, e.y, e.name]);

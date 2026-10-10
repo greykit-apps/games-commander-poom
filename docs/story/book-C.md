@@ -169,8 +169,6 @@ Terrain: hazards.
 
 64 × 57 tiles. Ends through an exit door.
 
-Terrain: hazards.
-
 **Along the way** (rough order, start first):
 
 - **Exit door** — (57, 6), top right, middle
