@@ -111,10 +111,10 @@ Terrain: 2 moving platforms.
 
 **Along the way** (rough order, start first):
 
-- **Exit door** — (60, 32), bottom right, ≈late
-- Keycard, green — (13, 29), middle left, late
+- Keycard, green — (13, 29), middle left, middle
+- **Exit door** — (60, 32), bottom right, late
 
-**Creatures**: type 01 ×3, from the early part; type 03 ×1, from the late part; type 04 ×11, from the ≈early part; type 05 ×1, from the ≈middle part; type 06 ×1, from the late part.
+**Creatures**: type 01 ×3, from the early part; type 03 ×1, from the middle part; type 04 ×11, from the early part; type 05 ×1, from the late part; type 06 ×1, from the late part.
 
 ### D05 (level 4)
 
@@ -124,10 +124,11 @@ Terrain: hazards.
 
 **Along the way** (rough order, start first):
 
-- **Exit door** — (190, 39), bottom right, late
-- Keycard, red — (196, 35), bottom right, late
+- Keycard, yellow — (77, 12), top centre, middle
+- **Exit door** — (190, 39), bottom right, middle
+- Keycard, red — (196, 35), bottom right, middle
 
-**Creatures**: turret ×1, from the late part; type 01 ×6, from the early part; type 02 ×5, from the middle part; type 03 ×3, from the early part; type 04 ×7, from the early part; type 06 ×4, from the ≈early part; type 07 ×1, from the middle part; type 08 ×1, from the late part.
+**Creatures**: turret ×1, from the middle part; type 01 ×6, from the early part; type 02 ×5, from the middle part; type 03 ×3, from the early part; type 04 ×7, from the early part; type 06 ×4, from the late part; type 07 ×1, from the middle part; type 08 ×1, from the middle part.
 
 ### D06 (level 5)
 
@@ -185,12 +186,13 @@ Terrain: 7 moving platforms, hazards.
 
 **Along the way** (rough order, start first):
 
-- Keycard, green — (60, 90), bottom right, ≈late
-- Keycard, yellow — (54, 47), middle right, late
-- **Exit door** — (27, 112), bottom centre, ≈late
-- Keycard, blue — (23, 69), centre, late
+- Keycard, yellow — (54, 47), middle right, middle
+- Keycard, blue — (23, 69), centre, middle
+- Keycard, red — (26, 97), bottom centre, middle
+- Keycard, green — (60, 90), bottom right, late
+- **Exit door** — (27, 112), bottom centre, late
 
-**Creatures**: turret ×11, from the middle part; type 02 ×4, from the late part; type 04 ×14, from the early part; type 05 ×6, from the ≈late part; type 07 ×1, from the late part.
+**Creatures**: turret ×11, from the middle part; type 02 ×4, from the middle part; type 04 ×14, from the early part; type 05 ×6, from the middle part; type 07 ×1, from the middle part.
 
 ### D11 (level 10)
 
@@ -200,11 +202,11 @@ Terrain: 4 moving platforms, hazards.
 
 **Along the way** (rough order, start first):
 
-- **Exit door** — (57, 33), bottom right, middle
-- Keycard, blue — (34, 20), centre, ≈middle
-- Keycard, yellow — (11, 14), middle left, middle
+- Keycard, yellow — (11, 14), middle left, early
+- Keycard, blue — (34, 20), centre, middle
+- **Exit door** — (57, 33), bottom right, late
 
-**Creatures**: turret ×4, from the middle part; type 02 ×2, from the ≈middle part; type 04 ×5, from the ≈middle part; type 06 ×4, from the ≈early part.
+**Creatures**: turret ×4, from the early part; type 02 ×2, from the middle part; type 04 ×5, from the early part; type 06 ×4, from the middle part.
 
 ### D12 (level 11)
 
@@ -227,12 +229,12 @@ Terrain: 3 moving platforms, hazards.
 
 **Along the way** (rough order, start first):
 
-- Keycard, red — (12, 10), top left, ≈early
-- **Exit door** — (5, 41), bottom left, ≈middle
-- **Exit door** — (47, 5), top right, ≈late
-- Keycard, yellow — (50, 20), middle right, ≈late
+- Keycard, red — (12, 10), top left, early
+- **Exit door** — (47, 5), top right, middle
+- Keycard, yellow — (50, 20), middle right, middle
+- **Exit door** — (5, 41), bottom left, middle
 
-**Creatures**: turret ×11, from the early part; type 01 ×1, from the ≈middle part; type 04 ×5, from the ≈early part; type 06 ×2, from the ≈middle part; type 08 ×6, from the ≈early part.
+**Creatures**: turret ×11, from the early part; type 01 ×1, from the middle part; type 04 ×5, from the early part; type 06 ×2, from the middle part; type 08 ×6, from the middle part.
 
 ### D15 (level 14)
 
@@ -291,6 +293,6 @@ Terrain: hazards.
 - **Objective** (objective type 02) — taking it ends the level — (12, 8), centre, ≈middle
 - **Objective item** (objective type 01) — doesn't end the level; what it is and why Poom wants it is the story's — (15, 13), centre, ≈middle
 - **Objective item** (objective type 01) — doesn't end the level; what it is and why Poom wants it is the story's — (15, 6), top centre, middle
-- **Objective item** (objective type 01) — doesn't end the level; what it is and why Poom wants it is the story's — (13, 4), top centre, middle
+- **Objective item** (objective type 01) — doesn't end the level; what it is and why Poom wants it is the story's — (13, 4), top centre, late
 
-**Creatures**: turret ×2, from the early part; type 08 ×2, from the ≈middle part; type 09 ×2, from the early part; type 10 ×1, from the early part; type 11 ×1, from the early part.
+**Creatures**: turret ×2, from the early part; type 08 ×2, from the ≈middle part; type 09 ×2, from the early part; type 10 ×1, from the early part; type 11 ×1, from the ≈middle part.

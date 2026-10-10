@@ -59,22 +59,42 @@ All four colours appear:
 - 16 doors, two tiles tall.
 - C11 and C15 use all four colours in one level, and are puzzle levels.
 
-### Switches: traps
+### Switches: traps, bridges, and harmless ones
 
-There are 19 switch tiles. The map maker confirms that **they are game-over
-switches**: traps set next to a goal, as in Commander Keen 2. One sits beside
-the spike shaft in every heartstone chamber, and there are more in C05, C06,
-C14 and C17 (C17 has seven).
+There are 19 switch tiles, of three kinds, told apart by the tile's
+behaviour and the value under it in the map's sprite plane
+(`e1Switches` in `tools/transcribe-maps.js`):
 
-In the game (`springTrap` in `js/game.js`):
+- **Traps** (behaviour 25, no value): the game-over switches the map maker
+  describes, set next to a goal, as in Commander Keen 2. One sits beside the
+  spike shaft in every heartstone chamber (C05, C07, C08, C10, C12, C14,
+  C16, C17).
+- **Bridge switches** (behaviour 25 with a value): the value is the offset
+  to a bridge, which the switch extends and retracts. **C06 can't be
+  finished without its bridge**, across a spike pit eleven tiles wide; C14
+  and C17 (two) have bridges too. These used to be read as traps, which
+  left C06 unwinnable.
+- **Harmless switches** (behaviour 23, no value): C05, C14, C16 and C17
+  (four). None is near a heartstone; most likely light switches. They click
+  and do nothing.
+
+The traps, in the game (`springTrap` in `js/game.js`):
 - **Pulling one** takes ↑ while standing at it, as a Keen switch does, so
-  walking past is safe. Nothing prompts the player; it's a trap.
+  walking past is safe.
+- **Ample warning.** It's a trap, but never a surprise:
+  - each lever has a red warning sign over it, blinking;
+  - coming near one, Poom is told: "A crew lever, wired straight into the
+    heartstone. The warning sign means it: don't pull it." (once a lever);
+  - ↑ at a lever doesn't pull it: it says what will happen and that it
+    ends the game, and only ↑ again, straight after, pulls it;
+  - the help's Items page lists the crew levers as traps.
 - **The result:** "Poom pulls the lever. The station's power floods into the
   heartstone. The Hum roars, the whole moon shakes, and Thrum swallows the
   Catamaran whole." Then it's **game over**. With cheat mode on, it is an
   ordinary death instead.
 - **The warning:** the story pages say "whatever you do, don't pull the crew's
-  levers by the heartstones."
+  levers by the heartstones," and the warnings above say it again in the
+  level.
 - **The look:** a lever on a hazard-striped plate, its handle up with a teal
   lamp; pulled, the handle is down and the lamp is red.
 

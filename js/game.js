@@ -747,6 +747,10 @@ function loadLevel(n) {
   }
   for (const [x, y, g, name] of def.things || []) if (g === "M") {
     const pl = makePlat(name, x * T, y * T);
+    /* on the newer engine a platform's deck is half a tile down its cell:
+       G11 and E15 send one under a ceiling two tiles up, and a rider only
+       fits if he stands that low */
+    if (def.engine === "E2") pl.sink = 8;
     lv.plats.push(pl); rows[y][x] = ".";
     /* the map holds one object a cell, so an arrow-guided platform's own cell
        has no arrow: its starting direction is that cell's arrow */
@@ -787,10 +791,13 @@ function loadLevel(n) {
     if (lv.back[y][x] || SOLID.has(rows[y][x])) continue;
     for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) if ((lv.back[y + dy] || [])[x + dx]) lv.back[y][x] = true;
   }
-  /* a switch on an older-engine (E1) map is a trap: the game-over switch
-     next to a goal, as in Commander Keen 2. Only set C has any. (Set G's
-     unwired E2 switches are something else, not yet built.) */
+  /* a switch on an older-engine (E1) map that isn't a bridge switch (the
+     transcriber reads those, and the harmless ones, as bridges) is a trap:
+     the game-over switch next to a goal, as in Commander Keen 2. Only set C
+     has any: the levers by its heartstones. (Set G's unwired E2 switches
+     are something else, not yet built.) */
   lv.trapAt = new Set();
+  lv.hasPulse = def.rows.some(r => r.includes("z"));
   if (def.engine === "E1") for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (rows[y][x] === "S" && !lv.switchAt[x + "," + y] && !lv.pswitchAt[x + "," + y]) lv.trapAt.add(x + "," + y);
 
   /* Book 2: the Hum has grown into every heartstone's chamber, whatever the
@@ -854,8 +861,14 @@ function slopeTop(lv, tx, ty, px) {
 const tileAt = (lv, tx, ty) => (tx < 0 || tx >= lv.w) ? "#" : (ty < 0 || ty >= lv.h) ? "." : lv.tiles[ty][tx];
 const isSolid = c => SOLID.has(c);
 
+/* a pulsing column (z) runs on a cycle: deadly, then gone, then a warning
+ * flicker before it comes back. Ticks */
+const PULSE = { period: 150, on: 60, warn: 30 };
+const pulsePhase = lv => { const t = lv.t % PULSE.period; return t < PULSE.on ? "on" : t < PULSE.period - PULSE.warn ? "off" : "warn"; };
+
 /* the hazard part of a tile, in tile-local pixels, or null */
-function hazardRect(c) {
+function hazardRect(c, lv) {
+  if (c === "z") return lv && pulsePhase(lv) === "on" ? [3, 0, 10, 16] : null;
   if (c === "^") return [1, 8, 14, 8];
   if (c === "~") return [0, 6, 16, 10];
   return null;
@@ -868,7 +881,9 @@ function moveX(lv, b, dx, hit) {
   let nx = b.x + dx;
   const ty0 = Math.floor(b.y / T), ty1 = Math.floor((b.y + b.h - 1) / T);
   const tx = dx > 0 ? Math.floor((nx + b.w - 1) / T) : Math.floor(nx / T);
-  for (let ty = ty0; ty <= ty1; ty++) if (isSolid(tileAt(lv, tx, ty))) {
+  /* a one-way wall blocks one way only: ( going left, ) going right */
+  const wall = c => isSolid(c) || (dx > 0 ? c === ")" : c === "(");
+  for (let ty = ty0; ty <= ty1; ty++) if (wall(tileAt(lv, tx, ty))) {
     if (b.onSlope) for (let up = 1; up <= 10; up++) if (rectClear(lv, nx, b.y - up, b.w, b.h)) { b.y -= up; b.x = nx; return; }
     nx = dx > 0 ? tx * T - b.w : (tx + 1) * T;
     if (dx > 0) hit.right = true; else hit.left = true;
@@ -915,7 +930,7 @@ function moveBody(lv, b, oneway = true) {
     b.riding = null;
     if (falling && !hit.bottom && !b.dropT) {
       const pl = landOnPlat(lv, b, prevBottom);
-      if (pl) { b.y = pl.y - b.h; hit.bottom = true; b.onGround = true; b.riding = pl; }
+      if (pl) { b.y = pl.y + pl.sink - b.h; hit.bottom = true; b.onGround = true; b.riding = pl; }
     }
   }
   if (hit.bottom || hit.top) b.vy = 0;
@@ -954,6 +969,11 @@ const KP = {
   gravity: 4 / 32, maxFall: 104 / 32,
   jumpSpeed: 120 / 32, jumpCrouch: 5, jumpCarry: 64 / 32, airAccel: 3 / 32,
   pogoBig: 4.98, pogoSmall: 2.76, pogoCompress: 10, pogoAirAccel: 2 / 32,
+  /* the older engine's maps (sets C, D and H) were built for Keen 1-3's
+     higher pogo: a held bounce there clears about ten tiles, and some of
+     their shafts need it (C05's from its start). The newer maps keep the
+     lower one (about six) */
+  pogoBigE1: 6.4,
   shotSpeed: 124 / 32, refire: 7, fireStance: 14,
 };
 
@@ -1008,9 +1028,33 @@ function updatePlayer(lv) {
   if (door && !seen("warpdoor")) toast(say("warpDoor", "A door. Press \u2191 to go through."));
   if (door && wasPressed("up")) { warpTo(lv, p, door); return; }
 
-  /* a trap switch: up, standing at it, pulls it, and that's the game */
+  /* a trap switch, and ample warning of it. Coming near one says so (once
+     a lever); up at it asks first; only up again, soon after, pulls it,
+     and that's the game */
+  if (lv.trapAt.size && !door) {
+    const pcx = p.x + p.w / 2, pcy = p.y + p.h / 2;
+    for (const k of lv.trapAt) {
+      const [tx, ty] = k.split(",").map(Number);
+      if ((lv.trapWarned || (lv.trapWarned = new Set())).has(k) || Math.abs(tx * T + 8 - pcx) > 44 || Math.abs(ty * T + 8 - pcy) > 36) continue;
+      lv.trapWarned.add(k);
+      toast(say("trapNear", "A lever. Something about it doesn't feel right. Leave it alone."));
+    }
+  }
+  if (!lv.pulseWarned && lv.hasPulse) {
+    const ptx = Math.floor((p.x + p.w / 2) / T), pty = Math.floor((p.y + p.h / 2) / T);
+    for (let dy = -2; dy <= 2 && !lv.pulseWarned; dy++) for (let dx = -3; dx <= 3; dx++) if (tileAt(lv, ptx + dx, pty + dy) === "z") {
+      lv.pulseWarned = true;
+      toast(say("pulseNear", "Those spikes come and go. When they flicker, they're coming back: wait for them to drop, then run."));
+      break;
+    }
+  }
   const trap = !door && !p.climbing && wasPressed("up") && tilesUnder(p).find(k => lv.trapAt.has(k));
-  if (trap) { springTrap(lv, trap); return; }
+  if (trap) {
+    if (lv.trapArmed === trap && lv.t - lv.trapArmedT < 240) { springTrap(lv, trap); return; }
+    lv.trapArmed = trap; lv.trapArmedT = lv.t; sfx("nope");
+    message(say("trapAsk", "<b>Careful.</b><br><br>This lever is a trap. Press ↑ again to pull it anyway."));
+    return;
+  }
 
   /* a hint sign: up, standing at it, reads it */
   const sign = !door && !p.climbing && signAt(lv, p);
@@ -1114,7 +1158,7 @@ function updatePlayer(lv) {
       if (isDown("jump")) p.pogoBigAsk = true;
       if (--p.compress === 0) {
         const big = p.pogoBigAsk || isDown("jump");
-        p.vy = -(big ? KP.pogoBig : KP.pogoSmall);
+        p.vy = -(big ? (lv.def.engine === "E1" ? KP.pogoBigE1 : KP.pogoBig) : KP.pogoSmall);
         p.onGround = false; p.land = 4;
         sfx(big ? "bigpogo" : "pogo");
       }
@@ -1152,12 +1196,13 @@ function updatePlayer(lv) {
   /* falling out of the world */
   if (p.y > lv.h * T + 8) return die(lv);
 
-  /* hazards */
+  /* hazards. The hurt box starts below his ears: E15's warp door has
+     spikes either side at head height, and walking out of it must not kill */
   const hx0 = Math.floor((p.x + 2) / T), hx1 = Math.floor((p.x + p.w - 3) / T);
   const hy0 = Math.floor((p.y + 2) / T), hy1 = Math.floor((p.y + p.h - 1) / T);
   for (let ty = hy0; ty <= hy1; ty++) for (let tx = hx0; tx <= hx1; tx++) {
-    const r = hazardRect(tileAt(lv, tx, ty));
-    if (r && overlap({ x: p.x + 2, y: p.y + 2, w: p.w - 4, h: p.h - 2 }, { x: tx * T + r[0], y: ty * T + r[1], w: r[2], h: r[3] })) return die(lv);
+    const r = hazardRect(tileAt(lv, tx, ty), lv);
+    if (r && overlap({ x: p.x + 2, y: p.y + 8, w: p.w - 4, h: p.h - 8 }, { x: tx * T + r[0], y: ty * T + r[1], w: r[2], h: r[3] })) return die(lv);
   }
 
   /* doors: walk into one holding its gem */
@@ -1253,7 +1298,7 @@ function makePlat(name, x, y) {
   else if ((m = /\((moving \w+|horizontal|vertical)\)/.exec(name))) { kind = "line"; dir = DIRS[m[1].replace("moving ", "")]; }
   else if (/Dropping/.test(name)) kind = "drop";
   else if (/Sneaky/.test(name)) kind = "sneaky";
-  return { kind, x, y, x0: x, y0: y, w: T * 2, h: 8, dx: 0, dy: 0, dir: dir.slice(), dirName, vy: 0, wait: false };
+  return { kind, x, y, x0: x, y0: y, w: T * 2, h: 8, sink: 0, dx: 0, dy: 0, dir: dir.slice(), dirName, vy: 0, wait: false };
 }
 
 /* a platform switch: its marker comes and goes */
@@ -1300,7 +1345,7 @@ function updatePlats(lv) {
     } else if (pl.kind === "sneaky") {
       /* jump at it and it slides out of reach; then drifts back */
       const pc = p.x + p.w / 2, mid = pl.x0 + T;
-      if (!p.onGround && p.state === "play" && Math.abs(pc - mid) < T * 3 && p.y + p.h < pl.y) pl.flee = pc < mid ? 1 : -1;
+      if (!p.onGround && p.state === "play" && Math.abs(pc - mid) < T * 3 && p.y + p.h < pl.y + pl.sink) pl.flee = pc < mid ? 1 : -1;
       else if (p.onGround && !ridden) pl.flee = 0;
       const want = pl.x0 + (pl.flee || 0) * T * 2;
       pl.x += Math.sign(want - pl.x) * Math.min(Math.abs(want - pl.x), pl.flee ? 4 : 1);
@@ -1321,7 +1366,7 @@ function updatePlats(lv) {
 function landOnPlat(lv, b, prevBottom) {
   for (const pl of lv.plats) {
     if (b.x + b.w <= pl.x || b.x >= pl.x + pl.w) continue;
-    const top = pl.y;
+    const top = pl.y + pl.sink;
     /* and only if standing on it leaves him clear of the rock (a platform
        rising into a ceiling must not carry him into it) */
     if (prevBottom <= Math.max(top, top - pl.dy) + 1 && b.y + b.h >= top && rectClear(lv, b.x, top - b.h, b.w, b.h)) return pl;
@@ -1331,7 +1376,7 @@ function landOnPlat(lv, b, prevBottom) {
 
 function drawPlats(lv, cx, cy) {
   for (const pl of lv.plats) {
-    const x = Math.round(pl.x) - cx, y = Math.round(pl.y) - cy;
+    const x = Math.round(pl.x) - cx, y = Math.round(pl.y + pl.sink) - cy;
     if (x < -pl.w || x > W || y < -16 || y > H) continue;
     ctx.drawImage(lv.art.platform[pl.kind === "drop" ? 1 : pl.kind === "static" ? 2 : 0][(lv.t >> 3) % 2], x, y);
   }
@@ -2116,8 +2161,16 @@ function drawLevel() {
     if (ch === "#" && lv.deckAt.has(tx + "," + ty)) ctx.drawImage(art.bridge, x, y);
     else if (ch === "#" || ch === "%") { const set = solidLike((lv.tiles[ty - 1] || [])[tx]) ? art.ground : art.groundTop; ctx.drawImage(set[v % set.length], x, y); }
     else if (ch === "=") ctx.drawImage(art.brick, x, y);
+    /* a one-way wall looks like the rock, with a faint arrow the way through */
+    else if (ch === "(" || ch === ")") {
+      ctx.drawImage(art.ground[v % art.ground.length], x, y);
+      ctx.fillStyle = "rgba(255, 255, 255, 0.16)";
+      const d = ch === "(" ? 1 : -1;
+      for (let i = 0; i < 3; i++) ctx.fillRect(x + 8 + d * (i - 1) * 2 - 1, y + 7 - i, 2, 1 + i * 2);
+    }
     else if (ch === "-") ctx.drawImage(art.plat, x, y);
     else if (ch === "^") ctx.drawImage(art.spikes, x, y);
+    else if (ch === "z") drawPulse(art, x, y, pulsePhase(lv), lv.t);
     else if (ch === "~") ctx.drawImage(art.liquid[(lv.t >> 3) % 4], x, y);
     else if (ch === "|") ctx.drawImage(art.pole, x, y);
     else if (DOOR_CH[ch] !== undefined) ctx.drawImage((lv.tiles[ty - 1] || [])[tx] === ch && art.doorsBelow ? art.doorsBelow[DOOR_CH[ch]] : art.doors[DOOR_CH[ch]], x, y);
@@ -2129,7 +2182,12 @@ function drawLevel() {
   }
   for (const s of lv.sockets) { ctx.drawImage(art.socket, s.x * T - cx, s.y * T - cy); if (s.filled) ctx.drawImage(ART.gems[s.gem], s.x * T + 4 - cx, s.y * T + 4 - cy); }
   for (const b of lv.bridges) ctx.drawImage(art.switch[b.on ? 1 : 0], b.x * T - cx, b.y * T - cy);
-  for (const k of lv.trapAt) { const [x, y] = k.split(",").map(Number), a = lv.hiveAt && lv.hiveAt.has(k) ? lv.hiveArt : art; ctx.drawImage(a.switch[lv.pulled === k ? 1 : 0], x * T - cx, y * T - cy); }
+  for (const k of lv.trapAt) {
+    const [x, y] = k.split(",").map(Number), a = lv.hiveAt && lv.hiveAt.has(k) ? lv.hiveArt : art;
+    ctx.drawImage(a.switch[lv.pulled === k ? 1 : 0], x * T - cx, y * T - cy);
+    /* a trap lever wears a warning: a red triangle with an !, blinking */
+    if (lv.pulled !== k && (lv.t >> 4) % 3) drawWarning(x * T + 8 - cx, y * T - 11 - cy);
+  }
   for (const k of Object.keys(lv.pswitchAt)) { const s = lv.pswitchAt[k]; ctx.drawImage(art.switch[s.on ? 1 : 0], s.x * T - cx, s.y * T - cy); }
   drawPlats(lv, cx, cy);
   /* the secret teleporter: a warp arch, a tile wide, drawn from its top tile */
@@ -2390,6 +2448,33 @@ function drawTrackerHud(lv) {
   }
   ctx.restore();
   if (lv) lv.keys.forEach((k, i) => { if (k) ctx.drawImage(ART.gems[i], 101 + i * 10, 4, 8, 7); });
+}
+
+/* a trap lever under its warning sign, for the help's list */
+let trapIconC = null;
+function trapIcon() {
+  if (trapIconC) return trapIconC;
+  const c = makeCanvas(T, T + 12), g = c.getContext("2d"), lever = paintTiles("crags").switch[0];
+  g.drawImage(lever, 0, 12);
+  drawWarning(8, 1, g);
+  return (trapIconC = c);
+}
+/* a pulsing column: the level's spikes, points up and down, filling the
+ * tile. Faint while it's gone, flickering as it comes back */
+function drawPulse(art, x, y, phase, t) {
+  const a = phase === "on" ? 1 : phase === "warn" ? ((t >> 2) & 1 ? 0.85 : 0.3) : 0.14;
+  ctx.save(); ctx.globalAlpha = a;
+  ctx.drawImage(art.spikes, x, y);
+  ctx.translate(x, y + T); ctx.scale(1, -1); ctx.drawImage(art.spikes, 0, 0);
+  ctx.restore();
+  if (phase === "warn" && (t >> 2) & 1) { ctx.fillStyle = "rgba(255, 70, 50, 0.35)"; ctx.fillRect(x + 6, y, 4, T); }
+}
+
+/* a warning sign: a red triangle with a white !, its point at (x, y) */
+function drawWarning(x, y, g = ctx) {
+  g.fillStyle = "#000"; g.beginPath(); g.moveTo(x, y - 1); g.lineTo(x + 7, y + 10); g.lineTo(x - 7, y + 10); g.closePath(); g.fill();
+  g.fillStyle = "#e0302a"; g.beginPath(); g.moveTo(x, y + 1); g.lineTo(x + 5, y + 9); g.lineTo(x - 5, y + 9); g.closePath(); g.fill();
+  g.fillStyle = "#fff"; g.fillRect(x, y + 3, 1, 3); g.fillRect(x, y + 7, 1, 1);
 }
 
 /* a tiny pixel font for floating score text: digits from the LED set,
@@ -2966,6 +3051,7 @@ const BOOK_TEXT = {
       [I.items.life, "Poom bobblehead", "An extra life. They're here too. Nobody knows."],
       [I.gems[0], "Security cards", "Open the station's door of the same colour, in this level."],
       [ART.heartstone[1], "Heartstones", "Eight, each in its own chamber. Touch one, or shoot it, to break it."],
+      [trapIcon(), "Crew levers", "Beside the heartstones, under a red warning sign. <b>Traps</b>: pulling one ends the game. Poom asks before he pulls."],
     ]; },
     places: {
       C02: "The Landing Shaft", C03: "Fungus Hollow", C04: "Lantern Caves", C05: "The Spine Garden", C06: "The Main Lift", C07: "Crystal Drop",
@@ -2986,6 +3072,8 @@ const BOOK_TEXT = {
       ammo: "<b>Power cell!</b> The station's: five shots for the raygun. Fire with <kbd>Space</kbd> or <kbd>C</kbd>.",
       pogo: "<b>You found a pogo stick!</b><br><br>Press <kbd>Alt</kbd> or <kbd>X</kbd> to hop on and off. Hold <kbd>Ctrl</kbd> or <kbd>Z</kbd> as you land for a big bounce.",
       swim: "<b>You can swim!</b><br><br>On the map, Poom can wade in where the shore meets the water.",
+      trapNear: "A crew lever, wired straight into the heartstone. The warning sign means it: don't pull it.",
+      trapAsk: "<b>Careful, sugar.</b><br><br>That lever pours the station's power into the heartstone, and the Hum will swallow the Catamaran whole. <b>It ends the game.</b><br><br>Press ↑ again if you really mean to pull it.",
       trap: "<b>Poom pulls the lever.</b><br><br>The station's power floods into the heartstone. The Hum roars, the whole moon shakes, and Thrum swallows the Catamaran whole.",
       parked: "<b>The Catamaran</b><br><br>Poom fires the engines. Nothing happens: every bit of power drains down into the moon. The Hum has hold of her until its heartstones are broken.",
       heart: (n, of) => `<b>The heartstone shatters!</b><br><br>${n === of ? "That's the last one. The whole moon shudders. Get back to the lift!" : `${n} of ${of} broken. Somewhere below, the Hum stutters.`}`,
@@ -3120,6 +3208,7 @@ const BOOK_TEXT = {
       socket: c => `A ${c} brass lock. A ${c} keycard goes here.`,
       noAmmo: "Click. The raygun's dry. Look for SPARK hypos.",
       lockedDoor: c => c ? `A ${c} bulkhead. It wants a ${c} keycard.` : "A locked bulkhead. It wants a keycard.",
+      pulseNear: "Steam spikes, sugar. They come and go. When they flicker they're coming back: wait for them to drop, then run.",
       ammo: "<b>SPARK hypo!</b> Five shots for the raygun, glowing pink. Fire with <kbd>Space</kbd> or <kbd>C</kbd>.",
       pogo: "<b>You found a pogo stick!</b><br><br>Press <kbd>Alt</kbd> or <kbd>X</kbd> to hop on and off. Hold <kbd>Ctrl</kbd> or <kbd>Z</kbd> as you land for a big bounce.",
       swim: "<b>A diving suit!</b><br><br>Brass, watertight, and only a little bit haunted. On the map, Poom can swim the deep water now.",

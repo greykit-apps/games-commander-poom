@@ -244,6 +244,7 @@ function levelSection(l) {
   if (cnt("i")) terrain.push("ice");
   if (cnt("<") + cnt(">")) terrain.push("conveyors");
   if (cnt("^")) terrain.push("hazards");
+  if (cnt("z")) terrain.push("pulsing spikes");
   if (cnt("|")) terrain.push("poles");
   if (l.swim) terrain.push("under water throughout");
 
