@@ -75,6 +75,12 @@ const NEEDS = {
 /* deadly columns a level can't be crossed without: they must come and go.
  * Set E's three-tile column (tiles 1838, 1856, 1874) spans E13's corridors
  * floor to ceiling, and walls in E15's keycard pocket */
+/* walls opened by hand, per map: [x, y] */
+const OPEN_TILES = {
+  /* D16: the tunnel along row 87 under (38-39, 86) was one tile high */
+  D16: [[38, 86], [39, 86]],
+};
+
 /* hazards taken out by hand, per map: [x, y] */
 const CLEAR_HAZARDS = {
   /* the spikes either side of C17's heartstone */
@@ -307,6 +313,7 @@ function convert(d) {
      safe floor instead, so it can be walked up to and read */
   for (let y = 0; y + 1 < rows.length; y++) for (let x = 0; x < rows[y].length; x++)
     if (rows[y][x] === "H" && rows[y + 1][x] === "^") rows[y + 1] = rows[y + 1].slice(0, x) + "#" + rows[y + 1].slice(x + 1);
+  for (const [x, y] of OPEN_TILES[d.map] || []) if (rows[y][x] === "#") rows[y] = rows[y].slice(0, x) + "." + rows[y].slice(x + 1);
   for (const [x, y] of CLEAR_HAZARDS[d.map] || []) if ("^z".includes(rows[y][x])) rows[y] = rows[y].slice(0, x) + "." + rows[y].slice(x + 1);
   const links = [], ends = [];
   for (const e of d.entities) {
