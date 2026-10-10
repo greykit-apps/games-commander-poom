@@ -210,41 +210,10 @@ const DEEP_SFX = {
   bubble: { wave: "sine", steps: [[500, 1300, 70]], g: 0.035, echo: [110, 0.4] },
   groan: { wave: "sawtooth", steps: [[70, 52, 1100]], vib: [2, 30], g: 0.018 },
 };
-/* TERMINUS's sounds (Book 5): a pulse rifle's hard burst, mechanical
- * stomps and servo whines, a hiss from the swarm for an alert, cold
- * synth jingles; and for ambience, the motion tracker's ping, quick and
- * high when something is close. */
-const TERMINUS_SFX = {
-  jump: { wave: "square", steps: [[220, 440, 70]], g: 0.035 },
-  pogo: { wave: "square", steps: [[180, 420, 60], [420, 640, 60]], g: 0.035 },
-  bigpogo: { wave: "square", steps: [[160, 420, 60], [420, 880, 100]], g: 0.035 },
-  shoot: { wave: "sawtooth", steps: [[260, 140, 40], [260, 140, 40], [260, 120, 50]], g: 0.035, noise: { ms: 140, f: 1600, q: 0.8, g: 0.11 } },
-  click: { noise: { ms: 14, f: 3200, q: 6, g: 0.1 } },
-  bump: { wave: "square", steps: [[120, 80, 40]], g: 0.035 },
-  item: { wave: "square", steps: [[1047, 1047, 30], [1568, 1568, 50]], g: 0.03 },
-  bigitem: { wave: "sawtooth", steps: [[392, 392, 80], [523, 523, 80], [784, 784, 80], [1047, 1047, 220]], g: 0.03 },
-  gem: { wave: "square", steps: [[1175, 1175, 50], [1568, 1568, 90]], g: 0.03 },
-  door: { wave: "sawtooth", steps: [[110, 70, 220]], g: 0.035, noise: { ms: 260, f: 2400, q: 0.6, g: 0.08 } },
-  push: { wave: "sawtooth", steps: [[160, 110, 70]], g: 0.035 },
-  stun: { wave: "square", steps: [[1000, 260, 140]], g: 0.03 },
-  hit: { wave: "square", steps: [[600, 260, 60]], g: 0.035, noise: { ms: 50, f: 2200, q: 1, g: 0.07 } },
-  kill: { wave: "sawtooth", steps: [[440, 50, 220]], g: 0.04, noise: { ms: 240, f: 900, q: 0.7, g: 0.12 } },
-  ricochet: { wave: "triangle", steps: [[3000, 2200, 60]], noise: { ms: 40, f: 4400, q: 2, g: 0.05 } },
-  tank: { wave: "sawtooth", steps: [[200, 100, 90]], g: 0.04, noise: { ms: 90, f: 1400, q: 1, g: 0.08 } },
-  die: { wave: "sawtooth", steps: [[523, 392, 160], [392, 311, 160], [311, 233, 200], [233, 110, 480]], g: 0.035 },
-  done: { wave: "sawtooth", steps: [[262, 262, 100], [392, 392, 100], [523, 523, 100], [784, 784, 280]], g: 0.03 },
-  life: { wave: "square", steps: [[523, 523, 70], [784, 784, 70], [1047, 1047, 200]], g: 0.03 },
-  enter: { wave: "sawtooth", steps: [[120, 360, 180]], g: 0.03, noise: { ms: 200, f: 1200, q: 0.7, g: 0.07 } },
-  nope: { wave: "square", steps: [[180, 180, 70], [120, 120, 110]], g: 0.035 },
-  menu: { wave: "square", steps: [[1200, 1200, 14]], g: 0.025 },
-  pick: { wave: "square", steps: [[1568, 1568, 25], [2093, 2093, 35]], g: 0.025 },
-  /* the swarm, seeing Poom: a hiss */
-  alert: { noise: { ms: 260, f: 5200, q: 1.2, g: 0.09 } },
-  /* the motion tracker */
-  ping: { wave: "sine", steps: [[1760, 1760, 60]], g: 0.022 },
-  pingNear: { wave: "sine", steps: [[2349, 2349, 50]], g: 0.03 },
-};
-const SOUND_SETS = { classic: SFX, wasteland: WASTE_SFX, thrum: THRUM_SFX, claw: CLAW_SFX, deep: DEEP_SFX, terminus: TERMINUS_SFX };
+/* a Book kept out of the game (js/book5.js) adds its own scorebox and
+ * title scene here when it's loaded */
+const EXTRA_HUDS = {}, EXTRA_TITLES = {};
+const SOUND_SETS = { classic: SFX, wasteland: WASTE_SFX, thrum: THRUM_SFX, claw: CLAW_SFX, deep: DEEP_SFX };
 
 const audio = {
   ctx: null, muted: store.get(KEYS.muted, "0") === "1", set: SFX, noiseBuf: null,
@@ -426,7 +395,10 @@ function newRun() {
  * their letters (H01, H02...), the player sees numbers. */
 const BOOK_ORDER = ["H", "C", "D", "E", "A", "B", "F", "G", "I"];
 const BOOK_IDS = BOOK_ORDER.filter(b => BOOKS[b]);
-const bookNumber = b => BOOK_IDS.indexOf(b) + 1;
+/* Books are numbered by their place in the order, loaded or not: Book Five
+ * (A) is kept out of the game for now, and the next set must not take its
+ * number */
+const bookNumber = b => BOOK_ORDER.indexOf(b) + 1;
 /* Themes. A book's theme is everything about how the game looks and reads
  * while that book is played: Poom's look, the items, the creatures and the
  * world map (js/art.js), the title screen and logo, the subtitle, and its
@@ -447,11 +419,8 @@ const BOOK_THEMES = {
   /* Book 4, set E: Raptura, the city under the sea (docs/story/book-4-story.md);
      its art is in js/art-book4.js */
   deep: { name: "deep", look: "diver", items: "deep", creatures: "deep", map: "deep", title: "deep", subtitle: "Book Four: Descent into Raptura", hud: "deco", sound: "deep" },
-  /* Book 5, set A: TERMINUS, the machine's station (docs/story/book-5-story.md);
-     its art is in js/art-book5.js */
-  terminus: { name: "terminus", look: "marine", items: "terminus", creatures: "terminus", map: "terminus", title: "terminus", subtitle: "Book Five: Termination Day", hud: "tracker", sound: "terminus" },
 };
-const THEME_OF_BOOK = { H: "wasteland", C: "thrum", D: "claw", E: "deep", A: "terminus" };
+const THEME_OF_BOOK = { H: "wasteland", C: "thrum", D: "claw", E: "deep" };
 /* a book with no theme of its own wears Book 1's */
 const themeOf = book => BOOK_THEMES[THEME_OF_BOOK[book] || THEME_OF_BOOK[BOOK_IDS[0]]] || BOOK_THEMES.classic;
 /* the book a theme's words come from: the first that has that theme and words */
@@ -493,10 +462,7 @@ const LEVEL_THEME = { H09: "vaultCold", H11: "vaultCold", H17: "vaultCold", H10:
   E02: "gardens", E04: "gardens", E06: "gardens", E08: "gardens", E10: "gardens", E16: "gardens", E18: "gardens",
   E03: "promenade", E05: "promenade", E07: "promenade", E11: "promenade", E17: "promenade",
   E09: "works", E12: "works", E13: "works", E14: "works", E15: "works",
-  /* Book 5 (set A), docs/story/book-5-story.md: the Machine Decks, the Biodome and the Hive */
-  A02: "machine", A04: "machine", A08: "machine", A12: "machine", A13: "machine", A14: "machine", A15: "machine",
-  A03: "biodome", A05: "biodome", A06: "biodome", A07: "biodome",
-  A09: "hive5", A10: "hive5", A11: "hive5", A16: "hive5" };
+};
 const MAPS = {};
 for (const b of BOOK_IDS) BOOKS[b].chapters.forEach(ch => ch.levels.forEach(lv => { MAPS[lv.id] = lv; lv.book = b; }));
 /* a level's name: its place in a book that names its places, or its number */
@@ -508,14 +474,16 @@ const levelName = id => {
 /* Each Book's name (the player sees "Book Two: Heavens to Mergatroid"),
  * and which can be played yet; the rest show greyed out on New game. */
 const BOOK_NAMES = { H: "Wastelandia", C: "Heavens to Mergatroid", D: "The Island of Dr Cal", E: "Descent into Raptura", A: "Termination Day" };
-const BOOK_PLAYABLE = new Set(["H", "C", "D", "E", "A"]);
+/* Book Five (A) is held back until its levels are proven winnable: the
+ * game ends at Book Four for now */
+const BOOK_PLAYABLE = new Set(["H", "C", "D", "E"]);
 
 /* What finishes a book, beyond its levels: Book 2 (set C) ends when its
  * heartstones are all broken (docs/story/book-2-story.md); Book 3 (set D)
  * when its last level, Dr Cal's own, is done, whatever is left
  * (docs/story/book-3-story.md); a book with a ship ends at the ship; any
  * other when its levels are done. */
-const BOOK_GOAL = { C: "hearts", D: { last: "D17" }, E: "rescues", A: { last: "A16" } };
+const BOOK_GOAL = { C: "hearts", D: { last: "D17" }, E: "rescues" };
 /* the levels of a book that end by rescuing someone, and how many are saved */
 const rescueLevels = b => Object.values(MAPS).filter(lv => lv.book === b && (lv.ends || []).some(e => e[4] === "rescue")).map(lv => lv.id);
 const rescuedIn = (r, b) => rescueLevels(b).filter(id => (r.rescued || {})[id]).length;
@@ -631,7 +599,7 @@ function loadLevel(n) {
   for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
     const c = rows[y][x], px = x * T, py = y * T;
     /* the first start in the map wins (D10 has two) */
-    if (c === "P") { if (!lv.p) lv.p = makePlayer(px + 2, py + T - 22); rows[y][x] = airOf(x, y); }
+    if (c === "P") { if (!lv.p) { lv.p = makePlayer(px + 2, py + T - 22); lv.p0 = [lv.p.x, lv.p.y]; } rows[y][x] = airOf(x, y); }
     else if (c === "E") { lv.exitAt[x + "," + y] = true; rows[y][x] = "."; }
     else if (c === "X") { lv.edge.add(x + "," + y); rows[y][x] = "."; }
     else if (c === "!" || c === "w") {
@@ -798,6 +766,19 @@ function loadLevel(n) {
      are something else, not yet built.) */
   lv.trapAt = new Set();
   lv.hasPulse = def.rows.some(r => r.includes("z"));
+  /* a hazard hanging from rock, with open space below, points down: drawn
+     upside down, and it's the lower half that hurts */
+  lv.hang = new Set();
+  for (let y = 1; y < h; y++) for (let x = 0; x < w; x++)
+    if (rows[y][x] === "^" && SOLID.has(rows[y - 1][x]) && !(rows[y + 1] && SOLID.has(rows[y + 1][x]))) lv.hang.add(x + "," + y);
+  /* steam: the Works' vents blow him away from the nozzle (up, or down from
+     a ceiling) and the pulsing columns shove him out sideways while they're
+     on. Neither hurts */
+  lv.steam = [];
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    if (rows[y][x] === "z") lv.steam.push([x, y, 0]);
+    else if (rows[y][x] === "^" && theme === "works") lv.steam.push([x, y, lv.hang.has(x + "," + y) ? 1 : -1]);
+  }
   if (def.engine === "E1") for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (rows[y][x] === "S" && !lv.switchAt[x + "," + y] && !lv.pswitchAt[x + "," + y]) lv.trapAt.add(x + "," + y);
 
   /* Book 2: the Hum has grown into every heartstone's chamber, whatever the
@@ -864,6 +845,10 @@ const isSolid = c => SOLID.has(c);
 /* a pulsing column (z) runs on a cycle: deadly, then gone, then a warning
  * flicker before it comes back. Ticks */
 const PULSE = { period: 150, on: 60, warn: 30 };
+/* the Works' vents blow in bursts, all together: on, then off long enough
+ * to walk past, with a wisp just before the next burst. Ticks */
+const VENT = { period: 150, on: 70, warn: 20 };
+const ventPhase = lv => { const t = lv.t % VENT.period; return t < VENT.on ? "on" : t < VENT.period - VENT.warn ? "off" : "warn"; };
 const pulsePhase = lv => { const t = lv.t % PULSE.period; return t < PULSE.on ? "on" : t < PULSE.period - PULSE.warn ? "off" : "warn"; };
 
 /* the hazard part of a tile, in tile-local pixels, or null */
@@ -968,12 +953,9 @@ const KP = {
   walkMax: 68 / 32, walkAccel: 3.6 / 32, groundFriction: 14 / 32, airFriction: 2 / 32,
   gravity: 4 / 32, maxFall: 104 / 32,
   jumpSpeed: 120 / 32, jumpCrouch: 5, jumpCarry: 64 / 32, airAccel: 3 / 32,
-  pogoBig: 4.98, pogoSmall: 2.76, pogoCompress: 10, pogoAirAccel: 2 / 32,
-  /* the older engine's maps (sets C, D and H) were built for Keen 1-3's
-     higher pogo: a held bounce there clears about ten tiles, and some of
-     their shafts need it (C05's from its start). The newer maps keep the
-     lower one (about six) */
-  pogoBigE1: 6.4,
+  /* a held bounce clears about ten tiles: the maps are built for it (C05's
+     start shaft, E04's ledges nine tiles over the hump) */
+  pogoBig: 6.4, pogoSmall: 2.76, pogoCompress: 10, pogoAirAccel: 2 / 32,
   shotSpeed: 124 / 32, refire: 7, fireStance: 14,
 };
 
@@ -988,8 +970,17 @@ function updatePlayer(lv) {
   p.t++;
   if (p.state === "dead") {
     p.y += p.vy; p.x += p.vx;
+    if (run.arcade && p.t > 50) { respawn(lv); return; }
     if (p.t > 100) loseLife();
     return;
+  }
+  if (p.safeT > 0) p.safeT--;
+  /* arcade: where he has lately stood on firm ground, to come back to */
+  /* never a spot in a hazard tile (E16's floor spikes: standing on the
+     rock under them looks like firm ground) */
+  if (run.arcade && p.onGround && !p.riding && !p.climbing && !p.pogo && !p.safeT && !tilesUnder(p).some(k => { const [x, y] = k.split(",").map(Number), c = tileAt(lv, x, y); return c === "^" || c === "z"; })) {
+    const ring = lv.safeRing || (lv.safeRing = []);
+    ring.push([lv.t, p.x, p.y]); if (ring.length > 300) ring.shift();
   }
   if (p.state === "exit") {
     if (p.t > 50) finishLevel();
@@ -1158,7 +1149,7 @@ function updatePlayer(lv) {
       if (isDown("jump")) p.pogoBigAsk = true;
       if (--p.compress === 0) {
         const big = p.pogoBigAsk || isDown("jump");
-        p.vy = -(big ? (lv.def.engine === "E1" ? KP.pogoBigE1 : KP.pogoBig) : KP.pogoSmall);
+        p.vy = -(big ? KP.pogoBig : KP.pogoSmall);
         p.onGround = false; p.land = 4;
         sfx(big ? "bigpogo" : "pogo");
       }
@@ -1200,8 +1191,24 @@ function updatePlayer(lv) {
      spikes either side at head height, and walking out of it must not kill */
   const hx0 = Math.floor((p.x + 2) / T), hx1 = Math.floor((p.x + p.w - 3) / T);
   const hy0 = Math.floor((p.y + 2) / T), hy1 = Math.floor((p.y + p.h - 1) / T);
+  const pcx = p.x + p.w / 2;
+  for (const [sx, sy, dir] of lv.steam) {
+    if (Math.abs(sx * T + 8 - pcx) > 24 || Math.abs(sy * T + 8 - (p.y + p.h / 2)) > 64) continue;
+    if (dir === 0) {
+      /* a pulsing column, on: out sideways, the way he came */
+      if (pulsePhase(lv) === "on" && overlap(p, { x: sx * T + 2, y: sy * T, w: T - 4, h: T })) { p.pushT = 6; p.pushV = (pcx < sx * T + 8 ? -1 : 1) * 2.5; }
+    } else if (ventPhase(lv) === "on" && !p.riding && overlap(p, { x: sx * T + 1, y: dir < 0 ? (sy - 1) * T : sy * T, w: T - 2, h: 2 * T })) {
+      /* a vent: a blast away from the nozzle, two tiles long. A platform
+         between him and it takes the blast (E15's chute drops onto one
+         running just over a floor of vents) */
+      const shield = lv.plats.some(pl => pl.x < sx * T + T && pl.x + pl.w > sx * T && (dir < 0 ? pl.y + pl.sink >= p.y + p.h - 2 && pl.y < (sy + 1) * T : pl.y + pl.sink <= p.y && pl.y + pl.sink >= sy * T));
+      if (!shield) { if (dir < 0) { p.vy = Math.min(p.vy, -3.4); p.onGround = false; } else p.vy = Math.max(p.vy, 2.6); }
+    }
+  }
+  const steamy = c => c === "z" || (c === "^" && lv.theme === "works");
   for (let ty = hy0; ty <= hy1; ty++) for (let tx = hx0; tx <= hx1; tx++) {
-    const r = hazardRect(tileAt(lv, tx, ty), lv);
+    if (steamy(tileAt(lv, tx, ty))) continue;
+    const r = lv.hang.has(tx + "," + ty) ? [1, 0, 14, 8] : hazardRect(tileAt(lv, tx, ty), lv);
     if (r && overlap({ x: p.x + 2, y: p.y + 8, w: p.w - 4, h: p.h - 8 }, { x: tx * T + r[0], y: ty * T + r[1], w: r[2], h: r[3] })) return die(lv);
   }
 
@@ -1500,9 +1507,28 @@ function popup(at, text) { if (at && G.lv) G.lv.fx.push({ kind: "text", x: at.x 
 function die(lv) {
   const p = lv.p;
   if (p.state !== "play") return;
+  /* just picked himself up (arcade): a moment's grace, but not from a fall */
+  if (p.safeT > 0 && p.y <= lv.h * T) return;
   if (p.pogo) { p.pogo = false; p.h = PH; }
   p.state = "dead"; p.t = 0; p.vy = -3; p.vx = (Math.random() - 0.5) * 2; p.climbing = false; p.crouch = p.compress = 0;
   sfx("die");
+}
+
+/* Arcade: no life lost. Poom picks himself up where he last stood firm, a
+ * second or more before he fell, with all he has picked up in the level,
+ * and a moment's grace */
+function respawn(lv) {
+  const p = lv.p, ring = lv.safeRing || [];
+  /* dying again soon after getting up goes further back each time, so no
+     spot can catch him in a loop */
+  lv.streak = lv.t - (lv.lastRespawn || -1e9) < 300 ? (lv.streak || 0) + 1 : 0;
+  lv.lastRespawn = lv.t;
+  let s = null;
+  for (let i = ring.length - 1; i >= 0; i--) if (lv.t - ring[i][0] >= 60 * (1 + lv.streak * 2)) { s = ring[i]; break; }
+  s = s || ring[0] || [0, lv.p0[0], lv.p0[1]];
+  lv.safeRing = ring.filter(e => e[0] <= s[0]);
+  Object.assign(p, { x: s[1], y: s[2], vx: 0, vy: 0, h: PH, state: "play", t: 0, pogo: false, climbing: false, crouch: 0, compress: 0, riding: null, onGround: false, safeT: 90 });
+  sfx("life");
 }
 
 /* ------------------------------------------------------------------ */
@@ -1560,21 +1586,7 @@ const ENEMY_OF = { H: { "01": "x", "02": "B", "03": "L", "04": "V", "05": "T" },
     "13": { kind: "T", art: "ironcrab" },
     "14": { kind: "V", art: "gulper", w: 21, h: 11, swim: true, hunt: true, hp: Infinity, speed: 0.6 }, "15": { kind: "V", art: "jelly", w: 8, h: 7, swim: true, hp: Infinity, speed: 0.2 },
     "16": { kind: "x", art: "schoolfish", w: 8, h: 5, swim: true }, "17": { kind: "V", art: "mine", w: 8, h: 7, swim: true, hp: Infinity, speed: 0 } },
-  /* Book 5 (docs/story/book-5-story.md): station cats (01) push; skulkers
-     (03), clingers (05), bursters (04) and hounds (10) charge, the swarm's
-     with a hiss first; endos (02) and the swarm's drones (11) walk;
-     quicksilver (06) shoves; sentry guns (07) shoot; hunter-killer drones
-     (08) fly at Poom; the Hunter (09) and Shades (13) are lieutenants; acid
-     globs (12) slide or bounce and can't be hurt; the Brood Mother (14),
-     in A16, is the last of them: drawn twice the size, in her seven-tile
-     hall, but her body a little shorter than her crest, 44 pixels, so a full
-     jump (54) still clears her; the same twelve hits as before */
-  A: { "01": { kind: "x", art: "cat" }, "02": { kind: "V", art: "endo", hp: 5, points: 800 }, "03": { kind: "B", art: "skulker", w: 14, h: 8, alert: true },
-    "04": { kind: "B", art: "burster", w: 8, h: 4, rush: 1.6 }, "05": { kind: "B", art: "clinger", w: 10, h: 5, alert: true, rush: 1.5 },
-    "06": { kind: "T", art: "quick" }, "07": { kind: "K", art: "sentry" }, "08": { kind: "B", art: "hk", w: 14, h: 6, swim: true, hunt: true, hp: 2 },
-    "09": { kind: "L", art: "hunter", hp: 6, points: 2000 }, "10": { kind: "B", art: "hound", alert: true }, "11": { kind: "V", art: "xdrone", hp: 3 },
-    "12": { kind: "V", art: "glob", w: 8, h: 6, hp: Infinity, points: 0 }, "13": { kind: "L", art: "shades", points: 1500 },
-    "14": { kind: "L", art: "brood", w: 24, h: 44, scale: 2, hp: 12, points: 5000 } } };
+};
 /* A Book without a hand-made list gets one from its own maps (type numbers
  * mean something different in every set, maps2/README.md): a rare type
  * that only ever stands near the level's objectives guards them (L); the
@@ -2169,7 +2181,14 @@ function drawLevel() {
       for (let i = 0; i < 3; i++) ctx.fillRect(x + 8 + d * (i - 1) * 2 - 1, y + 7 - i, 2, 1 + i * 2);
     }
     else if (ch === "-") ctx.drawImage(art.plat, x, y);
-    else if (ch === "^") ctx.drawImage(art.spikes, x, y);
+    else if (ch === "^") {
+      /* hanging from rock, it points down; an animated one (the Works'
+         steam vents) runs its own effect in the same frame */
+      const hang = lv.hang.has(tx + "," + ty);
+      ctx.save(); ctx.translate(x, hang ? y + T : y); if (hang) ctx.scale(1, -1);
+      ctx.drawImage(art.spikes, 0, 0); if (art.spikeFx && lv.theme === "works") { const vp = ventPhase(lv); if (vp !== "off") art.spikeFx(ctx, lv.t, tx * 3 + ty, vp === "warn"); }
+      ctx.restore();
+    }
     else if (ch === "z") drawPulse(art, x, y, pulsePhase(lv), lv.t);
     else if (ch === "~") ctx.drawImage(art.liquid[(lv.t >> 3) % 4], x, y);
     else if (ch === "|") ctx.drawImage(art.pole, x, y);
@@ -2193,6 +2212,8 @@ function drawLevel() {
   /* the secret teleporter: a warp arch, a tile wide, drawn from its top tile */
   for (const k of lv.secretAt) { const [x, y] = k.split(",").map(Number); if (!lv.secretAt.has(x + "," + (y - 1))) ctx.drawImage(art.warp[(lv.t >> 2) % 4], x * T - cx, y * T - cy, T, T * 2); }
   for (const d of lv.warpDoors) if (d.x - cx > -d.w && d.x - cx < W && d.y - cy > -d.h && d.y - cy < H) ctx.drawImage(art.warp[(lv.t >> 3) % 4], d.x - cx, d.y - cy, d.w, d.h);
+  /* walking off the map's edge ends some levels: marked, not hidden */
+  if (lv.edge.size) drawEdgeExits(lv, cx, cy);
   for (const e of lv.exits) { const a = lv.hiveAt && lv.hiveAt.has(Math.floor(e.x / T) + "," + Math.floor(e.y / T)) ? lv.hiveArt : art; ctx.drawImage(a.exit[lv.exitUsed === e ? 1 : 0], e.x - cx, e.y - cy); }
 
   for (const it of lv.items) {
@@ -2230,6 +2251,7 @@ function drawLevel() {
 }
 
 function drawPlayer(p, cx, cy) {
+  if (p.safeT > 0 && (p.safeT >> 2) % 2) return;
   if (p.state === "exit") {
     if (p.t > 36) return;
     ctx.globalAlpha = 1 - p.t / 40;
@@ -2301,13 +2323,13 @@ function drawHud(lv) {
   if (theme.hud === "visor") return drawVisorHud(lv);
   if (theme.hud === "codec") return drawCodecHud(lv);
   if (theme.hud === "deco") return drawDecoHud(lv);
-  if (theme.hud === "tracker") return drawTrackerHud(lv);
+  if (EXTRA_HUDS[theme.hud]) return EXTRA_HUDS[theme.hud](lv);
   const r = G.run;
   ctx.fillStyle = "#000"; ctx.fillRect(3, 3, 59, 22);
   ctx.fillStyle = EGA[8]; ctx.fillRect(3, 3, 59, 1); ctx.fillRect(3, 24, 59, 1); ctx.fillRect(3, 3, 1, 22); ctx.fillRect(61, 3, 1, 22);
   drawDigits(r.score, 6, 6, 9);
   ctx.drawImage(ART.items.life, 5, 14, 9, 10);
-  drawDigits(r.cheat ? 99 : Math.min(r.lives, 99), 15, 16, 2);
+  drawDigits(r.cheat || r.arcade ? 99 : Math.min(r.lives, 99), 15, 16, 2);
   ctx.drawImage(ART.items.ammo, 32, 15, 6, 9);
   drawDigits(r.cheat ? 99 : Math.min(r.ammo, 99), 40, 16, 2);
   if (lv) lv.keys.forEach((k, i) => { if (k) ctx.drawImage(ART.gems[i], 64 + i * 10, 4, 8, 7); });
@@ -2348,7 +2370,7 @@ function drawWristHud(lv) {
   drawDigits(r.score, 10, 8, 9, "green");
   f("#1c5a2a", 10, 16, 56, 1);
   ctx.drawImage(inPhosphor(ART.items.life), 9, 18, 9, 10);
-  drawDigits(r.cheat ? 99 : Math.min(r.lives, 99), 19, 20, 2, "green");
+  drawDigits(r.cheat || r.arcade ? 99 : Math.min(r.lives, 99), 19, 20, 2, "green");
   ctx.drawImage(inPhosphor(ART.items.ammo), 36, 19, 6, 9);
   drawDigits(r.cheat ? 99 : Math.min(r.ammo, 99), 44, 20, 2, "green");
   ctx.fillStyle = "rgba(0, 0, 0, 0.28)"; for (let y = 6; y < 29; y += 2) ctx.fillRect(8, y, 60, 1);
@@ -2375,7 +2397,7 @@ function drawVisorHud(lv) {
   drawDigits(r.score, 9, 7, 9, "amber");
   f("#2f6e6a", 8, 16, 56, 1);
   ctx.drawImage(ART.items.life, 7, 18, 9, 10);
-  drawDigits(r.cheat ? 99 : Math.min(r.lives, 99), 17, 20, 2, "amber");
+  drawDigits(r.cheat || r.arcade ? 99 : Math.min(r.lives, 99), 17, 20, 2, "amber");
   ctx.drawImage(ART.items.ammo, 38, 19, 4, 8);
   drawDigits(r.cheat ? 99 : Math.min(r.ammo, 99), 45, 20, 2, "amber");
   /* the scan line */
@@ -2394,7 +2416,7 @@ function drawCodecHud(lv) {
   drawDigits(r.score, 9, 7, 9, "green");
   f("#1c5a2a", 8, 15, 60, 1);
   ctx.drawImage(inPhosphor(ART.items.life), 8, 17, 9, 10);
-  drawDigits(r.cheat ? 99 : Math.min(r.lives, 99), 18, 19, 2, "green");
+  drawDigits(r.cheat || r.arcade ? 99 : Math.min(r.lives, 99), 18, 19, 2, "green");
   ctx.drawImage(inPhosphor(ART.items.ammo), 34, 18, 6, 9);
   drawDigits(r.cheat ? 99 : Math.min(r.ammo, 99), 42, 19, 2, "green");
   /* the signal bar */
@@ -2413,42 +2435,12 @@ function drawDecoHud(lv) {
   drawDigits(r.score, 9, 7, 9, "amber");
   f("#6a4a12", 8, 15, 58, 1);
   ctx.drawImage(ART.items.life, 7, 17, 9, 10);
-  drawDigits(r.cheat ? 99 : Math.min(r.lives, 99), 17, 19, 2, "amber");
+  drawDigits(r.cheat || r.arcade ? 99 : Math.min(r.lives, 99), 17, 19, 2, "amber");
   ctx.drawImage(ART.items.ammo, 36, 17, 4, 9);
   drawDigits(r.cheat ? 99 : Math.min(r.ammo, 99), 43, 19, 2, "amber");
   if (lv) lv.keys.forEach((k, i) => { if (k) ctx.drawImage(ART.gems[i], 75 + i * 10, 4, 8, 7); });
 }
 
-/* Book 5's scorebox: a marine's readout, red numbers on black in a
- * gunmetal frame, and a motion tracker beside it: a green fan that
- * sweeps, with a blip for each creature within range ahead or behind */
-function drawTrackerHud(lv) {
-  const r = G.run, f = (c, x, y, w, h) => { ctx.fillStyle = c; ctx.fillRect(x, y, w, h); };
-  f("#000", 2, 2, 96, 28); f("#323a46", 3, 3, 94, 26); f("#646f7d", 3, 3, 94, 1); f("#151920", 3, 28, 94, 1);
-  f("#05070a", 5, 5, 60, 22);
-  drawDigits(r.score, 8, 7, 9);
-  f("#3a0604", 7, 15, 56, 1);
-  ctx.drawImage(ART.items.life, 7, 17, 9, 10);
-  drawDigits(r.cheat ? 99 : Math.min(r.lives, 99), 17, 19, 2);
-  ctx.drawImage(ART.items.ammo, 35, 18, 4, 8);
-  drawDigits(r.cheat ? 99 : Math.min(r.ammo, 99), 42, 19, 2);
-  /* the tracker */
-  const cx = 81, cy = 26, R = 20;
-  ctx.save(); ctx.beginPath(); ctx.rect(67, 5, 28, 22); ctx.clip();
-  ctx.fillStyle = "#04170b"; ctx.fillRect(67, 5, 28, 22);
-  ctx.strokeStyle = "#1c5a2a"; ctx.lineWidth = 1;
-  for (const rr of [7, 14, 20]) { ctx.beginPath(); ctx.arc(cx, cy, rr, Math.PI, 0); ctx.stroke(); }
-  const sweep = Math.PI + ((G.t % 90) / 90) * Math.PI;
-  ctx.strokeStyle = "rgba(90, 255, 138, 0.7)"; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + Math.cos(sweep) * R, cy + Math.sin(sweep) * R); ctx.stroke();
-  if (lv) for (const e of lv.ents) {
-    if (!e.alive || e.type === "G") continue;
-    const dx = (e.x - lv.p.x) / 10, dy = Math.abs(e.y - lv.p.y) / 10, d = Math.hypot(dx, dy);
-    if (d > R) continue;
-    ctx.fillStyle = (G.t >> 3) % 2 ? "#5aff8a" : "#c8ffd2"; ctx.fillRect(Math.round(cx + dx) - 1, Math.round(cy - dy) - 1, 2, 2);
-  }
-  ctx.restore();
-  if (lv) lv.keys.forEach((k, i) => { if (k) ctx.drawImage(ART.gems[i], 101 + i * 10, 4, 8, 7); });
-}
 
 /* a trap lever under its warning sign, for the help's list */
 let trapIconC = null;
@@ -2468,6 +2460,26 @@ function drawPulse(art, x, y, phase, t) {
   ctx.translate(x, y + T); ctx.scale(1, -1); ctx.drawImage(art.spikes, 0, 0);
   ctx.restore();
   if (phase === "warn" && (t >> 2) & 1) { ctx.fillStyle = "rgba(255, 70, 50, 0.35)"; ctx.fillRect(x + 6, y, 4, T); }
+}
+
+/* an edge exit: chevrons drifting outward through each of its tiles, and
+ * EXIT over the top one */
+function drawEdgeExits(lv, cx, cy) {
+  const tops = {};
+  for (const k of lv.edge) {
+    const [tx, ty] = k.split(",").map(Number), x = tx * T - cx, y = ty * T - cy;
+    if (x < -T || x > W || y < -T || y > H) continue;
+    const out = tx < lv.w / 2 ? -1 : 1, ph = (lv.t >> 2) % 8;
+    ctx.fillStyle = "rgba(90, 255, 120, 0.18)"; ctx.fillRect(x, y, T, T);
+    for (let i = 0; i < 2; i++) {
+      const cxp = x + 8 + out * (((ph + i * 4) % 8) - 4);
+      ctx.fillStyle = i ? "#9dff7a" : "#e8ffb0";
+      for (let d = 0; d < 4; d++) { ctx.fillRect(cxp + out * d, y + 4 + d, 1, 1); ctx.fillRect(cxp + out * d, y + 11 - d, 1, 1); }
+    }
+    const col = tx + "";
+    if (tops[col] === undefined || ty < tops[col][1]) tops[col] = [x, ty, out];
+  }
+  for (const [x, ty, out] of Object.values(tops)) drawSmallText("EXIT", x + (out > 0 ? -14 : 0), ty * T - cy - 8, (lv.t >> 3) % 2 ? 10 : 15);
 }
 
 /* a warning sign: a red triangle with a white !, its point at (x, y) */
@@ -2595,7 +2607,7 @@ function drawTitleScene(t) {
   if (theme.title === "thrum") return drawThrumTitle(t);
   if (theme.title === "claw") return drawClawTitle(t);
   if (theme.title === "deep") return drawDeepTitle(t);
-  if (theme.title === "terminus") return drawTerminusTitle(t);
+  if (EXTRA_TITLES[theme.title]) return EXTRA_TITLES[theme.title](t);
   ctx.fillStyle = "#000"; ctx.fillRect(0, 0, W, H);
   for (const s of titleStars) if ((t >> 4) % 7 !== s.s) { ctx.fillStyle = EGA[s.c]; ctx.fillRect(s.x, s.y, 1, 1); }
   /* the planet */
@@ -2667,22 +2679,6 @@ function drawDeepTitle(t) {
   ctx.drawImage(spr, 76, 181 - spr.height);
 }
 
-/* TERMINUS's title (Book 5): the station over the night side of a
- * planet, its red eye pulsing, stars, three red dots that wander over the
- * gantry now and then, Poom on the gantry in his marine armour. */
-let terminusTitleBg = null;
-function drawTerminusTitle(t) {
-  if (!terminusTitleBg) terminusTitleBg = paintTerminusTitle(mapArtSets.classic.shipBare);
-  ctx.drawImage(terminusTitleBg, 0, 0);
-  for (const s of titleStars) if (s.y < 140 && (t >> 4) % 7 !== s.s && Math.hypot(s.x - 268, (s.y - 46) * 3) > 50) { ctx.fillStyle = s.c === 14 ? "#ffe9c8" : "#c8d0e0"; ctx.fillRect(s.x, s.y, 1, 1); }
-  const a = 0.5 + 0.5 * Math.sin(t / 30);
-  ctx.fillStyle = `rgba(255, 42, 26, ${0.25 + 0.3 * a})`; ctx.beginPath(); ctx.arc(268, 46, 5, 0, Math.PI * 2); ctx.fill();
-  ctx.fillStyle = "#ff2a1a"; ctx.fillRect(267, 45, 3, 3);
-  /* the Hunter's three dots, drifting over the gantry */
-  if ((t >> 7) % 3 === 1) { const x = 60 + Math.sin(t / 40) * 30, y = 150 + Math.cos(t / 33) * 8; ctx.fillStyle = "#ff2020"; for (const [dx, dy] of [[0, 0], [4, 3], [8, 0]]) ctx.fillRect(Math.round(x + dx), Math.round(y + dy), 2, 2); }
-  const pose = (t >> 5) % 8 === 0 ? "shoot" : "stand", spr = ART.poom[pose].r;
-  ctx.drawImage(spr, 70, 176 - spr.height);
-}
 
 /* The wasteland's title: the Glow at dusk over a ruined skyline, the
  * Catamaran crash-landed and smoking, Poom beside it in his ranger gear,
@@ -3198,6 +3194,7 @@ const BOOK_TEXT = {
     },
     signs: {
       E06: `<b>An audio diary</b><br><br><i>"Augustus Fathom. They told me a city at the bottom of the sea was impossible. I said: no landlords, no lifeguards, no limits. Now the glass weeps, the SPARK has gone to everyone's heads, and somebody has painted a moustache on my statue. Lock the gates."</i>`,
+      E07: "A leap of faith...",
       E08: `<b>An audio diary</b><br><br><i>"This is Raptura Radio, signing off. The pressure's getting to the transmitter, and to me. I'm taking my dial somewhere higher up, where a signal carries. Keep listening, sugar."</i><br><br>The voice sounds awfully familiar.`,
       E15: `<b>An audio diary, in a gold case</b><br><br><i>"Fathom again. A gentleman came today, grey and black and terribly polite, and bought every drop of SPARK in the vault. Paid in gold. Asked after a puma. I did not care for his smile."</i>`,
     },
@@ -3208,7 +3205,7 @@ const BOOK_TEXT = {
       socket: c => `A ${c} brass lock. A ${c} keycard goes here.`,
       noAmmo: "Click. The raygun's dry. Look for SPARK hypos.",
       lockedDoor: c => c ? `A ${c} bulkhead. It wants a ${c} keycard.` : "A locked bulkhead. It wants a keycard.",
-      pulseNear: "Steam spikes, sugar. They come and go. When they flicker they're coming back: wait for them to drop, then run.",
+      pulseNear: "Steam, sugar. It comes and goes, and when it's on it'll shove you right back out. When it flickers it's coming back: wait for it to drop, then run.",
       ammo: "<b>SPARK hypo!</b> Five shots for the raygun, glowing pink. Fire with <kbd>Space</kbd> or <kbd>C</kbd>.",
       pogo: "<b>You found a pogo stick!</b><br><br>Press <kbd>Alt</kbd> or <kbd>X</kbd> to hop on and off. Hold <kbd>Ctrl</kbd> or <kbd>Z</kbd> as you land for a big bounce.",
       swim: "<b>A diving suit!</b><br><br>Brass, watertight, and only a little bit haunted. On the map, Poom can swim the deep water now.",
@@ -3236,70 +3233,6 @@ const BOOK_TEXT = {
       "The radio crackles. <i>\"He's got power to burn now, sugar. Best keep up.\"</i>",
       `<b>The End</b> of Book Four: Descent into Raptura.<br><br>${next ? `Score so far: ${score}.<br><br>On to Book ${next}.` : `Final score: ${score}.<br><br>Commander Poom will return.`}`,
     ],
-  },  /* Book 5, set A: TERMINUS, the machine's station (docs/story/book-5-story.md) */
-  A: {
-    story: `<p>The black Catamaran, glowing pink with SPARK, climbs up out of the sky and into orbit. Poom follows it to <b>TERMINUS</b>: a station like a great dark wheel, run by a machine mind of the same name, which has been counting down to <b>Termination Day</b>, the day it switches everything off. For good.</p>
-<p>The station isn't quiet. Its crew of chrome <b>endos</b> is losing a war to the <b>Swarm</b>, a brood of black alien things nesting in the lower decks. And something else is aboard: a <b>Hunter</b> from the stars, tall and cloaked, that collects the skulls of anything worth hunting.</p>
-<p>Every deck has a <b>termination core</b> feeding the countdown. Break them all, and the last of them, the Termination Core itself, where the Swarm's <b>Brood Mother</b> has made her nest.</p>
-<p>Cal's black Catamaran is docked here too. Auntie Static: <i>"Whatever he's after this time, sugar, it's something that hunts."</i></p>`,
-    arrive: "The Catamaran is docked at TERMINUS's outer ring. The countdown is running. The way in is <b>The Docking Ring</b>, right here.<br><br>An arrow marks each place you can reach. Walk up to one and press <kbd>Ctrl</kbd>, <kbd>Z</kbd> or <kbd>Space</kbd> to go in.",
-    map: `<p>On the map, walk up to a place and press jump or fire to go in. An arrow marks each place you can reach; a laser gate blocks the way until the places near it are cleared; Poom's flag marks the ones he has. Stand on a lift pad and press jump or fire to ride it. Break the termination core on each deck, and last of all the <b>Termination Core</b>, to stop the countdown.</p>`,
-    creatures: () => { const C = ART.creatureSets.terminus; return [
-      [C.cat.walk0.r, "Station cat", "Ginger, unbothered, survives everything. Harmless; it bumps you. Jump on one and it sits down for a while."],
-      [C.skulker.walk0.r, "Skulker", "A black thing of the Swarm, low and fast. It hisses when it sees you, then rushes. One shot."],
-      [C.endo.walk0.r, "Endo", "A chrome skeleton with red eyes. Deadly to touch, and it takes five shots."],
-      [C.clinger.walk0.r, "Clinger", "Pale, leggy, and it leaps at faces. One shot."],
-      [C.quick.a.r, "Quicksilver", "Liquid metal in the shape of a soldier. Can't be hurt. It shoves."],
-      [C.sentry.a.r, "Sentry gun", "A gun on a tripod, firing along the floor. Can't be hurt either."],
-      [C.hk.walk0.r, "Hunter-killer", "A black drone with a red searchlight. It flies straight at you. Two shots."],
-      [C.hunter.walk0.r, "The Hunter", "Tall, cloaked, three red dots. Six shots, if you can see it."],
-    ]; },
-    items: () => { const I = ART.itemSets.terminus; return [
-      [I.items.fish, "Ration bars, chips, shoulder lamps, motion trackers, hunter's masks, chrome skulls", "100, 200, 500, 1000, 2000 and 5000 points. An extra life at 20,000, then 40,000, 80,000 and so on."],
-      [I.items.ammo, "Pulse cell", "Five shots for the raygun."],
-      [I.items.life, "Poom bobblehead", "An extra life. Even in orbit."],
-      [I.gems[0], "Keycards", "Open the station's door of the same colour, in this level."],
-      [I.objectives[0][0], "Termination cores", "One on every deck. Shoot or touch one to break it."],
-    ]; },
-    places: {
-      A02: "The Docking Ring", A04: "The Assembly Line", A08: "The Reactor", A12: "The Server Farm", A13: "The Skull Press", A14: "The Proving Ground", A15: "The Core Shaft",
-      A03: "The Biodome", A05: "The Rain Deck", A06: "The Hunter's Trail", A07: "The Trophy Room",
-      A09: "The Nest", A10: "The Egg Chamber", A11: "The Resin Halls", A16: "The Termination Core",
-    },
-    signs: {},
-    say: {
-      signNear: () => "A terminal. Press ↑ to read it.",
-      noPogo: "No pogo stick. Not yet.",
-      warpDoor: "An airlock. Press ↑ to go through.",
-      socket: c => `A ${c} card reader. A ${c} keycard goes here.`,
-      noAmmo: "Click. The raygun's empty. Look for pulse cells.",
-      lockedDoor: c => c ? `A ${c} blast door. It wants a ${c} keycard.` : "A blast door. It wants a keycard.",
-      ammo: "<b>Pulse cell!</b> Five shots for the raygun. Fire with <kbd>Space</kbd> or <kbd>C</kbd>.",
-      pogo: "<b>You found a pogo stick!</b><br><br>Press <kbd>Alt</kbd> or <kbd>X</kbd> to hop on and off. Hold <kbd>Ctrl</kbd> or <kbd>Z</kbd> as you land for a big bounce.",
-      swim: "<b>You can swim!</b>",
-      bossDown: art => art === "brood" ? "<b>The Brood Mother is down!</b><br><br>The Swarm screams all through the station. Break the last core." : null,
-      wayOpens: "Somewhere on TERMINUS, a laser gate powers down.",
-      lostLife: n => n === 0 ? "Poom comes to in the medbay, still in one piece. Just.<br><br><b>This is your last life.</b>" : `Poom comes to in the medbay, still in one piece. Just.<br><br>${n} ${n === 1 ? "life" : "lives"} left.`,
-      water: "Acid. Poom isn't going in that.",
-      blocked: "A laser gate. Clear the places nearby.",
-      levelDone: name => `${name}: cleared.`,
-      cheatOn: "Auntie Static: <i>\"I've told the machine you're one of its own, sugar. It believes me.\"</i> Infinite lives and energy. No high scores this game.",
-      cheatOff: "Auntie Static: <i>\"It's on to me. You're on your own again.\"</i> Cheat mode off.",
-      raygun: n => `${n} shot${n === 1 ? "" : "s"}`,
-      gameOver: n => `<b>Game over, sugar! Game over!</b><br><br>TERMINUS counts down without you. Final score: ${n}.`,
-      highScore: n => `<b>A high score!</b><br><br>${n} points. TERMINUS would like your name, for its records. It keeps very good records.`,
-    },
-    scores: [["Junk Baron Cal", 20000], ["TERMINUS", 17500], ["Auntie Static", 15000], ["The Hunter", 10000], ["Brood Mother", 7500], ["Shades", 5000], ["Ginger the cat", 2500]],
-    boot: ["256 colours: ok", "motion tracker: online"],
-    /* the pages played when the Termination Core breaks */
-    ending: (score, next) => [
-      "The last core cracks. TERMINUS's great red eye flickers, and the countdown stops at one second to go.",
-      "The station starts to shake itself apart. Poom runs for the docking ring with the Swarm screaming behind him and Auntie Static in his ear: <i>\"Get to the Catamaran, sugar! Now!\"</i>",
-      "Deep in the station, in a room full of skulls, the Hunter roars over an empty rack. Its cloak is gone.",
-      "As the Catamaran pulls away into the dark, the stars ripple. Something slides past, invisible but for its outline: the shape of a grey-black panther. Then it isn't there at all.",
-      "The radio crackles. <i>\"A ship, a power source, and now a cloak. He's been building himself into you, sugar, one piece at a time. Next time, you might not see him coming.\"</i>",
-      `<b>The End</b> of Book Five: Termination Day.<br><br>${next ? `Score so far: ${score}.<br><br>On to Book ${next}.` : `Final score: ${score}.<br><br>Commander Poom will return.`}`,
-    ],
   },
 };
 /* the words the help and the game's talk use: the book being played's, or,
@@ -3313,11 +3246,13 @@ function say(key, original, ...args) {
   return v === undefined ? (typeof original === "function" ? original(...args) : original) : typeof v === "function" ? v(...args) : v;
 }
 
+const MODES = "<p>A new game asks how you want to play.</p><p><b>Classic</b> is the game as it was made: four lives, more for points and plush Pooms, and when they're gone it's game over.</p><p><b>Arcade</b> never runs out. Lose a life and Poom picks himself up near where he fell, still holding the keycards and everything else he found in the level, and blinks for a moment while nothing can hurt him. Arcade games don't go on the high-score table.</p>";
 function openHelp() {
   const B = textBook();
   if (B) return page("Help", [
     ["Story", B.story],
     ["Controls", CONTROLS.replace(/<p>On the map[\s\S]*?<\/p>/, B.map)],
+    ["Classic and Arcade", MODES],
     ["Creatures", spriteRow(B.creatures())],
     ["Items", spriteRow(B.items())],
     ["About", aboutText()],
@@ -3325,6 +3260,7 @@ function openHelp() {
   page("Help", [
     ["Story", STORY],
     ["Controls", CONTROLS],
+    ["Classic and Arcade", MODES],
     ["Creatures", spriteRow([
       [ART.mousel.walk0.r, "Mousel", "Harmless, nosy, and pushy. Jump on one to bop it for a while."],
       [ART.barker.walk0.r, "Barker", "Charges the moment it sees you. Don't be there. One shot."],
@@ -3386,7 +3322,7 @@ function enterName(score, then) {
  * second line for the same game. */
 function recordScore(score, done) {
   const run = G.run;
-  if (run && run.cheated) { done(-1); return; }
+  if (run && (run.cheated || run.arcade)) { done(-1); return; }
   const list = scores(), sort = () => list.sort((a, b) => b[1] - a[1]);
   const mine = run && run.scoreId ? list.findIndex(e => e[2] === run.scoreId) : -1;
   if (mine >= 0) {
@@ -3412,7 +3348,9 @@ function openTitle() {
   UI.clear();
   dressFor(themeBook());
   G.mode = "title"; G.lv = null; mapLabel(""); document.getElementById("keystrip").hidden = true;
-  const saved = store.get(KEYS.save, null);
+  /* a game saved in a Book that isn't in the game (Book Five, for now) is
+     kept but not offered */
+  const kept = store.get(KEYS.save, null), saved = kept && BOOKS[kept.book] ? kept : null;
   showLogo();
   const items = [
     saved ? { label: "Continue game", key: "R", meta: `score ${saved.score}`, act: () => { UI.clear(); hideLogo(); G.run = saved; enterMap(); } } : null,
@@ -3432,16 +3370,25 @@ function openTitle() {
  * greyed out. Choosing one starts a fresh game there, dressed as that Book,
  * with its story. */
 function chooseBook() {
-  const items = BOOK_IDS.slice(0, 5).map((b, i) => ({
+  const items = BOOK_ORDER.slice(0, 5).map((b, i) => ({
     label: `${i + 1}. ${BOOK_NAMES[b] || "Book " + (i + 1)}`, key: String(i + 1),
-    disabled: !BOOK_PLAYABLE.has(b),
-    act: () => startBook(b),
+    disabled: !BOOK_PLAYABLE.has(b) || !BOOKS[b],
+    act: () => chooseMode(b),
   }));
   menu("Choose a book", items, { onBack: () => UI.pop(), cls: "books" });
 }
-function startBook(b) {
+/* Classic, the game as it was made: four lives, and game over. Arcade:
+ * lives without end, picking himself up near where he fell; no high
+ * scores */
+function chooseMode(b) {
+  menu("How do you want to play?", [
+    { label: "Classic", key: "C", meta: "4 lives", act: () => startBook(b, false) },
+    { label: "Arcade", key: "A", meta: "endless lives", act: () => startBook(b, true) },
+  ], { onBack: () => UI.pop(), cls: "books", footer: "<b>Classic</b>: four lives; lose them all and it's game over.<br><b>Arcade</b>: lose a life and Poom gets up again nearby, keeping what he's found. No high scores." });
+}
+function startBook(b, arcade = false) {
   UI.clear(); hideLogo();
-  G.run = newRun(); G.run.book = b; G.map = { t: 0, p: null }; mapLabel("");
+  G.run = newRun(); G.run.book = b; G.run.arcade = arcade; G.map = { t: 0, p: null }; mapLabel("");
   store.del(KEYS.save);
   dressFor(b);
   story();

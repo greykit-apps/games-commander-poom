@@ -75,6 +75,35 @@ const NEEDS = {
 /* deadly columns a level can't be crossed without: they must come and go.
  * Set E's three-tile column (tiles 1838, 1856, 1874) spans E13's corridors
  * floor to ceiling, and walls in E15's keycard pocket */
+/* walls opened by hand, per map: [x, y] */
+const OPEN_TILES = {
+  /* D16: the tunnel along row 87 under (38-39, 86) was one tile high,
+     and the way right out of the pocket at (30-32, 114-115), under (32-33, 113) */
+  D16: [[38, 86], [39, 86], [32, 113], [33, 113]],
+};
+
+/* walls added by hand, per map: [x, y] */
+const CLOSE_TILES = {
+  /* E16: a wall down column 100 across the top, so the exit corner is
+     reached up the right-hand shaft, through the blue door, not by pogoing
+     the top's gaps without a card */
+  E16: Array.from({ length: 13 }, (_, i) => [100, 2 + i]),
+};
+
+/* signs added by hand, per map: [x, y], the text in the Book's signs */
+const ADD_SIGNS = {
+  /* E07: the drop to the first keycard is a leap of faith */
+  E07: [[37, 38]],
+};
+
+/* hazards taken out by hand, per map: [x, y] */
+const CLEAR_HAZARDS = {
+  /* the spikes either side of C17's heartstone */
+  C17: [[64, 14], [68, 14]],
+  /* the fires beside D16's lower exit */
+  D16: [[120, 113], [120, 115]],
+};
+
 const PULSE_TILES = { E: new Set([1838, 1856, 1874]) };
 
 const GEM_OF_SOCKET = { 7: 0, 8: 1, 9: 3, 10: 2 };   /* red yellow blue green -> Poom's r y g b order */
@@ -284,9 +313,14 @@ function convert(d) {
         else if (tg === "+") under = "a";
       }
       /* the ground a creature stands in is in the grid as the creature too:
-         D11's spike floor had two holes where its sparks sit on it */
+         walls, ledges and poles come back. Hazards don't: a spike under a
+         creature was never one a player met, and putting it back adds a
+         hazard the level never had (C17's shaft) */
       const tg = c === "e" && (e1glyph || e2glyph) ? (e1glyph || e2glyph)(x, y) : null;
-      if (!under && tg && "^#-|".includes(tg)) under = tg === "^" && pulse && pulse(x, y) ? "z" : tg;
+      if (!under && tg && "#-|".includes(tg)) under = tg;
+      /* and door tiles: E15's warp door at (6-7, 59-60) lost a corner to a
+         creature and drew as two doors */
+      if (!under && tg === "D" && !e1) under = d.entities.some(t => t.kind === "door_link" && Math.abs(t.x - x) <= 1 && Math.abs(t.y - y) <= 1) ? "D" : "d";
       row += under || g;
       if (e && "eGNMZl!P".includes(g)) things.push([x, y, g, e.name]);
       /* E1 tile objects have no entity: name them from their behaviour */
@@ -299,6 +333,10 @@ function convert(d) {
      safe floor instead, so it can be walked up to and read */
   for (let y = 0; y + 1 < rows.length; y++) for (let x = 0; x < rows[y].length; x++)
     if (rows[y][x] === "H" && rows[y + 1][x] === "^") rows[y + 1] = rows[y + 1].slice(0, x) + "#" + rows[y + 1].slice(x + 1);
+  for (const [x, y] of CLOSE_TILES[d.map] || []) if (rows[y][x] === ".") rows[y] = rows[y].slice(0, x) + "#" + rows[y].slice(x + 1);
+  for (const [x, y] of ADD_SIGNS[d.map] || []) if (rows[y][x] === ".") rows[y] = rows[y].slice(0, x) + "H" + rows[y].slice(x + 1);
+  for (const [x, y] of OPEN_TILES[d.map] || []) if (rows[y][x] === "#") rows[y] = rows[y].slice(0, x) + "." + rows[y].slice(x + 1);
+  for (const [x, y] of CLEAR_HAZARDS[d.map] || []) if ("^z".includes(rows[y][x])) rows[y] = rows[y].slice(0, x) + "." + rows[y].slice(x + 1);
   const links = [], ends = [];
   for (const e of d.entities) {
     if (MOVE_ENTRANCE[d.map] && e.y >= MOVE_ENTRANCE[d.map].below) continue;

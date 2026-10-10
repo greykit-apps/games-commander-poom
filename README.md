@@ -19,7 +19,7 @@ original.
 | 2 | **Heavens to Mergatroid**: Thrum, a hollow moon with something alive inside | *Metroid* |
 | 3 | **The Island of Dr Cal**: a villain's volcano lair, by night, on the quiet | *Metal Gear Solid* |
 | 4 | **Descent into Raptura**: Raptura, a drowned art-deco city of otters | *BioShock* |
-| 5 | **Termination Day**: TERMINUS, a machine's station overrun by an alien swarm | *The Terminator*, *Aliens*, *Predator* |
+| 5 | **Termination Day**: TERMINUS, a machine's station overrun by an alien swarm. *Held back for now: built, but kept out of the game (`js/book5.js` says how to put it back) until its levels are proven winnable.* | *The Terminator*, *Aliens*, *Predator* |
 
 ## Play
 

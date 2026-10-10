@@ -295,4 +295,4 @@ Terrain: hazards.
 - **Objective item** (objective type 01) — doesn't end the level; what it is and why Poom wants it is the story's — (15, 6), top centre, middle
 - **Objective item** (objective type 01) — doesn't end the level; what it is and why Poom wants it is the story's — (13, 4), top centre, late
 
-**Creatures**: turret ×2, from the early part; type 08 ×2, from the ≈middle part; type 09 ×2, from the early part; type 10 ×1, from the early part; type 11 ×1, from the ≈middle part.
+**Creatures**: turret ×2, from the early part; type 08 ×2, from the ≈middle part; type 09 ×2, from the early part; type 10 ×1, from the early part; type 11 ×1, from the early part.

@@ -1,5 +1,10 @@
 # Book 5: Termination Day
 
+> **Held back for now.** Book 5 is built but kept out of the game until its
+> levels are proven winnable: `index.html` doesn't load its art or maps,
+> its game code lives in `js/book5.js` (which says how to put it back), and
+> New game shows it greyed out. The game ends at Book 4.
+
 Book 5 is map set A, a mashup in the spirit of *The Terminator*, *Aliens*
 and *Predator*: a machine mind counting down to the end of everything, an
 alien swarm nesting in its station, and a hunter from the stars stalking
