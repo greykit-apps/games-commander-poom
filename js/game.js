@@ -1227,9 +1227,12 @@ function updatePlayer(lv) {
     if (dir === 0) {
       /* a pulsing column, on: out sideways, the way he came */
       if (pulsePhase(lv) === "on" && overlap(p, { x: sx * T + 2, y: sy * T, w: T - 4, h: T })) { p.pushT = 6; p.pushV = (pcx < sx * T + 8 ? -1 : 1) * 2.5; }
-    } else if (overlap(p, { x: sx * T + 1, y: dir < 0 ? (sy - 2) * T : sy * T, w: T - 2, h: 3 * T })) {
-      /* a vent: a blast away from the nozzle */
-      if (dir < 0) { p.vy = Math.min(p.vy, -3.4); p.onGround = false; } else p.vy = Math.max(p.vy, 2.6);
+    } else if (!p.riding && overlap(p, { x: sx * T + 1, y: dir < 0 ? (sy - 1) * T : sy * T, w: T - 2, h: 2 * T })) {
+      /* a vent: a blast away from the nozzle, two tiles long. A platform
+         between him and it takes the blast (E15's chute drops onto one
+         running just over a floor of vents) */
+      const shield = lv.plats.some(pl => pl.x < sx * T + T && pl.x + pl.w > sx * T && (dir < 0 ? pl.y + pl.sink >= p.y + p.h - 2 && pl.y < (sy + 1) * T : pl.y + pl.sink <= p.y && pl.y + pl.sink >= sy * T));
+      if (!shield) { if (dir < 0) { p.vy = Math.min(p.vy, -3.4); p.onGround = false; } else p.vy = Math.max(p.vy, 2.6); }
     }
   }
   const steamy = c => c === "z" || (c === "^" && lv.theme === "works");
