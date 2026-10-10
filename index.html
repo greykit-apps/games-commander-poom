@@ -78,6 +78,10 @@ kbd{font:inherit;color:var(--ui-head)}
 #logo[data-look="claw"] .cmd{color:#5aff8a;text-shadow:1px 1px 0 #0a3a18}
 #logo[data-look="claw"] .poom{color:#e8f0f4;text-shadow:1px 1px 0 #7a8898,2px 2px 0 #4a5664,3px 3px 0 #b01828,4px 4px 0 #4a0810,5px 5px 0 #000}
 #logo[data-look="claw"] .ep{color:#a8c8b0}
+/* Raptura's (Book 4): gold leaf over deep teal, a neon edge */
+#logo[data-look="deep"] .cmd{color:#3ff0e0;text-shadow:1px 1px 0 #0a3a40}
+#logo[data-look="deep"] .poom{color:#fff4d0;text-shadow:1px 1px 0 #f8d860,2px 2px 0 #d8a830,3px 3px 0 #a8781c,4px 4px 0 #3a2a0a,5px 5px 0 #000}
+#logo[data-look="deep"] .ep{color:#f0c8d8}
 
 /* ---- the UI's colours, by theme (game.js dressFor sets #ui's data-look);
    classic is the original EGA blue box ---- */
@@ -104,6 +108,13 @@ kbd{font:inherit;color:var(--ui-head)}
 #ui[data-look="claw"] *{scrollbar-color:#4a5664 transparent}
 #ui[data-look="claw"] ::-webkit-scrollbar-thumb{background:#4a5664;background-clip:padding-box}
 #ui[data-look="claw"] ::-webkit-scrollbar-thumb:hover{background:#5aff8a;background-clip:padding-box}
+/* Raptura's: deep teal glass in gold, a deep red for the selection */
+#ui[data-look="deep"]{--ui-bg:#081a22;--ui-text:#efe4c8;--ui-accent:#3ff0e0;--ui-head:#f8d860;--ui-sel:#7a2434;
+  --ui-tab:#1e4a5a;--ui-body:#d8dccc;--ui-dim:#8a9a98;--ui-me:#ff4fa8;
+  --ui-chip:#081a22;--ui-chip-edge:#a8781c}
+#ui[data-look="deep"] *{scrollbar-color:#a8781c transparent}
+#ui[data-look="deep"] ::-webkit-scrollbar-thumb{background:#a8781c;background-clip:padding-box}
+#ui[data-look="deep"] ::-webkit-scrollbar-thumb:hover{background:#f8d860;background-clip:padding-box}
 /* the canon scrollbar (gk-title.js) is steel blue; a themed UI repaints it */
 #ui[data-look="wasteland"] *{scrollbar-color:#8a5a32 transparent}
 #ui[data-look="wasteland"] ::-webkit-scrollbar-thumb{background:#8a5a32;background-clip:padding-box}
@@ -227,17 +238,18 @@ kbd{font:inherit;color:var(--ui-head)}
   <button data-a="pause" aria-label="Pause">II</button><button data-a="status" aria-label="Status">?</button>
 </div>
 <script src="js/gk-title.js?v=6080c669"></script>
-<script src="js/art.js?v=00c248c6"></script>
-<script src="js/art-book3.js?v=e03d11b1"></script>
+<script src="js/art.js?v=9d5bda37"></script>
+<script src="js/art-book3.js?v=5673dc15"></script>
+<script src="js/art-book4.js?v=f07f2d4a"></script>
 <script src="js/books/A.js?v=161a0844"></script>
 <script src="js/books/B.js?v=7a5b59b7"></script>
 <script src="js/books/C.js?v=6656f683"></script>
 <script src="js/books/D.js?v=87521d1e"></script>
-<script src="js/books/E.js?v=7b71a1d1"></script>
+<script src="js/books/E.js?v=5fdafa29"></script>
 <script src="js/books/F.js?v=7b5eb3ea"></script>
 <script src="js/books/G.js?v=271fc791"></script>
 <script src="js/books/H.js?v=4ae984c1"></script>
 <script src="js/books/I.js?v=13d9ef6c"></script>
-<script src="js/game.js?v=4c34b663"></script>
+<script src="js/game.js?v=a7c7940e"></script>
 </body>
 </html>

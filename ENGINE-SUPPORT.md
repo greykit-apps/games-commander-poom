@@ -25,7 +25,7 @@ Glyphs marked "no" are air until the engine learns them.
 | `<` | conveyor left | yes | 0 |
 | `>` | conveyor right | yes | 92 |
 | `S` | switches (bridge and platform switches) | yes | 200 |
-| `Q` | teleporters (world maps) | yes | 56 |
+| `Q` | teleporters (world maps) | yes | 58 |
 | `j` | key sockets (and the doors they open: 5 6 7 8) | yes | 186 |
 | `H` | hint triggers | no | 9 |
 | `D` | warp doors | yes | 596 |
@@ -38,8 +38,8 @@ Glyphs marked "no" are air until the engine learns them.
 | `G` | turrets / emitters | yes | 279 |
 | `N` | NPCs / rescue targets | no | 21 |
 | `M` | moving platforms (paths, dropping, sneaky) | yes | 656 |
-| `Z` | special objects | no | 38 |
-| `l` | world-map level entrances | yes | 752 |
+| `Z` | special objects | no | 37 |
+| `l` | world-map level entrances | yes | 754 |
 
 Further notes:
 - Enemies are all `e`; the per-type behaviour is in `things` (`enemy type 07`, `(bouncing)`, `(carries key)`). Types are numbered per book and the engine's six enemies don't map onto them.
@@ -161,7 +161,7 @@ Skipped (not levels): E19 cutscene, E20 highscores
 
 | Map | Kind | Size | Glyphs beyond the original game (count) |
 |---|---|---|---|
-| E01 | world | 61×66 | `l` 101, `\` 25, `/` 39, `Z` 1 |
+| E01 | world | 61×59 | `l` 103, `\` 25, `/` 39, `Q` 2 |
 | E02 | level | 112×63 | `D` 20, `/` 8, `\` 8, `e` 7, `M` 1 |
 | E03 | level | 146×44 | `e` 27, `/` 46, `\` 20, `S` 1, `M` 1 |
 | E04 | level | 60×84 | `e` 14, `D` 8, `M` 3, `/` 16, `\` 16, `S` 1, `j` 2, `u` 2, `N` 1 |

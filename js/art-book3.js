@@ -246,7 +246,7 @@ TILE_STYLES.crater = (tiles, th, mk, E) => {
       g.fillStyle = "rgba(255, 106, 26, 0.12)"; g.fillRect(0, 0, T, 4);
     }
   });
-  tiles.ground = [rock(false, 0, 2), rock(false, 1, 12), rock(false, 0, 22), rock(false, 0, 32), rock(false, 0, 52), rock(false, 2, 42), rock(false, 0, 62)];
+  tiles.ground = [rock(false, 0, 2), rock(false, 1, 12), rock(false, 0, 22), rock(false, 0, 32), rock(false, 0, 52), rock(false, 2, 42), rock(false, 0, 62), rock(false, 0, 72)];
   tiles.groundTop = [rock(true, 0, 4), rock(true, 0, 14), rock(true, 0, 34), rock(true, 1, 24)];
   tiles.plat = mk(g => {
     px(g, B3_RED[2], 0, 0, T, 3); px(g, B3_RED[4], 0, 0, T, 1);

@@ -176,6 +176,16 @@ function e1Wiring(d, rows) {
   return { links, ferry };
 }
 
+/* Set E's world map (E2) keeps one level off the map's bottom edge: below
+ * the camera's limit (row 59) is a strip of tiles the game swaps in to make
+ * E10 fade in and out, a mirage. Its entrance is placed where the mirage
+ * shows, beside its done-flag (19, 22), as the map's other entrances sit
+ * beside theirs, and the strip is cleared. The map's special object at
+ * (13, 19) is what carries the player to E15's sealed pocket, a secret
+ * level: a pair of teleporters, there and back. */
+const MOVE_ENTRANCE = { E01: { id: "E10", to: [16, 21], below: 59 } };
+const SECRET_RIDE = { E01: { at: [13, 19], to: [30, 55], back: [31, 55], level: "E15" } };
+
 function convert(d) {
   const at = new Map();
   for (const e of d.entities) at.set(e.x + "," + e.y, e);
@@ -223,6 +233,7 @@ function convert(d) {
     if (rows[y][x] === "H" && rows[y + 1][x] === "^") rows[y + 1] = rows[y + 1].slice(0, x) + "#" + rows[y + 1].slice(x + 1);
   const links = [], ends = [];
   for (const e of d.entities) {
+    if (MOVE_ENTRANCE[d.map] && e.y >= MOVE_ENTRANCE[d.map].below) continue;
     if (e.kind === "door_link" || e.kind === "marker" || e.kind === "unknown") marks.push([e.x, e.y, e.name]);
     if (e.target) links.push([e.x, e.y, e.target[0], e.target[1], e.kind === "door_link" ? "door" : "switch"]);
     /* the grid shows one object per tile, so these come from the entities */
@@ -250,6 +261,25 @@ function convert(d) {
     for (const t of tiles) { rows[t[1]] = rows[t[1]].slice(0, t[0]) + "." + rows[t[1]].slice(t[0] + 1); t[2] = "."; t[3] = "ship"; }
     ship = [Math.min(...tiles.map(t => t[0])), Math.min(...tiles.map(t => t[1]))];
   }
+  const mv = MOVE_ENTRANCE[d.map];
+  if (mv) {
+    const old = things.filter(t => t[3] === "entrance to " + mv.id);
+    if (!old.length) throw new Error(`${d.map}: no entrance to ${mv.id} to move`);
+    for (const t of old) rows[t[1]] = rows[t[1]].slice(0, t[0]) + "#" + rows[t[1]].slice(t[0] + 1);
+    rows.splice(mv.below);
+    for (let i = things.length - 1; i >= 0; i--) if (things[i][1] >= mv.below || things[i][3] === "entrance to " + mv.id) things.splice(i, 1);
+    const [x0, y0] = mv.to;
+    for (const [x, y] of [[x0, y0], [x0 + 1, y0], [x0, y0 + 1], [x0 + 1, y0 + 1]]) {
+      if (rows[y][x] !== ".") throw new Error(`${d.map}: ${mv.id}'s new entrance at ${x},${y} isn't open ground`);
+      rows[y] = rows[y].slice(0, x) + "l" + rows[y].slice(x + 1); things.push([x, y, "l", "entrance to " + mv.id]);
+    }
+  }
+  const ride = SECRET_RIDE[d.map];
+  if (ride) {
+    for (const [x, y] of [ride.at, ride.back]) rows[y] = rows[y].slice(0, x) + "Q" + rows[y].slice(x + 1);
+    for (const t of things) if (t[0] === ride.at[0] && t[1] === ride.at[1]) { t[2] = "Q"; t[3] = "teleporter (the secret ride)"; }
+    links.push([...ride.at, ...ride.to, "door"], [...ride.back, ...ride.at, "door"]);
+  }
   const { sockets, bridges, pswitches } = switchesOf(d, rows);
   const wiring = e1Wiring(d, rows), ferry = wiring && wiring.ferry;
   if (wiring) links.push(...wiring.links);
@@ -257,7 +287,7 @@ function convert(d) {
   const swim = d.entities.some(e => e.kind === "player" && /swimming/.test(e.name));
   const secret = SECRET_EXITS[d.map];
   if (secret && !rows.some(r => r.includes("Q"))) throw new Error(`${d.map}: a secret exit to ${secret} but no teleporter`);
-  return { id: d.map, kind: d.kind, engine: d.engine, w: d.width, h: d.height, completion: d.completion, notes: d.notes, rows, things, marks, links, ends, sockets, bridges, pswitches, ...(swim ? { swim } : {}), ...(secret ? { secret } : {}), ...(ship ? { ship } : {}), ...(ferry ? { ferry } : {}) };
+  return { id: d.map, kind: d.kind, engine: d.engine, w: d.width, h: rows.length, completion: d.completion, notes: d.notes, rows, things, marks, links, ends, sockets, bridges, pswitches, ...(swim ? { swim } : {}), ...(secret ? { secret } : {}), ...(ship ? { ship } : {}), ...(ferry ? { ferry } : {}), ...(ride ? { secrets: [ride.level] } : {}) };
 }
 
 /* the ones game.js handles; keep in step with it */

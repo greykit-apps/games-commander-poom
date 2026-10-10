@@ -483,6 +483,8 @@ function useItems(name) {
   /* a set may draw a level's objectives itself: [one that doesn't end the
      level, one that does] */
   ART.objectives = S.objectives || null;
+  /* and the one a level is there to rescue: two frames, waving */
+  ART.npc = S.npc || null;
 }
 
 /* dress Poom: the sprites the game draws come from the look in use */
