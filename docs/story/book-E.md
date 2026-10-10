@@ -152,7 +152,7 @@ Terrain: 3 warp doors, 13 moving platforms, slopes, hazards, poles.
 
 120 × 102 tiles. Ends through 2 exit doors, or by walking off the right edge of the map.
 
-Terrain: 5 warp doors, 3 moving platforms, slopes, hazards, poles.
+Terrain: 5 warp doors, 3 moving platforms, slopes, pulsing spikes, poles.
 
 **Along the way** (rough order, start first):
 
@@ -283,24 +283,24 @@ Terrain: 8 warp doors, 2 moving platforms, slopes, hazards, poles.
 
 100 × 99 tiles. Ends by reaching the one to rescue.
 
-Terrain: 9 warp doors, 9 moving platforms, slopes, hazards, poles.
+Terrain: 9 warp doors, 9 moving platforms, slopes, hazards, pulsing spikes, poles.
 
 **Along the way** (rough order, start first):
 
-- Bridge switch — removes a 13-tile bridge at (48, 53) — (9, 63), middle left, ≈early
-- Platform switch — changes a moving platform's path at (6, 93) — (10, 88), bottom left, ≈middle
+- Bridge switch — removes a 13-tile bridge at (48, 53) — (9, 63), middle left, middle
+- Bridge switch — removes a 13-tile bridge at (48, 53) — (64, 40), centre, middle
+- Platform switch — changes a moving platform's path at (6, 93) — (10, 88), bottom left, late
 - Keycard, blue — (70, 94), bottom right, ≈late
 - Key socket, blue — opens a door 5 tiles tall at (87, 85) — (85, 88), bottom right, ≈late
 - **Rescue** (npc type 01) — touching them ends the level; the dialogue happens here — (92, 90), bottom right, ≈late
-- Bridge switch — removes a 13-tile bridge at (48, 53) — (64, 40), centre, late
 
-**Creatures**: turret ×16, from the ≈early part; type 01 ×19, from the ≈early part; type 02 ×5, from the ≈early part; type 04 ×8, from the early part.
+**Creatures**: turret ×16, from the early part; type 01 ×19, from the early part; type 02 ×5, from the early part; type 04 ×8, from the early part.
 
 ### E14 (level 13)
 
 100 × 112 tiles. Ends by reaching the one to rescue.
 
-Terrain: 2 warp doors, 6 moving platforms, slopes, hazards, poles.
+Terrain: 2 warp doors, 6 moving platforms, slopes, hazards, pulsing spikes, poles.
 
 **Along the way** (rough order, start first):
 
@@ -324,15 +324,14 @@ Terrain: 2 warp doors, 6 moving platforms, slopes, hazards, poles.
 
 100 × 90 tiles. Ends through an exit door.
 
-Terrain: 11 warp doors, 11 moving platforms, slopes, hazards.
+Terrain: 11 warp doors, 11 moving platforms, slopes, hazards, pulsing spikes.
 
 **Along the way** (rough order, start first):
 
 - Keycard, red — (3, 70), bottom left, ≈early
 - Key socket, green — opens a door 6 tiles tall at (6, 70) — (7, 73), bottom left, ≈early
-- Keycard, red — (45, 24), top centre, middle
-- Keycard, green — (4, 77), bottom left, ≈middle
-- Key socket, red — opens a door 5 tiles tall at (41, 24) — (42, 27), top centre, middle
+- Keycard, red — (45, 24), top centre, early
+- Key socket, red — opens a door 5 tiles tall at (41, 24) — (42, 27), top centre, early
 - Key socket, blue — opens a door 5 tiles tall at (41, 67) — (32, 72), bottom left, ≈middle
 - Key socket, yellow — opens a door 5 tiles tall at (36, 37) — (23, 40), middle left, middle
 - Keycard, yellow — (27, 36), middle left, middle
@@ -343,14 +342,15 @@ Terrain: 11 warp doors, 11 moving platforms, slopes, hazards.
 - Special object (special type 03 (world map)) — (60, 21), top centre, ≈middle
 - Keycard, blue — (46, 83), bottom centre, ≈middle
 - Bridge switch — removes a 4-tile bridge at (71, 56) — (68, 46), middle right, ≈middle
+- Platform switch — changes a moving platform's path at (27, 56) — (23, 60), bottom left, middle
 - Bridge switch — removes a 4-tile bridge at (53, 49) — (71, 58), middle right, ≈late
-- Platform switch — changes a moving platform's path at (27, 56) — (23, 60), bottom left, late
 - Bridge switch — removes a 4-tile bridge at (69, 48) — (77, 52), middle right, ≈late
 - Bridge switch — removes a 4-tile bridge at (84, 59) — (79, 46), middle right, ≈late
 - NPC (npc type 01), not a rescue — (80, 35), middle right, ≈late
 - Bridge switch — removes a 4-tile bridge at (81, 48) — (86, 62), bottom right, ≈late
 - Key socket, red — opens a door 8 tiles tall at (33, 76) — (25, 70), bottom left, late
 - Platform switch — changes a moving platform's path at (28, 85) — (26, 69), bottom left, late
+- Keycard, green — (4, 77), bottom left, late
 
 **Creatures**: turret ×6, from the early part; type 01 ×22, from the early part; type 02 ×11, from the early part; type 04 ×13, from the ≈early part; type 06 ×1, from the late part.
 

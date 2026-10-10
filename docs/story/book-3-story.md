@@ -50,6 +50,10 @@ Set D is on the older engine (E1), like Books 1 and 2.
   creature standing on one hides it in the source grid. That hid one key
   in D05 and one in D10; the transcriber now puts such pickups back, and
   every door has its key.
+- **One-way walls.** 60 wall tiles are solid on one side only: Poom can
+  walk through them one way and not back (`(` and `)`, read by the
+  transcriber from the tiles' side flags). D13's start room has no other way
+  out. They're drawn as rock with a faint arrow the way through.
 - **25 moving platforms**, horizontal and vertical.
 - **No signs, no rescues, no ship.**
 

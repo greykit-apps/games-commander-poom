@@ -68,7 +68,14 @@ const NEEDS = {
   d: "locked doors (colour absent from the source)", q: "keycards with no stated colour", u: "2000-point pickup (medal)",
   w: "swim ability", "!": "objective items (collected, or shot)", e: "enemies (per-type behaviour: ENEMY_OF in game.js; Book 1 only so far)", G: "turrets / emitters",
   N: "NPCs / rescue targets", M: "moving platforms (paths, dropping, sneaky)", Z: "special objects", l: "world-map level entrances",
+  "(": "one-way wall: blocks going left", ")": "one-way wall: blocks going right",
+  z: "pulsing hazard: a deadly column that comes and goes",
 };
+
+/* deadly columns a level can't be crossed without: they must come and go.
+ * Set E's three-tile column (tiles 1838, 1856, 1874) spans E13's corridors
+ * floor to ceiling, and walls in E15's keycard pocket */
+const PULSE_TILES = { E: new Set([1838, 1856, 1874]) };
 
 const GEM_OF_SOCKET = { 7: 0, 8: 1, 9: 3, 10: 2 };   /* red yellow blue green -> Poom's r y g b order */
 
@@ -192,17 +199,54 @@ const SECRET_RIDE = { E01: { at: [13, 19], to: [30, 55], back: [31, 55], level: 
    * west wall leads in instead (no way back needed). */
   A01: { at: [62, 51], to: [72, 51], back: null, level: "A14" } };
 
+/* Switches on an older-engine (E1) level are of three kinds, told apart by
+ * the tile's behaviour and the value under it in the sprite plane:
+ *   behaviour 25 with a value: a bridge switch. The value is the offset to
+ *     the bridge's first tile (low byte x, high byte y, both signed); the
+ *     deck runs on from there, away from the switch, over open air to the
+ *     first solid tile. Set C's C06 needs its bridge to cross a spike pit.
+ *   behaviour 25 with no value: a trap (the levers by set C's heartstones).
+ *   behaviour 23: does nothing harmful (a light switch, most likely): a
+ *     switch with no deck.
+ * Bridges start out off. Returns the bridge list; a trap is left as S. */
+function e1Switches(d, rows) {
+  if (d.engine !== "E1" || d.kind !== "level") return [];
+  const raw = JSON.parse(fs.readFileSync(path.join(MAPS, d.set, d.map + ".raw.json"), "utf8"));
+  const tp = raw.tile_properties, t = raw.planes.tiles, spr = raw.planes.sprites;
+  const s8 = v => v > 127 ? v - 256 : v, out = [];
+  rows.forEach((r, y) => [...r].forEach((c, x) => {
+    if (c !== "S") return;
+    const b = (tp[t[y][x]] || {}).behavior, v = spr[y][x];
+    if (b === 25 && v) {
+      const dx = s8(v & 255), dy = s8(v >> 8), ty = y + dy, step = dx >= 0 ? 1 : -1, deck = [];
+      for (let cx = x + dx; cx >= 0 && cx < d.width && rows[ty][cx] !== "#" && deck.length < 40; cx += step) deck.push([cx, ty]);
+      out.push({ x, y, deck, on: false });
+    } else if (b === 23) out.push({ x, y, deck: [], on: false });
+  }));
+  return out;
+}
+
 function convert(d) {
   const at = new Map();
   for (const e of d.entities) at.set(e.x + "," + e.y, e);
   const things = [], marks = [], rows = [];
-  let e1 = null, e1solid = null, e1glyph = null;
+  let e1 = null, e1solid = null, e1glyph = null, e1side = null, pulse = null, e2glyph = null;
+  if (d.engine === "E2") {
+    const raw = JSON.parse(fs.readFileSync(path.join(MAPS, d.set, d.map + ".raw.json"), "utf8")), fg = raw.planes.foreground;
+    if (PULSE_TILES[d.set]) pulse = (x, y) => PULSE_TILES[d.set].has(fg[y][x]);
+    e2glyph = (x, y) => (raw.tile_properties[fg[y][x]] || {}).glyph;
+  }
   if (d.engine === "E1") {
     const raw = JSON.parse(fs.readFileSync(path.join(MAPS, d.set, d.map + ".raw.json"), "utf8"));
     const prop = (x, y) => raw.tile_properties[raw.planes.tiles[y][x]] || {};
     e1 = (x, y) => prop(x, y).behavior;
     e1solid = (x, y) => { const t = prop(x, y); return !!(t.top && t.bottom && t.left && t.right); };
     e1glyph = (x, y) => prop(x, y).glyph;
+    /* a wall solid on one side only: a one-way passage. "right" is solid to
+       something coming from the right, so it blocks going left: ( ; "left"
+       blocks going right: ) . Set D has 60 (D13's start room is shut but
+       for one) */
+    e1side = (x, y) => { const t = prop(x, y); return t.top || t.bottom ? null : t.right && !t.left ? "(" : t.left && !t.right ? ")" : null; };
   }
   for (let y = 0; y < d.height; y++) {
     let row = "";
@@ -224,6 +268,8 @@ function convert(d) {
       /* E1's behaviour 22 is a sign only where it can be walked through: set
          C builds walls and steps out of solid tiles that carry it too */
       else if (c === "?" && e1solid && e1solid(x, y)) g = "#";
+      else if (c === "#" && e1side && e1side(x, y)) g = e1side(x, y);
+      else if (c === "^" && pulse && pulse(x, y)) g = "z";
       else g = PLAIN[c];
       if (g === undefined) throw new Error(`${d.map}: no mapping for '${c}' at ${x},${y}`);
       /* E1 keeps a pickup as a tile, so a creature standing on one hides it
@@ -237,6 +283,10 @@ function convert(d) {
         else if (tg === "$") under = E1_POINTS[e1(x, y)] || "f";
         else if (tg === "+") under = "a";
       }
+      /* the ground a creature stands in is in the grid as the creature too:
+         D11's spike floor had two holes where its sparks sit on it */
+      const tg = c === "e" && (e1glyph || e2glyph) ? (e1glyph || e2glyph)(x, y) : null;
+      if (!under && tg && "^#-|".includes(tg)) under = tg === "^" && pulse && pulse(x, y) ? "z" : tg;
       row += under || g;
       if (e && "eGNMZl!P".includes(g)) things.push([x, y, g, e.name]);
       /* E1 tile objects have no entity: name them from their behaviour */
@@ -303,6 +353,7 @@ function convert(d) {
     if (ride.back) links.push([...ride.back, ...ride.at, "door"]);
   }
   const { sockets, bridges, pswitches } = switchesOf(d, rows);
+  bridges.push(...e1Switches(d, rows));
   const wiring = e1Wiring(d, rows), ferry = wiring && wiring.ferry;
   if (wiring) links.push(...wiring.links);
   /* a level whose player starts swimming is under water throughout */
@@ -313,7 +364,7 @@ function convert(d) {
 }
 
 /* the ones game.js handles; keep in step with it */
-const DONE = new Set(["/", "\\", "i", "<", ">", "d", "q", "u", "l", "!", "D", "j", "S", "M", "Q", "w", "e", "G"]);
+const DONE = new Set(["/", "\\", "i", "<", ">", "d", "q", "u", "l", "!", "D", "j", "S", "M", "Q", "w", "e", "G", "(", ")", "z"]);
 
 fs.mkdirSync(OUT, { recursive: true });
 const report = [];
@@ -380,6 +431,8 @@ Further notes:
 - Secret exits (\`secret\` on a level, from \`SECRET_EXITS\`): touching the level's in-level teleporter (\`Q\`) finishes it and starts the secret level, which isn't needed to finish the book. H14's teleporter leads to H15; afterwards Poom is on H15's island, whose teleporter (46) takes him back to H14.
 - E1 world maps (books C, D, H) number their objects instead of linking them: 1–16 are levels; the rest are the map's own (on H01: 20, by the start, probably the ship; 38, 41 and 46, teleporters). An unfinished level there is a wall, and Poom enters it by walking up to it; done, it is open ground. That is what orders Book H: H02, then H03–H08, then H09–H17. The data gives no teleporter targets: \`TELE_PAIRS\` in game.js pairs H01's 38 and 41, the only way from its start region to its main one. 46 is on an island with H15, Book H's secret level, and waits for the map maker.
 - The ledge (\`-\`), pole (\`|\`) and spikes (\`^\`) are used as the engine already has them.
+- Pulsing hazards (\`z\`): set E's three-tile spike column (\`PULSE_TILES\`), which spans corridors that must be crossed (E13, E15). Deadly for 60 ticks, gone for 60, then flickers for 30 before it's back; the first time Poom is near, a toast says so.
+- On E2 maps a platform's deck is 8 px down its cell (\`sink\`): E15 and G11 run platforms under ceilings two tiles up. Poom's hazard box starts 8 px below his top, so spikes at head height beside a warp door (E15) don't kill him on the first step out.
 
 ## Per book
 
