@@ -631,7 +631,7 @@ function loadLevel(n) {
   for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
     const c = rows[y][x], px = x * T, py = y * T;
     /* the first start in the map wins (D10 has two) */
-    if (c === "P") { if (!lv.p) lv.p = makePlayer(px + 2, py + T - 22); rows[y][x] = airOf(x, y); }
+    if (c === "P") { if (!lv.p) { lv.p = makePlayer(px + 2, py + T - 22); lv.p0 = [lv.p.x, lv.p.y]; } rows[y][x] = airOf(x, y); }
     else if (c === "E") { lv.exitAt[x + "," + y] = true; rows[y][x] = "."; }
     else if (c === "X") { lv.edge.add(x + "," + y); rows[y][x] = "."; }
     else if (c === "!" || c === "w") {
@@ -988,8 +988,15 @@ function updatePlayer(lv) {
   p.t++;
   if (p.state === "dead") {
     p.y += p.vy; p.x += p.vx;
+    if (run.arcade && p.t > 50) { respawn(lv); return; }
     if (p.t > 100) loseLife();
     return;
+  }
+  if (p.safeT > 0) p.safeT--;
+  /* arcade: where he has lately stood on firm ground, to come back to */
+  if (run.arcade && p.onGround && !p.riding && !p.climbing && !p.pogo) {
+    const ring = lv.safeRing || (lv.safeRing = []);
+    ring.push([lv.t, p.x, p.y]); if (ring.length > 300) ring.shift();
   }
   if (p.state === "exit") {
     if (p.t > 50) finishLevel();
@@ -1500,9 +1507,24 @@ function popup(at, text) { if (at && G.lv) G.lv.fx.push({ kind: "text", x: at.x 
 function die(lv) {
   const p = lv.p;
   if (p.state !== "play") return;
+  /* just picked himself up (arcade): a moment's grace, but not from a fall */
+  if (p.safeT > 0 && p.y <= lv.h * T) return;
   if (p.pogo) { p.pogo = false; p.h = PH; }
   p.state = "dead"; p.t = 0; p.vy = -3; p.vx = (Math.random() - 0.5) * 2; p.climbing = false; p.crouch = p.compress = 0;
   sfx("die");
+}
+
+/* Arcade: no life lost. Poom picks himself up where he last stood firm, a
+ * second or more before he fell, with all he has picked up in the level,
+ * and a moment's grace */
+function respawn(lv) {
+  const p = lv.p, ring = lv.safeRing || [];
+  let s = null;
+  for (let i = ring.length - 1; i >= 0; i--) if (lv.t - ring[i][0] >= 60) { s = ring[i]; break; }
+  s = s || ring[0] || [0, lv.p0[0], lv.p0[1]];
+  lv.safeRing = ring.filter(e => e[0] <= s[0]);
+  Object.assign(p, { x: s[1], y: s[2], vx: 0, vy: 0, h: PH, state: "play", t: 0, pogo: false, climbing: false, crouch: 0, compress: 0, riding: null, onGround: false, safeT: 90 });
+  sfx("life");
 }
 
 /* ------------------------------------------------------------------ */
@@ -2230,6 +2252,7 @@ function drawLevel() {
 }
 
 function drawPlayer(p, cx, cy) {
+  if (p.safeT > 0 && (p.safeT >> 2) % 2) return;
   if (p.state === "exit") {
     if (p.t > 36) return;
     ctx.globalAlpha = 1 - p.t / 40;
@@ -2307,7 +2330,7 @@ function drawHud(lv) {
   ctx.fillStyle = EGA[8]; ctx.fillRect(3, 3, 59, 1); ctx.fillRect(3, 24, 59, 1); ctx.fillRect(3, 3, 1, 22); ctx.fillRect(61, 3, 1, 22);
   drawDigits(r.score, 6, 6, 9);
   ctx.drawImage(ART.items.life, 5, 14, 9, 10);
-  drawDigits(r.cheat ? 99 : Math.min(r.lives, 99), 15, 16, 2);
+  drawDigits(r.cheat || r.arcade ? 99 : Math.min(r.lives, 99), 15, 16, 2);
   ctx.drawImage(ART.items.ammo, 32, 15, 6, 9);
   drawDigits(r.cheat ? 99 : Math.min(r.ammo, 99), 40, 16, 2);
   if (lv) lv.keys.forEach((k, i) => { if (k) ctx.drawImage(ART.gems[i], 64 + i * 10, 4, 8, 7); });
@@ -2348,7 +2371,7 @@ function drawWristHud(lv) {
   drawDigits(r.score, 10, 8, 9, "green");
   f("#1c5a2a", 10, 16, 56, 1);
   ctx.drawImage(inPhosphor(ART.items.life), 9, 18, 9, 10);
-  drawDigits(r.cheat ? 99 : Math.min(r.lives, 99), 19, 20, 2, "green");
+  drawDigits(r.cheat || r.arcade ? 99 : Math.min(r.lives, 99), 19, 20, 2, "green");
   ctx.drawImage(inPhosphor(ART.items.ammo), 36, 19, 6, 9);
   drawDigits(r.cheat ? 99 : Math.min(r.ammo, 99), 44, 20, 2, "green");
   ctx.fillStyle = "rgba(0, 0, 0, 0.28)"; for (let y = 6; y < 29; y += 2) ctx.fillRect(8, y, 60, 1);
@@ -2375,7 +2398,7 @@ function drawVisorHud(lv) {
   drawDigits(r.score, 9, 7, 9, "amber");
   f("#2f6e6a", 8, 16, 56, 1);
   ctx.drawImage(ART.items.life, 7, 18, 9, 10);
-  drawDigits(r.cheat ? 99 : Math.min(r.lives, 99), 17, 20, 2, "amber");
+  drawDigits(r.cheat || r.arcade ? 99 : Math.min(r.lives, 99), 17, 20, 2, "amber");
   ctx.drawImage(ART.items.ammo, 38, 19, 4, 8);
   drawDigits(r.cheat ? 99 : Math.min(r.ammo, 99), 45, 20, 2, "amber");
   /* the scan line */
@@ -2394,7 +2417,7 @@ function drawCodecHud(lv) {
   drawDigits(r.score, 9, 7, 9, "green");
   f("#1c5a2a", 8, 15, 60, 1);
   ctx.drawImage(inPhosphor(ART.items.life), 8, 17, 9, 10);
-  drawDigits(r.cheat ? 99 : Math.min(r.lives, 99), 18, 19, 2, "green");
+  drawDigits(r.cheat || r.arcade ? 99 : Math.min(r.lives, 99), 18, 19, 2, "green");
   ctx.drawImage(inPhosphor(ART.items.ammo), 34, 18, 6, 9);
   drawDigits(r.cheat ? 99 : Math.min(r.ammo, 99), 42, 19, 2, "green");
   /* the signal bar */
@@ -2413,7 +2436,7 @@ function drawDecoHud(lv) {
   drawDigits(r.score, 9, 7, 9, "amber");
   f("#6a4a12", 8, 15, 58, 1);
   ctx.drawImage(ART.items.life, 7, 17, 9, 10);
-  drawDigits(r.cheat ? 99 : Math.min(r.lives, 99), 17, 19, 2, "amber");
+  drawDigits(r.cheat || r.arcade ? 99 : Math.min(r.lives, 99), 17, 19, 2, "amber");
   ctx.drawImage(ART.items.ammo, 36, 17, 4, 9);
   drawDigits(r.cheat ? 99 : Math.min(r.ammo, 99), 43, 19, 2, "amber");
   if (lv) lv.keys.forEach((k, i) => { if (k) ctx.drawImage(ART.gems[i], 75 + i * 10, 4, 8, 7); });
@@ -2429,7 +2452,7 @@ function drawTrackerHud(lv) {
   drawDigits(r.score, 8, 7, 9);
   f("#3a0604", 7, 15, 56, 1);
   ctx.drawImage(ART.items.life, 7, 17, 9, 10);
-  drawDigits(r.cheat ? 99 : Math.min(r.lives, 99), 17, 19, 2);
+  drawDigits(r.cheat || r.arcade ? 99 : Math.min(r.lives, 99), 17, 19, 2);
   ctx.drawImage(ART.items.ammo, 35, 18, 4, 8);
   drawDigits(r.cheat ? 99 : Math.min(r.ammo, 99), 42, 19, 2);
   /* the tracker */
@@ -3313,11 +3336,13 @@ function say(key, original, ...args) {
   return v === undefined ? (typeof original === "function" ? original(...args) : original) : typeof v === "function" ? v(...args) : v;
 }
 
+const MODES = "<p>A new game asks how you want to play.</p><p><b>Classic</b> is the game as it was made: four lives, more for points and plush Pooms, and when they're gone it's game over.</p><p><b>Arcade</b> never runs out. Lose a life and Poom picks himself up near where he fell, still holding the keycards and everything else he found in the level, and blinks for a moment while nothing can hurt him. Arcade games don't go on the high-score table.</p>";
 function openHelp() {
   const B = textBook();
   if (B) return page("Help", [
     ["Story", B.story],
     ["Controls", CONTROLS.replace(/<p>On the map[\s\S]*?<\/p>/, B.map)],
+    ["Classic and Arcade", MODES],
     ["Creatures", spriteRow(B.creatures())],
     ["Items", spriteRow(B.items())],
     ["About", aboutText()],
@@ -3325,6 +3350,7 @@ function openHelp() {
   page("Help", [
     ["Story", STORY],
     ["Controls", CONTROLS],
+    ["Classic and Arcade", MODES],
     ["Creatures", spriteRow([
       [ART.mousel.walk0.r, "Mousel", "Harmless, nosy, and pushy. Jump on one to bop it for a while."],
       [ART.barker.walk0.r, "Barker", "Charges the moment it sees you. Don't be there. One shot."],
@@ -3386,7 +3412,7 @@ function enterName(score, then) {
  * second line for the same game. */
 function recordScore(score, done) {
   const run = G.run;
-  if (run && run.cheated) { done(-1); return; }
+  if (run && (run.cheated || run.arcade)) { done(-1); return; }
   const list = scores(), sort = () => list.sort((a, b) => b[1] - a[1]);
   const mine = run && run.scoreId ? list.findIndex(e => e[2] === run.scoreId) : -1;
   if (mine >= 0) {
@@ -3435,13 +3461,22 @@ function chooseBook() {
   const items = BOOK_IDS.slice(0, 5).map((b, i) => ({
     label: `${i + 1}. ${BOOK_NAMES[b] || "Book " + (i + 1)}`, key: String(i + 1),
     disabled: !BOOK_PLAYABLE.has(b),
-    act: () => startBook(b),
+    act: () => chooseMode(b),
   }));
   menu("Choose a book", items, { onBack: () => UI.pop(), cls: "books" });
 }
-function startBook(b) {
+/* Classic, the game as it was made: four lives, and game over. Arcade:
+ * lives without end, picking himself up near where he fell; no high
+ * scores */
+function chooseMode(b) {
+  menu("How do you want to play?", [
+    { label: "Classic", key: "C", meta: "4 lives", act: () => startBook(b, false) },
+    { label: "Arcade", key: "A", meta: "endless lives", act: () => startBook(b, true) },
+  ], { onBack: () => UI.pop(), cls: "books", footer: "<b>Classic</b>: four lives; lose them all and it's game over.<br><b>Arcade</b>: lose a life and Poom gets up again nearby, keeping what he's found. No high scores." });
+}
+function startBook(b, arcade = false) {
   UI.clear(); hideLogo();
-  G.run = newRun(); G.run.book = b; G.map = { t: 0, p: null }; mapLabel("");
+  G.run = newRun(); G.run.book = b; G.run.arcade = arcade; G.map = { t: 0, p: null }; mapLabel("");
   store.del(KEYS.save);
   dressFor(b);
   story();
