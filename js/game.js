@@ -290,7 +290,7 @@ const BOOK_THEMES = {
   wasteland: { name: "wasteland", look: "ranger", items: "wasteland", creatures: "wasteland", map: "wasteland", title: "wasteland", subtitle: "Book One: Down in the Glow", hud: "wrist", sound: "wasteland" },
   /* Book 2, set C: Thrum, the hollow moon (docs/story/book-2-story.md).
      Pieces not yet its own borrow Book 1's for now */
-  thrum: { name: "thrum", look: "ranger", items: "thrum", creatures: "hum", map: "wasteland", title: "wasteland", subtitle: "Book Two: The Hollow Moon", hud: "wrist", sound: "wasteland" },
+  thrum: { name: "thrum", look: "hunter", items: "thrum", creatures: "hum", map: "wasteland", title: "wasteland", subtitle: "Book Two: The Hollow Moon", hud: "wrist", sound: "wasteland" },
 };
 const THEME_OF_BOOK = { H: "wasteland", C: "thrum" };
 /* a book with no theme of its own wears Book 1's */

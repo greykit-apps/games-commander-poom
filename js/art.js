@@ -16,9 +16,13 @@ const EGA = ["#000000", "#0000aa", "#00aa00", "#00aaaa", "#aa0000", "#aa00aa", "
    * helmet, dark to light; r s the goggles' red and their glow; t the tan
    * strap; u boots. Lit a step brighter than the Glow's concrete and brick,
    * so Poom reads at a glance against them */
-  "#3a2818", "#6e4c2e", "#9a7448", "#2c2e32", "#5c6168", "#a2a8b0", "#c8261c", "#ff8a6a", "#d8a860", "#1c130c"];
+  "#3a2818", "#6e4c2e", "#9a7448", "#2c2e32", "#5c6168", "#a2a8b0", "#c8261c", "#ff8a6a", "#d8a860", "#1c130c",
+  /* the hunter look (Book 2): v w x a hardsuit's plating, light to dark;
+   * y z the amber visor and its glint; G a teal accent band; H seams; I a
+   * mid steel; J the boots */
+  "#e6eef2", "#a9b8c0", "#5f6e78", "#ffb02e", "#fff0b0", "#2fb3a0", "#1e2a30", "#7d8c96", "#0e1418"];
 /* grid letters for the extra colours, indexed from 16 */
-const EXTRA = "ghiklmnopqrstu";
+const EXTRA = "ghiklmnopqrstuvwxyzGHIJ";
 
 function makeCanvas(w, h) {
   const c = document.createElement("canvas");
@@ -338,6 +342,25 @@ const TAIL_BACK = [
 const recolour = (rows, map) => rows.map(r => [...r].map(c => map[c] || c).join(""));
 const LOOKS = {
   classic: { head: r => r, body: r => r, map: r => r },
+  /* the hunter (Book 2, Thrum): a sealed hardsuit, white and steel with a
+     teal band, the amber visor (HUNTER_HEAD), dark boots; paws and tail
+     still Poom's */
+  hunter: {
+    head: rows => rows === P_HEAD ? HUNTER_HEAD : rows === P_HEAD_BACK ? HUNTER_HEAD_BACK : HUNTER_HEAD_OUT,
+    body: rows => rows.map((r, y) => {
+      if (y === 0) return r.replace(/h/g, "x");
+      const first = r.indexOf("9");
+      return [...r].map((c, x) => c === "9" ? (x === first ? "v" : y === 3 && x > first + 2 && x < first + 7 ? "G" : "w") : c === "5" ? "x" : c === "F" ? "I" : c === "C" ? "J" : c).join("");
+    }),
+    map: rows => {
+      const b = rows.findIndex(r => r.includes("9"));
+      return rows.map((r, y) => {
+        if (y < 2) return recolour([r], { g: "w", i: "v" })[0];
+        if (y < b) return /[C4]/.test(r) ? recolour([r], { C: "v", F: "w", 4: "G" })[0] : recolour([r], { g: "x", F: "y", 0: "y", i: "y", D: "z" })[0];
+        return recolour([r], { 9: "w", 5: "x", C: "J" })[0];
+      });
+    },
+  },
   /* the ranger (Book 1, the wasteland): a combat helmet over a gas mask
      with red-glowing eyepieces (RANGER_HEAD); a long brown duster with a
      tan strap across it, flaring over the knees; slate trousers, boots. */
@@ -409,6 +432,45 @@ const RANGER_HEAD_OUT = [
   ".ooopoopppoop.",
   ".oooppppppqqo.",
   "..ooppppppoqqo",
+];
+
+/* the hunter's helmet (Book 2): a sealed dome, the ears as two fins on
+ * top, a teal band, and the amber visor across the face */
+const HUNTER_HEAD = [
+  "..w.....w.....",
+  ".wvw...wvw....",
+  "..xwvvvvwx....",
+  ".xwvvvvvvvwx..",
+  "xwvvvvvvvvvwx.",
+  "xwvGGGGGGGGwx.",
+  "xwwxyyyyyzyx..",
+  "xwwxyyyyyyyyx.",
+  ".xwwxyyyyyyx..",
+  "..xxwwwwwwxx..",
+];
+const HUNTER_HEAD_BACK = [
+  "..w.....w.....",
+  ".www...www....",
+  "..xwvvvvwx....",
+  ".xwvvvvvvvwx..",
+  "xwvvvvvvvvvwx.",
+  "xwvGGGGGGGGwx.",
+  "xwvvvvvvvvvwx.",
+  "xwvvvvvvvvvwx.",
+  ".xwvvvvvvvwx..",
+  "..xxwwwwwwxx..",
+];
+const HUNTER_HEAD_OUT = [
+  "..w.....w.....",
+  ".wvw...wvw....",
+  "..xwvvvvwx....",
+  ".xwvvvvvvvwx..",
+  "xwvvvvvvvvvwx.",
+  "xwvGGGGGGGGwx.",
+  "xwwxxzxxzxxx..",
+  "xwwxxxzzxxxxx.",
+  ".xwwxzxxzxx...",
+  "..xxwwwwwwxx..",
 ];
 
 /* the creatures the game draws come from the set in use */
