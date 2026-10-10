@@ -2247,7 +2247,7 @@ const BOOK_TEXT = {
   H: {
     story: `<p>Commander Poom points the <b>Catamaran</b> at the stars. A meteor shower knocks out the Yarn Drive, and he comes down hard in <b>the Glow</b>: the wasteland left behind by a war the cats and dogs should never have fought.</p>
 <p>Before the engines have stopped ticking, the <b>Scrappers</b>, a raider gang who strip anything that falls from the sky, have hauled off four of the ship's parts.</p>
-<p>Their boss, <b>Junk Baron Rex</b>, gave one to each of his four lieutenants, and each locked it away on their own turf: two in the old underground <b>Vaults</b>, one in <b>Fort Scrap</b>, one in the ruins of <b>Old Litterburg</b>.</p>
+<p>Their boss, <b>Junk Baron Cal</b>, gave one to each of his four lieutenants, and each locked it away on their own turf: two in the old underground <b>Vaults</b>, one in <b>Fort Scrap</b>, one in the ruins of <b>Old Litterburg</b>.</p>
 <p>Cross the Glow, get past the locks, take the parts back and bolt them into the Catamaran before the Scrappers come back for the rest. And keep an ear on the radio: <b>Auntie Static</b> seems to know things.</p>`,
     arrive: "This is the Glow. The road out of the crash valley starts at <b>The Valley Road</b>, just east of the ship.<br><br>An arrow marks each place you can reach. Walk up to one and press <kbd>Ctrl</kbd>, <kbd>Z</kbd> or <kbd>Space</kbd> to go in.",
     map: `<p>On the map, walk up to a place and press jump or fire to go in. An arrow marks each place you can reach; a place you haven't cleared blocks the road; a banner marks the ones you have. Jump or fire at a <b>Tube station</b> to ride to the other end. Take the ship's parts back to the <b>Catamaran</b>, where you came down.</p>`,
@@ -2255,7 +2255,7 @@ const BOOK_TEXT = {
       [C.mousel.walk0.r, "Glowmouse", "A mutant mouse: harmless, nosy and pushy. Jump on one to stun it for a while."],
       [C.barker.walk0.r, "Scrap hound", "The Scrappers' dogs. They charge the moment they see you. One shot."],
       [C.vac.walk0.r, "Scrapper", "The raiders, in scrap armour. Deadly to touch, and it takes four shots."],
-      [C.lieut.walk0.r, "Lieutenant", "Rex's lieutenants, one guarding each stolen part. Deadly, and it takes five shots."],
+      [C.lieut.walk0.r, "Lieutenant", "Cal's lieutenants, one guarding each stolen part. Deadly, and it takes five shots."],
       [C.roombot.a.r, "Sentrybot", "Vault security, rewired by the Scrappers. Can't be hurt. It shoves."],
       [C.turret.a.r, "Auto-turret", "Fixed in place, firing along its barrel when you come near. Can't be hurt."],
     ]; },
@@ -2313,7 +2313,7 @@ const BOOK_TEXT = {
       highScore: n => `<b>A high score!</b><br><br>${n} caps' worth. Auntie Static wants your name for the broadcast.`,
     },
     /* the high-score table before anyone's on it */
-    scores: [["Junk Baron Rex", 20000], ["Auntie Static", 15000], ["Lt. Griz", 10000], ["Sentrybot", 7500], ["Glowmouse #7", 5000], ["Scrap Hound", 2500], ["The Overseer", 1000]],
+    scores: [["Junk Baron Cal", 20000], ["Auntie Static", 15000], ["Lt. Griz", 10000], ["Sentrybot", 7500], ["Glowmouse #7", 5000], ["Scrap Hound", 2500], ["The Overseer", 1000]],
     /* the boot screen's lines */
     boot: ["256 colours: ok", "geiger counter: clicking"],
     /* the pages played when the book is done, after the ship's own message;
@@ -2322,8 +2322,8 @@ const BOOK_TEXT = {
     ending: (score, next) => [
       "The Yarn Drive coughs, catches and hums. Green dust lifts off the hull in a cloud, and the Catamaran rises out of the crash valley.",
       "Below, the Glow spreads out in the last of the light: the Vault hatches, the smoke over Fort Scrap, the broken towers of Old Litterburg. From up here it almost looks pretty.",
-      "The radio crackles. <i>\"Nice flying, sugar. Rex is going to be sore about this. Keep your dial right where it is: I'll be in touch.\"</i><br><br>Then static. Poom never told Auntie Static his frequency.",
-      "Far below, on a throne of hubcaps, <b>Junk Baron Rex</b> watches a little light climb into the sky.<br><br>\"Find out where it's going,\" he growls.",
+      "The radio crackles. <i>\"Nice flying, sugar. Cal is going to be sore about this. Keep your dial right where it is: I'll be in touch.\"</i><br><br>Then static. Poom never told Auntie Static his frequency.",
+      "Far below, on a throne of hubcaps, <b>Junk Baron Cal</b>, a grey-black panther, watches a little light climb into the sky.<br><br>\"Find out where it's going,\" he growls.",
       `<b>The End</b> of Book One: Down in the Glow.<br><br>${next ? `Score so far: ${score}.<br><br>On to Book ${next}.` : `Final score: ${score}.<br><br>Commander Poom will return.`}`,
     ],
   },
