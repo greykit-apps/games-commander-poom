@@ -165,7 +165,7 @@ the ship's "The Catamaran is whole again!":
    Litterburg's towers. It almost looks pretty.
 3. Auntie Static on the radio: Cal will be sore; she'll be in touch. Poom
    never told her his frequency.
-4. Junk Baron Cal, on a throne of hubcaps, watches the light climb: "Find out
+4. Junk Baron Cal, a grey-black panther, on a throne of hubcaps, watches the light climb: "Find out
    where it's going." (Cal never appears in Book 1; this sets him up.)
 5. The End of Book One, the score, and on to the next book.
 

@@ -2396,7 +2396,7 @@ const BOOK_TEXT = {
       "The Yarn Drive coughs, catches and hums. Green dust lifts off the hull in a cloud, and the Catamaran rises out of the crash valley.",
       "Below, the Glow spreads out in the last of the light: the Vault hatches, the smoke over Fort Scrap, the broken towers of Old Litterburg. From up here it almost looks pretty.",
       "The radio crackles. <i>\"Nice flying, sugar. Cal is going to be sore about this. Keep your dial right where it is: I'll be in touch.\"</i><br><br>Then static. Poom never told Auntie Static his frequency.",
-      "Far below, on a throne of hubcaps, <b>Junk Baron Cal</b> watches a little light climb into the sky.<br><br>\"Find out where it's going,\" he growls.",
+      "Far below, on a throne of hubcaps, <b>Junk Baron Cal</b>, a grey-black panther, watches a little light climb into the sky.<br><br>\"Find out where it's going,\" he growls.",
       `<b>The End</b> of Book One: Down in the Glow.<br><br>${next ? `Score so far: ${score}.<br><br>On to Book ${next}.` : `Final score: ${score}.<br><br>Commander Poom will return.`}`,
     ],
   },
