@@ -1098,6 +1098,87 @@ const KEYCARD = [
   "wyywwwwwww",
   "ssssssssss",
 ];
+/* Book 2's items (docs/story/book-2-story.md): Thrum's ore and the mole
+ * crew's things, in the score tiers' order; a power cell for energy */
+const THRUM_PAL = {
+  k: "#1a1029", v: "#4b2e6a", V: "#7c52a6", W: "#c8b0e8", p: "#9c2878", P: "#f48cd0", F: "#ffd2f0",
+  t: "#187e76", T: "#6fe0c8", n: "#c4fff0", g: "#323739", G: "#737b7c", H: "#9ba3a3", a: "#a8670f", A: "#ffd16a",
+  y: "#e0b21c", Y: "#fff2c4", o: "#7a4a1c", O: "#b8803c", r: "#c8302a", w: "#fbf4dc", b: "#5c3a1c", e: "#2c9a46", E: "#7ae28c",
+};
+const THRUM_ITEMS = {
+  /* an ore chip: a violet nugget with a glint */
+  fish: [
+    "..vvv...",
+    ".vVVVv..",
+    "vVWVVVv.",
+    "vVVVVVvv",
+    ".vVVVvVv",
+    "..vvvvv.",
+  ],
+  /* a crew ration pack: a foil pouch, a mole on the label */
+  milk: [
+    ".GGGGGGG.",
+    "GHHHHHHHG",
+    "GHyyyyyHG",
+    "GHyobbyHG",
+    "GHyyyyyHG",
+    "GHHHHHHHG",
+    ".GGGGGGG.",
+  ],
+  /* a data slug: a little cartridge, its light on */
+  yarn: [
+    ".gggg.",
+    "gGGGGg",
+    "gGTTGg",
+    "gGTnGg",
+    "gGGGGg",
+    "gggggg",
+    ".GHHG.",
+  ],
+  /* a mole's lantern: a caged amber light */
+  catnip: [
+    "..gg..",
+    ".g..g.",
+    "gGGGGg",
+    "GaAAaG",
+    "GAYYAG",
+    "GaAAaG",
+    "gGGGGg",
+    ".gggg.",
+  ],
+  /* a gold drill bit, the crew's best */
+  medal: [
+    "yy.......",
+    "yYyy.....",
+    ".yYYyy...",
+    "..yYYYyy.",
+    "...yyYYYy",
+    ".....yyYy",
+    ".......yy",
+  ],
+  /* a crystal geode, split, magenta inside */
+  trophy: [
+    "..vvvvv...",
+    ".vVppppVv.",
+    "vVpPFPPpVv",
+    "vpPFFFPPpv",
+    "vpPPFPPPpv",
+    "vVpPPPPpVv",
+    ".vVppppVv.",
+    "..vvvvvv..",
+  ],
+  /* a power cell: the station's, amber-banded */
+  ammo: [
+    ".gg.",
+    "gHHg",
+    "gaAg",
+    "gAYg",
+    "gaAg",
+    "gHHg",
+    "gGGg",
+    ".gg.",
+  ],
+};
 const KEYCARD_COLOURS = [["#e0352e", "#8a1e18"], ["#f2cf3e", "#9a7a12"], ["#52e06a", "#1f7a33"], ["#4a86e8", "#1c3f8a"], ["#c4ccd5", "#6c7076"]];
 
 /* keycard gems: one shape, four colours (red, yellow, green, blue) */
@@ -1445,7 +1526,11 @@ function buildArt() {
   classic.gems.push(sprite(GEM, { swap: { 15: 15, 12: 7, 4: 8 } }));
   const waste = { items: { ...classic.items }, gems: KEYCARD_COLOURS.map(([c, d]) => sprite(KEYCARD, { pal: { ...WASTE_PAL, c, d } })) };
   for (const [k, g] of Object.entries(WASTE_ITEMS)) waste.items[k] = sprite(g, { pal: WASTE_PAL });
-  ART.itemSets = { classic, wasteland: waste };
+  /* Thrum's: its own score items and power cell, the wasteland's
+     bobblehead (it gets everywhere) and keycards */
+  const thrum = { items: { ...waste.items }, gems: waste.gems };
+  for (const [k, g] of Object.entries(THRUM_ITEMS)) thrum.items[k] = sprite(g, { pal: THRUM_PAL });
+  ART.itemSets = { classic, wasteland: waste, thrum };
   useItems("classic");
   ART.parts = PARTS.map(g => sprite(g));
   ART.heartstone = paintHeartstone();
