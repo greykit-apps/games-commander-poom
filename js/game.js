@@ -111,7 +111,39 @@ const WASTE_SFX = {
   /* the geiger counter, ticking away in the background */
   geiger: { noise: { ms: 5, f: 3500, q: 2, g: 0.05 } },
 };
-const SOUND_SETS = { classic: SFX, wasteland: WASTE_SFX };
+/* Thrum's sounds (Book 2): sine and triangle for the hunter's gear, an echo
+ * on the bigger ones so the caves sound hollow (echo: [ms, gain]), wet
+ * crunches for the Hum's creatures, the station's hiss and beeps, eerie
+ * minor jingles; and instead of a geiger counter, the Hum itself, a low
+ * throb now and then (hum). */
+const THRUM_SFX = {
+  jump: { wave: "sine", steps: [[280, 560, 80]], g: 0.07 },
+  pogo: { wave: "sine", steps: [[200, 520, 60], [520, 760, 60]], vib: [24, 30], g: 0.07 },
+  bigpogo: { wave: "sine", steps: [[180, 520, 60], [520, 1040, 100]], vib: [24, 40], g: 0.07, echo: [110, 0.35] },
+  shoot: { wave: "sine", steps: [[1700, 380, 120]], g: 0.06, noise: { ms: 40, f: 5200, q: 2, g: 0.04 }, echo: [90, 0.3] },
+  click: { noise: { ms: 18, f: 2400, q: 5, g: 0.1 } },
+  bump: { wave: "sine", steps: [[150, 100, 45]], g: 0.08, noise: { ms: 30, f: 260, q: 1, g: 0.08 } },
+  item: { wave: "sine", steps: [[1760, 1760, 35], [2349, 2349, 70]], g: 0.05, echo: [120, 0.4] },
+  bigitem: { wave: "triangle", steps: [[659, 659, 90], [784, 784, 90], [988, 988, 90], [1319, 1319, 200]], g: 0.06, echo: [160, 0.4] },
+  gem: { wave: "square", steps: [[880, 880, 60], [1320, 1320, 110]], g: 0.03 },
+  door: { wave: "sawtooth", steps: [[110, 70, 240]], g: 0.035, noise: { ms: 300, f: 1400, q: 0.6, g: 0.09 } },
+  push: { wave: "sawtooth", steps: [[180, 130, 70]], g: 0.035 },
+  stun: { wave: "sine", steps: [[1300, 300, 160]], vib: [18, 60], g: 0.06 },
+  hit: { wave: "sine", steps: [[480, 180, 80]], g: 0.06, noise: { ms: 60, f: 900, q: 1, g: 0.07 } },
+  kill: { wave: "sine", steps: [[420, 50, 220]], g: 0.06, noise: { ms: 220, f: 420, q: 0.7, g: 0.13 }, echo: [140, 0.3] },
+  ricochet: { wave: "sine", steps: [[3200, 2400, 60]], g: 0.04, echo: [80, 0.3] },
+  tank: { wave: "sine", steps: [[300, 110, 110]], g: 0.05, noise: { ms: 110, f: 700, q: 1, g: 0.08 } },
+  die: { wave: "sine", steps: [[740, 520, 170], [520, 350, 170], [350, 220, 200], [220, 60, 480]], vib: [5, 80], g: 0.06, echo: [220, 0.4] },
+  done: { wave: "triangle", steps: [[440, 440, 110], [523, 523, 110], [659, 659, 110], [880, 880, 160], [784, 784, 100], [880, 880, 320]], g: 0.06, echo: [180, 0.35] },
+  life: { wave: "sine", steps: [[523, 523, 80], [659, 659, 80], [784, 784, 80], [1047, 1047, 220]], vib: [10, 30], g: 0.06, echo: [140, 0.35] },
+  enter: { wave: "sine", steps: [[160, 560, 200]], g: 0.05, noise: { ms: 220, f: 900, q: 0.7, g: 0.07 } },
+  nope: { wave: "square", steps: [[160, 160, 80], [110, 110, 120]], g: 0.035 },
+  menu: { wave: "sine", steps: [[1100, 1100, 18]], g: 0.05 },
+  pick: { wave: "sine", steps: [[1320, 1320, 30], [1760, 1760, 45]], g: 0.05 },
+  /* the Hum: a low throb, slowly wavering */
+  hum: { wave: "sine", steps: [[55, 52, 500], [52, 55, 500]], vib: [3, 40], g: 0.07, noise: { ms: 700, f: 120, q: 3, g: 0.025 } },
+};
+const SOUND_SETS = { classic: SFX, wasteland: WASTE_SFX, thrum: THRUM_SFX };
 
 const audio = {
   ctx: null, muted: store.get(KEYS.muted, "0") === "1", set: SFX, noiseBuf: null,
@@ -140,8 +172,11 @@ const audio = {
     o.start(); o.stop(t + 0.02);
   },
   /* a themed sound: a tone of any wave, wobbled, and/or a burst of static */
-  voice({ wave = "square", steps = null, vib = null, noise = null, g: vol = 0.06 }) {
-    const a = this.ctx, t0 = a.currentTime + 0.005;
+  voice(spec, at = 0, mul = 1) {
+    const { wave = "square", steps = null, vib = null, noise = null, echo = null } = spec, vol = (spec.g || 0.06) * mul;
+    const a = this.ctx, t0 = a.currentTime + 0.005 + at;
+    /* an echo: the same sound again, later and quieter */
+    if (echo && mul > 0.2) this.voice({ ...spec, echo: null }, at + echo[0] / 1000, mul * echo[1]);
     if (steps) {
       const o = a.createOscillator(), g = a.createGain();
       o.type = wave;
@@ -174,7 +209,7 @@ const audio = {
       const src = a.createBufferSource(), bp = a.createBiquadFilter(), g = a.createGain(), end = t0 + noise.ms / 1000;
       src.buffer = this.noiseBuf;
       bp.type = "bandpass"; bp.frequency.value = noise.f; bp.Q.value = noise.q;
-      g.gain.setValueAtTime(noise.g, t0);
+      g.gain.setValueAtTime(noise.g * mul, t0);
       g.gain.exponentialRampToValueAtTime(0.0005, end);
       src.connect(bp); bp.connect(g); g.connect(a.destination);
       src.start(t0, Math.random() * 0.5); src.stop(end + 0.01);
@@ -187,10 +222,12 @@ function useSound(name) { audio.set = SOUND_SETS[name] || SFX; }
  * one, while Poom is out in the Glow (the map or a level) */
 let geigerNext = 0;
 function geigerTick() {
-  if (!audio.set.geiger || (G.mode !== "map" && G.mode !== "level") || UI.top()) return;
+  if ((!audio.set.geiger && !audio.set.hum) || (G.mode !== "map" && G.mode !== "level") || UI.top()) return;
   if (G.t < geigerNext) return;
-  sfx("geiger");
-  geigerNext = G.t + (Math.random() < 0.3 ? 3 + Math.random() * 6 : 40 + Math.random() * 160);
+  /* the wasteland's geiger counter clicks in bursts; Thrum's Hum throbs,
+     slow and low, every few seconds */
+  if (audio.set.geiger) { sfx("geiger"); geigerNext = G.t + (Math.random() < 0.3 ? 3 + Math.random() * 6 : 40 + Math.random() * 160); }
+  else { sfx("hum"); geigerNext = G.t + 180 + Math.random() * 240; }
 }
 const sfx = n => audio.play(n);
 
@@ -290,7 +327,7 @@ const BOOK_THEMES = {
   wasteland: { name: "wasteland", look: "ranger", items: "wasteland", creatures: "wasteland", map: "wasteland", title: "wasteland", subtitle: "Book One: Down in the Glow", hud: "wrist", sound: "wasteland" },
   /* Book 2, set C: Thrum, the hollow moon (docs/story/book-2-story.md).
      Pieces not yet its own borrow Book 1's for now */
-  thrum: { name: "thrum", look: "hunter", items: "thrum", creatures: "hum", map: "thrum", title: "thrum", subtitle: "Book Two: The Hollow Moon", hud: "visor", sound: "wasteland" },
+  thrum: { name: "thrum", look: "hunter", items: "thrum", creatures: "hum", map: "thrum", title: "thrum", subtitle: "Book Two: The Hollow Moon", hud: "visor", sound: "thrum" },
 };
 const THEME_OF_BOOK = { H: "wasteland", C: "thrum" };
 /* a book with no theme of its own wears Book 1's */
