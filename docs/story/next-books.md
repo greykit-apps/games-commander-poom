@@ -19,12 +19,16 @@ later Book follows the same rules:
 - **The order of the first four Books.** `BOOK_ORDER` in `js/game.js` is now
   H, C, D, E, then A, B, F, G and I.
 
-  | Book | Map set | Theme |
-  |---|---|---|
-  | 1 | H | the wasteland, in the spirit of *Fallout* (done) |
-  | 2 | C | in the spirit of *Metroid* |
-  | 3 | D | to choose |
-  | 4 | E | to choose |
+  | Book | Map set | Name | Theme |
+  |---|---|---|---|
+  | 1 | H | Wastelandia | the wasteland, in the spirit of *Fallout* (done) |
+  | 2 | C | Heavens to Mergatroid | Thrum, in the spirit of *Metroid* (done) |
+  | 3 | D | The Island of Dr Claw | to make |
+  | 4 | E | Descent into Rapture | to make (a sunken city, *BioShock*) |
+  | 5 | A | Termination Day | to make |
+
+  New game asks which Book to play. Books not built yet are greyed out
+  (`BOOK_PLAYABLE` in `js/game.js`), and the last playable Book ends the game.
 
   Each one's story map is in `docs/story/book-<set>.md`.
 

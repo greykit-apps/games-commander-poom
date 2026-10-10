@@ -324,10 +324,10 @@ const bookNumber = b => BOOK_IDS.indexOf(b) + 1;
  * per level (LEVEL_THEME). */
 const BOOK_THEMES = {
   classic: { name: "classic", look: "classic", items: "classic", creatures: "classic", map: "classic", title: "classic", subtitle: "Episode One: Lost on Planet Hiss" },
-  wasteland: { name: "wasteland", look: "ranger", items: "wasteland", creatures: "wasteland", map: "wasteland", title: "wasteland", subtitle: "Book One: Down in the Glow", hud: "wrist", sound: "wasteland" },
+  wasteland: { name: "wasteland", look: "ranger", items: "wasteland", creatures: "wasteland", map: "wasteland", title: "wasteland", subtitle: "Book One: Wastelandia", hud: "wrist", sound: "wasteland" },
   /* Book 2, set C: Thrum, the hollow moon (docs/story/book-2-story.md).
      Pieces not yet its own borrow Book 1's for now */
-  thrum: { name: "thrum", look: "hunter", items: "thrum", creatures: "hum", map: "thrum", title: "thrum", subtitle: "Book Two: The Hollow Moon", hud: "visor", sound: "thrum" },
+  thrum: { name: "thrum", look: "hunter", items: "thrum", creatures: "hum", map: "thrum", title: "thrum", subtitle: "Book Two: Heavens to Mergatroid", hud: "visor", sound: "thrum" },
 };
 const THEME_OF_BOOK = { H: "wasteland", C: "thrum" };
 /* a book with no theme of its own wears Book 1's */
@@ -370,6 +370,11 @@ const levelName = id => {
   const B = BOOK_TEXT[MAPS[id].book], place = B && B.places && B.places[id];
   return place ? `Level ${+id.slice(1) - 1}: ${place}` : `Book ${bookNumber(MAPS[id].book)}, level ${+id.slice(1) - 1}`;
 };
+
+/* Each Book's name (the player sees "Book Two: Heavens to Mergatroid"),
+ * and which can be played yet; the rest show greyed out on New game. */
+const BOOK_NAMES = { H: "Wastelandia", C: "Heavens to Mergatroid", D: "The Island of Dr Claw", E: "Descent into Rapture", A: "Termination Day" };
+const BOOK_PLAYABLE = new Set(["H", "C"]);
 
 /* What finishes a book, beyond its levels: Book 2 (set C) ends when its
  * heartstones are all broken (docs/story/book-2-story.md); a book with a
@@ -1553,7 +1558,8 @@ function finishLevel() {
 
 function bookDone() {
   const r = G.run, next = BOOK_IDS[BOOK_IDS.indexOf(r.book) + 1];
-  if (!next) { ending(); return; }
+  /* the last Book that can be played yet ends the game */
+  if (!next || !BOOK_PLAYABLE.has(next)) { ending(); return; }
   const was = r.book, pages = BOOK_TEXT[was] && BOOK_TEXT[was].ending;
   /* a book with its own ending plays it, then the score goes on the table
      (the run keeps its line there for later Books), then on to the next */
@@ -2504,7 +2510,7 @@ const BOOK_TEXT = {
       "Below, the Glow spreads out in the last of the light: the Vault hatches, the smoke over Fort Scrap, the broken towers of Old Litterburg. From up here it almost looks pretty.",
       "The radio crackles. <i>\"Nice flying, sugar. Cal is going to be sore about this. Keep your dial right where it is: I'll be in touch.\"</i><br><br>Then static. Poom never told Auntie Static his frequency.",
       "Far below, on a throne of hubcaps, <b>Junk Baron Cal</b>, a grey-black panther, watches a little light climb into the sky.<br><br>\"Find out where it's going,\" he growls.",
-      `<b>The End</b> of Book One: Down in the Glow.<br><br>${next ? `Score so far: ${score}.<br><br>On to Book ${next}.` : `Final score: ${score}.<br><br>Commander Poom will return.`}`,
+      `<b>The End</b> of Book One: Wastelandia.<br><br>${next ? `Score so far: ${score}.<br><br>On to Book ${next}.` : `Final score: ${score}.<br><br>Commander Poom will return.`}`,
     ],
   },
   /* Book 2, set C: Thrum, the hollow moon (docs/story/book-2-story.md) */
@@ -2570,7 +2576,7 @@ const BOOK_TEXT = {
       "Poom fires the engines. Nothing drains away. The Catamaran lifts off its pad and climbs out of the hollow moon into open space.",
       "Halfway to the gas giant, a salvage barge goes by the other way, too late, crusted in Scrapper paint. Through its window, for a moment, a grey-black panther watches the Catamaran go.",
       "The radio crackles. <i>\"That was Cal's barge, sugar. He set that mayday for you, and he'll be wanting a word. I'd keep moving.\"</i>",
-      `<b>The End</b> of Book Two: The Hollow Moon.<br><br>${next ? `Score so far: ${score}.<br><br>On to Book ${next}.` : `Final score: ${score}.<br><br>Commander Poom will return.`}`,
+      `<b>The End</b> of Book Two: Heavens to Mergatroid.<br><br>${next ? `Score so far: ${score}.<br><br>On to Book ${next}.` : `Final score: ${score}.<br><br>Commander Poom will return.`}`,
     ],
   },
 };
@@ -2689,7 +2695,7 @@ function openTitle() {
   const items = [
     saved ? { label: "Continue game", key: "R", meta: `score ${saved.score}`, act: () => { UI.clear(); hideLogo(); G.run = saved; enterMap(); } } : null,
     { label: "New game", key: "N", act: () => {
-      const go = () => { UI.clear(); hideLogo(); G.run = newRun(); G.map = { t: 0, p: null }; mapLabel(""); store.del(KEYS.save); story(); };
+      const go = () => chooseBook();
       if (saved) ask("Start a new game? Your saved game will be lost.", "New game", go); else go();
     } },
     { label: "High scores", key: "O", act: () => openScores() },
@@ -2700,6 +2706,25 @@ function openTitle() {
   ].filter(Boolean);
   menu("", items, { cls: "title", footer: '<span class="gk-credit">Built by <a href="https://greykit.com/" target="_blank" rel="noopener">greykit.com</a></span>' });
 }
+/* New game: which Book? The first five, by name; the ones not built yet
+ * greyed out. Choosing one starts a fresh game there, dressed as that Book,
+ * with its story. */
+function chooseBook() {
+  const items = BOOK_IDS.slice(0, 5).map((b, i) => ({
+    label: `${i + 1}. ${BOOK_NAMES[b] || "Book " + (i + 1)}`, key: String(i + 1),
+    disabled: !BOOK_PLAYABLE.has(b),
+    act: () => startBook(b),
+  }));
+  menu("Choose a book", items, { onBack: () => UI.pop(), cls: "books" });
+}
+function startBook(b) {
+  UI.clear(); hideLogo();
+  G.run = newRun(); G.run.book = b; G.map = { t: 0, p: null }; mapLabel("");
+  store.del(KEYS.save);
+  dressFor(b);
+  story();
+}
+
 /* The logo: the title screen's, with its episode line, and a level's title
  * card, with the level's name, which fades after a moment. Nothing keeps
  * it up over play: frame() fades it if it's left showing. */
