@@ -27,14 +27,14 @@ Glyphs marked "no" are air until the engine learns them.
 | `S` | switches (bridge and platform switches) | yes | 200 |
 | `Q` | teleporters (world maps) | yes | 59 |
 | `j` | key sockets (and the doors they open: 5 6 7 8) | yes | 186 |
-| `H` | hint triggers | no | 9 |
-| `D` | warp doors | yes | 596 |
+| `H` | hint triggers | no | 10 |
+| `D` | warp doors | yes | 597 |
 | `d` | locked doors (colour absent from the source) | yes | 0 |
 | `q` | keycards with no stated colour | yes | 11 |
 | `u` | 2000-point pickup (medal) | yes | 235 |
 | `w` | swim ability | yes | 2 |
 | `!` | objective items (collected, or shot) | yes | 52 |
-| `e` | enemies (per-type behaviour: ENEMY_OF in game.js; Book 1 only so far) | yes | 2867 |
+| `e` | enemies (per-type behaviour: ENEMY_OF in game.js; Book 1 only so far) | yes | 2866 |
 | `G` | turrets / emitters | yes | 279 |
 | `N` | NPCs / rescue targets | no | 21 |
 | `M` | moving platforms (paths, dropping, sneaky) | yes | 656 |
@@ -172,7 +172,7 @@ Skipped (not levels): E19 cutscene, E20 highscores
 | E04 | level | 60×84 | `e` 14, `D` 8, `M` 3, `/` 16, `\` 16, `S` 1, `j` 2, `u` 2, `N` 1 |
 | E05 | level | 165×80 | `e` 27, `N` 1, `j` 2, `M` 13, `/` 98, `\` 35, `D` 8, `S` 2 |
 | E06 | level | 120×102 | `e` 43, `N` 1, `u` 2, `M` 3, `/` 56, `\` 52, `z` 3, `D` 20 |
-| E07 | level | 80×124 | `e` 40, `j` 4, `M` 13, `S` 1, `/` 10, `\` 10, `D` 4, `N` 1 |
+| E07 | level | 80×124 | `e` 40, `j` 4, `M` 13, `H` 1, `S` 1, `/` 10, `\` 10, `D` 4, `N` 1 |
 | E08 | level | 150×44 | `e` 22, `N` 1, `M` 5, `/` 14, `\` 14, `Z` 2, `S` 1 |
 | E09 | level | 88×89 | `e` 49, `j` 1, `\` 32, `M` 5, `D` 8, `S` 3, `u` 1 |
 | E10 | level | 84×75 | `/` 13, `\` 29, `M` 5, `e` 33, `w` 1, `S` 3 |
@@ -180,7 +180,7 @@ Skipped (not levels): E19 cutscene, E20 highscores
 | E12 | level | 100×100 | `u` 4, `D` 30, `M` 2, `e` 16, `G` 30, `j` 2, `Z` 12, `/` 10, `\` 12, `S` 1 |
 | E13 | level | 100×99 | `e` 32, `D` 32, `/` 50, `\` 36, `G` 16, `u` 1, `S` 3, `M` 9, `z` 39, `j` 1, `N` 1 |
 | E14 | level | 100×112 | `e` 41, `\` 57, `G` 7, `S` 8, `M` 6, `/` 42, `j` 2, `z` 3, `D` 4, `N` 1 |
-| E15 | level | 100×90 | `G` 6, `e` 47, `D` 39, `Z` 1, `j` 5, `/` 5, `M` 11, `N` 1, `S` 10, `u` 3, `z` 27 |
+| E15 | level | 100×90 | `G` 6, `e` 46, `D` 40, `Z` 1, `j` 5, `/` 5, `M` 11, `N` 1, `S` 10, `u` 3, `z` 27 |
 | E16 | level | 112×92 | `D` 24, `e` 16, `M` 18, `S` 4, `j` 3, `/` 18, `u` 3 |
 | E17 | level | 140×46 | `M` 10, `e` 30, `/` 46, `\` 4, `j` 2, `S` 1, `N` 1 |
 | E18 | level | 100×100 | `e` 63, `N` 1 |
