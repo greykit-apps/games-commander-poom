@@ -508,7 +508,9 @@ const levelName = id => {
 /* Each Book's name (the player sees "Book Two: Heavens to Mergatroid"),
  * and which can be played yet; the rest show greyed out on New game. */
 const BOOK_NAMES = { H: "Wastelandia", C: "Heavens to Mergatroid", D: "The Island of Dr Cal", E: "Descent into Raptura", A: "Termination Day" };
-const BOOK_PLAYABLE = new Set(["H", "C", "D", "E", "A"]);
+/* Book Five (A) is held back until its levels are proven winnable: the
+ * game ends at Book Four for now */
+const BOOK_PLAYABLE = new Set(["H", "C", "D", "E"]);
 
 /* What finishes a book, beyond its levels: Book 2 (set C) ends when its
  * heartstones are all broken (docs/story/book-2-story.md); Book 3 (set D)
