@@ -16,9 +16,13 @@ const EGA = ["#000000", "#0000aa", "#00aa00", "#00aaaa", "#aa0000", "#aa00aa", "
    * helmet, dark to light; r s the goggles' red and their glow; t the tan
    * strap; u boots. Lit a step brighter than the Glow's concrete and brick,
    * so Poom reads at a glance against them */
-  "#3a2818", "#6e4c2e", "#9a7448", "#2c2e32", "#5c6168", "#a2a8b0", "#c8261c", "#ff8a6a", "#d8a860", "#1c130c"];
+  "#3a2818", "#6e4c2e", "#9a7448", "#2c2e32", "#5c6168", "#a2a8b0", "#c8261c", "#ff8a6a", "#d8a860", "#1c130c",
+  /* the hunter look (Book 2): v w x a hardsuit's plating, light to dark;
+   * y z the amber visor and its glint; G a teal accent band; H seams; I a
+   * mid steel; J the boots */
+  "#e6eef2", "#a9b8c0", "#5f6e78", "#ffb02e", "#fff0b0", "#2fb3a0", "#1e2a30", "#7d8c96", "#0e1418"];
 /* grid letters for the extra colours, indexed from 16 */
-const EXTRA = "ghiklmnopqrstu";
+const EXTRA = "ghiklmnopqrstuvwxyzGHIJ";
 
 function makeCanvas(w, h) {
   const c = document.createElement("canvas");
@@ -338,6 +342,25 @@ const TAIL_BACK = [
 const recolour = (rows, map) => rows.map(r => [...r].map(c => map[c] || c).join(""));
 const LOOKS = {
   classic: { head: r => r, body: r => r, map: r => r },
+  /* the hunter (Book 2, Thrum): a sealed hardsuit, white and steel with a
+     teal band, the amber visor (HUNTER_HEAD), dark boots; paws and tail
+     still Poom's */
+  hunter: {
+    head: rows => rows === P_HEAD ? HUNTER_HEAD : rows === P_HEAD_BACK ? HUNTER_HEAD_BACK : HUNTER_HEAD_OUT,
+    body: rows => rows.map((r, y) => {
+      if (y === 0) return r.replace(/h/g, "x");
+      const first = r.indexOf("9");
+      return [...r].map((c, x) => c === "9" ? (x === first ? "v" : y === 3 && x > first + 2 && x < first + 7 ? "G" : "w") : c === "5" ? "x" : c === "F" ? "I" : c === "C" ? "J" : c).join("");
+    }),
+    map: rows => {
+      const b = rows.findIndex(r => r.includes("9"));
+      return rows.map((r, y) => {
+        if (y < 2) return recolour([r], { g: "w", i: "v" })[0];
+        if (y < b) return /[C4]/.test(r) ? recolour([r], { C: "v", F: "w", 4: "G" })[0] : recolour([r], { g: "x", F: "y", 0: "y", i: "y", D: "z" })[0];
+        return recolour([r], { 9: "w", 5: "x", C: "J" })[0];
+      });
+    },
+  },
   /* the ranger (Book 1, the wasteland): a combat helmet over a gas mask
      with red-glowing eyepieces (RANGER_HEAD); a long brown duster with a
      tan strap across it, flaring over the knees; slate trousers, boots. */
@@ -409,6 +432,45 @@ const RANGER_HEAD_OUT = [
   ".ooopoopppoop.",
   ".oooppppppqqo.",
   "..ooppppppoqqo",
+];
+
+/* the hunter's helmet (Book 2): a sealed dome, the ears as two fins on
+ * top, a teal band, and the amber visor across the face */
+const HUNTER_HEAD = [
+  "..w.....w.....",
+  ".wvw...wvw....",
+  "..xwvvvvwx....",
+  ".xwvvvvvvvwx..",
+  "xwvvvvvvvvvwx.",
+  "xwvGGGGGGGGwx.",
+  "xwwxyyyyyzyx..",
+  "xwwxyyyyyyyyx.",
+  ".xwwxyyyyyyx..",
+  "..xxwwwwwwxx..",
+];
+const HUNTER_HEAD_BACK = [
+  "..w.....w.....",
+  ".www...www....",
+  "..xwvvvvwx....",
+  ".xwvvvvvvvwx..",
+  "xwvvvvvvvvvwx.",
+  "xwvGGGGGGGGwx.",
+  "xwvvvvvvvvvwx.",
+  "xwvvvvvvvvvwx.",
+  ".xwvvvvvvvwx..",
+  "..xxwwwwwwxx..",
+];
+const HUNTER_HEAD_OUT = [
+  "..w.....w.....",
+  ".wvw...wvw....",
+  "..xwvvvvwx....",
+  ".xwvvvvvvvwx..",
+  "xwvvvvvvvvvwx.",
+  "xwvGGGGGGGGwx.",
+  "xwwxxzxxzxxx..",
+  "xwwxxxzzxxxxx.",
+  ".xwwxzxxzxx...",
+  "..xxwwwwwwxx..",
 ];
 
 /* the creatures the game draws come from the set in use */
@@ -1098,6 +1160,87 @@ const KEYCARD = [
   "wyywwwwwww",
   "ssssssssss",
 ];
+/* Book 2's items (docs/story/book-2-story.md): Thrum's ore and the mole
+ * crew's things, in the score tiers' order; a power cell for energy */
+const THRUM_PAL = {
+  k: "#1a1029", v: "#4b2e6a", V: "#7c52a6", W: "#c8b0e8", p: "#9c2878", P: "#f48cd0", F: "#ffd2f0",
+  t: "#187e76", T: "#6fe0c8", n: "#c4fff0", g: "#323739", G: "#737b7c", H: "#9ba3a3", a: "#a8670f", A: "#ffd16a",
+  y: "#e0b21c", Y: "#fff2c4", o: "#7a4a1c", O: "#b8803c", r: "#c8302a", w: "#fbf4dc", b: "#5c3a1c", e: "#2c9a46", E: "#7ae28c",
+};
+const THRUM_ITEMS = {
+  /* an ore chip: a violet nugget with a glint */
+  fish: [
+    "..vvv...",
+    ".vVVVv..",
+    "vVWVVVv.",
+    "vVVVVVvv",
+    ".vVVVvVv",
+    "..vvvvv.",
+  ],
+  /* a crew ration pack: a foil pouch, a mole on the label */
+  milk: [
+    ".GGGGGGG.",
+    "GHHHHHHHG",
+    "GHyyyyyHG",
+    "GHyobbyHG",
+    "GHyyyyyHG",
+    "GHHHHHHHG",
+    ".GGGGGGG.",
+  ],
+  /* a data slug: a little cartridge, its light on */
+  yarn: [
+    ".gggg.",
+    "gGGGGg",
+    "gGTTGg",
+    "gGTnGg",
+    "gGGGGg",
+    "gggggg",
+    ".GHHG.",
+  ],
+  /* a mole's lantern: a caged amber light */
+  catnip: [
+    "..gg..",
+    ".g..g.",
+    "gGGGGg",
+    "GaAAaG",
+    "GAYYAG",
+    "GaAAaG",
+    "gGGGGg",
+    ".gggg.",
+  ],
+  /* a gold drill bit, the crew's best */
+  medal: [
+    "yy.......",
+    "yYyy.....",
+    ".yYYyy...",
+    "..yYYYyy.",
+    "...yyYYYy",
+    ".....yyYy",
+    ".......yy",
+  ],
+  /* a crystal geode, split, magenta inside */
+  trophy: [
+    "..vvvvv...",
+    ".vVppppVv.",
+    "vVpPFPPpVv",
+    "vpPFFFPPpv",
+    "vpPPFPPPpv",
+    "vVpPPPPpVv",
+    ".vVppppVv.",
+    "..vvvvvv..",
+  ],
+  /* a power cell: the station's, amber-banded */
+  ammo: [
+    ".gg.",
+    "gHHg",
+    "gaAg",
+    "gAYg",
+    "gaAg",
+    "gHHg",
+    "gGGg",
+    ".gg.",
+  ],
+};
 const KEYCARD_COLOURS = [["#e0352e", "#8a1e18"], ["#f2cf3e", "#9a7a12"], ["#52e06a", "#1f7a33"], ["#4a86e8", "#1c3f8a"], ["#c4ccd5", "#6c7076"]];
 
 /* keycard gems: one shape, four colours (red, yellow, green, blue) */
@@ -1189,6 +1332,201 @@ const STAR = ["E", ".", "E"];
 /* ------------------------------------------------------------------ */
 /* Build                                                                 */
 
+
+/* ---- Book 2's creatures, the Hum's (docs/story/book-2-story.md) ----
+ * Each wears an engine creature's frames and size: a Mergatroid hops like a
+ * mousel, a Husk walks like a vacuumoid, a Skitter charges like a barker, a
+ * Shellback shoves like a roombot, a Spitter fires like a clawtank. Feet on
+ * the bottom row. Mergatroids and Husks are drawn facing left, the rest right. */
+const MERGATROID_PAL = { a: "#187e76", b: "#2fb3a0", c: "#6fe0c8", d: "#c4fff0", e: "#0a2e30", f: "#d24aa6", g: "#3a4a4a", h: "#5a6e6c" };
+const MERGATROID = {
+  walk0: [
+    "....bbbbb.....",
+    "..bbccccbbb...",
+    ".bcddcccccbb..",
+    ".bcdecccccfb..",
+    "bccccccccfffb.",
+    "bbccccccccfbb.",
+    ".bbbbbbbbbbb..",
+    "..a..a..a..a..",
+    ".a..a..a..a...",
+    ".a...a..a..a..",
+    "..a...a...a...",
+  ],
+  walk1: [
+    "..............",
+    "....bbbbb.....",
+    "..bbccccbbb...",
+    ".bcddcccccbb..",
+    ".bcdecccccfb..",
+    "bccccccccfffb.",
+    "bbbbbbbbbbbbb.",
+    "..a..a..a..a..",
+    "..a..a..a..a..",
+    ".a..a..a..a...",
+    ".a..a...a..a..",
+  ],
+  look: [
+    "....bbbbb.....",
+    "..bbcdecbbb...",
+    ".bccddccccbb..",
+    ".bccccccccfb..",
+    "bccccccccfffb.",
+    "bbccccccccfbb.",
+    ".bbbbbbbbbbb..",
+    "..a..a..a..a..",
+    ".a..a..a..a...",
+    ".a...a..a..a..",
+    "..a...a...a...",
+  ],
+  stunned: [
+    "..............",
+    "..............",
+    "..............",
+    "..............",
+    "....hhhhh.....",
+    "..hhggggghh...",
+    ".hgggeggeggh..",
+    "hgggggggggggh.",
+    "hhhhhhhhhhhhh.",
+    ".g..g..g..g...",
+    "g..g...g...g..",
+  ],
+};
+/* bone-pale chitin, so a Husk stands out against violet rock, gunmetal and
+   flesh alike; its eye the Hum's magenta */
+const HUSK_PAL = { k: "#2a2418", m: "#7a6e54", n: "#b0a27e", o: "#ddd2ae", e: "#9c2878", E: "#ffd2f0", l: "#fbf4dc", L: "#b0a27e" };
+const HUSK_TOP = [
+  "....kkkk......",
+  "...knnnnk.....",
+  "..knoonnnk....",
+  ".kneennnnnk...",
+  ".knEEnnnnnk...",
+  ".knnnnnnnnk...",
+  "..kmmmmmmk....",
+  "...kkkkkk.....",
+  "..kmmnnmmk....",
+  "lkmnnoonnmk...",
+  "Lmnnnnnnnnmk..",
+  "lkmmmmmmmmmk..",
+  ".kmnnoonnnmk..",
+  ".kmnnnnnnnmk..",
+  ".kmmmmmmmmmk..",
+  "..kmnnoonnmk..",
+  "..kmnnnnnnmk..",
+  "...kmmmmmmk...",
+  "...kmnnnnmk...",
+  "....kmmmmk....",
+];
+const HUSK = {
+  walk0: HUSK_TOP.concat([
+    "....kk..kk....",
+    "...kmk..kmk...",
+    "...km....mk...",
+    "..kmk....kmk..",
+    "..km......mk..",
+    ".kmk......kmk.",
+    ".km........mk.",
+    "kkk........kkk",
+  ]),
+  walk1: HUSK_TOP.concat([
+    "....kk.kk.....",
+    "....kmkmk.....",
+    "....kmkm......",
+    "...kmk.kmk....",
+    "...km...mk....",
+    "..kmk...kmk...",
+    "..km.....mk...",
+    ".kkk....kkk...",
+  ]),
+  jump: HUSK_TOP.concat([
+    "...kkk.kkk....",
+    "..kmmk.kmmk...",
+    "..kkk...kkk...",
+  ]),
+};
+const SKITTER_PAL = { k: "#3a0b2e", s: "#9c2878", t: "#d24aa6", u: "#ffd2f0", e: "#c4fff0" };
+const SKITTER = {
+  walk0: [
+    "......ssss......",
+    "....sstttss.....",
+    "...sttuuttts....",
+    "..sttttttttsse..",
+    "..ssssssssssss..",
+    "...k.k..k.k.k...",
+    "..k..k..k..k.k..",
+    ".k..k....k..k.k.",
+  ],
+  walk1: [
+    "......ssss......",
+    "....sstttss.....",
+    "...sttuuttts....",
+    "..sttttttttsse..",
+    "..ssssssssssss..",
+    "...k..k.k..k.k..",
+    "...k..k.k..k..k.",
+    "..k..k...k..k.k.",
+  ],
+  charge: [
+    "................",
+    "...ssssss.......",
+    ".ssttttttsss....",
+    "sttuuuttttttsse.",
+    "sssssssssssssss.",
+    ".k.k..k.k..k.k..",
+    "k..k.k...k..k..k",
+    "k.k..k....k.k..k",
+  ],
+};
+const SHELLBACK_PAL = { k: "#181b1d", g: "#575e60", h: "#9ba3a3", i: "#c8d0d0", t: "#2fb3a0", e: "#6fe0c8" };
+const SHELLBACK = {
+  a: [
+    ".....kkkkk.....",
+    "...kkihhggkk...",
+    "..khhggggggk...",
+    ".kgttggtgggek..",
+    "kgggggggggggk..",
+    "kkkkkkkkkkkkk..",
+    ".k..k..k..k....",
+  ],
+  b: [
+    ".....kkkkk.....",
+    "...kkihhggkk...",
+    "..khhggggggk...",
+    ".kggtggtggtek..",
+    "kgggggggggggk..",
+    "kkkkkkkkkkkkk..",
+    "..k..k..k..k...",
+  ],
+};
+const SPITTER_PAL = { f: "#4c1626", g: "#7c2e42", h: "#984358", i: "#bb6378", o: "#140608", w: "#fbf4dc", t: "#6fe0c8" };
+const SPITTER = {
+  a: [
+    "....ffff.....",
+    "..ffgggiff...",
+    ".fgghhhhiff..",
+    ".fghhthhhhgf.",
+    "fgghhhhhhhgff",
+    "fghhhhhhhhhgf",
+    "fgghhhhhwhwgf",
+    ".fgggggggggf.",
+    "..ffffffffff.",
+    ".ffgf.fgff...",
+  ],
+  b: [
+    "....ffff.....",
+    "..ffgggiff...",
+    ".fgghhhhiff..",
+    ".fghhthhhfff.",
+    "fgghhhhhfoooo",
+    "fghhhhhhfwooo",
+    "fgghhhhhfoooo",
+    ".fgggggggfff.",
+    "..ffffffffff.",
+    ".ffgf.fgff...",
+  ],
+};
+
 const ART = { looks: {}, poom: {}, map: {}, mousel: {}, barker: {}, vac: {}, boss: {}, roombot: {}, tank: {}, lieut: {}, turret: {}, items: {}, gems: [], parts: [] };
 
 function both(c) { return { r: c, l: flipped(c) }; }
@@ -1232,7 +1570,17 @@ function buildArt() {
     tank: ART.tank, boss: ART.boss,
     turret: each(TURRET, g => sprite(g, { pal: TURRET_PAL })),
   };
-  ART.creatureSets = { classic: classicCreatures, wasteland: wasteCreatures };
+  const humCreatures = {
+    mousel: each(MERGATROID, g => sprite(g, { pal: MERGATROID_PAL })),
+    vac: each(HUSK, g => sprite(g, { pal: HUSK_PAL })),
+    lieut: each(HUSK, g => sprite(g, { pal: { ...HUSK_PAL, n: "#9c2878", o: "#f48cd0", m: "#681750" } })),
+    barker: each(SKITTER, g => sprite(g, { pal: SKITTER_PAL })),
+    roombot: each(SHELLBACK, g => sprite(g, { pal: SHELLBACK_PAL })),
+    tank: each(SPITTER, g => sprite(g, { pal: SPITTER_PAL })),
+    boss: ART.boss,
+    turret: each(TURRET, g => sprite(g, { pal: TURRET_PAL })),
+  };
+  ART.creatureSets = { classic: classicCreatures, wasteland: wasteCreatures, hum: humCreatures };
   /* item sets: classic, and the wasteland over it */
   const classic = { items: {}, gems: GEM_SWAPS.map(s => sprite(GEM, { swap: s })) };
   for (const [k, g] of Object.entries(ITEMS)) classic.items[k] = sprite(g);
@@ -1240,9 +1588,14 @@ function buildArt() {
   classic.gems.push(sprite(GEM, { swap: { 15: 15, 12: 7, 4: 8 } }));
   const waste = { items: { ...classic.items }, gems: KEYCARD_COLOURS.map(([c, d]) => sprite(KEYCARD, { pal: { ...WASTE_PAL, c, d } })) };
   for (const [k, g] of Object.entries(WASTE_ITEMS)) waste.items[k] = sprite(g, { pal: WASTE_PAL });
-  ART.itemSets = { classic, wasteland: waste };
+  /* Thrum's: its own score items and power cell, the wasteland's
+     bobblehead (it gets everywhere) and keycards */
+  const thrum = { items: { ...waste.items }, gems: waste.gems };
+  for (const [k, g] of Object.entries(THRUM_ITEMS)) thrum.items[k] = sprite(g, { pal: THRUM_PAL });
+  ART.itemSets = { classic, wasteland: waste, thrum };
   useItems("classic");
   ART.parts = PARTS.map(g => sprite(g));
+  ART.heartstone = paintHeartstone();
   ART.zap = ZAP.map(g => sprite(g, { outline: false }));
   ART.hairball = HAIRBALL.map(g => sprite(g));
   ART.poof = POOF.map(g => sprite(g, { outline: false }));
@@ -1274,7 +1627,9 @@ function buildDigits() {
   });
   return { red: make(EGA[12]), dim: make("#3a0000"), white: make(EGA[15]), yellow: make(EGA[14]),
     /* the wasteland's wrist computer: green phosphor, and its unlit segments */
-    green: make("#8aff9a"), greenDim: make("#0f3a1c") };
+    green: make("#8aff9a"), greenDim: make("#0f3a1c"),
+    /* the hunter's visor readout (Book 2): amber, and its unlit segments */
+    amber: make("#ffb02e"), amberDim: make("#3a2408") };
 }
 
 /* ------------------------------------------------------------------ */
@@ -1307,6 +1662,15 @@ const THEMES = {
    * and rusted girders under the Glow's sickly daylight */
   ruins: { sky: 0, far: [8, 7], ground: [8, 7, 0], crust: ["#c0b8ac", "#ddd6ca"], alt: [8, 7], plat: [7, 8], bg: [0, 8], liquid: [10, 2, 14], liquidName: "sludge", style: "ruins" },
   vaultCold: { sky: 1, far: [9, 3], ground: [8, 7, 0], crust: ["#b4e6f6", "#e8fbff"], alt: [8, 7], plat: [7, 8], bg: [1, 0], liquid: [11, 15, 3], liquidName: "coolant", style: "vault", cold: true, no: 9 },
+  /* Book 2's crags: Thrum's outer caves, violet rock, glowing fungus,
+     crystal spines and acid. Full colour. */
+  crags: { sky: 0, far: [5, 1], ground: [5, 1, 0], crust: ["#45c9b4", "#a8f2e0"], alt: [5, 1], plat: [3, 11], bg: [0, 5], liquid: [10, 2, 14], liquidName: "acid", style: "crags" },
+  /* Book 2's Station Delve: the mole crew's mine and labs, gunmetal plate,
+     amber work-lights, hazard edging, live cables. Full colour. */
+  delve: { sky: 0, far: [8, 0], ground: [8, 7, 0], crust: ["#e0b21c", "#ffd16a"], alt: [8, 7], plat: [7, 8], bg: [0, 8], liquid: [10, 2, 14], liquidName: "coolant", style: "delve" },
+  /* Book 2's Hive: the Hum's own body, crimson-plum flesh and chitin, teal
+     veins, magenta nodes, bone barbs. Full colour. */
+  hive: { sky: 0, far: [4, 0], ground: [4, 5, 0], crust: ["#6fe0c8", "#c4fff0"], alt: [4, 5], plat: [7, 8], bg: [0, 4], liquid: [13, 5, 15], liquidName: "ichor", style: "hive" },
 };
 
 function paintTiles(themeName) {
@@ -1500,6 +1864,9 @@ function paintTiles(themeName) {
   if (th.style === "vault") vaultTiles(tiles, th, mk, E);
   if (th.style === "raiders") raiderTiles(tiles, th, mk, E);
   if (th.style === "ruins") ruinTiles(tiles, th, mk, E);
+  if (th.style === "crags") cragTiles(tiles, th, mk, E);
+  if (th.style === "delve") delveTiles(tiles, th, mk, E);
+  if (th.style === "hive") hiveTiles(tiles, th, mk, E);
 
   /* fake wall: looks like ground, walks like air (secret) */
   tiles.fake = tiles.ground[0];
@@ -1756,6 +2123,479 @@ function ruinTiles(tiles, th, mk, E) {
   });
 }
 
+/* VGA ramps for Thrum (Book 2), dark to light: the crags' violet rock, the
+ * Hum's teal glow in the fungus, its magenta crystal, and acid */
+const CRAG = ["#0e0816", "#1a1029", "#28183c", "#382252", "#4b2e6a", "#613d86", "#7c52a6", "#a37ccc"];
+const GLOW = ["#0a2e30", "#10504e", "#187e76", "#2fb3a0", "#6fe0c8", "#c4fff0"];
+const SPINE = ["#3a0b2e", "#681750", "#9c2878", "#d24aa6", "#f48cd0", "#ffd2f0"];
+const ACID = ["#26400a", "#416a10", "#6f9e1a", "#a8d82e", "#e0fa78"];
+
+/* The crags: rough violet rock in strata, now and then a vein of crystal or
+ * a cluster of glowing fungus; the top edge mossed with the Hum's teal. A
+ * ledge is a shelf fungus, the hazard crystal spines, the doors steel
+ * hatches the mole crew set into the rock, the exit a mine-lift cage. */
+function cragTiles(tiles, th, mk, E) {
+  tiles.switch = thrumLever(mk);
+  const px = (g, c, x, y, w = 1, h = 1) => { g.fillStyle = c; g.fillRect(x, y, w, h); };
+  const rock = (g, r) => {
+    px(g, CRAG[3], 0, 0, T, T);
+    /* strata: soft bands, each a little different */
+    for (let y = 0; y < T; y += 4) { px(g, CRAG[(y >> 2) % 2 ? 2 : 4], 0, y + 2, T, 1); }
+    for (let i = 0; i < 26; i++) px(g, CRAG[1 + (r() * 5 | 0)], r() * T | 0, r() * T | 0, 1 + (r() * 2 | 0), 1);
+    /* a pebble or two, lit from above */
+    for (let k = 0; k < 2; k++) { const x = r() * 12 | 0, y = 3 + (r() * 10 | 0); px(g, CRAG[5], x, y, 3, 2); px(g, CRAG[6], x, y, 2, 1); px(g, CRAG[1], x, y + 2, 3, 1); }
+  };
+  const block = (top, kind, seed) => mk(g => {
+    const r = rng(seed);
+    rock(g, r);
+    if (kind === 1) {
+      /* a small crystal seam, wandering, a glint at one end */
+      let x = 3 + (r() * 6 | 0), y = 11 + (r() * 3 | 0);
+      for (let i = 0; i < 6; i++) { px(g, SPINE[1], x, y + 1); px(g, SPINE[3], x, y); x += r() < .6 ? 1 : 0; y -= r() < .7 ? 1 : 0; }
+      px(g, SPINE[5], x, y + 1);
+    }
+    if (kind === 2) {
+      /* glowing fungus nubs in a crack */
+      for (const [x, y] of [[4, 9], [7, 11], [10, 8]]) { px(g, GLOW[1], x, y + 1, 2, 2); px(g, GLOW[3], x, y, 2, 1); px(g, GLOW[5], x, y, 1, 1); }
+    }
+    /* no edge lines: rock runs on into the next block, it isn't bricks */
+    if (top) {
+      /* the lip: a rim of teal moss, ragged, a stalk or a cap here and there */
+      px(g, CRAG[5], 0, 1, T, 2); px(g, CRAG[6], 0, 1, T, 1);
+      for (let x = 0; x < T; x++) { const h = r() < .7 ? 1 : 2; px(g, GLOW[r() < .5 ? 2 : 3], x, 0, 1, h); }
+      if (r() < .6) { const x = 1 + (r() * 12 | 0); px(g, GLOW[4], x - 1, 0, 3, 1); }
+      if (r() < .5) { const x = 2 + (r() * 11 | 0); px(g, GLOW[5], x, 0, 1, 1); }
+    }
+  });
+  tiles.ground = [block(false, 0, 3), block(false, 0, 41), block(false, 1, 17), block(false, 0, 53), block(false, 2, 29), block(false, 0, 67)];
+  tiles.groundTop = [block(true, 0, 9), block(true, 0, 21), block(true, 2, 45), block(true, 0, 33), block(true, 1, 57)];
+
+  /* a ledge: a shelf fungus off the rock, its cap teal, gills beneath */
+  tiles.plat = mk(g => {
+    px(g, GLOW[3], 0, 0, T, 2); px(g, GLOW[4], 0, 0, T, 1); px(g, GLOW[5], 3, 0, 2, 1); px(g, GLOW[5], 11, 0, 1, 1);
+    px(g, GLOW[1], 1, 2, T - 2, 2);
+    for (let x = 2; x < T - 2; x += 2) px(g, GLOW[0], x, 3, 1, 2);
+    px(g, GLOW[2], 0, 2, 1, 1); px(g, GLOW[2], T - 1, 2, 1, 1);
+  });
+
+  /* the hazard: magenta crystal spines out of a rubble bed */
+  tiles.spikes = mk(g => {
+    px(g, CRAG[2], 0, 13, T, 3); px(g, CRAG[4], 0, 13, T, 1);
+    for (const [x, h, w] of [[1, 8, 3], [5, 12, 3], [9, 9, 3], [12, 11, 3]]) {
+      g.fillStyle = SPINE[2]; g.beginPath(); g.moveTo(x, 13); g.lineTo(x + w / 2, 13 - h); g.lineTo(x + w, 13); g.closePath(); g.fill();
+      g.fillStyle = SPINE[4]; g.beginPath(); g.moveTo(x, 13); g.lineTo(x + w / 2, 13 - h); g.lineTo(x + w / 2, 13); g.closePath(); g.fill();
+      px(g, SPINE[5], Math.round(x + w / 2) - 1, 13 - h + 1, 1, 2);
+    }
+    g.fillStyle = "rgba(244, 140, 208, 0.25)"; g.fillRect(0, 9, T, 4);
+  });
+
+  /* doors: the crew's steel hatches, sunk into rock: a riveted frame, a
+     light in the door's colour on the top tile, ribs below */
+  const COLOURS = [[12, 4], [14, 6], [10, 2], [9, 1], [7, 8]];
+  const door = (a, b, top) => mk(g => {
+    px(g, CRAG[2], 0, 0, T, T);
+    px(g, VSTEEL[4], 1, 0, T - 2, T); px(g, VSTEEL[6], 1, 0, 1, T); px(g, VSTEEL[2], T - 2, 0, 1, T);
+    for (let y = top ? 6 : 1; y < T; y += 4) { px(g, VSTEEL[3], 3, y, T - 6, 2); px(g, VSTEEL[5], 3, y, T - 6, 1); }
+    for (const y of [2, 13]) { px(g, VSTEEL[7], 2, y); px(g, VSTEEL[7], T - 3, y); }
+    if (top) {
+      px(g, VSTEEL[1], 4, 1, 8, 4); px(g, E(b), 5, 2, 6, 2); px(g, E(a), 6, 2, 4, 1);
+      g.fillStyle = "rgba(255, 255, 255, 0.35)"; g.fillRect(6, 2, 2, 1);
+    } else px(g, E(b), 4, 14, 8, 1);
+  });
+  tiles.doors = COLOURS.map(([a, b]) => door(a, b, true));
+  tiles.doorsBelow = COLOURS.map(([a, b]) => door(a, b, false));
+
+  /* the exit: the cage of a mine lift, a lamp over it; open, the cage
+     lit and the shaft above it */
+  const lift = open => { const c = makeCanvas(T, T * 2), g = c.getContext("2d");
+    px(g, CRAG[2], 0, 2, T, 30); px(g, VSTEEL[3], 0, 2, T, 2); px(g, VSTEEL[5], 0, 2, T, 1);
+    px(g, VSTEEL[3], 0, 4, 2, 28); px(g, VSTEEL[3], T - 2, 4, 2, 28); px(g, VSTEEL[5], 0, 4, 1, 28);
+    if (open) {
+      px(g, "#0a0612", 2, 4, 12, 28);
+      g.fillStyle = "rgba(111, 224, 200, 0.35)"; g.fillRect(2, 4, 12, 28);
+      px(g, VSTEEL[5], 2, 28, 12, 2); px(g, VSTEEL[6], 2, 28, 12, 1);
+    } else {
+      px(g, CRAG[1], 2, 4, 12, 28);
+      for (let x = 3; x < 14; x += 3) px(g, VSTEEL[4], x, 4, 1, 28);
+      for (const y of [12, 22]) px(g, VSTEEL[4], 2, y, 12, 1);
+    }
+    g.fillStyle = "rgba(111, 224, 200, 0.4)"; g.fillRect(4, 0, 8, 3);
+    px(g, GLOW[2], 6, 0, 4, 2); px(g, GLOW[5], 7, 0, 2, 1);
+    return c; };
+  tiles.exit = [lift(false), lift(true)];
+
+  /* ice (no set C level has any): frost on the rock */
+  tiles.ice = mk(g => {
+    const r = rng(43);
+    g.drawImage(tiles.ground[0], 0, 0);
+    for (let y = 0; y < 4; y++) px(g, ["#e9fbff", "#b2e4f6", "#78c2e4", "#4a92c0"][y], 0, y, T, 1);
+    for (let i = 0; i < 10; i++) px(g, r() < .5 ? "#b2e4f6" : "#e9fbff", r() * T | 0, 4 + (r() * 12 | 0));
+  });
+
+  /* a hint sign is a crew log terminal on a stand, its screen teal */
+  tiles.sign = mk(g => {
+    px(g, VSTEEL[3], 7, 9, 2, 7); px(g, VSTEEL[5], 7, 9, 1, 7); px(g, VSTEEL[2], 4, 15, 8, 1);
+    px(g, VSTEEL[2], 2, 1, 12, 9); px(g, VSTEEL[5], 2, 1, 12, 1);
+    px(g, GLOW[1], 3, 2, 10, 6);
+    for (const y of [3, 5]) px(g, GLOW[4], 4, y, 6 + (y & 2), 1);
+    px(g, GLOW[5], 4, 7, 2, 1);
+  });
+
+  /* moving platforms: a steel ore sled with running lights */
+  tiles.platform = [[GLOW[3], GLOW[5]], [ACID[2], ACID[4]], [SPINE[3], SPINE[5]]].map(([lamp0, lamp1]) => [0, 1].map(f => {
+    const c = makeCanvas(T * 2, 8), g = c.getContext("2d");
+    px(g, VSTEEL[4], 0, 0, 32, 6); px(g, VSTEEL[6], 0, 0, 32, 1); px(g, VSTEEL[2], 0, 5, 32, 1);
+    px(g, "#000", 1, 6, 30, 2);
+    for (let x = 3; x < 32; x += 8) px(g, (x >> 3) % 2 === f ? lamp1 : lamp0, x, 2, 3, 2);
+    return c;
+  }));
+}
+
+/* a lever on a plate (Book 2): the crew's, by the heartstones, and a
+ * trap; off, the handle up, on, thrown down with the lamp gone red */
+function thrumLever(mk) {
+  const px = (g, c, x, y, w = 1, h = 1) => { g.fillStyle = c; g.fillRect(x, y, w, h); };
+  return [0, 1].map(on => mk(g => {
+    px(g, GUN[2], 3, 4, 10, 12); px(g, GUN[5], 3, 4, 10, 1); px(g, GUN[1], 3, 15, 10, 1);
+    for (let x = 4; x < 12; x += 4) { px(g, STRIPE[0], x, 13, 2, 2); px(g, STRIPE[1], x + 2, 13, 2, 2); }
+    px(g, GUN[0], 7, 7, 2, 4);
+    if (on) { px(g, GUN[6], 8, 10, 1, 5); px(g, "#c8302a", 7, 14, 3, 2); px(g, "#ff6a5a", 5, 5, 2, 2); }
+    else { px(g, GUN[6], 8, 2, 1, 7); px(g, "#c8302a", 7, 1, 3, 2); px(g, GLOW[3], 5, 5, 2, 2); }
+  }));
+}
+
+/* The crags' far wall: a deep cavern, darker at the top; hanging spires of
+ * rock in two layers, the nearer with fungus lights on it; crystal glints
+ * and a faint teal haze where the Hum is, low down. Full colour. */
+function paintCragFar() {
+  const c = makeCanvas(320, 200), g = c.getContext("2d"), r = rng(31);
+  const px = (col, x, y, w = 1, h = 1) => { g.fillStyle = col; g.fillRect(x, y, w, h); };
+  for (let y = 0; y < 200; y += 4) { const k = y / 200; px(`rgb(${Math.round(10 + 18 * k)},${Math.round(6 + 10 * k)},${Math.round(18 + 30 * k)})`, 0, y, 320, 4); }
+  /* the Hum's haze, low */
+  const haze = g.createLinearGradient(0, 120, 0, 200); haze.addColorStop(0, "rgba(47, 179, 160, 0)"); haze.addColorStop(1, "rgba(47, 179, 160, 0.22)");
+  g.fillStyle = haze; g.fillRect(0, 120, 320, 80);
+  /* far spires, up from the floor and down from the roof */
+  const spires = (col, n, base, up, maxH, seed) => {
+    const rr = rng(seed); g.fillStyle = col;
+    for (let i = 0; i < n; i++) {
+      const x = rr() * 320, w = 10 + rr() * 22, h = maxH * (0.4 + rr() * 0.6);
+      g.beginPath();
+      if (up) { g.moveTo(x - w / 2, base); g.lineTo(x - w / 6, base - h); g.lineTo(x + w / 5, base - h * 0.9); g.lineTo(x + w / 2, base); }
+      else { g.moveTo(x - w / 2, base); g.lineTo(x - w / 8, base + h); g.lineTo(x + w / 2, base); }
+      g.closePath(); g.fill();
+    }
+  };
+  spires("#1e1430", 9, 0, false, 70, 5);
+  spires("#1e1430", 9, 200, true, 90, 7);
+  spires("#2a1c42", 7, 0, false, 46, 11);
+  spires("#2a1c42", 8, 200, true, 64, 13);
+  /* fungus lights on the near layer, crystal glints in the far one */
+  for (let i = 0; i < 40; i++) { const x = r() * 320 | 0, y = 120 + (r() * 76 | 0); px(r() < .7 ? "#2fb3a0" : "#6fe0c8", x, y, 1, 1); }
+  for (let i = 0; i < 18; i++) { const x = r() * 320 | 0, y = r() * 60 | 0; px("#d24aa6", x, y, 1, 1); if (r() < .4) px("#ffd2f0", x, y, 1, 1); }
+  return c;
+}
+
+/* VGA ramps for Station Delve: a warm gunmetal, and its amber lamps */
+const GUN = ["#0c0e0f", "#181b1d", "#24282a", "#323739", "#42484a", "#575e60", "#737b7c", "#9ba3a3"];
+const AMBER = ["#3a2306", "#6b420c", "#a8670f", "#e09a1c", "#ffd16a", "#fff2c4"];
+const STRIPE = ["#e0b21c", "#1a1608"];
+
+/* Station Delve: riveted gunmetal plate, seamed in panels, now and then a
+ * vent, a pipe run or a patch of the Hum's teal growth; the floor's edge in
+ * hazard stripes. A ledge is a mesh catwalk, the hazard live cables
+ * sparking, the doors round-cornered bulkheads with a colour band, the exit
+ * a lift with an amber lamp, a sign the station's wall terminal. */
+function delveTiles(tiles, th, mk, E) {
+  tiles.switch = thrumLever(mk);
+  const px = (g, c, x, y, w = 1, h = 1) => { g.fillStyle = c; g.fillRect(x, y, w, h); };
+  const plate = (g, r) => {
+    px(g, GUN[3], 0, 0, T, T);
+    for (let i = 0; i < 14; i++) px(g, GUN[2 + (r() * 3 | 0)], r() * T | 0, r() * T | 0, 1 + (r() * 3 | 0), 1);
+    /* the panel's seams: one horizontal, offset, and a lit upper lip */
+    const sy = 7 + (r() * 2 | 0);
+    px(g, GUN[1], 0, sy, T, 1); px(g, GUN[5], 0, sy + 1, T, 1);
+    px(g, GUN[5], 0, 0, T, 1); px(g, GUN[1], 0, T - 1, T, 1);
+    for (const [x, y] of [[2, 2], [13, 2], [2, sy + 3], [13, sy + 3]]) { px(g, GUN[6], x, y); px(g, GUN[1], x, y + 1); }
+  };
+  const block = (top, kind, seed) => mk(g => {
+    const r = rng(seed);
+    plate(g, r);
+    if (kind === 1) { /* a vent */ px(g, GUN[1], 4, 3, 8, 4); for (let y = 3; y < 7; y += 2) px(g, GUN[4], 4, y, 8, 1); }
+    if (kind === 2) { /* a pipe run across */ px(g, GUN[1], 0, 10, T, 4); px(g, GUN[5], 0, 10, T, 1); px(g, GUN[4], 0, 11, T, 2); px(g, GUN[2], 0, 13, T, 1); px(g, AMBER[2], 7, 10, 2, 4); }
+    if (kind === 3) { /* the Hum creeping in at a seam */ for (const [x, y, w] of [[0, 9, 5], [1, 10, 3], [3, 8, 2], [11, 3, 3], [12, 4, 4]]) { px(g, GLOW[1], x, y, w, 1); } px(g, GLOW[3], 2, 9, 2, 1); px(g, GLOW[4], 13, 4); }
+    if (top) {
+      /* the floor's edge: hazard stripes, lit */
+      for (let x = -4; x < T; x += 4) { px(g, STRIPE[0], x + 2, 0, 2, 3); px(g, STRIPE[1], x, 0, 2, 3); }
+      px(g, GUN[6], 0, 3, T, 1);
+    }
+  });
+  tiles.ground = [block(false, 0, 3), block(false, 0, 41), block(false, 1, 17), block(false, 0, 53), block(false, 2, 29), block(false, 3, 67)];
+  tiles.groundTop = [block(true, 0, 9), block(true, 0, 21), block(true, 1, 45), block(true, 0, 33), block(true, 3, 57)];
+
+  /* a ledge: a mesh catwalk, its frame lit along the top */
+  tiles.plat = mk(g => {
+    px(g, GUN[5], 0, 0, T, 1); px(g, GUN[4], 0, 1, T, 1);
+    for (let x = 0; x < T; x += 2) px(g, GUN[3], x, 2, 1, 3);
+    px(g, GUN[2], 0, 2, T, 1); px(g, GUN[4], 0, 5, T, 1);
+    for (const x of [1, 14]) px(g, GUN[5], x, 2, 1, 3);
+  });
+
+  /* the hazard: torn cables up out of a floor duct, arcing */
+  tiles.spikes = mk(g => {
+    px(g, GUN[2], 0, 12, T, 4); px(g, GUN[4], 0, 12, T, 1); px(g, GUN[1], 2, 13, 12, 2);
+    for (const [x, h, c] of [[3, 9, "#b42e2e"], [7, 12, "#2e6eb4"], [11, 8, "#c8a41c"]]) {
+      for (let k = 0; k < h; k++) px(g, c, x + (k > h / 2 ? 1 : 0), 12 - k, 2, 1);
+      px(g, "#d8e2e8", x + 1, 12 - h, 1, 1);
+    }
+    /* the arc: a jag of blue-white between two ends, and the glow */
+    g.fillStyle = "rgba(160, 210, 255, 0.35)"; g.fillRect(2, 0, 12, 6);
+    for (const [x, y] of [[4, 4], [5, 2], [6, 3], [7, 1], [8, 2], [9, 0], [10, 2], [11, 3]]) px(g, y % 2 ? "#e6f4ff" : "#8cc8ff", x, y);
+  });
+
+  /* doors: a bulkhead, round-cornered in its frame, a band in the door's
+     colour across the top tile, the lock's lamp */
+  const COLOURS = [[12, 4], [14, 6], [10, 2], [9, 1], [7, 8]];
+  const door = (a, b, top) => mk(g => {
+    px(g, GUN[1], 0, 0, T, T);
+    px(g, GUN[4], 1, top ? 1 : 0, T - 2, top ? T - 1 : T); px(g, GUN[6], 1, top ? 1 : 0, 1, T); px(g, GUN[2], T - 2, 0, 1, T);
+    if (top) { px(g, GUN[1], 1, 1, 1, 1); px(g, GUN[1], T - 2, 1, 1, 1); px(g, GUN[5], 2, 1, T - 4, 1); }
+    for (let y = top ? 9 : 3; y < T; y += 6) { px(g, GUN[3], 3, y, T - 6, 1); px(g, GUN[5], 3, y + 1, T - 6, 1); }
+    if (top) {
+      px(g, E(b), 2, 4, T - 4, 3); px(g, E(a), 2, 4, T - 4, 1);
+      px(g, GUN[0], 11, 10, 3, 3); px(g, E(a), 12, 11, 1, 1);
+    } else { px(g, E(b), 2, 13, T - 4, 1); px(g, STRIPE[0], 3, 14, 2, 1); px(g, STRIPE[0], 11, 14, 2, 1); }
+  });
+  tiles.doors = COLOURS.map(([a, b]) => door(a, b, true));
+  tiles.doorsBelow = COLOURS.map(([a, b]) => door(a, b, false));
+
+  /* the exit: a lift's doors under an amber lamp; open, the lit car */
+  const lift = open => { const c = makeCanvas(T, T * 2), g = c.getContext("2d");
+    px(g, GUN[2], 0, 2, T, 30); px(g, GUN[5], 0, 2, T, 1);
+    for (let x = -4; x < T; x += 4) { px(g, STRIPE[0], x + 2, 3, 2, 2); px(g, STRIPE[1], x, 3, 2, 2); }
+    px(g, GUN[4], 0, 5, 2, 27); px(g, GUN[4], T - 2, 5, 2, 27);
+    if (open) {
+      px(g, AMBER[0], 2, 5, 12, 27); g.fillStyle = "rgba(255, 209, 106, 0.35)"; g.fillRect(2, 5, 12, 27);
+      px(g, GUN[5], 2, 29, 12, 2); px(g, GUN[6], 2, 29, 12, 1); px(g, AMBER[4], 4, 7, 8, 1);
+    } else {
+      px(g, GUN[5], 2, 5, 6, 27); px(g, GUN[4], 8, 5, 6, 27); px(g, GUN[1], 7, 5, 2, 27);
+      for (const y of [12, 22]) { px(g, GUN[3], 3, y, 4, 1); px(g, GUN[3], 9, y, 4, 1); }
+    }
+    g.fillStyle = "rgba(255, 209, 106, 0.4)"; g.fillRect(4, 0, 8, 3);
+    px(g, AMBER[2], 6, 0, 4, 2); px(g, AMBER[5], 7, 0, 2, 1);
+    return c; };
+  tiles.exit = [lift(false), lift(true)];
+
+  tiles.ice = mk(g => {
+    const r = rng(43);
+    g.drawImage(tiles.ground[0], 0, 0);
+    for (let y = 0; y < 4; y++) px(g, ["#e9fbff", "#b2e4f6", "#78c2e4", "#4a92c0"][y], 0, y, T, 1);
+    for (let i = 0; i < 10; i++) px(g, r() < .5 ? "#b2e4f6" : "#e9fbff", r() * T | 0, 4 + (r() * 12 | 0));
+  });
+
+  /* a hint sign is the station's wall terminal: an amber screen, a keypad */
+  tiles.sign = mk(g => {
+    px(g, GUN[2], 1, 1, 14, 13); px(g, GUN[5], 1, 1, 14, 1); px(g, GUN[1], 1, 13, 14, 1);
+    px(g, AMBER[0], 3, 3, 10, 6);
+    for (const [y, w] of [[4, 7], [6, 5]]) px(g, AMBER[3], 4, y, w, 1);
+    px(g, AMBER[4], 4, 8, 2, 1);
+    for (let x = 4; x < 12; x += 3) px(g, GUN[5], x, 11, 2, 1);
+    px(g, GUN[4], 7, 14, 2, 2);
+  });
+
+  /* moving platforms: a cargo lift's deck, striped, with lamps */
+  tiles.platform = [[AMBER[2], AMBER[4]], [GLOW[2], GLOW[4]], ["#8c2a2a", "#ff6a5a"]].map(([lamp0, lamp1]) => [0, 1].map(f => {
+    const c = makeCanvas(T * 2, 8), g = c.getContext("2d");
+    px(g, GUN[4], 0, 0, 32, 6); px(g, GUN[6], 0, 0, 32, 1);
+    for (let x = -4; x < 32; x += 4) { px(g, STRIPE[0], x + 2, 4, 2, 2); px(g, STRIPE[1], x, 4, 2, 2); }
+    px(g, "#000", 1, 6, 30, 2);
+    for (let x = 3; x < 32; x += 8) px(g, (x >> 3) % 2 === f ? lamp1 : lamp0, x, 1, 3, 2);
+    return c;
+  }));
+}
+
+/* Station Delve's far wall: dark plating in bays between girders, big pipe
+ * runs, amber lamps down the bays, and through a long viewport the crags'
+ * violet, with the Hum's glow coming up from below. Full colour. */
+function paintDelveFar() {
+  const c = makeCanvas(320, 200), g = c.getContext("2d"), r = rng(23);
+  const px = (col, x, y, w = 1, h = 1) => { g.fillStyle = col; g.fillRect(x, y, w, h); };
+  px("#101314", 0, 0, 320, 200);
+  /* the viewport: a band of cave behind glass */
+  for (let y = 46; y < 104; y += 2) { const k = (y - 46) / 58; px(`rgb(${Math.round(30 + 10 * k)},${Math.round(20 + 30 * k)},${Math.round(50 + 20 * k)})`, 0, y, 320, 2); }
+  for (let i = 0; i < 9; i++) { const x = r() * 320, w = 14 + r() * 20, h = 16 + r() * 30; g.fillStyle = "#1e1430"; g.beginPath(); g.moveTo(x - w / 2, 104); g.lineTo(x, 104 - h); g.lineTo(x + w / 2, 104); g.fill(); }
+  for (let i = 0; i < 24; i++) px(r() < .6 ? "#2fb3a0" : "#6fe0c8", r() * 320 | 0, 90 + (r() * 14 | 0));
+  px("#2a3032", 0, 44, 320, 2); px("#4a5254", 0, 44, 320, 1); px("#2a3032", 0, 104, 320, 3); px("#4a5254", 0, 104, 320, 1);
+  /* the bays: girders, each with a lamp, plating between */
+  for (let x = 0; x < 320; x += 64) {
+    px("#1c2123", x, 0, 10, 200); px("#2c3335", x + 1, 0, 2, 200); px("#141819", x + 8, 0, 2, 200);
+    for (let y = 0; y < 200; y += 12) px("#3a4244", x + 4, y + 2, 2, 2);
+    /* a caged work-lamp on its bracket, a soft pool of light under it */
+    g.fillStyle = "rgba(255, 190, 90, 0.10)"; g.beginPath(); g.ellipse(x + 32, 36, 12, 7, 0, 0, Math.PI * 2); g.fill();
+    px("#2c3335", x + 31, 22, 2, 5); px("#3a4244", x + 29, 27, 6, 1);
+    px("#a8670f", x + 30, 28, 4, 3); px("#ffd16a", x + 31, 28, 2, 2); px("#3a4244", x + 30, 29, 4, 1);
+  }
+  /* pipes along the lower wall */
+  for (const [y, h, col, hi] of [[128, 8, "#262c2e", "#3e4648"], [142, 5, "#2e2418", "#4c3a22"], [170, 10, "#202527", "#384042"]]) { px(col, 0, y, 320, h); px(hi, 0, y, 320, 1); }
+  for (let x = 20; x < 320; x += 40) { px("#3e4648", x, 126, 4, 12); px("#4c3a22", x + 18, 141, 3, 7); }
+  /* plating below, in panels */
+  for (let y = 112; y < 200; y += 22) px("#171b1c", 0, y, 320, 1);
+  return c;
+}
+
+/* VGA ramps for the Hive: its flesh and chitin, and bone */
+const FLESH = ["#140608", "#260a12", "#380f1c", "#4c1626", "#631f32", "#7c2e42", "#984358", "#bb6378"];
+const BONE = ["#4a4232", "#7a6e54", "#b0a27e", "#ddd2ae", "#fbf4dc"];
+
+/* The Hive: ridged chitin over flesh, a teal vein wandering through, now
+ * and then a magenta node or a cluster of pores; the top a glossy membrane
+ * fringed with cilia. A ledge is a rib of bone, the hazard curved bone
+ * barbs, the doors and the lift the crew's own, half swallowed by growth,
+ * the sign a terminal the Hum has nearly covered. */
+function hiveTiles(tiles, th, mk, E) {
+  tiles.switch = thrumLever(mk);
+  const px = (g, c, x, y, w = 1, h = 1) => { g.fillStyle = c; g.fillRect(x, y, w, h); };
+  const flesh = (g, r) => {
+    px(g, FLESH[3], 0, 0, T, T);
+    /* ridges: curved bands of chitin, each lit along its top */
+    for (let y = 1; y < T; y += 5) {
+      const o = (r() * 3 | 0) - 1;
+      for (let x = 0; x < T; x++) { const yy = y + o + Math.round(Math.sin((x + y) / 3) * 0.8); px(g, FLESH[5], x, yy); px(g, FLESH[2], x, yy + 2); }
+    }
+    for (let i = 0; i < 12; i++) px(g, FLESH[2 + (r() * 3 | 0)], r() * T | 0, r() * T | 0);
+  };
+  const vein = (g, r) => {
+    let x = r() * T | 0, y = 0;
+    for (let i = 0; i < 18 && y < T; i++) { px(g, GLOW[1], x, y + 1); px(g, GLOW[3], x, y); x += (r() * 3 | 0) - 1; x = Math.max(0, Math.min(T - 1, x)); y++; }
+  };
+  const block = (top, kind, seed) => mk(g => {
+    const r = rng(seed);
+    flesh(g, r);
+    if (kind === 1) vein(g, r);
+    if (kind === 2) { /* a node, swollen and lit */ px(g, FLESH[1], 5, 5, 6, 6); px(g, SPINE[2], 6, 6, 4, 4); px(g, SPINE[4], 6, 6, 2, 2); px(g, SPINE[5], 6, 6); }
+    if (kind === 3) { /* pores */ for (const [x, y] of [[3, 4], [8, 3], [11, 7], [5, 10], [10, 12]]) { px(g, FLESH[0], x, y, 2, 2); px(g, FLESH[6], x, y); } }
+    if (top) {
+      /* the membrane: glossy, lighter, and its cilia waving up */
+      px(g, FLESH[6], 0, 1, T, 2); px(g, FLESH[7], 0, 1, T, 1);
+      for (let x = 0; x < T; x += 2) { const h = r() < .5 ? 1 : 2; px(g, r() < .3 ? GLOW[4] : GLOW[2], x + (r() < .5 ? 1 : 0), 1 - h, 1, h); }
+    }
+  });
+  tiles.ground = [block(false, 0, 3), block(false, 1, 41), block(false, 0, 17), block(false, 3, 53), block(false, 2, 29), block(false, 1, 67)];
+  tiles.groundTop = [block(true, 0, 9), block(true, 1, 21), block(true, 0, 45), block(true, 3, 33), block(true, 0, 57)];
+
+  /* a ledge: a rib of bone, a strand of sinew hanging off it */
+  tiles.plat = mk(g => {
+    px(g, BONE[2], 0, 0, T, 3); px(g, BONE[4], 0, 0, T, 1); px(g, BONE[1], 0, 3, T, 1);
+    for (const x of [4, 11]) { px(g, BONE[1], x, 0, 1, 3); }
+    px(g, FLESH[5], 7, 4, 1, 3); px(g, FLESH[6], 7, 7, 1, 1);
+  });
+
+  /* the hazard: bone barbs, curved and hooked, out of a fleshy bed */
+  tiles.spikes = mk(g => {
+    px(g, FLESH[4], 0, 13, T, 3); px(g, FLESH[6], 0, 13, T, 1);
+    for (const [x, h, lean] of [[2, 9, 1], [6, 12, -1], [10, 10, 1], [13, 8, -1]]) {
+      for (let k = 0; k < h; k++) { const xx = x + Math.round(lean * (k / h) * (k / h) * 3); px(g, k > h - 3 ? BONE[4] : BONE[2], xx, 13 - k, k < 3 ? 2 : 1, 1); }
+    }
+  });
+
+  /* doors: the crew's bulkheads (as in the station), with the Hum grown
+     over their edges */
+  const COLOURS = [[12, 4], [14, 6], [10, 2], [9, 1], [7, 8]];
+  const door = (a, b, top) => mk(g => {
+    px(g, GUN[4], 1, 0, T - 2, T); px(g, GUN[6], 1, 0, 1, T); px(g, GUN[2], T - 2, 0, 1, T);
+    for (let y = top ? 9 : 3; y < T; y += 6) { px(g, GUN[3], 3, y, T - 6, 1); px(g, GUN[5], 3, y + 1, T - 6, 1); }
+    if (top) { px(g, E(b), 2, 4, T - 4, 3); px(g, E(a), 2, 4, T - 4, 1); px(g, GUN[0], 11, 10, 3, 3); px(g, E(a), 12, 11, 1, 1); }
+    else px(g, E(b), 2, 13, T - 4, 1);
+    /* the growth: flesh over the frame, a vein onto the door */
+    for (let y = 0; y < T; y++) { px(g, FLESH[4], 0, y, 1 + ((y * 7) % 3 === 0 ? 1 : 0), 1); px(g, FLESH[4], T - 1 - ((y * 5) % 4 === 0 ? 1 : 0), y, 2, 1); }
+    if (top) { px(g, FLESH[5], 0, 0, 5, 2); px(g, FLESH[6], 0, 0, 3, 1); px(g, GLOW[3], 2, 2, 1, 3); }
+    else { px(g, FLESH[5], 11, 12, 5, 4); px(g, FLESH[6], 12, 12, 3, 1); }
+  });
+  tiles.doors = COLOURS.map(([a, b]) => door(a, b, true));
+  tiles.doorsBelow = COLOURS.map(([a, b]) => door(a, b, false));
+
+  /* the exit: the crew's lift, its frame grown over; open, lit within */
+  const lift = open => { const c = makeCanvas(T, T * 2), g = c.getContext("2d");
+    px(g, GUN[2], 0, 2, T, 30); px(g, GUN[4], 0, 5, 2, 27); px(g, GUN[4], T - 2, 5, 2, 27);
+    if (open) { px(g, AMBER[0], 2, 5, 12, 27); g.fillStyle = "rgba(255, 209, 106, 0.30)"; g.fillRect(2, 5, 12, 27); px(g, GUN[5], 2, 29, 12, 2); }
+    else { px(g, GUN[5], 2, 5, 6, 27); px(g, GUN[4], 8, 5, 6, 27); px(g, GUN[1], 7, 5, 2, 27); }
+    for (let y = 2; y < 32; y++) { px(g, FLESH[4], 0, y, (y * 3) % 5 === 0 ? 3 : 2, 1); px(g, FLESH[4], T - ((y * 7) % 4 === 0 ? 3 : 2), y, 3, 1); }
+    px(g, FLESH[5], 0, 2, T, 3); px(g, FLESH[6], 0, 2, T, 1);
+    for (const [x, y] of [[3, 3], [9, 2], [13, 4]]) px(g, GLOW[4], x, y);
+    g.fillStyle = "rgba(111, 224, 200, 0.35)"; g.fillRect(4, 0, 8, 3); px(g, GLOW[2], 6, 0, 4, 2); px(g, GLOW[5], 7, 0, 2, 1);
+    return c; };
+  tiles.exit = [lift(false), lift(true)];
+
+  tiles.ice = mk(g => {
+    const r = rng(43);
+    g.drawImage(tiles.ground[0], 0, 0);
+    for (let y = 0; y < 4; y++) px(g, ["#e9fbff", "#b2e4f6", "#78c2e4", "#4a92c0"][y], 0, y, T, 1);
+    for (let i = 0; i < 10; i++) px(g, r() < .5 ? "#b2e4f6" : "#e9fbff", r() * T | 0, 4 + (r() * 12 | 0));
+  });
+
+  /* a hint sign: a crew terminal, the Hum grown nearly over it; the screen
+     still glows through */
+  tiles.sign = mk(g => {
+    px(g, GUN[2], 1, 1, 14, 13); px(g, GUN[5], 1, 1, 14, 1);
+    px(g, AMBER[0], 3, 3, 10, 6); px(g, AMBER[3], 4, 4, 6, 1); px(g, AMBER[3], 4, 6, 4, 1);
+    for (const [x, y, w, h] of [[0, 0, 5, 4], [0, 4, 2, 10], [10, 10, 6, 6], [13, 0, 3, 10], [1, 13, 10, 3]]) { px(g, FLESH[4], x, y, w, h); }
+    px(g, FLESH[6], 0, 0, 4, 1); px(g, GLOW[3], 2, 6, 1, 4); px(g, GLOW[4], 14, 3);
+  });
+
+  /* moving platforms: a drifting raft of membrane, lit spots along it */
+  tiles.platform = [[GLOW[2], GLOW[4]], [SPINE[2], SPINE[4]], [BONE[1], BONE[3]]].map(([lamp0, lamp1]) => [0, 1].map(f => {
+    const c = makeCanvas(T * 2, 8), g = c.getContext("2d");
+    px(g, FLESH[5], 1, 0, 30, 6); px(g, FLESH[7], 2, 0, 28, 1); px(g, FLESH[3], 1, 5, 30, 1); px(g, FLESH[5], 0, 1, 32, 4);
+    for (let x = 3; x < 32; x += 8) px(g, (x >> 3) % 2 === f ? lamp1 : lamp0, x, 2, 3, 2);
+    px(g, FLESH[3], 6, 6, 1, 2); px(g, FLESH[3], 18, 6, 1, 2); px(g, FLESH[3], 27, 6, 1, 1);
+    return c;
+  }));
+}
+
+/* The Hive's depths: dark flesh, ribs arching up in two layers like the
+ * inside of something alive, glowing pods hung between them, and spores
+ * drifting in the teal haze. Full colour. */
+function paintHiveFar() {
+  const c = makeCanvas(320, 200), g = c.getContext("2d"), r = rng(17);
+  const px = (col, x, y, w = 1, h = 1) => { g.fillStyle = col; g.fillRect(x, y, w, h); };
+  for (let y = 0; y < 200; y += 4) { const k = y / 200; px(`rgb(${Math.round(18 + 22 * k)},${Math.round(5 + 6 * k)},${Math.round(9 + 8 * k)})`, 0, y, 320, 4); }
+  const haze = g.createLinearGradient(0, 100, 0, 200); haze.addColorStop(0, "rgba(47, 179, 160, 0)"); haze.addColorStop(1, "rgba(47, 179, 160, 0.16)");
+  g.fillStyle = haze; g.fillRect(0, 100, 320, 100);
+  /* ribs: arches from the floor to the roof, far ones dim */
+  for (const [col, hi, step, w, off] of [["#2c0c14", "#3e141e", 54, 10, 0], ["#40121e", "#5e1f2e", 80, 14, 30]]) {
+    for (let x = off; x < 360; x += step) {
+      g.strokeStyle = col; g.lineWidth = w; g.beginPath(); g.moveTo(x - 30, 200); g.quadraticCurveTo(x, 40, x + 30, -10); g.stroke();
+      g.strokeStyle = hi; g.lineWidth = 2; g.beginPath(); g.moveTo(x - 30 - w / 3, 200); g.quadraticCurveTo(x - w / 3, 40, x + 30 - w / 3, -10); g.stroke();
+    }
+  }
+  /* pods: lit sacs hanging between the ribs */
+  for (let i = 0; i < 7; i++) {
+    const x = 20 + r() * 280, y = 30 + r() * 90;
+    px("#3e141e", x, y - 14, 1, 14);
+    g.fillStyle = "rgba(111, 224, 200, 0.18)"; g.beginPath(); g.arc(x, y + 4, 9, 0, Math.PI * 2); g.fill();
+    g.fillStyle = "#187e76"; g.beginPath(); g.ellipse(x, y + 4, 4, 6, 0, 0, Math.PI * 2); g.fill();
+    px("#6fe0c8", x - 1, y + 1, 2, 3); px("#c4fff0", x - 1, y + 1);
+  }
+  /* spores */
+  for (let i = 0; i < 50; i++) px(r() < .7 ? "#2fb3a0" : "#d24aa6", r() * 320 | 0, r() * 200 | 0);
+  return c;
+}
+
+/* a heartstone (Book 2): a faceted magenta stone in a teal halo, the Hum's
+ * glow pulsing in it; two frames, dim and bright */
+function paintHeartstone() {
+  return [0, 1].map(f => {
+    const c = makeCanvas(14, 16), g = c.getContext("2d");
+    const px = (col, x, y, w = 1, h = 1) => { g.fillStyle = col; g.fillRect(x, y, w, h); };
+    g.fillStyle = f ? "rgba(111, 224, 200, 0.35)" : "rgba(47, 179, 160, 0.22)"; g.beginPath(); g.arc(7, 8, 7, 0, Math.PI * 2); g.fill();
+    /* the stone: a rough heart of facets, dark edge, lit top left */
+    const rows = ["...aa..aa...", "..abba.abba..", ".abccbbbccba.", ".abcddcccdcba", ".abccddccccba", "..abccccccba.", "...abccccba..", "....abccba...", ".....abba....", "......aa....."];
+    const col = { a: SPINE[0], b: SPINE[2], c: f ? SPINE[3] : SPINE[2], d: f ? SPINE[5] : SPINE[4] };
+    rows.forEach((r, y) => [...r].forEach((ch, x) => { if (col[ch]) px(col[ch], x, y + 3); }));
+    px(GLOW[f ? 5 : 4], 4, 5); px("#ffffff", 4, 5, 1, 1);
+    return c;
+  });
+}
+
 /* VGA ramps for the Vaults, dark to light: a cool steel, and frost */
 const VSTEEL = ["#0f1217", "#1c222a", "#2b333d", "#3d4752", "#535f6c", "#6f7c8a", "#95a1ae", "#c4ccd5"];
 const FROST = ["#173450", "#2a5f8a", "#4a92c0", "#78c2e4", "#b2e4f6", "#e9fbff"];
@@ -1930,6 +2770,9 @@ function paintFar(themeName) {
   if (th.style === "vault") return paintVaultFar(th);
   if (th.style === "raiders") return paintRaiderFar();
   if (th.style === "ruins") return paintRuinFar();
+  if (th.style === "crags") return paintCragFar();
+  if (th.style === "delve") return paintDelveFar();
+  if (th.style === "hive") return paintHiveFar();
   return c;
 }
 
@@ -2158,6 +3001,143 @@ function paintWasteMap(classic) {
     }, 32, 32),
   };
   return { ...classic, ground, rockAt, rock: rockAt(0), water, field, flag, tele, ship, markerFor: marker, teleName: "Tube station" };
+}
+
+/* Thrum's crust (Book 2): grey-violet regolith pocked with craters, violet
+ * crag rock, the Hum's growth as the barrier, a crew beacon for a done
+ * place, a lift pad for a teleporter; the markers by biome: a cave mouth
+ * (the crags), a station hatch under a mast (Station Delve), a glowing pod
+ * (the Hive). */
+function paintThrumMap(classic) {
+  const mk = (fn, w = T, h = T) => { const c = makeCanvas(w, h); fn(c.getContext("2d")); return c; };
+  const px = (g, col, x, y, w = 1, h = 1) => { g.fillStyle = col; g.fillRect(x, y, w, h); };
+  const DUST = ["#2c2836", "#3a3546", "#4a4458", "#5b5468", "#6e6680"];
+  const ground = [0, 1, 2, 3].map(v => mk(g => {
+    const r = rng(211 + v * 13);
+    px(g, DUST[2], 0, 0, T, T);
+    for (let i = 0; i < 24; i++) px(g, DUST[1 + (r() * 4 | 0)], r() * T | 0, r() * T | 0, 1 + (r() * 2 | 0), 1);
+    /* a small crater: a dark bowl, its far rim lit */
+    if (v === 1 || v === 3) { const x = 3 + (r() * 8 | 0), y = 4 + (r() * 7 | 0); px(g, DUST[0], x, y, 4, 2); px(g, DUST[1], x - 1, y + 1, 6, 1); px(g, DUST[4], x, y + 2, 4, 1); }
+    /* a fleck of crystal */
+    if (v === 2) { px(g, SPINE[3], 10, 6); px(g, SPINE[5], 10, 5); }
+  }));
+  const rockCache = {};
+  const rockAt = mask => rockCache[mask] || (rockCache[mask] = mk(g => {
+    const r = rng(17 + mask);
+    px(g, CRAG[3], 0, 0, T, T);
+    for (let i = 0; i < 26; i++) px(g, CRAG[1 + (r() * 5 | 0)], r() * T | 0, r() * T | 0, 1 + (r() * 3 | 0), 1);
+    if (mask & 1) { px(g, CRAG[6], 0, 0, T, 1); px(g, CRAG[5], 0, 1, T, 2); for (let x = 0; x < T; x++) if (r() < .25) px(g, GLOW[2], x, 0); }
+    if (mask & 8) px(g, CRAG[5], 0, 0, 1, T);
+    if (mask & 2) px(g, CRAG[1], T - 1, 0, 1, T);
+    if (mask & 4) { px(g, CRAG[0], 0, T - 2, T, 2); px(g, "rgba(0,0,0,0.35)", 0, T - 4, T, 2); }
+  }));
+  /* acid, two frames */
+  const water = [0, 1].map(f => mk(g => {
+    px(g, ACID[0], 0, 0, T, T);
+    for (let y = 2; y < T; y += 5) for (let x = (y + f * 3) % 6; x < T; x += 6) { px(g, ACID[3], x, y, 3, 1); px(g, ACID[4], x + 1, y, 1, 1); }
+  }));
+  /* the barrier: the Hum's growth across the way, pulsing */
+  const field = [0, 1, 2].map(f => mk(g => {
+    g.drawImage(ground[0], 0, 0);
+    px(g, FLESH[4], 0, 3, T, 12); px(g, FLESH[6], 0, 3, T, 1); px(g, FLESH[2], 0, 14, T, 1);
+    for (let x = 0; x < T; x += 4) px(g, GLOW[f === 1 ? 4 : 3], (x + f * 2) % T, 6 + (x & 4 ? 2 : 0), 2, 2);
+  }));
+  /* a done place: a crew beacon planted, its amber lamp lit */
+  const flag = mk(g => {
+    px(g, GUN[5], 7, 3, 1, 12); px(g, GUN[3], 8, 3, 1, 12); px(g, GUN[4], 5, 14, 6, 1);
+    px(g, AMBER[3], 6, 1, 4, 3); px(g, AMBER[5], 7, 1, 2, 1);
+    g.fillStyle = "rgba(255, 209, 106, 0.3)"; g.fillRect(4, 0, 8, 5);
+  });
+  /* a lift pad: a ringed hatch, its light blinking */
+  const tele = [0, 1].map(f => mk(g => {
+    g.drawImage(ground[2], 0, 0);
+    g.fillStyle = GUN[3]; g.beginPath(); g.arc(8, 9, 6, 0, Math.PI * 2); g.fill();
+    g.strokeStyle = STRIPE[0]; g.lineWidth = 1; g.beginPath(); g.arc(8, 9, 5.5, 0, Math.PI * 2); g.stroke();
+    px(g, GUN[1], 5, 9, 7, 1); px(g, GUN[1], 8, 6, 1, 7);
+    px(g, f ? GLOW[4] : GLOW[2], 7, 2, 3, 2);
+  }));
+  /* the Catamaran, landed upright on Thrum, a pad of dust round it */
+  const ship = mk(g => {
+    for (const [x, y] of [[0, 0], [16, 0], [0, 16], [16, 16]]) g.drawImage(ground[(x + y) >> 4 & 3], x, y);
+    g.fillStyle = "rgba(10, 8, 16, 0.55)"; g.beginPath(); g.ellipse(16, 28, 14, 4, 0, 0, Math.PI * 2); g.fill();
+    g.drawImage(classic.shipBare, 0, -2);
+  }, 32, 32);
+  const marker = {
+    /* a cave mouth in a violet outcrop, fungus glowing at its lip */
+    cave: mk(g => {
+      px(g, "rgba(0,0,0,0.3)", 2, 28, 28, 3);
+      g.fillStyle = CRAG[3]; g.beginPath(); g.moveTo(1, 30); g.lineTo(3, 14); g.lineTo(9, 5); g.lineTo(18, 3); g.lineTo(26, 8); g.lineTo(30, 18); g.lineTo(31, 30); g.closePath(); g.fill();
+      g.fillStyle = CRAG[5]; g.beginPath(); g.moveTo(3, 14); g.lineTo(9, 5); g.lineTo(18, 3); g.lineTo(15, 7); g.lineTo(8, 10); g.closePath(); g.fill();
+      g.fillStyle = CRAG[0]; g.beginPath(); g.moveTo(9, 30); g.quadraticCurveTo(16, 10, 23, 30); g.closePath(); g.fill();
+      for (const [x, y] of [[9, 24], [12, 17], [20, 16], [23, 23]]) { px(g, GLOW[3], x, y, 2, 1); px(g, GLOW[5], x, y); }
+      px(g, SPINE[4], 26, 12); px(g, SPINE[4], 5, 20);
+    }, 32, 32),
+    /* a station hatch in a steel housing, a mast with an amber lamp */
+    station: mk(g => {
+      px(g, "rgba(0,0,0,0.3)", 2, 28, 28, 3);
+      px(g, GUN[2], 4, 13, 24, 17); px(g, GUN[5], 4, 13, 24, 1); px(g, GUN[1], 4, 29, 24, 1);
+      for (let x = 4; x < 28; x += 4) { px(g, STRIPE[0], x, 14, 2, 2); px(g, STRIPE[1], x + 2, 14, 2, 2); }
+      px(g, GUN[4], 10, 18, 12, 11); px(g, GUN[6], 10, 18, 12, 1); px(g, GUN[1], 15, 18, 2, 11);
+      px(g, GUN[4], 25, 2, 1, 12); px(g, AMBER[3], 24, 0, 3, 3); px(g, AMBER[5], 25, 0);
+      px(g, GLOW[1], 4, 24, 3, 5); px(g, GLOW[3], 5, 25);
+    }, 32, 32),
+    /* a pod of the Hive: a fleshy sac split open, glowing inside */
+    pod: mk(g => {
+      px(g, "rgba(0,0,0,0.3)", 3, 28, 26, 3);
+      g.fillStyle = FLESH[4]; g.beginPath(); g.ellipse(16, 18, 13, 12, 0, 0, Math.PI * 2); g.fill();
+      g.fillStyle = FLESH[6]; g.beginPath(); g.ellipse(12, 12, 6, 4, -0.5, 0, Math.PI * 2); g.fill();
+      g.fillStyle = "rgba(111, 224, 200, 0.35)"; g.beginPath(); g.ellipse(16, 20, 8, 9, 0, 0, Math.PI * 2); g.fill();
+      g.fillStyle = FLESH[0]; g.beginPath(); g.ellipse(16, 21, 4, 8, 0, 0, Math.PI * 2); g.fill();
+      px(g, GLOW[4], 15, 17, 2, 6); px(g, GLOW[5], 15, 18);
+      for (const [x, y] of [[5, 22], [26, 14], [24, 25]]) { px(g, BONE[3], x, y, 1, 3); px(g, BONE[4], x, y); }
+    }, 32, 32),
+  };
+  return { ...classic, ground, rockAt, rock: rockAt(0), water, field, flag, tele, ship, markerFor: marker, teleName: "Lift pad" };
+}
+
+/* Thrum's title backdrop (Book 2), 320x200 unless asked for bigger: deep
+ * space, a banded gas giant rising behind the crags (Thrum is its moon),
+ * the violet crust split by cracks the Hum glows through, the station's
+ * mast far off, and the Catamaran standing on its legs on a landing pad.
+ * The animated parts (stars, the cracks' pulse, the lights, Poom) are drawn
+ * over it by game.js. */
+function paintThrumTitle(shipBare, W_ = 320, H_ = 200) {
+  const c = makeCanvas(W_, H_), g = c.getContext("2d"), r = rng(41);
+  const px = (col, x, y, w = 1, h = 1) => { g.fillStyle = col; g.fillRect(x, y, w, h); };
+  for (let y = 0; y < H_; y += 4) { const k = Math.min(1, y / 170); px(`rgb(${Math.round(6 + 22 * k)},${Math.round(4 + 10 * k)},${Math.round(14 + 34 * k)})`, 0, y, W_, 4); }
+  /* the gas giant: banded, its lit limb to the left, rising behind the crags */
+  g.save(); g.beginPath(); g.arc(70, 150, 78, 0, Math.PI * 2); g.clip();
+  /* bands of uneven width and colour, waved and tilted, a storm in one */
+  const bands = ["#4a3a5a", "#7a6070", "#5a6e78", "#8a7466", "#3e3450", "#9a8278", "#566070", "#6e5468"];
+  const rr = rng(77), edges = [72]; while (edges[edges.length - 1] < 240) edges.push(edges[edges.length - 1] + 5 + (rr() * 12 | 0));
+  for (let x = -8; x < 160; x++) for (let i = 0; i < edges.length - 1; i++) {
+    const wave = Math.sin(x / 9 + i * 1.7) * 1.6 + (x - 70) * 0.12;
+    px(bands[i % bands.length], x, Math.round(edges[i] + wave), 1, edges[i + 1] - edges[i] + 1);
+  }
+  g.fillStyle = "#b88a74"; g.beginPath(); g.ellipse(96, 118, 9, 5, 0.12, 0, Math.PI * 2); g.fill();
+  g.fillStyle = "#8a5a50"; g.beginPath(); g.ellipse(97, 118, 5, 3, 0.12, 0, Math.PI * 2); g.fill();
+  const shade = g.createRadialGradient(40, 120, 10, 70, 150, 80); shade.addColorStop(0, "rgba(255, 230, 255, 0.10)"); shade.addColorStop(0.7, "rgba(0, 0, 0, 0)"); shade.addColorStop(1, "rgba(0, 0, 10, 0.55)");
+  g.fillStyle = shade; g.fillRect(0, 60, 160, 180); g.restore();
+  g.strokeStyle = "rgba(200, 176, 232, 0.35)"; g.lineWidth = 1; g.beginPath(); g.ellipse(70, 150, 112, 14, -0.18, Math.PI * 1.05, Math.PI * 1.95); g.stroke();
+  /* the crags along the horizon, two layers */
+  for (const [col, base, amp, seed] of [["#2a1c42", 150, 26, 5], ["#382252", 162, 18, 9]]) {
+    const rr = rng(seed); g.fillStyle = col; g.beginPath(); g.moveTo(0, H_);
+    for (let x = 0; x <= W_; x += 8) g.lineTo(x, base - rr() * amp - (x % 48 < 8 ? amp * 0.6 : 0));
+    g.lineTo(W_, H_); g.fill();
+  }
+  /* the station's mast, far off on the right */
+  px("#1a1029", 290, 108, 2, 52); for (let y = 112; y < 158; y += 6) px("#1a1029", 287, y, 8, 1);
+  /* the crust: grey-violet, cracked, the Hum's teal down in the cracks */
+  for (let y = 168; y < H_; y++) px(y < 171 ? "#6e6680" : y < 182 ? "#4a4458" : "#3a3546", 0, y, W_, 1);
+  for (let i = 0; i < 50; i++) px(r() < .5 ? "#2c2836" : "#5b5468", r() * W_ | 0, 171 + (r() * (H_ - 171) | 0), 1 + (r() * 3 | 0), 1);
+  for (const [x0, len] of [[10, 30], [120, 44], [180, 28], [230, 40]]) { let x = x0, y = 174; for (let i = 0; i < len && y < H_; i++) { px("#10504e", x, y, 2, 1); px("#2fb3a0", x, y); x += (r() * 3 | 0) - 1 + (i % 2); y += r() < .45 ? 1 : 0; } }
+  /* the landing pad, and the Catamaran standing on its legs */
+  g.fillStyle = "rgba(10, 8, 16, 0.6)"; g.beginPath(); g.ellipse(48, 184, 34, 6, 0, 0, Math.PI * 2); g.fill();
+  px("#42484a", 18, 180, 60, 3); px("#737b7c", 18, 180, 60, 1);
+  for (let x = 20; x < 76; x += 8) { px("#e0b21c", x, 181, 4, 1); }
+  for (const x of [26, 68]) { px("#575e60", x, 166, 2, 14); px("#9ba3a3", x, 166, 1, 14); px("#575e60", x - 3, 179, 8, 1); }
+  g.imageSmoothingEnabled = false; g.drawImage(shipBare, 0, 0, 32, 32, 16, 112, 64, 64);
+  return c;
 }
 
 /* The wasteland's title backdrop, 320x200 unless asked for bigger (the

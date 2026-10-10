@@ -139,10 +139,12 @@ function convert(d) {
   const at = new Map();
   for (const e of d.entities) at.set(e.x + "," + e.y, e);
   const things = [], marks = [], rows = [];
-  let e1 = null;
+  let e1 = null, e1solid = null;
   if (d.engine === "E1") {
     const raw = JSON.parse(fs.readFileSync(path.join(MAPS, d.set, d.map + ".raw.json"), "utf8"));
-    e1 = (x, y) => ((raw.tile_properties[raw.planes.tiles[y][x]] || {}).behavior);
+    const prop = (x, y) => raw.tile_properties[raw.planes.tiles[y][x]] || {};
+    e1 = (x, y) => prop(x, y).behavior;
+    e1solid = (x, y) => { const t = prop(x, y); return !!(t.top && t.bottom && t.left && t.right); };
   }
   for (let y = 0; y < d.height; y++) {
     let row = "";
@@ -161,6 +163,9 @@ function convert(d) {
       /* an X in the outer two columns is the map's edge: walking out there
          ends the level. Anywhere else it is an exit door */
       else if (c === "X") g = x < 2 || x >= d.width - 2 ? "X" : "E";
+      /* E1's behaviour 22 is a sign only where it can be walked through: set
+         C builds walls and steps out of solid tiles that carry it too */
+      else if (c === "?" && e1solid && e1solid(x, y)) g = "#";
       else g = PLAIN[c];
       if (g === undefined) throw new Error(`${d.map}: no mapping for '${c}' at ${x},${y}`);
       row += g;
@@ -171,6 +176,10 @@ function convert(d) {
     }
     rows.push(row);
   }
+  /* a sign standing on a deadly floor tile (both of set C's do) gets a
+     safe floor instead, so it can be walked up to and read */
+  for (let y = 0; y + 1 < rows.length; y++) for (let x = 0; x < rows[y].length; x++)
+    if (rows[y][x] === "H" && rows[y + 1][x] === "^") rows[y + 1] = rows[y + 1].slice(0, x) + "#" + rows[y + 1].slice(x + 1);
   const links = [], ends = [];
   for (const e of d.entities) {
     if (e.kind === "door_link" || e.kind === "marker" || e.kind === "unknown") marks.push([e.x, e.y, e.name]);

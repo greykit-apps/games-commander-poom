@@ -43,7 +43,7 @@ document.fonts.load("48px 'Press Start 2P'").then(() => {
   for (let i = 5; i >= 1; i--) { g.fillStyle = i > 4 ? "#000" : i > 2 ? "#7a3a1c" : "#d07a36"; g.fillText("POOM", 600 + i * 4, 120 + i * 4); }
   g.fillStyle = "#ffd23f"; g.fillText("POOM", 600, 120);
   const shadowed = (text, y, col) => { g.fillStyle = "#2a1020"; g.fillText(text, 603, y + 3); g.fillStyle = col; g.fillText(text, 600, y); };
-  g.font = "22px 'Press Start 2P'"; shadowed("Book One: Down in the Glow", 290, "#f0d0a0");
+  g.font = "22px 'Press Start 2P'"; shadowed("Book One: Wastelandia", 290, "#f0d0a0");
   g.font = "16px 'Press Start 2P'"; shadowed("Run. Jump. Pogo. Zap. Take back the four stolen ship parts.", 340, "#fff0d8");
   document.title = "ready";
 });

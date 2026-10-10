@@ -1,6 +1,6 @@
 # Commander Poom
 
-**Book One: Down in the Glow.** A platformer in the spirit of the Commander
+**Book One: Wastelandia.** A platformer in the spirit of the Commander
 Keen games of 1990 and 1991. Commander Poom crash-lands the Catamaran in the
 Glow, a wasteland of raider camps, ruined towns and old underground Vaults,
 and the Scrappers have already hauled off four of his ship's parts. Run, jump,
@@ -15,7 +15,7 @@ spirit of *Fallout*; its names, art and text are all original.
 
 <https://greykit.com/games/commanderpoom/>
 
-![The title screen: the amber Commander Poom logo and "Book One: Down in the Glow" over a dusk sky, the Catamaran crash-landed and smoking on the left with ranger Poom beside it, Auntie Static's radio mast and a ruined skyline behind, and the menu in a rusted-steel panel](screenshots/title.png)
+![The title screen: the amber Commander Poom logo and "Book One: Wastelandia" over a dusk sky, the Catamaran crash-landed and smoking on the left with ranger Poom beside it, Auntie Static's radio mast and a ruined skyline behind, and the menu in a rusted-steel panel](screenshots/title.png)
 
 No build step, no dependencies, no network at play time. Saves stay in your
 browser's `localStorage`. Every sound is synthesized in the page with Web
