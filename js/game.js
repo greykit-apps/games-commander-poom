@@ -968,12 +968,9 @@ const KP = {
   walkMax: 68 / 32, walkAccel: 3.6 / 32, groundFriction: 14 / 32, airFriction: 2 / 32,
   gravity: 4 / 32, maxFall: 104 / 32,
   jumpSpeed: 120 / 32, jumpCrouch: 5, jumpCarry: 64 / 32, airAccel: 3 / 32,
-  pogoBig: 4.98, pogoSmall: 2.76, pogoCompress: 10, pogoAirAccel: 2 / 32,
-  /* the older engine's maps (sets C, D and H) were built for Keen 1-3's
-     higher pogo: a held bounce there clears about ten tiles, and some of
-     their shafts need it (C05's from its start). The newer maps keep the
-     lower one (about six) */
-  pogoBigE1: 6.4,
+  /* a held bounce clears about ten tiles: the maps are built for it (C05's
+     start shaft, E04's ledges nine tiles over the hump) */
+  pogoBig: 6.4, pogoSmall: 2.76, pogoCompress: 10, pogoAirAccel: 2 / 32,
   shotSpeed: 124 / 32, refire: 7, fireStance: 14,
 };
 
@@ -1165,7 +1162,7 @@ function updatePlayer(lv) {
       if (isDown("jump")) p.pogoBigAsk = true;
       if (--p.compress === 0) {
         const big = p.pogoBigAsk || isDown("jump");
-        p.vy = -(big ? (lv.def.engine === "E1" ? KP.pogoBigE1 : KP.pogoBig) : KP.pogoSmall);
+        p.vy = -(big ? KP.pogoBig : KP.pogoSmall);
         p.onGround = false; p.land = 4;
         sfx(big ? "bigpogo" : "pogo");
       }
