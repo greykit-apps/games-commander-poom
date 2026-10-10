@@ -798,6 +798,11 @@ function loadLevel(n) {
      are something else, not yet built.) */
   lv.trapAt = new Set();
   lv.hasPulse = def.rows.some(r => r.includes("z"));
+  /* a hazard hanging from rock, with open space below, points down: drawn
+     upside down, and it's the lower half that hurts */
+  lv.hang = new Set();
+  for (let y = 1; y < h; y++) for (let x = 0; x < w; x++)
+    if (rows[y][x] === "^" && SOLID.has(rows[y - 1][x]) && !(rows[y + 1] && SOLID.has(rows[y + 1][x]))) lv.hang.add(x + "," + y);
   if (def.engine === "E1") for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (rows[y][x] === "S" && !lv.switchAt[x + "," + y] && !lv.pswitchAt[x + "," + y]) lv.trapAt.add(x + "," + y);
 
   /* Book 2: the Hum has grown into every heartstone's chamber, whatever the
@@ -1205,7 +1210,7 @@ function updatePlayer(lv) {
   const hx0 = Math.floor((p.x + 2) / T), hx1 = Math.floor((p.x + p.w - 3) / T);
   const hy0 = Math.floor((p.y + 2) / T), hy1 = Math.floor((p.y + p.h - 1) / T);
   for (let ty = hy0; ty <= hy1; ty++) for (let tx = hx0; tx <= hx1; tx++) {
-    const r = hazardRect(tileAt(lv, tx, ty), lv);
+    const r = lv.hang.has(tx + "," + ty) ? [1, 0, 14, 8] : hazardRect(tileAt(lv, tx, ty), lv);
     if (r && overlap({ x: p.x + 2, y: p.y + 8, w: p.w - 4, h: p.h - 8 }, { x: tx * T + r[0], y: ty * T + r[1], w: r[2], h: r[3] })) return die(lv);
   }
 
@@ -2188,7 +2193,14 @@ function drawLevel() {
       for (let i = 0; i < 3; i++) ctx.fillRect(x + 8 + d * (i - 1) * 2 - 1, y + 7 - i, 2, 1 + i * 2);
     }
     else if (ch === "-") ctx.drawImage(art.plat, x, y);
-    else if (ch === "^") ctx.drawImage(art.spikes, x, y);
+    else if (ch === "^") {
+      /* hanging from rock, it points down; an animated one (the Works'
+         steam vents) runs its own effect in the same frame */
+      const hang = lv.hang.has(tx + "," + ty);
+      ctx.save(); ctx.translate(x, hang ? y + T : y); if (hang) ctx.scale(1, -1);
+      ctx.drawImage(art.spikes, 0, 0); if (art.spikeFx) art.spikeFx(ctx, lv.t, tx * 3 + ty);
+      ctx.restore();
+    }
     else if (ch === "z") drawPulse(art, x, y, pulsePhase(lv), lv.t);
     else if (ch === "~") ctx.drawImage(art.liquid[(lv.t >> 3) % 4], x, y);
     else if (ch === "|") ctx.drawImage(art.pole, x, y);
@@ -2212,6 +2224,8 @@ function drawLevel() {
   /* the secret teleporter: a warp arch, a tile wide, drawn from its top tile */
   for (const k of lv.secretAt) { const [x, y] = k.split(",").map(Number); if (!lv.secretAt.has(x + "," + (y - 1))) ctx.drawImage(art.warp[(lv.t >> 2) % 4], x * T - cx, y * T - cy, T, T * 2); }
   for (const d of lv.warpDoors) if (d.x - cx > -d.w && d.x - cx < W && d.y - cy > -d.h && d.y - cy < H) ctx.drawImage(art.warp[(lv.t >> 3) % 4], d.x - cx, d.y - cy, d.w, d.h);
+  /* walking off the map's edge ends some levels: marked, not hidden */
+  if (lv.edge.size) drawEdgeExits(lv, cx, cy);
   for (const e of lv.exits) { const a = lv.hiveAt && lv.hiveAt.has(Math.floor(e.x / T) + "," + Math.floor(e.y / T)) ? lv.hiveArt : art; ctx.drawImage(a.exit[lv.exitUsed === e ? 1 : 0], e.x - cx, e.y - cy); }
 
   for (const it of lv.items) {
@@ -2488,6 +2502,26 @@ function drawPulse(art, x, y, phase, t) {
   ctx.translate(x, y + T); ctx.scale(1, -1); ctx.drawImage(art.spikes, 0, 0);
   ctx.restore();
   if (phase === "warn" && (t >> 2) & 1) { ctx.fillStyle = "rgba(255, 70, 50, 0.35)"; ctx.fillRect(x + 6, y, 4, T); }
+}
+
+/* an edge exit: chevrons drifting outward through each of its tiles, and
+ * EXIT over the top one */
+function drawEdgeExits(lv, cx, cy) {
+  const tops = {};
+  for (const k of lv.edge) {
+    const [tx, ty] = k.split(",").map(Number), x = tx * T - cx, y = ty * T - cy;
+    if (x < -T || x > W || y < -T || y > H) continue;
+    const out = tx < lv.w / 2 ? -1 : 1, ph = (lv.t >> 2) % 8;
+    ctx.fillStyle = "rgba(90, 255, 120, 0.18)"; ctx.fillRect(x, y, T, T);
+    for (let i = 0; i < 2; i++) {
+      const cxp = x + 8 + out * (((ph + i * 4) % 8) - 4);
+      ctx.fillStyle = i ? "#9dff7a" : "#e8ffb0";
+      for (let d = 0; d < 4; d++) { ctx.fillRect(cxp + out * d, y + 4 + d, 1, 1); ctx.fillRect(cxp + out * d, y + 11 - d, 1, 1); }
+    }
+    const col = tx + "";
+    if (tops[col] === undefined || ty < tops[col][1]) tops[col] = [x, ty, out];
+  }
+  for (const [x, ty, out] of Object.values(tops)) drawSmallText("EXIT", x + (out > 0 ? -14 : 0), ty * T - cy - 8, (lv.t >> 3) % 2 ? 10 : 15);
 }
 
 /* a warning sign: a red triangle with a white !, its point at (x, y) */

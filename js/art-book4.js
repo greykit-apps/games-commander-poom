@@ -227,6 +227,15 @@ TILE_STYLES.works = (tiles, th, mk, E) => {
     px(g, B4_IRON[2], 0, 12, T, 4); px(g, B4_BRASS[3], 2, 10, 12, 3); px(g, B4_BRASS[5], 2, 10, 12, 1); px(g, "#000", 7, 10, 2, 1);
     for (let i = 0; i < 6; i++) { g.fillStyle = `rgba(230, 240, 240, ${0.5 - i * 0.07})`; g.beginPath(); g.arc(8 + Math.sin(i * 1.7) * 2, 9 - i * 1.6, 1.5 + i * 0.5, 0, Math.PI * 2); g.fill(); }
   });
+  /* a steam vent is live: puffs billow out of the nozzle, over and over
+     (the engine draws it in tile space, flipped for a vent in a ceiling) */
+  tiles.spikeFx = (g, t, n) => {
+    for (let i = 0; i < 4; i++) {
+      const f = ((t + n * 7 + i * 9) % 36) / 36, r = 1.5 + f * 3.5;
+      g.fillStyle = `rgba(240, 248, 248, ${0.75 * (1 - f)})`;
+      g.beginPath(); g.arc(8 + Math.sin((t + i * 13 + n) / 5) * 1.5 * f, 9 - f * 13, r, 0, Math.PI * 2); g.fill();
+    }
+  };
   b4Common(tiles, mk, E, B4_IRON[1]);
   tiles.pole = mk(g => { px(g, B4_IRON[1], 6, 0, 4, T); px(g, B4_IRON[4], 7, 0, 2, T); px(g, B4_IRON[5], 7, 0, 1, T); px(g, B4_BRASS[3], 5, 10, 6, 2); });
 };
