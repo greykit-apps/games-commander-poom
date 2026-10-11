@@ -55,6 +55,10 @@ Set D is on the older engine (E1), like Books 1 and 2.
   transcriber from the tiles' side flags). D13's start room has no other way
   out. They're drawn as rock with a faint arrow the way through.
 - **25 moving platforms**, horizontal and vertical.
+- **D16, the Hangar**, changed by hand after it was played through: two
+  tunnels a tile too low for Poom are opened, under (38-39, 86) and
+  (32-33, 113) (`OPEN_TILES`), and the two fires beside its lower exit, at
+  (120, 113) and (120, 115), are gone (`CLEAR_HAZARDS`).
 - **No signs, no rescues, no ship.**
 
 ## The plot, in a paragraph
@@ -186,6 +190,7 @@ its knot and tails behind. Paws and tail still his.
 
 ## Settled
 
+- **Every level is winnable** (2026-10-10). D16 was played through by hand.
 - The villain is Dr Cal, Cal's island persona (Dr Claw, Dr No, a bit of Dr
   Moreau), and this is Cal's first appearance in person.
 - The Book ends when D17 is done.

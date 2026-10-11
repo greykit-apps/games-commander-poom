@@ -3,11 +3,12 @@
 A working document for choosing each Book's theme. Nothing here is settled
 unless it says so; change it freely.
 
-Books 1 to 5 are done: a wasteland in the spirit of *Fallout* (set H), a
+Books 1 to 5 are built: a wasteland in the spirit of *Fallout* (set H), a
 hollow moon in the spirit of *Metroid* (C), an island lair in the spirit of
 *Metal Gear Solid* (D), a drowned city in the spirit of *BioShock* (E) and
 an orbital station in the spirit of *The Terminator*, *Aliens* and
-*Predator* (A). Every later Book follows the same rules:
+*Predator* (A). Books 1 to 4 are in the game; Book 5 is held back until its
+levels are proven winnable. Every later Book follows the same rules:
 
 - **Animals, not humans.** Poom and the Catamaran carry on.
 - **A mashup with its own names.** The Book borrows the feeling of a famous
@@ -29,12 +30,37 @@ an orbital station in the spirit of *The Terminator*, *Aliens* and
   | 2 | C | Heavens to Mergatroid | Thrum, in the spirit of *Metroid* (done) |
   | 3 | D | The Island of Dr Cal | an island lair, *Metal Gear Solid* (done: [book-3-story.md](book-3-story.md)) |
   | 4 | E | Descent into Raptura | a drowned city, *BioShock* (done: [book-4-story.md](book-4-story.md)) |
-  | 5 | A | Termination Day | an orbital station, *The Terminator* / *Aliens* / *Predator* (done: [book-5-story.md](book-5-story.md)) |
+  | 5 | A | Termination Day | an orbital station, *The Terminator* / *Aliens* / *Predator* (built, held back: [book-5-story.md](book-5-story.md)) |
 
-  New game asks which Book to play. All five are playable now
-  (`BOOK_PLAYABLE` in `js/game.js`); the last playable Book ends the game.
+  New game asks which Book to play. Books 1 to 4 are playable
+  (`BOOK_PLAYABLE` in `js/game.js`), and the last playable Book ends the
+  game, so for now Book 4's ending is the game's. Book 5 shows greyed out:
+  its art and maps aren't loaded, and its game code is kept in
+  `js/book5.js`, which says how to put it back.
 
   Each one's story map is in `docs/story/book-<set>.md`.
+- **Every level in the game is winnable by a real player.** Proven on
+  2026-10-10, level by level: by a solver that plays the game's own physics,
+  and, where it couldn't, by hand. The play-through set some rules that
+  every Book now shares:
+  - **Classic or Arcade.** New game asks. Classic is four lives and game
+    over. Arcade never runs out: Poom gets up near where he fell, keeping the
+    level's keycards, and blinks for a moment's grace. Arcade games go on no
+    high-score table.
+  - **One pogo for the whole game.** A held bounce clears about ten tiles,
+    in every Book: physics never changes from one Book to the next.
+  - **Exits are marked.** A walk-off exit at the map's edge glows green,
+    with chevrons pointing out and EXIT over it, instead of looking like
+    the wall behind it.
+  - **Hazards hanging from rock hang**: drawn point down, hurting nearest
+    the rock.
+  - **Trap switches warn**, then ask before they're pulled (Book 2).
+  - **The maps aren't sacrosanct.** Where a level needed it, it was changed
+    by hand, in short per-map lists in `tools/transcribe-maps.js`
+    (`OPEN_TILES`, `CLOSE_TILES`, `CLEAR_HAZARDS`, `ADD_SIGNS`), so a
+    rebuild keeps them. One rule there: never add a hazard a player of the
+    original couldn't meet. A spike hidden under a creature in the source
+    stays out.
 
 ## What each map set is like
 
