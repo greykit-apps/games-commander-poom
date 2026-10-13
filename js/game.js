@@ -2849,7 +2849,7 @@ function page(title, tabs, { onBack = () => UI.pop() } = {}) {
   };
   if (tabs.length > 1) { tabs.forEach(([name], i) => { const b = el("button", null, name); b.addEventListener("click", () => { sfx("menu"); show(i); }); bar.appendChild(b); }); box.appendChild(bar); }
   box.appendChild(body);
-  box.appendChild(el("div", "foot", tabs.length > 1 ? "&larr; &rarr; pages &middot; &uarr; &darr; scroll &middot; Esc back" : "&uarr; &darr; scroll &middot; Esc back"));
+  box.appendChild(el("div", "foot", tabs.length > 1 ? "<span class=\"arr\">&larr; &rarr;</span> pages &middot; &uarr; &darr; scroll &middot; Esc back" : "&uarr; &darr; scroll &middot; Esc back"));
   wrap.appendChild(box);
   show(0);
   UI.push({
@@ -2942,7 +2942,7 @@ const STORY = `<p>Poom Purrington is eight years old, has an IQ of 314, and has 
 <p>Find all four, bring them back to the Catamaran, and get home before your parents do. And whatever you do, stay away from the hose.</p>`;
 
 const CONTROLS = `<table>
-<tr><td><kbd>&larr;</kbd> <kbd>&rarr;</kbd> / <kbd>A</kbd> <kbd>D</kbd></td><td>walk</td></tr>
+<tr><td><kbd class="arr">&larr;</kbd> <kbd class="arr">&rarr;</kbd> / <kbd>A</kbd> <kbd>D</kbd></td><td>walk</td></tr>
 <tr><td><kbd>Ctrl</kbd> / <kbd>Z</kbd></td><td>jump &mdash; hold it to jump higher</td></tr>
 <tr><td><kbd>Alt</kbd> / <kbd>X</kbd></td><td>pogo stick on and off</td></tr>
 <tr><td><kbd>Space</kbd> / <kbd>C</kbd></td><td>fire the raygun</td></tr>
