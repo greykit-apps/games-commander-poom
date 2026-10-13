@@ -1529,6 +1529,9 @@ function die(lv) {
   if (p.pogo) { p.pogo = false; p.h = PH; }
   p.state = "dead"; p.t = 0; p.vy = -3; p.vx = (Math.random() - 0.5) * 2; p.climbing = false; p.crouch = p.compress = 0;
   sfx("die");
+  /* Classic: the life is gone now, not when the box opens, so a reload
+     during the fall can't take the death back (loseLife does the same sum) */
+  if (!G.run.arcade && !G.run.cheat && lv.snapshot) { const s = lv.snapshot; if (s.lives > 0) store.set(KEYS.save, { ...s, lives: s.lives - 1 }); else store.del(KEYS.save); }
 }
 
 /* Arcade: no life lost. Poom picks himself up where he last stood firm, a
