@@ -2819,7 +2819,10 @@ function message(html, { icon = null, iconRow = null, onClose = null, hint = "pr
   box.appendChild(el("p", null, html));
   box.appendChild(el("p", "hint", hint));
   const wrap = el("div", "overlay"); wrap.appendChild(box);
-  let armed = false; setTimeout(() => { armed = true; }, 250);
+  /* a box can't be closed in its first tenth of a second: long enough that
+     a key already being mashed doesn't take it, short enough that no one
+     who has read it ever feels a dead key (held keys are refused anyway) */
+  let armed = false; setTimeout(() => { armed = true; }, 100);
   /* onSkip: Esc leaves a run of pages altogether, instead of turning one */
   const o = { el: wrap, onClose, key(ev) {
     if (ev.repeat || (!armed && !ev.synthetic)) return;   /* a held key doesn't close it unread */
