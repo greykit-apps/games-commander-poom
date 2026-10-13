@@ -2877,7 +2877,7 @@ function statusWindow() {
   const row = (k, v) => { grid.appendChild(el("span", "k", k)); const s = el("span", "v"); if (typeof v === "string") s.textContent = v; else s.appendChild(v); grid.appendChild(s); };
   row("Score", String(r.score));
   row("Extra life at", String(r.nextLife));
-  row("Lives", r.cheat ? "infinite (cheat)" : String(r.lives));
+  row("Lives", r.cheat ? "infinite (cheat)" : r.arcade ? "endless (arcade)" : String(r.lives));
   row("Raygun", say("raygun", n => n ? `${n} charge${n === 1 ? "" : "s"}` : "empty", r.ammo));
   /* the four colours, and the fifth only once it's held */
   const held = G.lv ? G.lv.keys : [false, false, false, false];
