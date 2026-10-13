@@ -3511,8 +3511,7 @@ function setupTouch() {
 /* the loop                                                              */
 
 function fit() {
-  const pad = document.getElementById("touch").hidden ? 0 : 0;
-  const s0 = Math.min(innerWidth / W, (innerHeight - pad) / H);
+  const s0 = Math.min(innerWidth / W, innerHeight / H);
   const si = Math.floor(s0);
   const s = si >= 2 && si / s0 > 0.8 ? si : s0;
   stage.style.width = W * s + "px"; stage.style.height = H * s + "px";
