@@ -6,8 +6,8 @@ Book 5 and sets B, F, G, I are out of scope by the author's instruction.
 Every finding is marked **VERIFIED** (reproduced, measured or simulated
 with the game's own code) or **SUSPECTED** (from reading the code).
 
-This file is updated as the review goes; sections marked *(in progress)*
-are not finished.
+The review is complete; the last pass re-verified every Critical and High
+finding (the solver runs and the in-page checks named under each).
 
 ## Summary: the five things to fix or decide first
 
@@ -243,8 +243,23 @@ points buy one life. Lives from items: 0, 0, 0, 32. So Classic in Books 1
 to 3 lives on the 4 starting lives plus a handful from score, and Book 4
 alone can hand out 32 more. See F05.
 
-*(per-level tables and the simulations of creature encounters are in
-progress)*
+### Per level
+
+`review/economy.out.txt` has the per-level table (points, charges, lives, deadly killable creatures and their hit points, harmless ones, unkillable deadly ones, turrets, points from kills). The standouts: H15 (the secret level) holds 157,400 points on its floor, a third of Book 1; D14 172,500 and D16 145,000 in Book 3; E06 has 102 hit points of deadly creatures to shoot and 30 charges; E12 has 30 turrets and 5 charges; E17 and E18 have 56 unkillable deadly creatures between them and nothing worth shooting.
+
+### Creature encounters (`review/encounters.js`)
+
+Every number here is fixed by the constants in `updateEnemy` and `KP`; the only randomness (a creature's start phase and first direction, a mousel's hops, a walker's jump timing) does not change who wins a touch, so these are computed rather than sampled.
+
+| Encounter | Numbers |
+|---|---|
+| A charger (scrap hound, skitter, claw guard, dog, splicer, drone) | sees Poom within 150 px, growls 22 ticks, charges at 2.125 px/tick: on Poom **1.39 s** after spotting him from 130 px, 0.60 s from 30 px. Poom's walk is the same speed: on the flat he cannot outrun one, only jump it (60 ticks in the air) or shoot it (1 hp; ninja 3, spider and houdini 2). A ninja or spider charges at 2.97 px/tick: 1.09 s from 130 px. |
+| A walker (scrapper, husk, heavy, thug; lieutenant, ocelot, brute, rosie) | 0.875 px/tick toward Poom within 150 px, random jumps; deadly to touch. Four shots (28 ticks of firing, 0.35 s) for the rank and file, during which it closes 18 px; five for a lieutenant; eight for Rosie (0.82 s, 43 px). |
+| A shooter (spitter, gunner, Dr Cal, leadhead) | stops, aims 30 ticks, fires one shot at 3.875 px/tick: it arrives **1.15 s** after the stop from 150 px, 0.72 s from 50 px. The shot flies 3 px below the creature's top and is 6 px tall: a hop clears it. Cannot be hurt. |
+| A turret | one shot every 100 ticks (1.67 s) while Poom is within 220 px across and 160 up or down; 2.4 px/tick, 18 tiles of range; 1.53 s of flight from the edge of its reach, 0.56 s from 80 px. Rows of them fire at random moments (random start phase). |
+| Pushers and shovers | never kill: a mousel moves Poom 11 px, a roombot 26 px. |
+
+What this says about Classic: a charger seen late (inside 60 px) gives 0.84 s to react, and the only answers are a jump or a shot. With the raygun starved in Book 1 (F07), the jump is the answer, which is Keen 1. The Book 3 ninja at 2.97 px/tick is the fastest thing in the game and takes three shots: it is the one creature a careful player cannot handle at walking pace without a shot or a ledge.
 
 ## Player experience
 
@@ -335,7 +350,7 @@ Game fixes (cherry-pick any):
 
 Repo and review:
 - `82cee02` Deploy: don't publish the review folder or REVIEW.md (F08)
-- `d15f455`, `0faa04d`, `c9bdc87` and later: this report and the scripts under `review/`
+- `d15f455`, `0faa04d`, `c9bdc87`, `268e3e7`, `dd6164b` and the two after: this report and the scripts under `review/`
 
 Each fix was re-checked in the page against the restamped build (`game.js?v=959e317d`): the Arcade status row reads "endless (arcade)"; the save holds 2 lives the tick Poom dies with 3 and the box later agrees; the map save follows Poom (saved `mx` 232.4 after 181 ticks of walking); the Help bar now reads Story, Controls, Modes, Creatures, Items, About, with About's right border on the frame; the ← → keys draw at the size of ↑ ↓; a level in play prompts before the page is left.
 
