@@ -29,6 +29,20 @@ After the first pass the author answered the five summary items:
    Checked in the page (build `87f79e5f`): C05's exit refuses Poom and shows the line, then ends the level once the heart is broken; `BIND` is arrows, Z, X, C, Ctrl, Alt, Space, Enter, Esc, M; at C05's lever in Arcade the two boxes play, Poom dies, gets up at the lever with four lives still, and a third ↑ only clicks; `safeSpot` rejects a spot beside the heart's spikes, one in the air and one in rock. One consequence for the author's local solver: a plain `solve("C05")` can no longer reach the exit, since the heart is now required; `solveAll` already runs the `items: true` pass for heart levels.
    **Respawn only on safe ground.** Done (`7e60fe9`): `safeSpot(lv, x, y)` is checked at the moment he gets up, not when the spot was noted: room for his body, rock, a ledge or a slope under his feet (a bridge deck that has gone since fails), and no spikes, fire or pulsing column in the tiles he stands in or the ones either side. The newest old-enough safe spot wins, then the newest safe spot at all, then the level's start.
 
+## Design pass (2026-10-13, branch `design/critique-2026-10-13`)
+
+A `/critique` of Book One's screens scored 31/40 (Good) and passed the AI-slop test outright; the author chose to take every priority item, keep the wrist-computer HUD at its size, and start with the first second of a level. Done, one commit each:
+
+- `e1852dd` the level's name on the map's "Now entering" card (Keen's own), so the playfield opens with nothing over it; the first-level key strip only if two seconds pass with nothing pressed; Sound and Game speed folded under one Settings line in pause (Forget everything kept out of reach mid-game); Help is H, no Shift, with ? and / still working
+- `0cf89b5` New game starts Book One Classic at once, Choose a Book (or Arcade) is its own line; the map label reads "· Z to enter" at a place not yet done until two levels are done (not on touch)
+- `5fef502` a 9×7 pixel speaker in the Book's accent for the sound toggle (the pixel font has no note), re-tinted per Book; the greykit.com credit under the title panel, canonical anchor unchanged
+- `5fa1058` the greyed "5. Termination Day" line stays in the Book menu, at the author's request: the next chapter, always coming
+- `a43ca3f` a message box takes a fresh key after 100 ms rather than 250 ms
+- `6c77d2b` `prefers-reduced-motion`: a still title scene and map, no cursor blink, no fades
+- the polish walk (title, Book menu, story, map, card, level, pause, Settings, Help, status, death, game over) found nothing further; the console stayed empty
+
+Not done from the critique's minor notes: a road texture on the map toward the next place (an art change), and Help body size below 2× scale (desktop first).
+
 ## Assumptions
 
 - Faithful Keen 1 feel is intended, modernised (coyote time, jump buffer, Arcade mode). Physics is judged against Keen 1-3 and against the levels' own needs, not against a modern platformer.

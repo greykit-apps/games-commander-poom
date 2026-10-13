@@ -446,6 +446,7 @@ function dressFor(book) {
   mapArt = mapArtSets[theme.map] || mapArtSets.classic;
   logoEl().dataset.look = theme.name; document.getElementById("ui").dataset.look = theme.name;
   document.title = "Commander Poom \u2014 " + theme.subtitle;
+  syncSoundButton();   /* the speaker wears the Book's accent */
   if (BOOKS[book]) store.set(KEYS.lastBook, book);
 }
 const THEME_OF = { A: "hiss", B: "garden", C: "fort", D: "ice", E: "hiss", F: "garden", G: "fort", H: "ice", I: "hiss" };
@@ -1828,15 +1829,24 @@ function startLevel(n) {
   centerCamera(true);
   sfx("enter");
   mapLabel("");   /* the map's place name is the map's: not over a level */
-  levelTitle(levelName(n));
-  keyStrip();
+  armKeyStrip(G.lv);
 }
-/* the keys, along the bottom for the first seconds of the first level this
- * browser plays, and never again; not on a touch screen, which has buttons */
+/* into a level from the map: its name on a card first, as Keen did, so the
+   playfield opens with nothing over it */
+function enterLevel(n) { mapLabel(""); card(levelName(n), () => startLevel(n)); }
+/* the keys, along the bottom of the first level this browser plays, but
+ * only if two seconds pass with nothing pressed: a player who is already
+ * walking and jumping has found them. Shown once, never again; not on a
+ * touch screen, which has buttons */
 let keyStripTimer = null;
+function armKeyStrip(lv) { lv.stripArmed = document.getElementById("touch").hidden && !(store.get(KEYS.seen, {}).keystrip); }
+function keyStripTick(lv) {
+  if (!lv.stripArmed) return;
+  if (["left", "right", "jump", "pogo", "fire"].some(isDown)) { lv.stripArmed = false; seen("keystrip"); }
+  else if (lv.t >= 120) { lv.stripArmed = false; seen("keystrip"); keyStrip(); }
+}
 function keyStrip() {
   const el = document.getElementById("keystrip");
-  if (!document.getElementById("touch").hidden || seen("keystrip")) return;
   el.classList.remove("fading"); el.hidden = false;
   clearTimeout(keyStripTimer);
   keyStripTimer = setTimeout(() => { el.classList.add("fading"); keyStripTimer = setTimeout(() => { el.hidden = true; }, 1000); }, 9000);
@@ -1845,6 +1855,7 @@ function keyStrip() {
 function updateLevel() {
   const lv = G.lv;
   lv.t++;
+  keyStripTick(lv);
   updatePlats(lv);
   updatePlayer(lv);
   if (G.mode !== "level" || G.lv !== lv) return;
@@ -1883,7 +1894,7 @@ function finishLevel() {
     if (spot) { r.mx = spot[0] * T + 4; r.my = spot[1] * T + 5; }
     enterMap();
     saveRun();
-    startLevel(secret);
+    enterLevel(secret);
     return;
   }
   /* the whole book done: on to the next, or the end. A book with a ship
@@ -2093,7 +2104,7 @@ function updateMap() {
   if (here && (wasPressed("jump") || wasPressed("fire"))) {
     const pending = levelPending(G.run, here);
     if (G.run.done[here] && !pending) { toast(say("levelDone", name => `${name}: done.`, levelName(here))); sfx("nope"); }
-    else { saveRun(); startLevel(here); return; }
+    else { saveRun(); enterLevel(here); return; }
   }
   if (!here && onShip(p) && (wasPressed("jump") || wasPressed("fire"))) boardShip();
   if (!here && onParked(p) && (wasPressed("jump") || wasPressed("fire"))) { sfx("nope"); message(say("parked", "<b>The Catamaran</b><br><br>It won't fly.")); }
@@ -2565,14 +2576,18 @@ const MIRAGE = { E10: true };
 const MARKER_KINDS = ["dome", "cave", "igloo", "gate", "fort", "castle"];
 function drawMap() {
   const m = G.map, c = G.cam, cx = Math.round(c.x), cy = Math.round(c.y);
+  /* the map's own motion (water, fields, the arrow's bob, the ferry's
+     sway) holds still for a player who asked for less motion; Poom's walk
+     is the game, not decoration, and goes on */
+  const mt = reduced() ? 0 : m.t;
   ctx.fillStyle = "#000"; ctx.fillRect(0, 0, W, H);
   const tx0 = Math.floor(cx / T), ty0 = Math.floor(cy / T);
   for (let ty = ty0; ty <= ty0 + Math.ceil(H / T); ty++) for (let tx = tx0; tx <= tx0 + Math.ceil(W / T); tx++) {
     const ch = mapTile(tx, ty), x = tx * T - cx, y = ty * T - cy;
-    if (ch === "~") { ctx.drawImage(mapArt.water[((m.t >> 5) + tx + ty) % 2], x, y); continue; }
+    if (ch === "~") { ctx.drawImage(mapArt.water[((mt >> 5) + tx + ty) % 2], x, y); continue; }
     ctx.drawImage(Array.isArray(mapArt.ground) ? mapArt.ground[(tx * 7 + ty * 13) & 3] : mapArt.ground, x, y);
     const ent = entranceAt(tx, ty);
-    if (barrierOn(tx, ty)) ctx.drawImage(mapArt.field[(m.t >> 2) % 3], x, y);
+    if (barrierOn(tx, ty)) ctx.drawImage(mapArt.field[(mt >> 2) % 3], x, y);
     else if (ch === "#") {
       /* rock, lit and shaded where it meets open ground, if the set can */
       const open = (dx, dy) => mapTile(tx + dx, ty + dy) !== "#";
@@ -2580,19 +2595,19 @@ function drawMap() {
     }
     else if (ch === "/" || ch === "\\") drawDiagonal(ch === "/" ? "LR" : "LL", x, y);
     else if (ent && !mapArt.markerFor) ctx.drawImage(mapArt.marker[MARKER_KINDS[+ent.slice(1) % MARKER_KINDS.length]], x, y);
-    else if (ch === "Q") ctx.drawImage(mapArt.tele[(m.t >> 3) % 2], x, y);
+    else if (ch === "Q") ctx.drawImage(mapArt.tele[(mt >> 3) % 2], x, y);
   }
   /* a set with its own markers draws one per entrance, by the level's type */
   if (mapArt.markerFor) for (const [id, b] of Object.entries(world().box)) {
     const kind = { vault: "vault", vaultCold: "vault", raiders: "camp", ruins: "ruin", crags: "cave", delve: "station", hive: "pod", shore: "tower", base: "bunker", crater: "vent", gardens: "dome", promenade: "tower", works: "works", machine: "skull", biodome: "dome", hive5: "nest" }[LEVEL_THEME[id]] || Object.keys(mapArt.markerFor)[0];
     const mx = (b.x0 + b.x1 + 1) * T / 2 - 16 - cx, my = (b.y1 + 1) * T - 32 - cy;
     /* a mirage (Book 4's Phantom Pavilion) fades in and out of the murk */
-    if (MIRAGE[id]) ctx.globalAlpha = 0.35 + 0.35 * (1 + Math.sin(m.t / 24));
+    if (MIRAGE[id]) ctx.globalAlpha = 0.35 + 0.35 * (1 + Math.sin(mt / 24));
     if (mx > -32 && mx < W && my > -32 && my < H) ctx.drawImage(mapArt.markerFor[kind], mx, my);
     ctx.globalAlpha = 1;
   }
   /* a bobbing arrow over each place Poom can reach and hasn't done */
-  const bob = Math.round(Math.sin(m.t / 12) * 2);
+  const bob = Math.round(Math.sin(mt / 12) * 2);
   for (const id of openPlaces()) {
     const b = world().box[id]; if (!b) continue;
     const ax = Math.round((b.x0 + b.x1 + 1) * T / 2) - cx, ay = (mapArt.markerFor ? (b.y1 + 1) * T - 32 - 10 : b.y0 * T - 9) - cy + bob;
@@ -2605,7 +2620,7 @@ function drawMap() {
   /* the ferry: under Poom while he rides, else at its dock */
   const fy = world().ferry;
   if (fy && mapArt.ferry) {
-    const bob2 = Math.round(Math.sin(m.t / 10));
+    const bob2 = Math.round(Math.sin(mt / 10));
     if (m.ride) ctx.drawImage(mapArt.ferry[m.p.dir === "left" ? "l" : "r"], Math.round(m.p.x + m.p.w / 2 - 16) - cx, Math.round(m.p.y + m.p.h) - 12 - cy + bob2);
     else {
       const g = fy.docks[G.run.ferry || 0], x0 = Math.min(...g.map(c => c[0])), x1 = Math.max(...g.map(c => c[0])), y1 = Math.max(...g.map(c => c[1]));
@@ -2631,7 +2646,10 @@ function drawMap() {
   const here = mapHere(p);
   const onTele = !here && world().tele[Math.floor((p.x + p.w / 2) / T) + "," + Math.floor((p.y + p.h / 2) / T)];
   const onDock = !here && fy && fy.at[Math.floor((p.x + p.w / 2) / T) + "," + Math.floor((p.y + p.h / 2) / T)] !== undefined;
-  const label = here ? levelName(here) + (G.run.done[here] ? (levelPending(G.run, here) ? " (not finished)" : " (done)") : "") : onShip(p) || onParked(p) ? "The Catamaran" : onTele ? mapArt.teleName || "Teleporter" : onDock || m.ride ? mapArt.ferryName || "The ferry" : "";
+  /* a place not yet done says how to go in, until two are done: by then
+     the key is known. Not on a touch screen, which has a JUMP button */
+  const howIn = !document.getElementById("touch").hidden || Object.keys(G.run.done).length >= 2 ? "" : " \u00b7 Z to enter";
+  const label = here ? levelName(here) + (G.run.done[here] ? (levelPending(G.run, here) ? " (not finished)" : " (done)") : howIn) : onShip(p) || onParked(p) ? "The Catamaran" : onTele ? mapArt.teleName || "Teleporter" : onDock || m.ride ? mapArt.ferryName || "The ferry" : "";
   mapLabel(label);
   drawHud(null);
 }
@@ -2805,7 +2823,10 @@ function message(html, { icon = null, iconRow = null, onClose = null, hint = "pr
   box.appendChild(el("p", null, html));
   box.appendChild(el("p", "hint", hint));
   const wrap = el("div", "overlay"); wrap.appendChild(box);
-  let armed = false; setTimeout(() => { armed = true; }, 250);
+  /* a box can't be closed in its first tenth of a second: long enough that
+     a key already being mashed doesn't take it, short enough that no one
+     who has read it ever feels a dead key (held keys are refused anyway) */
+  let armed = false; setTimeout(() => { armed = true; }, 100);
   /* onSkip: Esc leaves a run of pages altogether, instead of turning one */
   const o = { el: wrap, onClose, key(ev) {
     if (ev.repeat || (!armed && !ev.synthetic)) return;   /* a held key doesn't close it unread */
@@ -2862,7 +2883,7 @@ function menu(title, items, { cls = "", onBack = null, footer = "" } = {}) {
       if (ev.code === "Enter" || ev.code === "Space") { ev.preventDefault(); const b = bs[i] || bs[0]; if (b) b.click(); return; }
       if (ev.code === "Escape" && onBack) { ev.preventDefault(); onBack(); return; }
       const k = ev.key && ev.key.length === 1 ? ev.key.toUpperCase() : null;
-      const hit = k && bs.find(b => b._item.key && b._item.key.toUpperCase() === k || (k === "H" || k === "/") && b._item.key === "?");
+      const hit = k && bs.find(b => b._item.key && b._item.key.toUpperCase() === k || (k === "?" || k === "/") && b._item.key === "H");
       if (hit) { ev.preventDefault(); hit.click(); }
     },
   };
@@ -2904,7 +2925,26 @@ function ask(question, yes, then) {
 }
 
 function toggleMute() { audio.setMuted(!audio.muted); syncSoundButton(); if (!audio.muted) sfx("pick"); toast(audio.muted ? "Sound off" : "Sound on"); }
-function syncSoundButton() { const b = document.getElementById("snd"); if (b) { b.setAttribute("aria-pressed", String(!audio.muted)); b.textContent = audio.muted ? "♪̸" : "♪"; } }
+/* the sound toggle's icon: a pixel speaker in the Book's accent, waves when
+   it's on and a cross when it's off, drawn in code like everything else
+   (the pixel font has no note, and a fallback glyph looked like the web) */
+const SPEAKER = {
+  on: ["...a.....", "..aa.b...", "aaaa..b..", "aaaa.b.b.", "aaaa..b..", "..aa.b...", "...a....."],
+  off: ["...a.....", "..aa.....", "aaaa.b.b.", "aaaa..b..", "aaaa.b.b.", "..aa.....", "...a....."],
+};
+function speakerIcon(on, col) {
+  const c = makeCanvas(9, 7), g = c.getContext("2d");
+  g.fillStyle = col;
+  SPEAKER[on ? "on" : "off"].forEach((r, y) => [...r].forEach((ch, x) => { if (ch !== ".") g.fillRect(x, y, 1, 1); }));
+  return c;
+}
+function syncSoundButton() {
+  const b = document.getElementById("snd"); if (!b) return;
+  const on = !audio.muted;
+  b.setAttribute("aria-pressed", String(on));
+  const col = getComputedStyle(uiRoot).getPropertyValue(on ? "--ui-accent" : "--ui-dim").trim() || "#aaaaaa";
+  b.replaceChildren(imgOf(speakerIcon(on, col)));
+}
 
 function statusWindow() {
   const r = G.run, wrap = el("div", "overlay"), box = el("div", "box status");
@@ -2944,9 +2984,8 @@ function openPause() {
   menu("Paused", [
     { label: "Resume", key: "R", act: () => UI.pop() },
     { label: "Status", key: "T", act: () => { UI.pop(); statusWindow(); } },
-    { label: "Sound", key: "M", meta: audio.muted ? "off" : "on", act: () => { toggleMute(); UI.pop(); openPause(); } },
-    { label: "Game speed", key: "G", meta: SPEEDS[speed].label, act: () => { cycleSpeed(); UI.pop(); openPause(); } },
-    { label: "Help", key: "?", act: () => openHelp() },
+    { label: "Settings", key: "S", act: () => openSettings({ inGame: true }) },
+    { label: "Help", key: "H", act: () => openHelp() },
     "gap",
     inLevel ? { label: "Leave level", key: "L", act: () => ask("Leave this level? What you picked up in it stays behind.", "Leave", () => { UI.pop(); leaveLevel(); }) } : null,
     { label: "Quit to title", key: "Q", meta: "game saved", act: () => ask(inLevel ? "Quit to the title? The game is saved, but what you picked up in this level stays behind." : "Quit to the title? The game is saved.", "Quit", () => {
@@ -3337,13 +3376,15 @@ function openHelp() {
 const aboutText = () => `<p>A love letter to Commander Keen and a growing list of mashups.</p>
 <p class="credit gk-credit">Built by <a href="https://greykit.com/" target="_blank" rel="noopener">greykit.com</a></p>`;
 
-function openSettings() {
+/* from the title, or from the pause menu (inGame), where there's a game to
+   lose and Forget everything stays out of reach */
+function openSettings(opts = {}) {
+  const again = () => { UI.pop(); openSettings(opts); };
   menu("Settings", [
-    { label: "Sound", key: "M", meta: audio.muted ? "off" : "on", act: () => { toggleMute(); UI.pop(); openSettings(); } },
-    { label: "Game speed", key: "G", meta: SPEEDS[speed].label, act: () => { cycleSpeed(); UI.pop(); openSettings(); } },
-    "gap",
-    { label: "Forget everything", key: "F", act: () => ask("Forget your saved game, high scores and settings? This cannot be undone.", "Forget everything", forgetEverything) },
-  ], { onBack: () => UI.pop(), footer: "Forget everything clears only what Commander Poom keeps in this browser." });
+    { label: "Sound", key: "M", meta: audio.muted ? "off" : "on", act: () => { toggleMute(); again(); } },
+    { label: "Game speed", key: "G", meta: SPEEDS[speed].label, act: () => { cycleSpeed(); again(); } },
+    ...(opts.inGame ? [] : ["gap", { label: "Forget everything", key: "F", act: () => ask("Forget your saved game, high scores and settings? This cannot be undone.", "Forget everything", forgetEverything) }]),
+  ], { onBack: () => UI.pop(), footer: opts.inGame ? "" : "Forget everything clears only what Commander Poom keeps in this browser." });
 }
 
 const DEFAULT_SCORES = [
@@ -3410,20 +3451,27 @@ function openTitle() {
   const items = [
     saved ? { label: "Continue game", key: "R", meta: `score ${saved.score}`, act: () => { UI.clear(); hideLogo(); G.run = saved; enterMap(); } } : null,
     { label: "New game", key: "N", act: () => {
-      const go = () => chooseBook();
+      const go = () => startBook(BOOK_IDS[0], false);
       if (saved) ask("Start a new game? Your saved game will be lost.", "New game", go); else go();
+    } },
+    { label: "Choose a Book", key: "B", meta: "or Arcade", act: () => {
+      const go = () => chooseBook();
+      if (saved) ask("Start a new game? Your saved game will be lost.", "Choose a Book", go); else go();
     } },
     { label: "High scores", key: "O", act: () => openScores() },
     "gap",
     { label: "Settings", key: "S", act: () => openSettings() },
-    { label: "Help", key: "?", act: () => openHelp() },
+    { label: "Help", key: "H", act: () => openHelp() },
     { label: "About", key: "A", act: () => page("About", [["", aboutText()]]) },
   ].filter(Boolean);
-  menu("", items, { cls: "title", footer: '<span class="gk-credit">Built by <a href="https://greykit.com/" target="_blank" rel="noopener">greykit.com</a></span>' });
+  const o = menu("", items, { cls: "title" });
+  /* the §1 credit, under the panel rather than among its lines */
+  o.el.appendChild(el("div", "below gk-credit", 'Built by <a href="https://greykit.com/" target="_blank" rel="noopener">greykit.com</a>'));
 }
-/* New game: which Book? The first five, by name; the ones not built yet
- * greyed out. Choosing one starts a fresh game there, dressed as that Book,
- * with its story. */
+/* Choose a Book: the first five, by number and name; a Book not yet
+ * playable shows greyed, the next chapter that was always coming. Choosing
+ * one asks Classic or Arcade, then starts a fresh game there, dressed as
+ * that Book, with its story. */
 function chooseBook() {
   const items = BOOK_ORDER.slice(0, 5).map((b, i) => ({
     label: `${i + 1}. ${BOOK_NAMES[b] || "Book " + (i + 1)}`, key: String(i + 1),
@@ -3469,7 +3517,6 @@ function fadeLogo(after = 0) {
     logoTimer = setTimeout(hideLogo, 1000);
   }, after);
 }
-function levelTitle(name) { showLogo(name); logoEl().classList.add("level"); fadeLogo(2000); }
 
 function story() {
   G.mode = "story";
@@ -3575,8 +3622,8 @@ function frame(now) {
   }
   if ((G.mode === "level" || G.mode === "map") && !logoEl().hidden && !logoEl().classList.contains("fading") && !logoTimer) fadeLogo(0);
   if (G.mode === "level" && G.lv) drawLevel();
-  else if (G.mode === "map" || (G.mode === "story" && G.map.p) || G.mode === "ending") { if (G.map.p) drawMap(); else drawTitleScene(G.t); }
-  else drawTitleScene(G.t);
+  else if (G.mode === "map" || (G.mode === "story" && G.map.p) || G.mode === "ending") { if (G.map.p) drawMap(); else drawTitleScene(reduced() ? 0 : G.t); }
+  else drawTitleScene(reduced() ? 0 : G.t);
 }
 
 function boot() {
