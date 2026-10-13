@@ -34,12 +34,14 @@ After the first pass the author answered the five summary items:
 A `/critique` of Book One's screens scored 31/40 (Good) and passed the AI-slop test outright; the author chose to take every priority item, keep the wrist-computer HUD at its size, and start with the first second of a level. Done, one commit each:
 
 - `e1852dd` the level's name on the map's "Now entering" card (Keen's own), so the playfield opens with nothing over it; the first-level key strip only if two seconds pass with nothing pressed; Sound and Game speed folded under one Settings line in pause (Forget everything kept out of reach mid-game); Help is H, no Shift, with ? and / still working
-- `0cf89b5` New game starts Book One Classic at once, Choose a Book (or Arcade) is its own line; the map label reads "· Z to enter" at a place not yet done until two levels are done (not on touch)
+- `0cf89b5` the map label reads "· Z to enter" at a place not yet done until two levels are done (not on touch)
 - `5fef502` a 9×7 pixel speaker in the Book's accent for the sound toggle (the pixel font has no note), re-tinted per Book; the greykit.com credit under the title panel, canonical anchor unchanged
 - `5fa1058` the greyed "5. Termination Day" line stays in the Book menu, at the author's request: the next chapter, always coming
 - `a43ca3f` a message box takes a fresh key after 100 ms rather than 250 ms
 - `6c77d2b` `prefers-reduced-motion`: a still title scene and map, no cursor blink, no fades
 - the polish walk (title, Book menu, story, map, card, level, pause, Settings, Help, status, death, game over) found nothing further; the console stayed empty
+
+Reverted at the author's word: `0cf89b5` also made New game start Book One Classic at once and added a third "Choose a Book" line. The title has two ways in, Continue and New, and New always asks which Book and then Classic or Arcade.
 
 Not done from the critique's minor notes: a road texture on the map toward the next place (an art change), and Help body size below 2× scale (desktop first).
 

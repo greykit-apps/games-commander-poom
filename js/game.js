@@ -3450,13 +3450,10 @@ function openTitle() {
   showLogo();
   const items = [
     saved ? { label: "Continue game", key: "R", meta: `score ${saved.score}`, act: () => { UI.clear(); hideLogo(); G.run = saved; enterMap(); } } : null,
+    /* New game always asks which Book, then Classic or Arcade */
     { label: "New game", key: "N", act: () => {
-      const go = () => startBook(BOOK_IDS[0], false);
-      if (saved) ask("Start a new game? Your saved game will be lost.", "New game", go); else go();
-    } },
-    { label: "Choose a Book", key: "B", meta: "or Arcade", act: () => {
       const go = () => chooseBook();
-      if (saved) ask("Start a new game? Your saved game will be lost.", "Choose a Book", go); else go();
+      if (saved) ask("Start a new game? Your saved game will be lost.", "New game", go); else go();
     } },
     { label: "High scores", key: "O", act: () => openScores() },
     "gap",
