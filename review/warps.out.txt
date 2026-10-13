@@ -1,0 +1,13 @@
+E05 door (51,71) -> (51,20):  NO FLOOR within 6 tiles target tile='.'
+E05 door (52,71) -> (51,20):  NO FLOOR within 6 tiles target tile='.'
+E05 door (51,72) -> (51,20):  NO FLOOR within 6 tiles target tile='.'
+E05 door (52,72) -> (51,20):  NO FLOOR within 6 tiles target tile='.'
+E06 door (51,65) -> (4,83):  NO FLOOR within 6 tiles target tile='.'
+E06 door (52,65) -> (4,83):  NO FLOOR within 6 tiles target tile='.'
+E06 door (103,65) -> (6,39):  NO FLOOR within 6 tiles target tile='f'
+E06 door (104,65) -> (6,39):  NO FLOOR within 6 tiles target tile='f'
+E06 door (87,95) -> (6,39):  NO FLOOR within 6 tiles target tile='f'
+E06 door (88,95) -> (6,39):  NO FLOOR within 6 tiles target tile='f'
+E15 door (40,79) -> (53,73):  NO FLOOR within 6 tiles target tile='.'
+E15 door (41,79) -> (53,73):  NO FLOOR within 6 tiles target tile='.'
+134 warp doors checked, 12 worth a look

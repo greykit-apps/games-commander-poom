@@ -1,0 +1,32 @@
+Poom: walk 2.125 px/tick; full jump air time 60 ticks (1.00 s), clears 3.4 tiles; one shot per 7 ticks
+
+Chargers (B kind: scrap hound, skitter, claw guard, dog, ninja, splicer, spider, houdini, drone)
+  sees Poom within 150 px (9.4 tiles) and 24 px of height, facing him and within 130 px; growls 22 ticks (0.37 s), then charges at 2.125 px/tick (ninja, spider x1.4 = 2.97) for up to 140 ticks or a ledge
+  from 130 px: reaches Poom 84 ticks after spotting him (1.39 s); a ninja in 66 (1.09 s)
+  from 100 px: reaches Poom 70 ticks after spotting him (1.15 s); a ninja in 56 (0.93 s)
+  from 60 px: reaches Poom 51 ticks after spotting him (0.84 s); a ninja in 43 (0.70 s)
+  from 30 px: reaches Poom 37 ticks after spotting him (0.60 s); a ninja in 33 (0.53 s)
+  Poom's walk equals a charge: he cannot outrun one on the flat, only jump it or shoot it. A charger is 1 hp (ninja 3, spider and houdini 2): one to three shots, 7 ticks apart.
+
+Walkers (V and L kinds: scrapper, husk, heavy, thug, gatekeeper; lieutenant, ocelot, brute, rosie)
+  walk at 0.875 px/tick toward Poom when within 150 px; jump 90-150 sub-units (2.8-4.7 px/tick) at random, about 4% of ticks after 90 ticks on the ground; deadly to touch
+  scrapper/husk/heavy/thug: 4 shots = 21 ticks of firing (0.35 s) standing still; it closes 18 px meanwhile
+  lieutenant/ocelot/brute: 5 shots = 28 ticks of firing (0.47 s) standing still; it closes 25 px meanwhile
+  gatekeeper: 6 shots = 35 ticks of firing (0.58 s) standing still; it closes 31 px meanwhile
+  rosie: 8 shots = 49 ticks of firing (0.82 s) standing still; it closes 43 px meanwhile
+
+Shooters (K kind: spitter, gunner, Dr Cal, leadhead)
+  after 130 ticks walking, seeing Poom ahead: aims 30 ticks, fires one shot at 3.875 px/tick, walks on after 56
+  from 150 px: the shot arrives 69 ticks after it stops (1.15 s); the shot flies at the creature's height + 3 px, 6 px tall: a small hop clears it
+  from 100 px: the shot arrives 56 ticks after it stops (0.93 s); the shot flies at the creature's height + 3 px, 6 px tall: a small hop clears it
+  from 50 px: the shot arrives 43 ticks after it stops (0.72 s); the shot flies at the creature's height + 3 px, 6 px tall: a small hop clears it
+  cannot be hurt (hp Infinity); a shot from Poom ricochets
+
+Turrets (G)
+  fire every 100 ticks (1.67 s) while Poom is within 220 px across and 160 px up or down; hairball 2.4 px/tick, 6x6 px, dies on rock or after 120 ticks (288 px, 18 tiles)
+  from 220 px: 92 ticks of flight (1.53 s)
+  from 150 px: 63 ticks of flight (1.04 s)
+  from 80 px: 34 ticks of flight (0.56 s)
+  E12 has 30 turrets (26 firing down), E13 16, D10 and D13 11 each; each starts at a random phase, so a row of them fires at random moments
+
+Pushers (x kind) and shovers (T kind) never kill: a mousel pushes 1.4 px/tick for 8 ticks (11 px), a roombot 1.875 px/tick for 14 ticks (26 px). The danger is where the push ends.
