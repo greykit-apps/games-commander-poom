@@ -499,6 +499,9 @@ const heartsBroken = (r, b) => Object.keys(r.hearts || {}).filter(id => MAPS[id]
  * touching the part). Keen 2 locked such a level for good and the game was
  * lost without a word; here the level stays open and keeps its arrow. */
 const partIn = id => { for (const [, , g, name] of MAPS[id].things || []) if (g === "!") { const t = +(/objective type (\d+)/.exec(name) || [])[1]; if (t >= 1 && t <= 4) return t - 1; } return null; };
+/* Book 2: a level's way out is shut until its heartstone is broken, as a
+ * door is until its keycard is found (the author's rule, 2026-10-13) */
+const exitSealed = lv => BOOK_GOAL[lv.def.book] === "hearts" && lv.def.rows.some(row => row.includes("!")) && !(G.run.hearts || {})[lv.n];
 function levelPending(r, id) {
   const goal = BOOK_GOAL[r.book];
   if (goal === "rescues") return rescueLevels(r.book).includes(id) && !(r.rescued || {})[id];
@@ -1255,6 +1258,12 @@ function updatePlayer(lv) {
     if (lv.edge.has(k)) return finishBy(lv, "edge");
     if (lv.secretAt.has(k)) return finishBy(lv, "secret");
     const door = lv.exitAt[k];
+    if (door && exitSealed(lv)) {
+      /* shut: he's pushed back off it, and told why, once */
+      p.pushV = (p.x + p.w / 2 < door.x + T ? -1 : 1) * 1.5; p.pushT = 8;
+      if (!lv.sealWarned) { lv.sealWarned = true; sfx("nope"); toast(say("exitSealed", "The way out is shut. It opens when this level's heartstone is broken.")); }
+      return;
+    }
     if (door) { p.x = door.x + T / 2 - p.w / 2; return finishBy(lv, door); }
   }
 
