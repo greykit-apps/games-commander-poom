@@ -74,4 +74,4 @@ deploy:
     # matched by --exclude -- excluded paths are PROTECTED on the destination.
     # With --delete-excluded, anything excluded here is also removed from the
     # live site, which is what "do not publish this" has to mean.
-    - puma_rsync -avz --delete --delete-excluded --exclude='.git' --exclude='.claude' --exclude='.gitlab-ci.yml' --exclude='tools' --exclude='screenshots' --exclude='maps2' --exclude='docs' --exclude='ENGINE-SUPPORT.md' --exclude='.impeccable.md' --exclude='.DS_Store' ./ ${DREAMHOST_USERNAME}@${DREAMHOST_HOST}:/home/${DREAMHOST_USERNAME}/greykit.com/games/commanderpoom/
+    - puma_rsync -avz --delete --delete-excluded --exclude='.git' --exclude='.claude' --exclude='.gitlab-ci.yml' --exclude='tools' --exclude='screenshots' --exclude='maps2' --exclude='docs' --exclude='ENGINE-SUPPORT.md' --exclude='.impeccable.md' --exclude='.DS_Store' --exclude='review' --exclude='REVIEW.md' ./ ${DREAMHOST_USERNAME}@${DREAMHOST_HOST}:/home/${DREAMHOST_USERNAME}/greykit.com/games/commanderpoom/
