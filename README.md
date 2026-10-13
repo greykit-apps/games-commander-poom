@@ -33,7 +33,7 @@ Audio; `M`, or the note in the corner, turns it off.
 
 | Keys | |
 |---|---|
-| `←` `→` or `A` `D` | walk |
+| `←` `→` | walk |
 | `Ctrl` or `Z` | jump; hold it to jump higher |
 | `Alt` or `X` | pogo stick on and off |
 | `Space` or `C` | fire the raygun |

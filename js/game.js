@@ -316,9 +316,11 @@ function nearestFoe() {
 /* ------------------------------------------------------------------ */
 /* input                                                                 */
 
+/* the arrows move; the left hand has Z, X and C (and Keen's Ctrl, Alt and
+ * Space). No WASD: W under a held Ctrl was close-tab */
 const BIND = {
-  ArrowLeft: "left", KeyA: "left", ArrowRight: "right", KeyD: "right",
-  ArrowUp: "up", KeyW: "up", ArrowDown: "down", KeyS: "down",
+  ArrowLeft: "left", ArrowRight: "right",
+  ArrowUp: "up", ArrowDown: "down",
   ControlLeft: "jump", ControlRight: "jump", KeyZ: "jump",
   AltLeft: "pogo", AltRight: "pogo", KeyX: "pogo",
   Space: "fire", KeyC: "fire",
@@ -342,6 +344,10 @@ addEventListener("keydown", ev => {
 });
 addEventListener("keyup", ev => { const a = BIND[ev.code]; if (a) held.delete(a); });
 addEventListener("blur", () => { held.clear(); touchHeld.clear(); if (canPause()) openPause(); });
+/* a level in play is never saved, so leaving the page loses it: the browser
+   asks first. Ctrl is jump and W is up, and Ctrl+W closes the tab on
+   Windows and Linux before the page can say no */
+addEventListener("beforeunload", ev => { if (G.mode === "level" && G.lv && G.run) { ev.preventDefault(); ev.returnValue = ""; } });
 /* not while Poom is dying or walking out of a level: Leave level would
    otherwise take back a death, or throw away a level already finished */
 function canPause() { return G.mode === "map" || (G.mode === "level" && G.lv && G.lv.p.state === "play"); }
@@ -489,6 +495,22 @@ const rescueLevels = b => Object.values(MAPS).filter(lv => lv.book === b && (lv.
 const rescuedIn = (r, b) => rescueLevels(b).filter(id => (r.rescued || {})[id]).length;
 const heartsIn = b => Object.values(MAPS).filter(lv => lv.book === b).reduce((n, lv) => n + lv.rows.join("").split("!").length - 1, 0);
 const heartsBroken = (r, b) => Object.keys(r.hearts || {}).filter(id => MAPS[id] && MAPS[id].book === b).length;
+/* A done level that still holds what its Book is after can be gone back
+ * into: a Little One not yet rescued, a heartstone not yet broken, a ship
+ * part not yet taken (H17's exit can be reached from its right without
+ * touching the part). Keen 2 locked such a level for good and the game was
+ * lost without a word; here the level stays open and keeps its arrow. */
+const partIn = id => { for (const [, , g, name] of MAPS[id].things || []) if (g === "!") { const t = +(/objective type (\d+)/.exec(name) || [])[1]; if (t >= 1 && t <= 4) return t - 1; } return null; };
+/* Book 2: a level's way out is shut until its heartstone is broken, as a
+ * door is until its keycard is found (the author's rule, 2026-10-13) */
+const exitSealed = lv => BOOK_GOAL[lv.def.book] === "hearts" && lv.def.rows.some(row => row.includes("!")) && !(G.run.hearts || {})[lv.n];
+function levelPending(r, id) {
+  const goal = BOOK_GOAL[r.book];
+  if (goal === "rescues") return rescueLevels(r.book).includes(id) && !(r.rescued || {})[id];
+  if (goal === "hearts") return MAPS[id].rows.some(row => row.includes("!")) && !(r.hearts || {})[id];
+  if (WORLDS[r.book] && WORLDS[r.book].ship) { const t = partIn(id); return t !== null && !r.parts[t]; }
+  return false;
+}
 
 /* what a world map's markers mean, worked out once per book */
 const WORLDS = {};
@@ -1040,7 +1062,8 @@ function updatePlayer(lv) {
     }
   }
   const trap = !door && !p.climbing && wasPressed("up") && tilesUnder(p).find(k => lv.trapAt.has(k));
-  if (trap) {
+  if (trap && lv.pulled === trap) sfx("click");   /* already pulled (Arcade): it's done */
+  else if (trap) {
     if (lv.trapArmed === trap && lv.t - lv.trapArmedT < 240) { springTrap(lv, trap); return; }
     lv.trapArmed = trap; lv.trapArmedT = lv.t; sfx("nope");
     message(say("trapAsk", "<b>Careful.</b><br><br>This lever is a trap. Press ↑ again to pull it anyway."));
@@ -1238,6 +1261,12 @@ function updatePlayer(lv) {
     if (lv.edge.has(k)) return finishBy(lv, "edge");
     if (lv.secretAt.has(k)) return finishBy(lv, "secret");
     const door = lv.exitAt[k];
+    if (door && exitSealed(lv)) {
+      /* shut: he's pushed back off it, and told why, once */
+      p.pushV = (p.x + p.w / 2 < door.x + T ? -1 : 1) * 1.5; p.pushT = 8;
+      if (!lv.sealWarned) { lv.sealWarned = true; sfx("nope"); toast(say("exitSealed", "The way out is shut. It opens when this level's heartstone is broken.")); }
+      return;
+    }
     if (door) { p.x = door.x + T / 2 - p.w / 2; return finishBy(lv, door); }
   }
 
@@ -1396,6 +1425,9 @@ function drawPlats(lv, cx, cy) {
 function springTrap(lv, key) {
   lv.pulled = key;
   sfx("die");
+  /* Arcade: it kills him, and he gets up again on safe ground like any
+     other death; cheat mode costs a life; Classic is the game */
+  if (G.run.arcade) { message(say("trap", "<b>The switch!</b><br><br>That was a trap."), { onClose: () => { lv.p.safeT = 0; die(lv); } }); return; }
   if (G.run.cheat) { message(say("trap", "<b>The switch!</b><br><br>That was a trap."), { onClose: () => loseLife() }); return; }
   message(say("trap", "<b>The switch!</b><br><br>That was a trap."), { onClose: () => { G.lv = null; G.run.lives = 0; gameOver(true); } });
 }
@@ -1512,20 +1544,40 @@ function die(lv) {
   if (p.pogo) { p.pogo = false; p.h = PH; }
   p.state = "dead"; p.t = 0; p.vy = -3; p.vx = (Math.random() - 0.5) * 2; p.climbing = false; p.crouch = p.compress = 0;
   sfx("die");
+  /* Classic: the life is gone now, not when the box opens, so a reload
+     during the fall can't take the death back (loseLife does the same sum) */
+  if (!G.run.arcade && !G.run.cheat && lv.snapshot) { const s = lv.snapshot; if (s.lives > 0) store.set(KEYS.save, { ...s, lives: s.lives - 1 }); else store.del(KEYS.save); }
 }
 
 /* Arcade: no life lost. Poom picks himself up where he last stood firm, a
  * second or more before he fell, with all he has picked up in the level,
  * and a moment's grace */
+/* Safe ground to get up on: room for his body, rock, a ledge or a slope
+ * under his feet (a bridge deck may have gone since), and nothing deadly
+ * in the tiles he stands in or the ones either side of them, pulsing
+ * columns included. Checked when he gets up, not when the spot was noted */
+function safeSpot(lv, x, y) {
+  const w = 12, h = PH;
+  if (!rectClear(lv, x, y, w, h)) return false;
+  const fy = Math.floor((y + h + 1) / T), tx0 = Math.floor((x + 1) / T), tx1 = Math.floor((x + w - 2) / T);
+  let floor = false;
+  for (let tx = tx0; tx <= tx1; tx++) { const c = tileAt(lv, tx, fy); if (isSolid(c) || c === "-" || slopeTop(lv, tx, fy, x + w / 2) !== null) floor = true; }
+  if (!floor) return false;
+  for (let ty = Math.floor(y / T); ty <= fy; ty++) for (let tx = tx0 - 1; tx <= tx1 + 1; tx++) { const c = tileAt(lv, tx, ty); if (c === "^" || c === "~" || c === "z") return false; }
+  return true;
+}
 function respawn(lv) {
   const p = lv.p, ring = lv.safeRing || [];
   /* dying again soon after getting up goes further back each time, so no
      spot can catch him in a loop */
   lv.streak = lv.t - (lv.lastRespawn || -1e9) < 300 ? (lv.streak || 0) + 1 : 0;
   lv.lastRespawn = lv.t;
+  /* the newest spot old enough that is still safe ground; failing that
+     the newest safe one at all; failing that the level's start */
   let s = null;
-  for (let i = ring.length - 1; i >= 0; i--) if (lv.t - ring[i][0] >= 60 * (1 + lv.streak * 2)) { s = ring[i]; break; }
-  s = s || ring[0] || [0, lv.p0[0], lv.p0[1]];
+  for (let i = ring.length - 1; i >= 0 && !s; i--) if (lv.t - ring[i][0] >= 60 * (1 + lv.streak * 2) && safeSpot(lv, ring[i][1], ring[i][2])) s = ring[i];
+  for (let i = ring.length - 1; i >= 0 && !s; i--) if (safeSpot(lv, ring[i][1], ring[i][2])) s = ring[i];
+  s = s || [0, lv.p0[0], lv.p0[1]];
   lv.safeRing = ring.filter(e => e[0] <= s[0]);
   Object.assign(p, { x: s[1], y: s[2], vx: 0, vy: 0, h: PH, state: "play", t: 0, pogo: false, climbing: false, crouch: 0, compress: 0, riding: null, onGround: false, safeT: 90 });
   sfx("life");
@@ -2034,11 +2086,12 @@ function updateMap() {
   if (dx || dy) { p.anim += 0.12; p.dir = dy < 0 ? "up" : dy > 0 ? "down" : dx < 0 ? "left" : "right"; }
   G.run.mx = p.x; G.run.my = p.y;
   m.t++;
+  if (m.t % 180 === 0) saveRun();   /* every three seconds, so where he stands survives a closed tab */
 
   const ctx_ = Math.floor((p.x + p.w / 2) / T), cty = Math.floor((p.y + p.h / 2) / T);
   const here = mapHere(p);
   if (here && (wasPressed("jump") || wasPressed("fire"))) {
-    const pending = BOOK_GOAL[G.run.book] === "rescues" && rescueLevels(G.run.book).includes(here) && !(G.run.rescued || {})[here];
+    const pending = levelPending(G.run, here);
     if (G.run.done[here] && !pending) { toast(say("levelDone", name => `${name}: done.`, levelName(here))); sfx("nope"); }
     else { saveRun(); startLevel(here); return; }
   }
@@ -2111,13 +2164,15 @@ let openCache = { key: null, ids: [] };
 function openPlaces() {
   const w = world(), p = G.map.p;
   const sx = Math.floor((p.x + p.w / 2) / T), sy = Math.floor((p.y + p.h / 2) / T);
-  const key = G.run.book + "|" + Object.keys(G.run.done).sort().join() + "|" + !!G.run.swim;
+  const r = G.run;
+  const key = r.book + "|" + Object.keys(r.done).sort().join() + "|" + !!r.swim + "|" + Object.keys(r.rescued || {}).length + "," + Object.keys(r.hearts || {}).length + "," + r.parts.map(Number).join("");
   if (openCache.key === key && openCache.seen && openCache.seen.has(sx + "," + sy)) return openCache.ids;
   const seen = new Set(), q = [[sx, sy]], ids = new Set();
   const walk = (tx, ty) => {
     if (tx < 0 || ty < 0 || tx >= w.w || ty >= w.h || barrierOn(tx, ty)) return false;
     const e = entranceAt(tx, ty);
     if (e && !G.run.done[e]) { ids.add(e); if (w.e1) return false; }
+    else if (e && levelPending(G.run, e)) ids.add(e);   /* done, but something is still in it: open ground with an arrow */
     const ch = mapTile(tx, ty);
     return ch === "/" || ch === "\\" || !mapSolid(ch);
   };
@@ -2576,7 +2631,7 @@ function drawMap() {
   const here = mapHere(p);
   const onTele = !here && world().tele[Math.floor((p.x + p.w / 2) / T) + "," + Math.floor((p.y + p.h / 2) / T)];
   const onDock = !here && fy && fy.at[Math.floor((p.x + p.w / 2) / T) + "," + Math.floor((p.y + p.h / 2) / T)] !== undefined;
-  const label = here ? levelName(here) + (G.run.done[here] ? " (done)" : "") : onShip(p) || onParked(p) ? "The Catamaran" : onTele ? mapArt.teleName || "Teleporter" : onDock || m.ride ? mapArt.ferryName || "The ferry" : "";
+  const label = here ? levelName(here) + (G.run.done[here] ? (levelPending(G.run, here) ? " (not finished)" : " (done)") : "") : onShip(p) || onParked(p) ? "The Catamaran" : onTele ? mapArt.teleName || "Teleporter" : onDock || m.ride ? mapArt.ferryName || "The ferry" : "";
   mapLabel(label);
   drawHud(null);
 }
@@ -2830,7 +2885,7 @@ function page(title, tabs, { onBack = () => UI.pop() } = {}) {
   };
   if (tabs.length > 1) { tabs.forEach(([name], i) => { const b = el("button", null, name); b.addEventListener("click", () => { sfx("menu"); show(i); }); bar.appendChild(b); }); box.appendChild(bar); }
   box.appendChild(body);
-  box.appendChild(el("div", "foot", tabs.length > 1 ? "&larr; &rarr; pages &middot; &uarr; &darr; scroll &middot; Esc back" : "&uarr; &darr; scroll &middot; Esc back"));
+  box.appendChild(el("div", "foot", tabs.length > 1 ? "<span class=\"arr\">&larr; &rarr;</span> pages &middot; &uarr; &darr; scroll &middot; Esc back" : "&uarr; &darr; scroll &middot; Esc back"));
   wrap.appendChild(box);
   show(0);
   UI.push({
@@ -2858,7 +2913,7 @@ function statusWindow() {
   const row = (k, v) => { grid.appendChild(el("span", "k", k)); const s = el("span", "v"); if (typeof v === "string") s.textContent = v; else s.appendChild(v); grid.appendChild(s); };
   row("Score", String(r.score));
   row("Extra life at", String(r.nextLife));
-  row("Lives", r.cheat ? "infinite (cheat)" : String(r.lives));
+  row("Lives", r.cheat ? "infinite (cheat)" : r.arcade ? "endless (arcade)" : String(r.lives));
   row("Raygun", say("raygun", n => n ? `${n} charge${n === 1 ? "" : "s"}` : "empty", r.ammo));
   /* the four colours, and the fifth only once it's held */
   const held = G.lv ? G.lv.keys : [false, false, false, false];
@@ -2923,7 +2978,7 @@ const STORY = `<p>Poom Purrington is eight years old, has an IQ of 314, and has 
 <p>Find all four, bring them back to the Catamaran, and get home before your parents do. And whatever you do, stay away from the hose.</p>`;
 
 const CONTROLS = `<table>
-<tr><td><kbd>&larr;</kbd> <kbd>&rarr;</kbd> / <kbd>A</kbd> <kbd>D</kbd></td><td>walk</td></tr>
+<tr><td><kbd class="arr">&larr;</kbd> <kbd class="arr">&rarr;</kbd></td><td>walk</td></tr>
 <tr><td><kbd>Ctrl</kbd> / <kbd>Z</kbd></td><td>jump &mdash; hold it to jump higher</td></tr>
 <tr><td><kbd>Alt</kbd> / <kbd>X</kbd></td><td>pogo stick on and off</td></tr>
 <tr><td><kbd>Space</kbd> / <kbd>C</kbd></td><td>fire the raygun</td></tr>
@@ -3252,7 +3307,7 @@ function openHelp() {
   if (B) return page("Help", [
     ["Story", B.story],
     ["Controls", CONTROLS.replace(/<p>On the map[\s\S]*?<\/p>/, B.map)],
-    ["Classic and Arcade", MODES],
+    ["Modes", MODES],
     ["Creatures", spriteRow(B.creatures())],
     ["Items", spriteRow(B.items())],
     ["About", aboutText()],
@@ -3260,7 +3315,7 @@ function openHelp() {
   page("Help", [
     ["Story", STORY],
     ["Controls", CONTROLS],
-    ["Classic and Arcade", MODES],
+    ["Modes", MODES],
     ["Creatures", spriteRow([
       [ART.mousel.walk0.r, "Mousel", "Harmless, nosy, and pushy. Jump on one to bop it for a while."],
       [ART.barker.walk0.r, "Barker", "Charges the moment it sees you. Don't be there. One shot."],
@@ -3436,6 +3491,7 @@ function bookIntro(B, toMap) {
 
 function gameOver(trapped = false) {
   G.mode = "title";
+  hideLogo();   /* the level's name plate may still be fading */
   const score = G.run.score;
   store.del(KEYS.save);
   sfx("die");
@@ -3487,8 +3543,7 @@ function setupTouch() {
 /* the loop                                                              */
 
 function fit() {
-  const pad = document.getElementById("touch").hidden ? 0 : 0;
-  const s0 = Math.min(innerWidth / W, (innerHeight - pad) / H);
+  const s0 = Math.min(innerWidth / W, innerHeight / H);
   const si = Math.floor(s0);
   const s = si >= 2 && si / s0 > 0.8 ? si : s0;
   stage.style.width = W * s + "px"; stage.style.height = H * s + "px";
