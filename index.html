@@ -159,12 +159,14 @@ kbd{font:inherit;color:var(--ui-head)}
 .menu button:disabled{color:var(--ega8)}
 @keyframes blink{50%{visibility:hidden}}
 .foot{margin-top:6px;font-size:6px;color:var(--ui-accent)}
-.foot a,.credit a{color:var(--ui-accent)}
+.foot a,.credit a,.gk-credit a{color:var(--ui-accent)}
 .ask .menu{max-width:230px}
 .books .menu{min-width:190px}
 .ask h2{text-transform:none;line-height:1.6}
 
-.title{place-items:end end;padding:0 10px 7px 0;box-sizing:border-box}
+.title{place-items:end end;padding:0 10px 14px 0;box-sizing:border-box}
+/* the credit sits under the panel, small and muted, the link in the accent */
+.title .below{position:absolute;right:11px;bottom:4px;font-size:6px;color:var(--ui-dim)}
 .title .menu{min-width:150px;padding:4px 7px}
 .title .menu button{padding:1px 4px;line-height:1.25}
 .title .menu .gap{height:3px}
@@ -206,9 +208,9 @@ kbd{font:inherit;color:var(--ui-head)}
 #keystrip.fading{opacity:0}
 #toast{position:absolute;left:50%;top:30px;transform:translateX(-50%);background:var(--ui-bg);border:1px solid var(--ui-accent);
   padding:3px 6px;font-size:6px;max-width:260px;text-align:center;z-index:6}
-#snd{position:absolute;right:3px;top:3px;z-index:7;font:inherit;font-size:7px;width:13px;height:13px;padding:0;line-height:1;
-  background:var(--ui-chip);color:var(--ui-accent);border:1px solid var(--ui-chip-edge);cursor:pointer}
-#snd[aria-pressed="false"]{color:var(--ega8)}
+#snd{position:absolute;right:3px;top:3px;z-index:7;width:13px;height:13px;padding:0;display:grid;place-items:center;
+  background:var(--ui-chip);border:1px solid var(--ui-chip-edge);cursor:pointer}
+#snd img{display:block}
 [hidden]{display:none!important}
 
 /* ---- touch ---- */
@@ -235,7 +237,7 @@ kbd{font:inherit;color:var(--ui-head)}
     <div id="maplabel" hidden></div>
     <div id="toast" hidden role="status"></div>
     <div id="keystrip" hidden><kbd>Ctrl</kbd>/<kbd>Z</kbd> jump &middot; <kbd>Alt</kbd>/<kbd>X</kbd> pogo &middot; <kbd>Space</kbd>/<kbd>C</kbd> fire<br><kbd>&uarr;</kbd> doors and signs &middot; <kbd>Enter</kbd> status &middot; <kbd>Esc</kbd> pause</div>
-    <button id="snd" aria-label="Sound" aria-pressed="true" title="Sound (M)">♪</button>
+    <button id="snd" aria-label="Sound" aria-pressed="true" title="Sound (M)"></button>
   </div>
 </div>
 <div id="touch" hidden>
@@ -257,6 +259,6 @@ kbd{font:inherit;color:var(--ui-head)}
 <script src="js/books/G.js?v=5775b3dc"></script>
 <script src="js/books/H.js?v=5263ba43"></script>
 <script src="js/books/I.js?v=15f4fdd4"></script>
-<script src="js/game.js?v=8b418569"></script>
+<script src="js/game.js?v=4ccec924"></script>
 </body>
 </html>

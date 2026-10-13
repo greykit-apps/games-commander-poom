@@ -446,6 +446,7 @@ function dressFor(book) {
   mapArt = mapArtSets[theme.map] || mapArtSets.classic;
   logoEl().dataset.look = theme.name; document.getElementById("ui").dataset.look = theme.name;
   document.title = "Commander Poom \u2014 " + theme.subtitle;
+  syncSoundButton();   /* the speaker wears the Book's accent */
   if (BOOKS[book]) store.set(KEYS.lastBook, book);
 }
 const THEME_OF = { A: "hiss", B: "garden", C: "fort", D: "ice", E: "hiss", F: "garden", G: "fort", H: "ice", I: "hiss" };
@@ -2917,7 +2918,26 @@ function ask(question, yes, then) {
 }
 
 function toggleMute() { audio.setMuted(!audio.muted); syncSoundButton(); if (!audio.muted) sfx("pick"); toast(audio.muted ? "Sound off" : "Sound on"); }
-function syncSoundButton() { const b = document.getElementById("snd"); if (b) { b.setAttribute("aria-pressed", String(!audio.muted)); b.textContent = audio.muted ? "♪̸" : "♪"; } }
+/* the sound toggle's icon: a pixel speaker in the Book's accent, waves when
+   it's on and a cross when it's off, drawn in code like everything else
+   (the pixel font has no note, and a fallback glyph looked like the web) */
+const SPEAKER = {
+  on: ["...a.....", "..aa.b...", "aaaa..b..", "aaaa.b.b.", "aaaa..b..", "..aa.b...", "...a....."],
+  off: ["...a.....", "..aa.....", "aaaa.b.b.", "aaaa..b..", "aaaa.b.b.", "..aa.....", "...a....."],
+};
+function speakerIcon(on, col) {
+  const c = makeCanvas(9, 7), g = c.getContext("2d");
+  g.fillStyle = col;
+  SPEAKER[on ? "on" : "off"].forEach((r, y) => [...r].forEach((ch, x) => { if (ch !== ".") g.fillRect(x, y, 1, 1); }));
+  return c;
+}
+function syncSoundButton() {
+  const b = document.getElementById("snd"); if (!b) return;
+  const on = !audio.muted;
+  b.setAttribute("aria-pressed", String(on));
+  const col = getComputedStyle(uiRoot).getPropertyValue(on ? "--ui-accent" : "--ui-dim").trim() || "#aaaaaa";
+  b.replaceChildren(imgOf(speakerIcon(on, col)));
+}
 
 function statusWindow() {
   const r = G.run, wrap = el("div", "overlay"), box = el("div", "box status");
@@ -3437,7 +3457,9 @@ function openTitle() {
     { label: "Help", key: "H", act: () => openHelp() },
     { label: "About", key: "A", act: () => page("About", [["", aboutText()]]) },
   ].filter(Boolean);
-  menu("", items, { cls: "title", footer: '<span class="gk-credit">Built by <a href="https://greykit.com/" target="_blank" rel="noopener">greykit.com</a></span>' });
+  const o = menu("", items, { cls: "title" });
+  /* the §1 credit, under the panel rather than among its lines */
+  o.el.appendChild(el("div", "below gk-credit", 'Built by <a href="https://greykit.com/" target="_blank" rel="noopener">greykit.com</a>'));
 }
 /* Choose a Book: the Books that can be played, by number and name.
  * Choosing one asks Classic or Arcade, then starts a fresh game there,
