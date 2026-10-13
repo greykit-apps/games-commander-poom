@@ -3455,6 +3455,7 @@ function bookIntro(B, toMap) {
 
 function gameOver(trapped = false) {
   G.mode = "title";
+  hideLogo();   /* the level's name plate may still be fading */
   const score = G.run.score;
   store.del(KEYS.save);
   sfx("die");
