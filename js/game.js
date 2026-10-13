@@ -489,6 +489,19 @@ const rescueLevels = b => Object.values(MAPS).filter(lv => lv.book === b && (lv.
 const rescuedIn = (r, b) => rescueLevels(b).filter(id => (r.rescued || {})[id]).length;
 const heartsIn = b => Object.values(MAPS).filter(lv => lv.book === b).reduce((n, lv) => n + lv.rows.join("").split("!").length - 1, 0);
 const heartsBroken = (r, b) => Object.keys(r.hearts || {}).filter(id => MAPS[id] && MAPS[id].book === b).length;
+/* A done level that still holds what its Book is after can be gone back
+ * into: a Little One not yet rescued, a heartstone not yet broken, a ship
+ * part not yet taken (H17's exit can be reached from its right without
+ * touching the part). Keen 2 locked such a level for good and the game was
+ * lost without a word; here the level stays open and keeps its arrow. */
+const partIn = id => { for (const [, , g, name] of MAPS[id].things || []) if (g === "!") { const t = +(/objective type (\d+)/.exec(name) || [])[1]; if (t >= 1 && t <= 4) return t - 1; } return null; };
+function levelPending(r, id) {
+  const goal = BOOK_GOAL[r.book];
+  if (goal === "rescues") return rescueLevels(r.book).includes(id) && !(r.rescued || {})[id];
+  if (goal === "hearts") return MAPS[id].rows.some(row => row.includes("!")) && !(r.hearts || {})[id];
+  if (WORLDS[r.book] && WORLDS[r.book].ship) { const t = partIn(id); return t !== null && !r.parts[t]; }
+  return false;
+}
 
 /* what a world map's markers mean, worked out once per book */
 const WORLDS = {};
@@ -2038,7 +2051,7 @@ function updateMap() {
   const ctx_ = Math.floor((p.x + p.w / 2) / T), cty = Math.floor((p.y + p.h / 2) / T);
   const here = mapHere(p);
   if (here && (wasPressed("jump") || wasPressed("fire"))) {
-    const pending = BOOK_GOAL[G.run.book] === "rescues" && rescueLevels(G.run.book).includes(here) && !(G.run.rescued || {})[here];
+    const pending = levelPending(G.run, here);
     if (G.run.done[here] && !pending) { toast(say("levelDone", name => `${name}: done.`, levelName(here))); sfx("nope"); }
     else { saveRun(); startLevel(here); return; }
   }
@@ -2111,13 +2124,15 @@ let openCache = { key: null, ids: [] };
 function openPlaces() {
   const w = world(), p = G.map.p;
   const sx = Math.floor((p.x + p.w / 2) / T), sy = Math.floor((p.y + p.h / 2) / T);
-  const key = G.run.book + "|" + Object.keys(G.run.done).sort().join() + "|" + !!G.run.swim;
+  const r = G.run;
+  const key = r.book + "|" + Object.keys(r.done).sort().join() + "|" + !!r.swim + "|" + Object.keys(r.rescued || {}).length + "," + Object.keys(r.hearts || {}).length + "," + r.parts.map(Number).join("");
   if (openCache.key === key && openCache.seen && openCache.seen.has(sx + "," + sy)) return openCache.ids;
   const seen = new Set(), q = [[sx, sy]], ids = new Set();
   const walk = (tx, ty) => {
     if (tx < 0 || ty < 0 || tx >= w.w || ty >= w.h || barrierOn(tx, ty)) return false;
     const e = entranceAt(tx, ty);
     if (e && !G.run.done[e]) { ids.add(e); if (w.e1) return false; }
+    else if (e && levelPending(G.run, e)) ids.add(e);   /* done, but something is still in it: open ground with an arrow */
     const ch = mapTile(tx, ty);
     return ch === "/" || ch === "\\" || !mapSolid(ch);
   };
@@ -2576,7 +2591,7 @@ function drawMap() {
   const here = mapHere(p);
   const onTele = !here && world().tele[Math.floor((p.x + p.w / 2) / T) + "," + Math.floor((p.y + p.h / 2) / T)];
   const onDock = !here && fy && fy.at[Math.floor((p.x + p.w / 2) / T) + "," + Math.floor((p.y + p.h / 2) / T)] !== undefined;
-  const label = here ? levelName(here) + (G.run.done[here] ? " (done)" : "") : onShip(p) || onParked(p) ? "The Catamaran" : onTele ? mapArt.teleName || "Teleporter" : onDock || m.ride ? mapArt.ferryName || "The ferry" : "";
+  const label = here ? levelName(here) + (G.run.done[here] ? (levelPending(G.run, here) ? " (not finished)" : " (done)") : "") : onShip(p) || onParked(p) ? "The Catamaran" : onTele ? mapArt.teleName || "Teleporter" : onDock || m.ride ? mapArt.ferryName || "The ferry" : "";
   mapLabel(label);
   drawHud(null);
 }

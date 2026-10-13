@@ -55,7 +55,20 @@ are not finished.
 
 ### F01, Critical: a heartstone level finished without its heartstone can never be finished (Book 2 cannot end)
 
-**Status: VERIFIED** on C05 with `review/solver-avoid.js` (`solve("C05", { avoid: true })` reached the exit door in 7.1 s and 61,877 states without touching the heartstone). The other seven heartstone levels are being checked the same way; results are in the table at the end of this section.
+**Status: VERIFIED** with `review/solver-avoid.js` (`solve(id, { avoid: true })`, which kills any path that touches the heartstone, so a success is an exit reached without it):
+
+| Level | Without the heartstone | Solver |
+|---|---|---|
+| C05 *The Spine Garden* | **exit reachable** | door, 7.1 s, 61,877 states |
+| C07 | heart is on the only route | plain solve 1.0 s; avoid: exhausted 107,240 states (every path dies on the heart) |
+| C08 | not settled | budget (35 s) |
+| C10 | not settled | budget (35 s; the level is 144 wide) |
+| C12 | **exit reachable** | door, 32.6 s, 5,416 states |
+| C14 | **exit reachable** | door, 0.1 s, 1,538 states |
+| C16 | not settled | budget (35 s) |
+| C17 | not settled | budget (53 s) |
+
+Three of the eight are proven open; one needs more search time to tell; C07 is the only one whose heart stands in the way. One is enough: a run that leaves C05, C12 or C14 by the door with the stone standing is already lost.
 
 **Where.** `js/game.js:2043` (`updateMap`): a done level can only be re-entered when `pending` is true, and `pending` is only ever computed for Book 4's rescues:
 
@@ -74,13 +87,13 @@ if (G.run.done[here] && !pending) { toast(say("levelDone", ...)); sfx("nope"); }
 
 ### F02, Critical or not a bug: a ship-part level finished without its part (Book 1)
 
-**Status: VERIFIED for H04, H05, H09 that the part cannot be avoided; H17 being checked.**
+**Status: VERIFIED.** H04, H05 and H09 force the part; **H17 does not**: `solve("H17", { avoid: true, to: [105, 10] })` reached the open ledge to the right of the exit in 22.9 s and 193,289 states without touching the part, and from there walking left into the exit tile finishes the level (re-run by hand in the page: Poom placed at (106,10), left held, the level ended by its door with the part still on the floor and `G.run.parts` all false).
 
 Same mechanism as F01 (`updateMap` only re-opens rescue levels; the ship needs all four parts, `boardShip` at `js/game.js:1879`). Whether it can happen depends on the maps:
 
 - **H04** (*Fort Scrap*): the part at (70,11) sits one tile past the red door at (69,10-11), in a chamber x 70-77, rows 9-11 whose only way in is that two-tile-high door. Poom is 22 px tall; under the door's lintel his feet cannot rise above y=182 and the part's pickup box spans y 179-191, and he cannot clear the lintel horizontally without already overlapping the part's box (x 1123-1133). The part is unavoidable. Confirmed by the solver running out of states (`solve("H04", { avoid: true, from: [67,11], ev: ["o69,10"] })`, 30 s budget, never reached the exit).
 - **H05** (*Old Litterburg*) and **H09** (*Vault 9*): the part is in a corridor two tiles high (ceiling at row 5 over (112,7); ice at row 14 over (69,16)), which Poom fills. Unavoidable.
-- **H17** (*Vault 9, the cold floor*): the part at (103,10) sits in a corridor three tiles high next to the exit at (104,9-10), **and the exit chamber is open to the right (x 105-109) and above (rows 0-8 at x 104-109), which connects along the map's open top rows 0-1 to a shaft at x 80-87.** If Poom can reach the map's top rows anywhere (a ten-tile pogo makes that plausible), he can walk along the sky, drop down the right side and walk into the exit from the right without ever touching the part. Solver run pending.
+- **H17** (*Vault 9, the Deep Freeze*): the part at (103,10) sits in a corridor three tiles high next to the exit at (104,9-10), **and the exit chamber is open to the right (x 105-109) and above (rows 0-8 at x 104-109), which connects along the map's open top rows 0-1 to the shaft at x 80-87.** The solver found that route: up to the sky, along the top, down the right side, and into the exit from the right, never touching the part. The player then has Level 16 "cleared", three parts, and no way to the fourth.
 
 **Suggested fix.** The same helper as F01: a part level whose part is not held can be gone back into. It costs nothing where the part is unavoidable and closes the H17 hole if it is real.
 
