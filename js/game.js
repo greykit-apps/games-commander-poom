@@ -1062,7 +1062,8 @@ function updatePlayer(lv) {
     }
   }
   const trap = !door && !p.climbing && wasPressed("up") && tilesUnder(p).find(k => lv.trapAt.has(k));
-  if (trap) {
+  if (trap && lv.pulled === trap) sfx("click");   /* already pulled (Arcade): it's done */
+  else if (trap) {
     if (lv.trapArmed === trap && lv.t - lv.trapArmedT < 240) { springTrap(lv, trap); return; }
     lv.trapArmed = trap; lv.trapArmedT = lv.t; sfx("nope");
     message(say("trapAsk", "<b>Careful.</b><br><br>This lever is a trap. Press ↑ again to pull it anyway."));
@@ -1424,6 +1425,9 @@ function drawPlats(lv, cx, cy) {
 function springTrap(lv, key) {
   lv.pulled = key;
   sfx("die");
+  /* Arcade: it kills him, and he gets up again on safe ground like any
+     other death; cheat mode costs a life; Classic is the game */
+  if (G.run.arcade) { message(say("trap", "<b>The switch!</b><br><br>That was a trap."), { onClose: () => { lv.p.safeT = 0; die(lv); } }); return; }
   if (G.run.cheat) { message(say("trap", "<b>The switch!</b><br><br>That was a trap."), { onClose: () => loseLife() }); return; }
   message(say("trap", "<b>The switch!</b><br><br>That was a trap."), { onClose: () => { G.lv = null; G.run.lives = 0; gameOver(true); } });
 }
