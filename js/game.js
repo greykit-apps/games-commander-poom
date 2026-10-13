@@ -3461,12 +3461,14 @@ function openTitle() {
   /* the §1 credit, under the panel rather than among its lines */
   o.el.appendChild(el("div", "below gk-credit", 'Built by <a href="https://greykit.com/" target="_blank" rel="noopener">greykit.com</a>'));
 }
-/* Choose a Book: the Books that can be played, by number and name.
- * Choosing one asks Classic or Arcade, then starts a fresh game there,
- * dressed as that Book, with its story. */
+/* Choose a Book: the first five, by number and name; a Book not yet
+ * playable shows greyed, the next chapter that was always coming. Choosing
+ * one asks Classic or Arcade, then starts a fresh game there, dressed as
+ * that Book, with its story. */
 function chooseBook() {
-  const items = BOOK_ORDER.filter(b => BOOK_PLAYABLE.has(b) && BOOKS[b]).map(b => ({
-    label: `${bookNumber(b)}. ${BOOK_NAMES[b] || "Book " + bookNumber(b)}`, key: String(bookNumber(b)),
+  const items = BOOK_ORDER.slice(0, 5).map((b, i) => ({
+    label: `${i + 1}. ${BOOK_NAMES[b] || "Book " + (i + 1)}`, key: String(i + 1),
+    disabled: !BOOK_PLAYABLE.has(b) || !BOOKS[b],
     act: () => chooseMode(b),
   }));
   menu("Choose a book", items, { onBack: () => UI.pop(), cls: "books" });
