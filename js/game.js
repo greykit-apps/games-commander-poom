@@ -1828,15 +1828,24 @@ function startLevel(n) {
   centerCamera(true);
   sfx("enter");
   mapLabel("");   /* the map's place name is the map's: not over a level */
-  levelTitle(levelName(n));
-  keyStrip();
+  armKeyStrip(G.lv);
 }
-/* the keys, along the bottom for the first seconds of the first level this
- * browser plays, and never again; not on a touch screen, which has buttons */
+/* into a level from the map: its name on a card first, as Keen did, so the
+   playfield opens with nothing over it */
+function enterLevel(n) { mapLabel(""); card(levelName(n), () => startLevel(n)); }
+/* the keys, along the bottom of the first level this browser plays, but
+ * only if two seconds pass with nothing pressed: a player who is already
+ * walking and jumping has found them. Shown once, never again; not on a
+ * touch screen, which has buttons */
 let keyStripTimer = null;
+function armKeyStrip(lv) { lv.stripArmed = document.getElementById("touch").hidden && !(store.get(KEYS.seen, {}).keystrip); }
+function keyStripTick(lv) {
+  if (!lv.stripArmed) return;
+  if (["left", "right", "jump", "pogo", "fire"].some(isDown)) { lv.stripArmed = false; seen("keystrip"); }
+  else if (lv.t >= 120) { lv.stripArmed = false; seen("keystrip"); keyStrip(); }
+}
 function keyStrip() {
   const el = document.getElementById("keystrip");
-  if (!document.getElementById("touch").hidden || seen("keystrip")) return;
   el.classList.remove("fading"); el.hidden = false;
   clearTimeout(keyStripTimer);
   keyStripTimer = setTimeout(() => { el.classList.add("fading"); keyStripTimer = setTimeout(() => { el.hidden = true; }, 1000); }, 9000);
@@ -1845,6 +1854,7 @@ function keyStrip() {
 function updateLevel() {
   const lv = G.lv;
   lv.t++;
+  keyStripTick(lv);
   updatePlats(lv);
   updatePlayer(lv);
   if (G.mode !== "level" || G.lv !== lv) return;
@@ -1883,7 +1893,7 @@ function finishLevel() {
     if (spot) { r.mx = spot[0] * T + 4; r.my = spot[1] * T + 5; }
     enterMap();
     saveRun();
-    startLevel(secret);
+    enterLevel(secret);
     return;
   }
   /* the whole book done: on to the next, or the end. A book with a ship
@@ -2093,7 +2103,7 @@ function updateMap() {
   if (here && (wasPressed("jump") || wasPressed("fire"))) {
     const pending = levelPending(G.run, here);
     if (G.run.done[here] && !pending) { toast(say("levelDone", name => `${name}: done.`, levelName(here))); sfx("nope"); }
-    else { saveRun(); startLevel(here); return; }
+    else { saveRun(); enterLevel(here); return; }
   }
   if (!here && onShip(p) && (wasPressed("jump") || wasPressed("fire"))) boardShip();
   if (!here && onParked(p) && (wasPressed("jump") || wasPressed("fire"))) { sfx("nope"); message(say("parked", "<b>The Catamaran</b><br><br>It won't fly.")); }
@@ -2862,7 +2872,7 @@ function menu(title, items, { cls = "", onBack = null, footer = "" } = {}) {
       if (ev.code === "Enter" || ev.code === "Space") { ev.preventDefault(); const b = bs[i] || bs[0]; if (b) b.click(); return; }
       if (ev.code === "Escape" && onBack) { ev.preventDefault(); onBack(); return; }
       const k = ev.key && ev.key.length === 1 ? ev.key.toUpperCase() : null;
-      const hit = k && bs.find(b => b._item.key && b._item.key.toUpperCase() === k || (k === "H" || k === "/") && b._item.key === "?");
+      const hit = k && bs.find(b => b._item.key && b._item.key.toUpperCase() === k || (k === "?" || k === "/") && b._item.key === "H");
       if (hit) { ev.preventDefault(); hit.click(); }
     },
   };
@@ -2944,9 +2954,8 @@ function openPause() {
   menu("Paused", [
     { label: "Resume", key: "R", act: () => UI.pop() },
     { label: "Status", key: "T", act: () => { UI.pop(); statusWindow(); } },
-    { label: "Sound", key: "M", meta: audio.muted ? "off" : "on", act: () => { toggleMute(); UI.pop(); openPause(); } },
-    { label: "Game speed", key: "G", meta: SPEEDS[speed].label, act: () => { cycleSpeed(); UI.pop(); openPause(); } },
-    { label: "Help", key: "?", act: () => openHelp() },
+    { label: "Settings", key: "S", act: () => openSettings({ inGame: true }) },
+    { label: "Help", key: "H", act: () => openHelp() },
     "gap",
     inLevel ? { label: "Leave level", key: "L", act: () => ask("Leave this level? What you picked up in it stays behind.", "Leave", () => { UI.pop(); leaveLevel(); }) } : null,
     { label: "Quit to title", key: "Q", meta: "game saved", act: () => ask(inLevel ? "Quit to the title? The game is saved, but what you picked up in this level stays behind." : "Quit to the title? The game is saved.", "Quit", () => {
@@ -3337,13 +3346,15 @@ function openHelp() {
 const aboutText = () => `<p>A love letter to Commander Keen and a growing list of mashups.</p>
 <p class="credit gk-credit">Built by <a href="https://greykit.com/" target="_blank" rel="noopener">greykit.com</a></p>`;
 
-function openSettings() {
+/* from the title, or from the pause menu (inGame), where there's a game to
+   lose and Forget everything stays out of reach */
+function openSettings(opts = {}) {
+  const again = () => { UI.pop(); openSettings(opts); };
   menu("Settings", [
-    { label: "Sound", key: "M", meta: audio.muted ? "off" : "on", act: () => { toggleMute(); UI.pop(); openSettings(); } },
-    { label: "Game speed", key: "G", meta: SPEEDS[speed].label, act: () => { cycleSpeed(); UI.pop(); openSettings(); } },
-    "gap",
-    { label: "Forget everything", key: "F", act: () => ask("Forget your saved game, high scores and settings? This cannot be undone.", "Forget everything", forgetEverything) },
-  ], { onBack: () => UI.pop(), footer: "Forget everything clears only what Commander Poom keeps in this browser." });
+    { label: "Sound", key: "M", meta: audio.muted ? "off" : "on", act: () => { toggleMute(); again(); } },
+    { label: "Game speed", key: "G", meta: SPEEDS[speed].label, act: () => { cycleSpeed(); again(); } },
+    ...(opts.inGame ? [] : ["gap", { label: "Forget everything", key: "F", act: () => ask("Forget your saved game, high scores and settings? This cannot be undone.", "Forget everything", forgetEverything) }]),
+  ], { onBack: () => UI.pop(), footer: opts.inGame ? "" : "Forget everything clears only what Commander Poom keeps in this browser." });
 }
 
 const DEFAULT_SCORES = [
@@ -3416,7 +3427,7 @@ function openTitle() {
     { label: "High scores", key: "O", act: () => openScores() },
     "gap",
     { label: "Settings", key: "S", act: () => openSettings() },
-    { label: "Help", key: "?", act: () => openHelp() },
+    { label: "Help", key: "H", act: () => openHelp() },
     { label: "About", key: "A", act: () => page("About", [["", aboutText()]]) },
   ].filter(Boolean);
   menu("", items, { cls: "title", footer: '<span class="gk-credit">Built by <a href="https://greykit.com/" target="_blank" rel="noopener">greykit.com</a></span>' });
@@ -3469,7 +3480,6 @@ function fadeLogo(after = 0) {
     logoTimer = setTimeout(hideLogo, 1000);
   }, after);
 }
-function levelTitle(name) { showLogo(name); logoEl().classList.add("level"); fadeLogo(2000); }
 
 function story() {
   G.mode = "story";
