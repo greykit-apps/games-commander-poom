@@ -2,7 +2,8 @@
 /*
  * Writes icon.svg -- Poom's head in Book 1's ranger helmet, pixel for pixel
  * from js/art.js, on a wasteland dusk --
- * and renders the favicons and the home-screen icon from it.
+ * and renders the favicons, the home-screen icon and the manifest's 192 and
+ * 512 px app icons from it.
  *
  *   node tools/make-icons.js
  *
@@ -52,10 +53,9 @@ ${rects}
 fs.writeFileSync(path.join(root, "icon.svg"), svg);
 
 const out = f => path.join(root, f);
-for (const [f, size] of [["favicon-16x16.png", 16], ["favicon-32x32.png", 32], ["apple-touch-icon.png", 180], ["icon-512.png", 512]])
+for (const [f, size] of [["favicon-16x16.png", 16], ["favicon-32x32.png", 32], ["apple-touch-icon.png", 180], ["icon-192.png", 192], ["icon-512.png", 512]])
   execFileSync("rsvg-convert", ["-w", String(size), "-h", String(size), "-o", out(f), out("icon.svg")]);
 execFileSync("python3", ["-c",
   "import sys; from PIL import Image; im=Image.open(sys.argv[1]).convert('RGBA'); im.save(sys.argv[2], sizes=[(16,16),(32,32),(48,48)])",
   out("icon-512.png"), out("favicon.ico")]);
-fs.unlinkSync(out("icon-512.png"));
-console.log("wrote icon.svg, favicon-16x16.png, favicon-32x32.png, apple-touch-icon.png, favicon.ico");
+console.log("wrote icon.svg, favicon-16x16.png, favicon-32x32.png, apple-touch-icon.png, icon-192.png, icon-512.png, favicon.ico");
