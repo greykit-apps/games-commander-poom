@@ -17,6 +17,18 @@ finding (the solver runs and the in-page checks named under each).
 4. **A tapped jump is a twitch (F06, Medium, VERIFIED).** Jump height is set by how many of the five crouch ticks the key stays down: a 17 ms tap rises 2 px, 50 ms 1.2 tiles, 83 ms the full 3.4 tiles. One number (`Math.max(3, p.crouchHeld)`) gives every tap a real hop. Not applied, because it changes the feel; it is the author's call.
 5. **Decide whether a trap lever should end an Arcade game (F10).** Arcade says it never runs out; the Book 2 lever ends it. The cheat mode already turns the trap into a lost life, which is the obvious Arcade rule too.
 
+## Decisions from the author (2026-10-13), and what was done
+
+After the first pass the author answered the five summary items:
+
+1. **Heartstones are keys**: a Book 2 level's exit stays shut until its heartstone is broken. Done (`36cf06b`): `exitSealed(lv)` in `updatePlayer`; Poom is nudged back off the door and told once a visit ("The way out is shut. It opens when this level's heartstone is broken.", a `say("exitSealed")` line the Book can reword). The re-entry rule from `e12f758` stays, since it still covers ship parts (H17) and Little Ones; for heartstones it can no longer trigger.
+2. **No WASD**: the arrows move, the left hand has Z and X. Done (`373d51a`): `BIND` loses A, D, W, S; the Controls page and the README follow. Ctrl, Alt and Space stay as Keen's keys. This also removes the Ctrl+W hazard (F03); the leave-page guard stays. The macOS Ctrl+arrow note (F04) still applies to anyone who reaches for Ctrl.
+3. **Lives are by design** (extra lives come from score items). F05 stands as a note, not a finding.
+4. **The tapped jump stays** as it is. F06 stands as a note.
+5. **The trap lever kills, and Arcade gets up again.** Done (`963e82f`): in Arcade the lever is a death (the usual respawn follows); cheat mode keeps its lost life; Classic keeps its game over, as before. A pulled lever stays pulled (a second ↑ only clicks). *Assumption:* the author's sentence was about Arcade, so Classic was left alone; if Classic should also be a lost life rather than a game over, it is one line in `springTrap`. The Book 2 texts still say "It ends the game" (the ask) and "Thrum swallows the Catamaran whole" (the pull), which read oddly when Poom then gets up: the author's words, left for the author.
+   Checked in the page (build `87f79e5f`): C05's exit refuses Poom and shows the line, then ends the level once the heart is broken; `BIND` is arrows, Z, X, C, Ctrl, Alt, Space, Enter, Esc, M; at C05's lever in Arcade the two boxes play, Poom dies, gets up at the lever with four lives still, and a third ↑ only clicks; `safeSpot` rejects a spot beside the heart's spikes, one in the air and one in rock. One consequence for the author's local solver: a plain `solve("C05")` can no longer reach the exit, since the heart is now required; `solveAll` already runs the `items: true` pass for heart levels.
+   **Respawn only on safe ground.** Done (`7e60fe9`): `safeSpot(lv, x, y)` is checked at the moment he gets up, not when the spot was noted: room for his body, rock, a ledge or a slope under his feet (a bridge deck that has gone since fails), and no spikes, fire or pulsing column in the tiles he stands in or the ones either side. The newest old-enough safe spot wins, then the newest safe spot at all, then the level's start.
+
 ## Assumptions
 
 - Faithful Keen 1 feel is intended, modernised (coyote time, jump buffer, Arcade mode). Physics is judged against Keen 1-3 and against the levels' own needs, not against a modern platformer.
@@ -40,14 +52,14 @@ finding (the solver runs and the in-page checks named under each).
 |---|---|---|---|---|---|
 | F01 | Critical | softlock | VERIFIED, fixed | `js/game.js:2043` (`updateMap`), `js/game.js:1839` (`finishLevel`) | A Book 2 heartstone level finished without breaking its heartstone can never be re-entered, and Book 2 can never end. |
 | F02 | Critical | softlock | VERIFIED (H17), fixed | same | A Book 1 ship-part level finished without the part: same, Book 1 can never end. |
-| F03 | High | input | SUSPECTED; guard added | `js/game.js:319` (`BIND`) | W is "up" and Ctrl is "jump": Ctrl+W closes the tab on Windows and Linux, and the browser cannot block it. A `beforeunload` guard is on this branch. |
+| F03 | High | input | SUSPECTED; resolved (no WASD) | `js/game.js:319` (`BIND`) | W is "up" and Ctrl is "jump": Ctrl+W closes the tab on Windows and Linux, and the browser cannot block it. A `beforeunload` guard is on this branch. |
 | F04 | High | input | SUSPECTED | `js/game.js:319` (`BIND`), README | On macOS, Ctrl+Left/Right is "move a Space" by default. A running jump with the documented keys switches desktops. |
-| F05 | High | balance | VERIFIED | `js/books/E.js` (maps), `js/game.js:1461` (`collect`) | Book 4 holds 32 extra-life items (E02 has 7 in a row, E13 8, E11 5); Books 1 to 3 hold 0. Each is a full life. |
-| F06 | Medium | feel | VERIFIED | `js/game.js:1101` (jump crouch) | Jump height is set by how many of the 5 crouch ticks the key is held: a 1-tick tap rises 1.9 px, 3 ticks 1.2 tiles, 5 ticks 3.4 tiles. Short taps do almost nothing. |
+| F05 | note | balance | VERIFIED; by design | `js/books/E.js` (maps), `js/game.js:1461` (`collect`) | Book 4 holds 32 extra-life items (E02 has 7 in a row, E13 8, E11 5); Books 1 to 3 hold 0. Each is a full life. |
+| F06 | note | feel | VERIFIED; by design | `js/game.js:1101` (jump crouch) | Jump height is set by how many of the 5 crouch ticks the key is held: a 1-tick tap rises 1.9 px, 3 ticks 1.2 tiles, 5 ticks 3.4 tiles. Short taps do almost nothing. |
 | F07 | Medium | balance | VERIFIED | maps | Raygun charges: Book 1 has 65 shots for 296 hp of deadly creatures (22%); Book 3 has 1,370 for 393 (349%). |
 | F08 | Low | deploy | VERIFIED, fixed | `.gitlab-ci.yml:72` | The rsync publishes everything the exclude list doesn't name (README.md and LICENSE go live today). Fixed for `review/` and `REVIEW.md` on this branch. |
 | F09 | Low | dead code | VERIFIED, `fit()` fixed | `js/game.js:3490`, `:3266`, `:574` | `fit()` has a `pad` that is always 0; the classic help says a Vacuumoid "takes three shots" but hp is 4 (unreachable text); the `O` pogo item and `noPogo` text are dead, `newRun().pogo` is always true. |
-| F10 | Medium | rules vs text | SUSPECTED | `js/game.js:1396` (`springTrap`), `:3249` (`MODES`) | Arcade "never runs out", but a Book 2 trap lever ends an Arcade game too. |
+| F10 | Medium | rules vs text | fixed (Arcade) | `js/game.js:1396` (`springTrap`), `:3249` (`MODES`) | Arcade "never runs out", but a Book 2 trap lever ends an Arcade game too. |
 | F11 | Low | UI | VERIFIED, fixed | `js/game.js:2861` (`statusWindow`) | In Arcade the status window shows "Lives 4" while the HUD shows 99. |
 | F12 | Low | text vs code | VERIFIED, fixed | `js/game.js:2941` (`CONTROLS`) | "The game saves itself whenever you are on the map": it saves on entering or leaving a level and on quit, not while walking. |
 | F13 | Low | integrity | SUSPECTED, fixed | `js/game.js:968` (`updatePlayer`, dead state) | Reloading the page during the 100-tick death animation keeps the life: the save was taken before the level. |
@@ -337,7 +349,13 @@ Impact is to a Classic player who starts at Book 1; effort is the author's time.
 
 Branch: `review/2026-10-12`, from `main` at `146805c`. Nothing was pushed. Each fix is its own commit, with `index.html` restamped (`node tools/stamp-assets.js`) in the same commit; `node tools/check-assets.js` and `stamp-assets.js --check` pass at the head.
 
-Game fixes (cherry-pick any):
+Game fixes (cherry-pick any). From the author's decisions of 2026-10-13:
+- `36cf06b` Book 2: the way out stays shut until the level's heartstone is broken
+- `373d51a` No WASD: the arrows move, the left hand has Z and X
+- `963e82f` Arcade: a trap lever kills Poom, and he gets up again
+- `7e60fe9` Arcade: Poom only ever gets up on safe ground
+
+From the first pass:
 - `e12f758` A done level with its heartstone or ship part still in it can be gone back into (F01, F02; also gives Book 4's unrescued levels their arrow back)
 - `927c06f` Ask before leaving the page with a level in play (F03)
 - `89ee4cc` Game over: drop the level's name plate first (F17)
