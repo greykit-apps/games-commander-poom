@@ -337,6 +337,8 @@ Repo and review:
 - `82cee02` Deploy: don't publish the review folder or REVIEW.md (F08)
 - `d15f455`, `0faa04d`, `c9bdc87` and later: this report and the scripts under `review/`
 
+Each fix was re-checked in the page against the restamped build (`game.js?v=959e317d`): the Arcade status row reads "endless (arcade)"; the save holds 2 lives the tick Poom dies with 3 and the box later agrees; the map save follows Poom (saved `mx` 232.4 after 181 ticks of walking); the Help bar now reads Story, Controls, Modes, Creatures, Items, About, with About's right border on the frame; the ← → keys draw at the size of ↑ ↓; a level in play prompts before the page is left.
+
 Not changed, on purpose (the author's call): the jump floor (F06), lives and charges per Book (F05, F07), the Arcade trap rule and its text (F10), the key order in the key strip and help (F03, F04), the classic help text and the pogo item code (F09), and every map.
 
 Not done:
