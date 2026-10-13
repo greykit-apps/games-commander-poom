@@ -316,9 +316,11 @@ function nearestFoe() {
 /* ------------------------------------------------------------------ */
 /* input                                                                 */
 
+/* the arrows move; the left hand has Z, X and C (and Keen's Ctrl, Alt and
+ * Space). No WASD: W under a held Ctrl was close-tab */
 const BIND = {
-  ArrowLeft: "left", KeyA: "left", ArrowRight: "right", KeyD: "right",
-  ArrowUp: "up", KeyW: "up", ArrowDown: "down", KeyS: "down",
+  ArrowLeft: "left", ArrowRight: "right",
+  ArrowUp: "up", ArrowDown: "down",
   ControlLeft: "jump", ControlRight: "jump", KeyZ: "jump",
   AltLeft: "pogo", AltRight: "pogo", KeyX: "pogo",
   Space: "fire", KeyC: "fire",
@@ -2955,7 +2957,7 @@ const STORY = `<p>Poom Purrington is eight years old, has an IQ of 314, and has 
 <p>Find all four, bring them back to the Catamaran, and get home before your parents do. And whatever you do, stay away from the hose.</p>`;
 
 const CONTROLS = `<table>
-<tr><td><kbd class="arr">&larr;</kbd> <kbd class="arr">&rarr;</kbd> / <kbd>A</kbd> <kbd>D</kbd></td><td>walk</td></tr>
+<tr><td><kbd class="arr">&larr;</kbd> <kbd class="arr">&rarr;</kbd></td><td>walk</td></tr>
 <tr><td><kbd>Ctrl</kbd> / <kbd>Z</kbd></td><td>jump &mdash; hold it to jump higher</td></tr>
 <tr><td><kbd>Alt</kbd> / <kbd>X</kbd></td><td>pogo stick on and off</td></tr>
 <tr><td><kbd>Space</kbd> / <kbd>C</kbd></td><td>fire the raygun</td></tr>
