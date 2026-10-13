@@ -1552,15 +1552,32 @@ function die(lv) {
 /* Arcade: no life lost. Poom picks himself up where he last stood firm, a
  * second or more before he fell, with all he has picked up in the level,
  * and a moment's grace */
+/* Safe ground to get up on: room for his body, rock, a ledge or a slope
+ * under his feet (a bridge deck may have gone since), and nothing deadly
+ * in the tiles he stands in or the ones either side of them, pulsing
+ * columns included. Checked when he gets up, not when the spot was noted */
+function safeSpot(lv, x, y) {
+  const w = 12, h = PH;
+  if (!rectClear(lv, x, y, w, h)) return false;
+  const fy = Math.floor((y + h + 1) / T), tx0 = Math.floor((x + 1) / T), tx1 = Math.floor((x + w - 2) / T);
+  let floor = false;
+  for (let tx = tx0; tx <= tx1; tx++) { const c = tileAt(lv, tx, fy); if (isSolid(c) || c === "-" || slopeTop(lv, tx, fy, x + w / 2) !== null) floor = true; }
+  if (!floor) return false;
+  for (let ty = Math.floor(y / T); ty <= fy; ty++) for (let tx = tx0 - 1; tx <= tx1 + 1; tx++) { const c = tileAt(lv, tx, ty); if (c === "^" || c === "~" || c === "z") return false; }
+  return true;
+}
 function respawn(lv) {
   const p = lv.p, ring = lv.safeRing || [];
   /* dying again soon after getting up goes further back each time, so no
      spot can catch him in a loop */
   lv.streak = lv.t - (lv.lastRespawn || -1e9) < 300 ? (lv.streak || 0) + 1 : 0;
   lv.lastRespawn = lv.t;
+  /* the newest spot old enough that is still safe ground; failing that
+     the newest safe one at all; failing that the level's start */
   let s = null;
-  for (let i = ring.length - 1; i >= 0; i--) if (lv.t - ring[i][0] >= 60 * (1 + lv.streak * 2)) { s = ring[i]; break; }
-  s = s || ring[0] || [0, lv.p0[0], lv.p0[1]];
+  for (let i = ring.length - 1; i >= 0 && !s; i--) if (lv.t - ring[i][0] >= 60 * (1 + lv.streak * 2) && safeSpot(lv, ring[i][1], ring[i][2])) s = ring[i];
+  for (let i = ring.length - 1; i >= 0 && !s; i--) if (safeSpot(lv, ring[i][1], ring[i][2])) s = ring[i];
+  s = s || [0, lv.p0[0], lv.p0[1]];
   lv.safeRing = ring.filter(e => e[0] <= s[0]);
   Object.assign(p, { x: s[1], y: s[2], vx: 0, vy: 0, h: PH, state: "play", t: 0, pogo: false, climbing: false, crouch: 0, compress: 0, riding: null, onGround: false, safeT: 90 });
   sfx("life");
