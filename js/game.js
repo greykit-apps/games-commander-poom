@@ -2576,14 +2576,18 @@ const MIRAGE = { E10: true };
 const MARKER_KINDS = ["dome", "cave", "igloo", "gate", "fort", "castle"];
 function drawMap() {
   const m = G.map, c = G.cam, cx = Math.round(c.x), cy = Math.round(c.y);
+  /* the map's own motion (water, fields, the arrow's bob, the ferry's
+     sway) holds still for a player who asked for less motion; Poom's walk
+     is the game, not decoration, and goes on */
+  const mt = reduced() ? 0 : m.t;
   ctx.fillStyle = "#000"; ctx.fillRect(0, 0, W, H);
   const tx0 = Math.floor(cx / T), ty0 = Math.floor(cy / T);
   for (let ty = ty0; ty <= ty0 + Math.ceil(H / T); ty++) for (let tx = tx0; tx <= tx0 + Math.ceil(W / T); tx++) {
     const ch = mapTile(tx, ty), x = tx * T - cx, y = ty * T - cy;
-    if (ch === "~") { ctx.drawImage(mapArt.water[((m.t >> 5) + tx + ty) % 2], x, y); continue; }
+    if (ch === "~") { ctx.drawImage(mapArt.water[((mt >> 5) + tx + ty) % 2], x, y); continue; }
     ctx.drawImage(Array.isArray(mapArt.ground) ? mapArt.ground[(tx * 7 + ty * 13) & 3] : mapArt.ground, x, y);
     const ent = entranceAt(tx, ty);
-    if (barrierOn(tx, ty)) ctx.drawImage(mapArt.field[(m.t >> 2) % 3], x, y);
+    if (barrierOn(tx, ty)) ctx.drawImage(mapArt.field[(mt >> 2) % 3], x, y);
     else if (ch === "#") {
       /* rock, lit and shaded where it meets open ground, if the set can */
       const open = (dx, dy) => mapTile(tx + dx, ty + dy) !== "#";
@@ -2591,19 +2595,19 @@ function drawMap() {
     }
     else if (ch === "/" || ch === "\\") drawDiagonal(ch === "/" ? "LR" : "LL", x, y);
     else if (ent && !mapArt.markerFor) ctx.drawImage(mapArt.marker[MARKER_KINDS[+ent.slice(1) % MARKER_KINDS.length]], x, y);
-    else if (ch === "Q") ctx.drawImage(mapArt.tele[(m.t >> 3) % 2], x, y);
+    else if (ch === "Q") ctx.drawImage(mapArt.tele[(mt >> 3) % 2], x, y);
   }
   /* a set with its own markers draws one per entrance, by the level's type */
   if (mapArt.markerFor) for (const [id, b] of Object.entries(world().box)) {
     const kind = { vault: "vault", vaultCold: "vault", raiders: "camp", ruins: "ruin", crags: "cave", delve: "station", hive: "pod", shore: "tower", base: "bunker", crater: "vent", gardens: "dome", promenade: "tower", works: "works", machine: "skull", biodome: "dome", hive5: "nest" }[LEVEL_THEME[id]] || Object.keys(mapArt.markerFor)[0];
     const mx = (b.x0 + b.x1 + 1) * T / 2 - 16 - cx, my = (b.y1 + 1) * T - 32 - cy;
     /* a mirage (Book 4's Phantom Pavilion) fades in and out of the murk */
-    if (MIRAGE[id]) ctx.globalAlpha = 0.35 + 0.35 * (1 + Math.sin(m.t / 24));
+    if (MIRAGE[id]) ctx.globalAlpha = 0.35 + 0.35 * (1 + Math.sin(mt / 24));
     if (mx > -32 && mx < W && my > -32 && my < H) ctx.drawImage(mapArt.markerFor[kind], mx, my);
     ctx.globalAlpha = 1;
   }
   /* a bobbing arrow over each place Poom can reach and hasn't done */
-  const bob = Math.round(Math.sin(m.t / 12) * 2);
+  const bob = Math.round(Math.sin(mt / 12) * 2);
   for (const id of openPlaces()) {
     const b = world().box[id]; if (!b) continue;
     const ax = Math.round((b.x0 + b.x1 + 1) * T / 2) - cx, ay = (mapArt.markerFor ? (b.y1 + 1) * T - 32 - 10 : b.y0 * T - 9) - cy + bob;
@@ -2616,7 +2620,7 @@ function drawMap() {
   /* the ferry: under Poom while he rides, else at its dock */
   const fy = world().ferry;
   if (fy && mapArt.ferry) {
-    const bob2 = Math.round(Math.sin(m.t / 10));
+    const bob2 = Math.round(Math.sin(mt / 10));
     if (m.ride) ctx.drawImage(mapArt.ferry[m.p.dir === "left" ? "l" : "r"], Math.round(m.p.x + m.p.w / 2 - 16) - cx, Math.round(m.p.y + m.p.h) - 12 - cy + bob2);
     else {
       const g = fy.docks[G.run.ferry || 0], x0 = Math.min(...g.map(c => c[0])), x1 = Math.max(...g.map(c => c[0])), y1 = Math.max(...g.map(c => c[1]));
@@ -3618,8 +3622,8 @@ function frame(now) {
   }
   if ((G.mode === "level" || G.mode === "map") && !logoEl().hidden && !logoEl().classList.contains("fading") && !logoTimer) fadeLogo(0);
   if (G.mode === "level" && G.lv) drawLevel();
-  else if (G.mode === "map" || (G.mode === "story" && G.map.p) || G.mode === "ending") { if (G.map.p) drawMap(); else drawTitleScene(G.t); }
-  else drawTitleScene(G.t);
+  else if (G.mode === "map" || (G.mode === "story" && G.map.p) || G.mode === "ending") { if (G.map.p) drawMap(); else drawTitleScene(reduced() ? 0 : G.t); }
+  else drawTitleScene(reduced() ? 0 : G.t);
 }
 
 function boot() {

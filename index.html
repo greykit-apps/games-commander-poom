@@ -158,6 +158,13 @@ kbd{font:inherit;color:var(--ui-head)}
 .menu button.sel .cur{visibility:visible;animation:blink .5s steps(1) infinite}
 .menu button:disabled{color:var(--ega8)}
 @keyframes blink{50%{visibility:hidden}}
+/* less motion, by request: the cursor stays lit, the plate and the key
+   strip cut rather than fade; the title scene and the map hold a still
+   frame (game.js reduced()) */
+@media (prefers-reduced-motion:reduce){
+  .menu button.sel .cur{animation:none}
+  #logo,#keystrip{transition:none}
+}
 .foot{margin-top:6px;font-size:6px;color:var(--ui-accent)}
 .foot a,.credit a,.gk-credit a{color:var(--ui-accent)}
 .ask .menu{max-width:230px}
@@ -259,6 +266,6 @@ kbd{font:inherit;color:var(--ui-head)}
 <script src="js/books/G.js?v=5775b3dc"></script>
 <script src="js/books/H.js?v=5263ba43"></script>
 <script src="js/books/I.js?v=15f4fdd4"></script>
-<script src="js/game.js?v=f41af5c9"></script>
+<script src="js/game.js?v=f25fcec2"></script>
 </body>
 </html>
