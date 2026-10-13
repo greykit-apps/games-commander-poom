@@ -2641,7 +2641,10 @@ function drawMap() {
   const here = mapHere(p);
   const onTele = !here && world().tele[Math.floor((p.x + p.w / 2) / T) + "," + Math.floor((p.y + p.h / 2) / T)];
   const onDock = !here && fy && fy.at[Math.floor((p.x + p.w / 2) / T) + "," + Math.floor((p.y + p.h / 2) / T)] !== undefined;
-  const label = here ? levelName(here) + (G.run.done[here] ? (levelPending(G.run, here) ? " (not finished)" : " (done)") : "") : onShip(p) || onParked(p) ? "The Catamaran" : onTele ? mapArt.teleName || "Teleporter" : onDock || m.ride ? mapArt.ferryName || "The ferry" : "";
+  /* a place not yet done says how to go in, until two are done: by then
+     the key is known. Not on a touch screen, which has a JUMP button */
+  const howIn = !document.getElementById("touch").hidden || Object.keys(G.run.done).length >= 2 ? "" : " \u00b7 Z to enter";
+  const label = here ? levelName(here) + (G.run.done[here] ? (levelPending(G.run, here) ? " (not finished)" : " (done)") : howIn) : onShip(p) || onParked(p) ? "The Catamaran" : onTele ? mapArt.teleName || "Teleporter" : onDock || m.ride ? mapArt.ferryName || "The ferry" : "";
   mapLabel(label);
   drawHud(null);
 }
@@ -3421,8 +3424,12 @@ function openTitle() {
   const items = [
     saved ? { label: "Continue game", key: "R", meta: `score ${saved.score}`, act: () => { UI.clear(); hideLogo(); G.run = saved; enterMap(); } } : null,
     { label: "New game", key: "N", act: () => {
-      const go = () => chooseBook();
+      const go = () => startBook(BOOK_IDS[0], false);
       if (saved) ask("Start a new game? Your saved game will be lost.", "New game", go); else go();
+    } },
+    { label: "Choose a Book", key: "B", meta: "or Arcade", act: () => {
+      const go = () => chooseBook();
+      if (saved) ask("Start a new game? Your saved game will be lost.", "Choose a Book", go); else go();
     } },
     { label: "High scores", key: "O", act: () => openScores() },
     "gap",
@@ -3432,13 +3439,12 @@ function openTitle() {
   ].filter(Boolean);
   menu("", items, { cls: "title", footer: '<span class="gk-credit">Built by <a href="https://greykit.com/" target="_blank" rel="noopener">greykit.com</a></span>' });
 }
-/* New game: which Book? The first five, by name; the ones not built yet
- * greyed out. Choosing one starts a fresh game there, dressed as that Book,
- * with its story. */
+/* Choose a Book: the Books that can be played, by number and name.
+ * Choosing one asks Classic or Arcade, then starts a fresh game there,
+ * dressed as that Book, with its story. */
 function chooseBook() {
-  const items = BOOK_ORDER.slice(0, 5).map((b, i) => ({
-    label: `${i + 1}. ${BOOK_NAMES[b] || "Book " + (i + 1)}`, key: String(i + 1),
-    disabled: !BOOK_PLAYABLE.has(b) || !BOOKS[b],
+  const items = BOOK_ORDER.filter(b => BOOK_PLAYABLE.has(b) && BOOKS[b]).map(b => ({
+    label: `${bookNumber(b)}. ${BOOK_NAMES[b] || "Book " + bookNumber(b)}`, key: String(bookNumber(b)),
     act: () => chooseMode(b),
   }));
   menu("Choose a book", items, { onBack: () => UI.pop(), cls: "books" });
