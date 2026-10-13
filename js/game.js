@@ -3271,7 +3271,7 @@ function openHelp() {
   if (B) return page("Help", [
     ["Story", B.story],
     ["Controls", CONTROLS.replace(/<p>On the map[\s\S]*?<\/p>/, B.map)],
-    ["Classic and Arcade", MODES],
+    ["Modes", MODES],
     ["Creatures", spriteRow(B.creatures())],
     ["Items", spriteRow(B.items())],
     ["About", aboutText()],
@@ -3279,7 +3279,7 @@ function openHelp() {
   page("Help", [
     ["Story", STORY],
     ["Controls", CONTROLS],
-    ["Classic and Arcade", MODES],
+    ["Modes", MODES],
     ["Creatures", spriteRow([
       [ART.mousel.walk0.r, "Mousel", "Harmless, nosy, and pushy. Jump on one to bop it for a while."],
       [ART.barker.walk0.r, "Barker", "Charges the moment it sees you. Don't be there. One shot."],
