@@ -342,6 +342,10 @@ addEventListener("keydown", ev => {
 });
 addEventListener("keyup", ev => { const a = BIND[ev.code]; if (a) held.delete(a); });
 addEventListener("blur", () => { held.clear(); touchHeld.clear(); if (canPause()) openPause(); });
+/* a level in play is never saved, so leaving the page loses it: the browser
+   asks first. Ctrl is jump and W is up, and Ctrl+W closes the tab on
+   Windows and Linux before the page can say no */
+addEventListener("beforeunload", ev => { if (G.mode === "level" && G.lv && G.run) { ev.preventDefault(); ev.returnValue = ""; } });
 /* not while Poom is dying or walking out of a level: Leave level would
    otherwise take back a death, or throw away a level already finished */
 function canPause() { return G.mode === "map" || (G.mode === "level" && G.lv && G.lv.p.state === "play"); }
