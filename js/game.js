@@ -2054,6 +2054,7 @@ function updateMap() {
   if (dx || dy) { p.anim += 0.12; p.dir = dy < 0 ? "up" : dy > 0 ? "down" : dx < 0 ? "left" : "right"; }
   G.run.mx = p.x; G.run.my = p.y;
   m.t++;
+  if (m.t % 180 === 0) saveRun();   /* every three seconds, so where he stands survives a closed tab */
 
   const ctx_ = Math.floor((p.x + p.w / 2) / T), cty = Math.floor((p.y + p.h / 2) / T);
   const here = mapHere(p);
