@@ -3349,7 +3349,6 @@ function openHelp() {
     ["Modes", MODES],
     ["Creatures", spriteRow(B.creatures())],
     ["Items", spriteRow(B.items())],
-    ["About", aboutText()],
   ]);
   page("Help", [
     ["Story", STORY],
@@ -3369,11 +3368,10 @@ function openHelp() {
       [ART.gems[0], "Keycards", "Open the door of the same colour, for this level."],
       [ART.parts[0], "Ship parts", "Four of them. The whole point."],
     ])],
-    ["About", aboutText()],
   ]);
 }
 
-const aboutText = () => `<p>A love letter to Commander Keen and a growing list of mashups.</p>
+const aboutText = () => `<p>I don't think I can explain the feeling of opening up Apogee's Commander Keen for the first time back in the 90s. Even in 16-color EGA it was a masterpiece of shareware that more than earned the many times I have bought collections of it over the decades. Now I have an opportunity to add my version to the universe of Keen fan works. A little late, perhaps, but from the heart.</p>
 <p class="credit gk-credit">Built by <a href="https://greykit.com/" target="_blank" rel="noopener">greykit.com</a></p>`;
 
 /* from the title, or from the pause menu (inGame), where there's a game to
