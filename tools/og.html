@@ -13,38 +13,94 @@
 <body>
 <canvas width="1200" height="630"></canvas>
 <script src="../js/art.js"></script>
+<script src="../js/art-book3.js"></script>
+<script src="../js/art-book4.js"></script>
 <script>
-/* Book 1's card: the wasteland title scene, wider, with ranger Poom by the
-   crashed Catamaran, a few of the Glow's creatures and the logo in amber */
+/* One title screen seen through four windows: each quarter of the card is
+   the same quarter of that Book's own title scene, so the skyline, the gas
+   giant, the lair and the drowned city line up as one scene. The logo runs
+   across them, each window drawing it in its own Book's colours
+   (index.html's #logo[data-look]). */
 buildArt();
-useLook("ranger"); useCreatures("wasteland"); useItems("wasteland");
-const mapArt = paintMapTiles();
+const ship = paintMapTiles().shipBare;
 const c = document.querySelector("canvas"), g = c.getContext("2d");
 g.imageSmoothingEnabled = false;
-/* the scene at 400x210, three times over */
-const s = paintWasteTitle(mapArt.shipBare, 400, 210), x = s.getContext("2d");
-x.imageSmoothingEnabled = false;
-for (let i = 0; i < 90; i++) { const sy = (i * 61) % 70; x.fillStyle = i % 3 ? "#c8c0d8" : "#ffe9a8"; x.fillRect((i * 97) % 400, sy, 1, 1); }
-x.fillStyle = "#ff3b2f"; x.fillRect(14, 102, 2, 2);
-for (let i = 0; i < 3; i++) { x.fillStyle = `rgba(70, 64, 60, ${0.55 - i * 0.15})`; x.beginPath(); x.arc(72 + i * 9, 148 - i * 6, 2 + i, 0, Math.PI * 2); x.fill(); }
-const foot = (spr, px) => x.drawImage(spr, px, 192 - spr.height);
-foot(ART.poom.stand.r, 76);
-foot(ART.mousel.walk0.l, 190);
-foot(ART.barker.walk0.l, 286);
-foot(ART.vac.walk0.l, 340);
-ART.parts.forEach((p, i) => x.drawImage(p, 226 + i * 22, 140 + (i % 2) * 8));
-g.drawImage(s, 0, 0, 1200, 630);
+
+/* the title's stars, as game.js scatters them, each Book keeping its own sky */
+const stars = Array.from({ length: 110 }, (_, i) => ({ x: (i * 97) % 400, y: (i * 61) % 150, c: i % 4 === 2 }));
+const BOOKS = [
+  { paint: paintWasteTitle, look: "ranger", foot: 192, px: 76, sky: s => s.y < 70, star: ["#c8c0d8", "#ffe9a8"],
+    extra: x => {
+      x.fillStyle = "#ff3b2f"; x.fillRect(14, 102, 2, 2);
+      for (let i = 0; i < 3; i++) { x.fillStyle = `rgba(70, 64, 60, ${0.55 - i * 0.15})`; x.beginPath(); x.arc(72 + i * 9, 148 - i * 6, 2 + i, 0, Math.PI * 2); x.fill(); }
+    },
+    cmd: ["#ffb85a", "#5a2410"], poom: ["#ffd23f", "#d07a36", "#d07a36", "#7a3a1c", "#7a3a1c"] },
+  { paint: paintThrumTitle, look: "hunter", foot: 182, px: 79, sky: s => s.y < 120 && (s.x > 160 || s.y < 66), star: ["#c8c0e8", "#ffe9c8"],
+    extra: x => {
+      x.fillStyle = "rgba(111, 224, 200, 0.16)"; x.fillRect(0, 172, 400, 38);
+      for (const [on, px] of [[1, 21], [0, 48], [0, 75]]) { x.fillStyle = on ? "#6fe0c8" : "#10504e"; x.fillRect(px - 1, 178, 3, 2); }
+    },
+    cmd: ["#6fe0c8", "#10504e"], poom: ["#e6fff8", "#6fe0c8", "#2fb3a0", "#613d86", "#382252"] },
+  { paint: paintClawTitle, look: "sneak", foot: 181, px: 62, sky: s => s.y < 100 && Math.hypot(s.x - 266, s.y - 42) > 18 && !(s.x < 150 && s.y > 64), star: ["#9ab0d0", "#fff2c4"],
+    extra: x => {
+      x.fillStyle = "rgba(220, 230, 200, 0.10)";
+      for (const [x0, a] of [[40, 0.5], [88, -0.2]]) { x.beginPath(); x.moveTo(x0, 106); x.lineTo(x0 + Math.sin(a) * 240 - 16, 106 - Math.cos(a) * 240); x.lineTo(x0 + Math.sin(a) * 240 + 16, 106 - Math.cos(a) * 240); x.closePath(); x.fill(); }
+      x.fillStyle = "#ff3b2f"; x.fillRect(75, 38, 2, 2);
+    },
+    cmd: ["#5aff8a", "#0a3a18"], poom: ["#e8f0f4", "#7a8898", "#4a5664", "#b01828", "#4a0810"] },
+  { paint: paintDeepTitle, look: "diver", foot: 181, px: 76, sky: () => false, star: [],
+    extra: x => {
+      /* the painter's city stops near x=320; carry it on to the card's edge
+         the way paintDeepTitle builds its towers, standing on the seabed */
+      const r = rng(41), px = (col, X, Y, w = 1, h = 1) => { x.fillStyle = col; x.fillRect(X, Y, w, h); };
+      for (const [tx, w, h, neon] of [[324, 18, 112, "teal"], [346, 28, 176, "pink"], [380, 22, 138, "teal"]]) {
+        const top = 200 - h;
+        px("#0a2430", tx, top, w, 184 - top); px("#0e3040", tx, top, 2, 184 - top);
+        px("#0a2430", tx + w / 2 - 3, top - 14, 6, 14); px("#0a2430", tx + w / 2 - 1, top - 22, 2, 8);
+        for (let i = 0; i < 4; i++) px("#0e3040", tx + i * 2, top + i * 3, w - i * 4, 1);
+        for (let y = top + 10; y < 180; y += 8) for (let wx = tx + 3; wx < tx + w - 3; wx += 5) if (r() < .35) px(r() < .8 ? "#f0d080" : "#ff9a6a", wx, y, 2, 4);
+        px(B4_NEON[neon], tx + 3, top + 4, w - 6, 2);
+        x.fillStyle = neon === "pink" ? "rgba(255, 79, 168, 0.15)" : "rgba(63, 240, 224, 0.15)"; x.fillRect(tx - 2, top, w + 4, 10);
+      }
+      x.strokeStyle = "rgba(160, 220, 230, 0.4)"; x.lineWidth = 6; x.beginPath(); x.moveTo(340, 112); x.quadraticCurveTo(354, 102, 368, 108); x.stroke();
+      x.lineWidth = 1; x.strokeStyle = "rgba(200, 240, 245, 0.55)";
+      for (let i = 0; i < 18; i++) { x.beginPath(); x.arc((i * 53) % 400, 196 - (i * 71) % 170, 1 + (i % 2), 0, Math.PI * 2); x.stroke(); }
+      x.fillStyle = "#14465e"; for (const [fx, fy] of [[330, 64], [352, 96]]) { x.fillRect(fx, fy, 7, 3); x.fillRect(fx - 2, fy - 1, 2, 5); }
+    },
+    cmd: ["#3ff0e0", "#0a3a40"], poom: ["#fff4d0", "#f8d860", "#d8a830", "#a8781c", "#3a2a0a"] },
+];
+
+/* each scene at 400x210, three times over; Book i's columns 100i to
+   100i+100 fill the card's i-th 300-pixel window. Poom stands where the game
+   puts him, so only Book One's window shows him */
+const SW = 100, K = 3;
+BOOKS.forEach((b, i) => {
+  useLook(b.look);
+  const s = b.paint(ship, 400, 210), x = s.getContext("2d");
+  x.imageSmoothingEnabled = false;
+  for (const st of stars) if (b.sky(st)) { x.fillStyle = b.star[st.c ? 1 : 0]; x.fillRect(st.x, st.y, 1, 1); }
+  b.extra(x);
+  const spr = ART.poom.stand.r;
+  x.drawImage(spr, b.px, b.foot - spr.height);
+  g.drawImage(s, i * SW, 0, SW, 210, i * SW * K, 0, SW * K, 630);
+});
+/* the seams */
+g.fillStyle = "#000";
+for (let i = 1; i < BOOKS.length; i++) g.fillRect(i * SW * K - 2, 0, 4, 630);
+
+/* the logo, clipped to each slice and dressed in that Book's colours */
+const inSlice = (i, draw) => { g.save(); g.beginPath(); g.rect(i * SW * K + (i ? 2 : 0), 0, SW * K - (i ? 2 : 0) - (i < BOOKS.length - 1 ? 2 : 0), 630); g.clip(); draw(); g.restore(); };
 document.fonts.load("48px 'Press Start 2P'").then(() => {
   g.textAlign = "center"; g.textBaseline = "top";
-  g.font = "36px 'Press Start 2P'";
-  g.fillStyle = "#5a2410"; g.fillText("COMMANDER", 603, 73);
-  g.fillStyle = "#ffb85a"; g.fillText("COMMANDER", 600, 70);
-  g.font = "120px 'Press Start 2P'";
-  for (let i = 5; i >= 1; i--) { g.fillStyle = i > 4 ? "#000" : i > 2 ? "#7a3a1c" : "#d07a36"; g.fillText("POOM", 600 + i * 4, 120 + i * 4); }
-  g.fillStyle = "#ffd23f"; g.fillText("POOM", 600, 120);
-  const shadowed = (text, y, col) => { g.fillStyle = "#2a1020"; g.fillText(text, 603, y + 3); g.fillStyle = col; g.fillText(text, 600, y); };
-  g.font = "22px 'Press Start 2P'"; shadowed("Book One: Wastelandia", 290, "#f0d0a0");
-  g.font = "16px 'Press Start 2P'"; shadowed("Run. Jump. Pogo. Zap. Take back the four stolen ship parts.", 340, "#fff0d8");
+  BOOKS.forEach((b, i) => inSlice(i, () => {
+    g.font = "36px 'Press Start 2P'";
+    g.fillStyle = b.cmd[1]; g.fillText("COMMANDER", 603, 73);
+    g.fillStyle = b.cmd[0]; g.fillText("COMMANDER", 600, 70);
+    g.font = "120px 'Press Start 2P'";
+    g.fillStyle = "#000"; g.fillText("POOM", 620, 140);
+    for (let k = 4; k >= 1; k--) { g.fillStyle = b.poom[k]; g.fillText("POOM", 600 + k * 4, 120 + k * 4); }
+    g.fillStyle = b.poom[0]; g.fillText("POOM", 600, 120);
+  }));
   document.title = "ready";
 });
 </script>

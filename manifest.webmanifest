@@ -1,7 +1,7 @@
 {
   "name": "Commander Poom",
   "short_name": "Poom",
-  "description": "A platformer in the spirit of Commander Keen. Poom crash-lands in the Glow, a wasteland of raiders, ruins and old Vaults, and has to take back four stolen parts of his ship.",
+  "description": "A platformer in the spirit of Commander Keen, in four Books: a wasteland of raiders and old Vaults, a hollow moon with something alive inside, a villain's volcano island, and a drowned art-deco city of otters.",
   "start_url": ".",
   "scope": "./",
   "display": "standalone",
