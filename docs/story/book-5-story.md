@@ -146,7 +146,7 @@ chest plate, black boots. Tail still his.
    see him coming."
 6. The End of Book Five: Termination Day.
 
-This keeps the Shadow Poom reveal for later, as `next-books.md` asks: Cal
+This leaves the Shadow Poom reveal unmade: Cal
 now has the black Catamaran (Book 3), SPARK to power it (Book 4) and a
 cloak (Book 5), but hasn't yet shown up as Shadow Poom.
 

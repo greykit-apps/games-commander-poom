@@ -92,7 +92,7 @@ frequency she shouldn't know.
   scratched out, and his name is top of the high-score table, above Junk
   Baron Cal's.
 - **The arc.** Book 3 is where Cal gets his own ship: the black Catamaran,
-  the one copy the Copycat finished. Shadow Poom is still to come.
+  the one copy the Copycat finished.
 
 ## Why the game works the way it does
 
