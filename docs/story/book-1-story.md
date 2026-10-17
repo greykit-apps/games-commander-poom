@@ -83,7 +83,7 @@ map onto them neatly, which would let the engine reuse what it has.
 
 Junk Baron Cal himself never appears in Book 1: he's for later. In the canon
 he is a grey-black puma (a Florida panther), Poom's shadow; the series' arc
-is Commander Poom and Shadow Poom (see [next-books.md](next-books.md)).
+is Commander Poom and Shadow Poom.
 
 **Made**: the `wasteland` creature set in js/art.js (sheet in docs/art/wasteland-creatures.png), and `ENEMY_OF` in game.js gives each type its behaviour. The lieutenants are their own engine type (L): they walk and jump like Scrappers and take five shots. Turrets (G) are fixed and fire along their barrel when Poom is near.
 
@@ -190,4 +190,4 @@ end the game, with the final score.
 2. **How dark?** Fallout is darkly funny. The original Poom is gentle. This
    draft sits closer to Poom: nobody dies on screen, raiders are bullies.
 3. **Auntie Static:** who is she? Book 1 never needs to say, which makes her
-   a good thread for later books.
+   a good thread across the Books.

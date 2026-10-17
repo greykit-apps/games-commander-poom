@@ -73,7 +73,7 @@ Not done from the critique's minor notes: a road texture on the map toward the n
 | F05 | note | balance | VERIFIED; by design | `js/books/E.js` (maps), `js/game.js:1461` (`collect`) | Book 4 holds 32 extra-life items (E02 has 7 in a row, E13 8, E11 5); Books 1 to 3 hold 0. Each is a full life. |
 | F06 | note | feel | VERIFIED; by design | `js/game.js:1101` (jump crouch) | Jump height is set by how many of the 5 crouch ticks the key is held: a 1-tick tap rises 1.9 px, 3 ticks 1.2 tiles, 5 ticks 3.4 tiles. Short taps do almost nothing. |
 | F07 | Medium | balance | VERIFIED | maps | Raygun charges: Book 1 has 65 shots for 296 hp of deadly creatures (22%); Book 3 has 1,370 for 393 (349%). |
-| F08 | Low | deploy | VERIFIED, fixed | `.gitlab-ci.yml:72` | The rsync publishes everything the exclude list doesn't name (README.md and LICENSE go live today). Fixed for `review/` and `REVIEW.md` on this branch. |
+| F08 | Low | deploy | VERIFIED, fixed | `.gitlab-ci.yml:72` | The rsync publishes everything the exclude list doesn't name (README.md goes live today). Fixed for `review/` and `REVIEW.md` on this branch. |
 | F09 | Low | dead code | VERIFIED, `fit()` fixed | `js/game.js:3490`, `:3266`, `:574` | `fit()` has a `pad` that is always 0; the classic help says a Vacuumoid "takes three shots" but hp is 4 (unreachable text); the `O` pogo item and `noPogo` text are dead, `newRun().pogo` is always true. |
 | F10 | Medium | rules vs text | fixed (Arcade) | `js/game.js:1396` (`springTrap`), `:3249` (`MODES`) | Arcade "never runs out", but a Book 2 trap lever ends an Arcade game too. |
 | F11 | Low | UI | VERIFIED, fixed | `js/game.js:2861` (`statusWindow`) | In Arcade the status window shows "Lives 4" while the HUD shows 99. |
@@ -170,7 +170,7 @@ From the table in *Balance analysis*: shots on the floor against the shots neede
 
 ### F08, Low (VERIFIED): the deploy publishes everything not on the exclude list
 
-`.gitlab-ci.yml:72`: `rsync --delete --delete-excluded ... ./` with a list of excludes. Anything new at the top level ships. Today that is README.md and LICENSE (harmless), and it would have been `review/` and this file. The comment at the top of the file says "What ships is index.html, js/, og.png, the icons and the manifest", which is what it means, not what it does. **Fixed on this branch** for `review` and `REVIEW.md` (`82cee02`). An include-list (`--include` then `--exclude='*'`) would make the comment true.
+`.gitlab-ci.yml:72`: `rsync --delete --delete-excluded ... ./` with a list of excludes. Anything new at the top level ships. Today that is README.md (harmless), and it would have been `review/` and this file. The comment at the top of the file says "What ships is index.html, js/, og.png, the icons and the manifest", which is what it means, not what it does. **Fixed on this branch** for `review` and `REVIEW.md` (`82cee02`). An include-list (`--include` then `--exclude='*'`) would make the comment true.
 
 ### F09, Low (VERIFIED): dead code and dead text
 
