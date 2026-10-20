@@ -2806,6 +2806,8 @@ const UI = {
     if (o && o.key) o.key(ev);
   },
   padPress(a) {
+    /* nothing reaches the title under the boot or during its entrance */
+    if (introBusy) return;
     const o = this.top(); if (!o || !o.key) return;
     const code = { up: "ArrowUp", down: "ArrowDown", left: "ArrowLeft", right: "ArrowRight", jump: "Enter", fire: "Enter", pogo: "Escape", pause: "Escape", status: "Escape" }[a];
     if (code) o.key({ code, key: code, preventDefault() {}, synthetic: true });
@@ -3621,6 +3623,42 @@ function frame(now) {
   else drawTitleScene(reduced() ? 0 : G.t);
 }
 
+/* The integrated intro's entrance, on Poom's own title: the scene is already
+ * running under the boot; when the boot goes, the logo arrives a line at a
+ * time, then the menu, its credit and the sound switch together. A key or a
+ * click skips to the end and does nothing else. Once per page load: coming
+ * back to the title has none of it. */
+let introBusy = false;
+const ENTRANCE = { name: 600, step: 700, menu: 3000, done: 4000 };
+function titleEntrance() {
+  const ui = document.getElementById("ui");
+  if (!ui.classList.contains("intro")) { introBusy = false; return; }
+  const lines = [...logoEl().children], later = [ui.querySelector(".title"), document.getElementById("snd")].filter(Boolean);
+  for (const n of later) n.inert = true;
+  const timers = [];
+  lines.forEach((l, i) => timers.push(setTimeout(() => l.classList.add("on"), ENTRANCE.name + i * ENTRANCE.step)));
+  const tidy = () => { ui.classList.remove("intro", "menu-in"); lines.forEach(l => l.classList.remove("on")); };
+  const end = () => {
+    timers.forEach(clearTimeout);
+    removeEventListener("keydown", skip, true); removeEventListener("pointerdown", skip, true);
+    for (const n of later) n.inert = false;
+    introBusy = false;
+    const t = UI.top(); if (t && t.focus) t.focus();
+  };
+  const skip = ev => {
+    if (ev.type === "keydown" && ["Shift", "Control", "Alt", "Meta"].includes(ev.key)) return;
+    ev.preventDefault(); ev.stopImmediatePropagation();
+    ui.classList.add("snap"); tidy(); void ui.offsetWidth; ui.classList.remove("snap");
+    end();
+  };
+  addEventListener("keydown", skip, true); addEventListener("pointerdown", skip, true);
+  timers.push(setTimeout(() => {
+    ui.classList.add("menu-in");
+    end();
+    setTimeout(tidy, ENTRANCE.done - ENTRANCE.menu);
+  }, ENTRANCE.menu));
+}
+
 function boot() {
   buildArt();
   const classicMap = paintMapTiles();
@@ -3630,14 +3668,17 @@ function boot() {
   G.map = { t: 0, p: null };
   injectTitleCSS();
   const B = BOOK_TEXT[themeBook()];
-  const run = runBoot({ lines: [bootReloadLine(), ...((B && B.boot) || ["sixteen colours: ok", "pc speaker: ok"])] });
+  /* the integrated intro (games-meta STANDARD.md §14): canon's boot with the
+     meow, unless the sound was left off */
+  const run = startIntro({ lines: [bootReloadLine(), ...((B && B.boot) || ["sixteen colours: ok", "pc speaker: ok"])], bootSound: audio.muted ? false : gkBootSound });
   fit();
   setupTouch();
   syncSoundButton();
   document.getElementById("snd").addEventListener("click", () => { audio.unlock(); toggleMute(); });
 
   /* debug: ?level=A02 drops straight into a level with everything; ?book=B
-   * onto that book's map */
+   * onto that book's map; ?hold=always holds the boot for a press even where
+   * the browser would already play sound */
   const q = new URLSearchParams(location.search);
   const lvq = (q.get("level") || "").toUpperCase(), bq = (q.get("book") || "").toUpperCase();
   if (MAPS[lvq] || WORLDS[bq]) {
@@ -3651,7 +3692,11 @@ function boot() {
   } else {
     openTitle();
     const saved = store.get(KEYS.save, null);
-    run.finish([saved ? `game in progress: score ${saved.score}` : "no game in progress"]);
+    /* the title waits behind the boot with only its scene showing; Poom's
+       title is its own, not canon's, so the entrance is titleEntrance's */
+    if (!reduced()) { introBusy = true; document.getElementById("ui").classList.add("intro"); }
+    run.finish({ title: null, hold: q.get("hold") === "always" ? "always" : "auto", more: [saved ? `game in progress: score ${saved.score}` : "no game in progress"],
+      onContinue: () => audio.unlock(), onTitle: titleEntrance });
   }
   requestAnimationFrame(frame);
 }

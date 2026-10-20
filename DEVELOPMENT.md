@@ -42,7 +42,7 @@ Levels are addressed by map set and number: `H05` is set H, level 5. The four Bo
 
 ## Debug
 
-`?level=H05` drops straight into a level, with everything; `?book=H` onto that Book's world map.
+`?level=H05` drops straight into a level, with everything; `?book=H` onto that Book's world map; `?hold=always` holds the boot on *Click or press a key to continue* even where the browser would already play sound, as a cold load does.
 
 ## Deploy
 

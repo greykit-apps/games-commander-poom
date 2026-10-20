@@ -172,9 +172,17 @@ kbd{font:inherit;color:var(--ui-head)}
 .books .menu{min-width:190px}
 .ask h2{text-transform:none;line-height:1.6}
 
-.title{place-items:end end;padding:0 10px 14px 0;box-sizing:border-box}
-/* the credit sits under the panel, small and muted, the link in the accent */
-.title .below{position:absolute;right:11px;bottom:4px;font-size:6px;color:var(--ui-dim)}
+/* one column as wide as the panel, at the bottom right; the credit sits
+   centred under the panel (games-meta STANDARD.md §14), in the band between
+   the panel's outer frame (its 2px ring) and the foot of the screen. It is
+   lower-cased on screen only, so the page keeps §1's string byte for byte;
+   muted, with greykit.com in the title's highlight, underlined only under
+   the pointer or the keys so the band's centring holds */
+.title{place-items:end end;justify-content:end;align-content:end;padding:0 10px 0 0;box-sizing:border-box}
+.title .menu{justify-self:stretch}
+.title .below{justify-self:center;margin-top:2px;height:13px;line-height:13px;font-size:6px;color:var(--ui-dim);text-transform:lowercase}
+.title .below a{color:var(--ui-head);text-decoration:none}
+.title .below a:hover,.title .below a:focus-visible{text-decoration:underline}
 .title .menu{min-width:150px;padding:4px 7px}
 .title .menu button{padding:1px 4px;line-height:1.25}
 .title .menu .gap{height:3px}
@@ -219,6 +227,15 @@ kbd{font:inherit;color:var(--ui-head)}
 #snd{position:absolute;right:3px;top:3px;z-index:7;width:13px;height:13px;padding:0;display:grid;place-items:center;
   background:var(--ui-chip);border:1px solid var(--ui-chip-edge);cursor:pointer}
 #snd img{display:block}
+
+/* ---- the integrated intro's entrance (games-meta STANDARD.md §14; game.js
+   titleEntrance): the scene runs from the start; the logo arrives a line at a
+   time, then the menu, its credit and the sound switch together ---- */
+#ui.intro #logo>div,#ui.intro .title,#ui.intro #snd{opacity:0}
+#ui.intro #logo>div.on{opacity:1;transition:opacity 1.4s ease-in-out}
+#ui.intro.menu-in .title,#ui.intro.menu-in #snd{opacity:1;transition:opacity 1s ease-out}
+/* a skip lands at the end at once: a fade under way does not finish */
+#ui.snap #logo>div,#ui.snap .title,#ui.snap #snd{transition:none!important}
 [hidden]{display:none!important}
 
 /* ---- touch ---- */
@@ -256,6 +273,7 @@ kbd{font:inherit;color:var(--ui-head)}
   <button data-a="pause" aria-label="Pause">II</button><button data-a="status" aria-label="Status">?</button>
 </div>
 <script src="js/gk-title.js?v=6080c669"></script>
+<script src="js/gk-intro.js?v=7ae8fe33"></script>
 <script src="js/art.js?v=9d5bda37"></script>
 <script src="js/art-book3.js?v=41ee3602"></script>
 <script src="js/art-book4.js?v=34055d31"></script>
@@ -267,6 +285,6 @@ kbd{font:inherit;color:var(--ui-head)}
 <script src="js/books/G.js?v=5775b3dc"></script>
 <script src="js/books/H.js?v=5263ba43"></script>
 <script src="js/books/I.js?v=15f4fdd4"></script>
-<script src="js/game.js?v=e15c6cad"></script>
+<script src="js/game.js?v=b563227c"></script>
 </body>
 </html>
