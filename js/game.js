@@ -329,6 +329,9 @@ const BIND = {
 const held = new Set(), pressed = new Set();
 const touchHeld = new Set();
 let padHeld = new Set();
+/* set by setupTouch(): puts the on-screen pad away (a key or a gamepad was
+   used) or brings it back (the screen was touched) */
+let touchAway = null;
 const isDown = a => held.has(a) || touchHeld.has(a) || padHeld.has(a);
 const wasPressed = a => pressed.has(a);
 
@@ -370,6 +373,7 @@ function pollPad() {
     if (b(3)) now.add("status");
     if (b(9)) now.add("pause");
   }
+  if (now.size && touchAway) touchAway(true);
   for (const a of now) if (!padPrev.has(a)) {
     if (UI.top()) UI.padPress(a); else pressed.add(a);
   }
@@ -3581,12 +3585,65 @@ function setupTouch() {
     const off = ev => { ev.preventDefault(); touchHeld.delete(a); b.classList.remove("on"); };
     b.addEventListener("pointerdown", on); b.addEventListener("pointerup", off); b.addEventListener("pointercancel", off); b.addEventListener("pointerleave", off);
   }
+
+  /* The d-pad is one piece, as a pad's is: the thumb's place on the cross
+     is the direction, so it can roll from one arm to the next, and between
+     two arms is the diagonal. In a menu it reads four ways only, a press
+     at a time, as the keys' arrows. */
+  const dpad = pad.querySelector(".dpad"), DIRS = ["up", "down", "left", "right"];
+  const tri = Object.fromEntries(DIRS.map(d => [d, dpad.querySelector(".tri." + d)]));
+  const EIGHT = { 0: ["right"], 1: ["right", "down"], 2: ["down"], 3: ["down", "left"], 4: ["left"], "-4": ["left"], "-3": ["left", "up"], "-2": ["up"], "-1": ["up", "right"] };
+  const FOUR = { 0: ["right"], 1: ["down"], 2: ["left"], "-2": ["left"], "-1": ["up"] };
+  let dirs = new Set(), pid = null;
+  const setDirs = next => {
+    for (const d of DIRS) {
+      const was = dirs.has(d), now = next.has(d);
+      if (now && !was) { if (UI.top()) UI.padPress(d); else { touchHeld.add(d); pressed.add(d); } }
+      if (was && !now) touchHeld.delete(d);
+      tri[d].classList.toggle("on", now);
+    }
+    dirs = next;
+  };
+  const read = ev => {
+    const r = dpad.getBoundingClientRect(), dx = ev.clientX - (r.left + r.width / 2), dy = ev.clientY - (r.top + r.height / 2);
+    if (Math.hypot(dx, dy) < r.width * 0.12) return new Set();
+    const deg = Math.atan2(dy, dx) * 180 / Math.PI;
+    return new Set(UI.top() ? FOUR[Math.round(deg / 90)] : EIGHT[Math.round(deg / 45)]);
+  };
+  dpad.addEventListener("pointerdown", ev => {
+    ev.preventDefault(); audio.unlock();
+    pid = ev.pointerId; try { dpad.setPointerCapture(pid); } catch (e) { /* fine */ }
+    setDirs(read(ev));
+  });
+  dpad.addEventListener("pointermove", ev => { if (ev.pointerId === pid) { ev.preventDefault(); setDirs(read(ev)); } });
+  const lift = ev => { if (ev.pointerId === pid) { pid = null; setDirs(new Set()); } };
+  dpad.addEventListener("pointerup", lift); dpad.addEventListener("pointercancel", lift);
+
+  /* Put away once a key or a gamepad is used, so it never covers the
+     screen of someone playing with either; back at the next touch. */
+  touchAway = on => {
+    if (pad.classList.contains("away") === on) return;
+    pad.classList.toggle("away", on);
+    if (on) { pid = null; setDirs(new Set()); touchHeld.clear(); for (const b of pad.querySelectorAll(".on")) b.classList.remove("on"); }
+    fit();
+  };
+  addEventListener("keydown", ev => { if (ev.isTrusted) touchAway(true); }, true);
+  addEventListener("pointerdown", ev => { if (ev.pointerType === "touch") touchAway(false); }, true);
+  document.body.classList.add("touchpad");
+  fit();
 }
 
 /* ------------------------------------------------------------------ */
 /* the loop                                                              */
 
 function fit() {
+  /* with the on-screen pad up and the phone upright, the screen goes to the
+     top and the pad sits in the room under it; held sideways the screen
+     keeps its full size and the pad sits over its edges, clear of Poom,
+     whom the camera keeps in the middle */
+  const pad = document.getElementById("touch");
+  const showing = pad && !pad.hidden && !pad.classList.contains("away");
+  document.body.classList.toggle("upright", showing && innerWidth <= innerHeight);
   const s0 = Math.min(innerWidth / W, innerHeight / H);
   const si = Math.floor(s0);
   const s = si >= 2 && si / s0 > 0.8 ? si : s0;
@@ -3600,6 +3657,11 @@ function frame(now) {
   requestAnimationFrame(frame);
   acc += Math.min(100, now - last); last = now;
   pollPad();
+  /* the title's menu sits in the bottom right corner, under the on-screen
+     buttons: they step aside while it is up (the d-pad stays, and the menu
+     takes taps) */
+  const top = UI.top();
+  document.body.classList.toggle("title-up", !!(top && top.el && top.el.classList.contains("title")));
   while (acc >= STEP) {
     acc -= STEP;
     G.t++;
