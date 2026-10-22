@@ -20,6 +20,7 @@ validate:
   image: node:20-alpine
   script:
     - node tools/check-assets.js
+    - node tools/check-ship.js
     - for f in js/*.js js/books/*.js; do node --check "$f"; done
 
 deploy:
